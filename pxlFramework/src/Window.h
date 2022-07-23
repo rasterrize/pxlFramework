@@ -9,6 +9,8 @@ namespace pxl
         static void Update();
         static void Shutdown();
     private:
-        static GLFWwindow* m_Window;
+        void SetCallbacks();
+    private:
+        static GLFWwindow* s_Window;
     };
 }
