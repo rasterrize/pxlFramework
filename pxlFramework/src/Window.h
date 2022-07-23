@@ -6,7 +6,6 @@ namespace pxl
     {
     public:
         static void Init(unsigned int width, unsigned int height, std::string title);
-    private:
         static void Update();
         static void Shutdown();
     private:

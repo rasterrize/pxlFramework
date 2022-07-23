@@ -7,6 +7,8 @@ namespace pxl
         virtual ~Application();
 
         void Run();
+        void Close();
     private:
+        bool m_Running = true;
     };
 }
