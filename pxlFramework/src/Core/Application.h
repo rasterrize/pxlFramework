@@ -8,6 +8,8 @@ namespace pxl
 
         void Run();
         void Close();
+
+        virtual void OnUpdate() = 0;
     private:
         bool m_Running = true;
     };

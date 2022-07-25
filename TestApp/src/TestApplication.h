@@ -7,5 +7,7 @@ namespace TestApp
     public:
         TestApplication();
         ~TestApplication();
+
+        virtual void OnUpdate() override;
     };
 }

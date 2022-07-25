@@ -5,7 +5,6 @@ namespace pxl
 {
     Application::Application()
     {
-        Window::Init(1280, 720, "pxlFramework");
     }
 
     Application::~Application()
@@ -21,6 +20,8 @@ namespace pxl
     }
 
     void Application::Close()
-    {     
+    {
+        Window::Shutdown();
+        //Input::Shutdown();  
     }
 }

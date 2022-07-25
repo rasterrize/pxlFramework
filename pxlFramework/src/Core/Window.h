@@ -6,10 +6,11 @@ namespace pxl
     {
     public:
         static void Init(unsigned int width, unsigned int height, std::string title);
-        static void Update();
         static void Shutdown();
     private:
-        void SetCallbacks();
+        static void Update();
+        friend class Application;
+        static void SetCallbacks();
     private:
         static GLFWwindow* s_Window;
     };

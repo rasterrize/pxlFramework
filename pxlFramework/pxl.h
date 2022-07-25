@@ -1,5 +1,5 @@
 #pragma once
 
-#include "src/Application.h"
-#include "src/Window.h"
-#include "src/Logger.h"
+#include "src/Core/Application.h"
+#include "src/Core/Window.h"
+#include "src/Core/Logger.h"

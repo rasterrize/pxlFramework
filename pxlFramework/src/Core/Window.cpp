@@ -6,7 +6,13 @@ namespace pxl
     GLFWwindow* Window::s_Window;
 
     void Window::Init(unsigned int width, unsigned int height, std::string title)
-    {
+    {   
+        if (s_Window)
+        {
+            Logger::Log(LogLevel::Warn, "Can't initialize window, one already exists!");
+            return;
+        }
+
         if (glfwInit())
         {
             Logger::Log(LogLevel::Info, "Initialized GLFW");
@@ -33,13 +39,17 @@ namespace pxl
 
     void Window::Update()
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glfwSwapBuffers(s_Window);
-        glfwPollEvents();
+        if (s_Window)
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(s_Window);
+            glfwPollEvents();
+        }
     }
 
     void Window::Shutdown()
     {
+        glfwDestroyWindow(s_Window);
         glfwTerminate();
     }
 
