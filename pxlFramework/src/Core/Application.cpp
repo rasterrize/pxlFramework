@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Window.h"
+#include "Input.h"
 
 namespace pxl
 {
@@ -16,12 +17,13 @@ namespace pxl
         while (m_Running)
         {
             Window::Update();
+            OnUpdate();
         }
     }
 
     void Application::Close()
     {
         Window::Shutdown();
-        //Input::Shutdown();  
+        Input::Shutdown();  
     }
 }

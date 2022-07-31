@@ -7,6 +7,7 @@ namespace pxl
     public:
         static void Init(unsigned int width, unsigned int height, std::string title);
         static void Shutdown();
+        static GLFWwindow* GetNativeWindow() { return s_Window; }
     private:
         static void Update();
         friend class Application;

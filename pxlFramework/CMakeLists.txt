@@ -9,6 +9,7 @@ pxl.h
 src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
+src/Core/Input.h src/Core/Input.cpp
 
 # RENDERER
 )
