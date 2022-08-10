@@ -11,18 +11,18 @@ namespace pxl
         s_WindowHandle = Window::GetNativeWindow();
         if (!s_WindowHandle)
         {
-            Logger::Log(LogLevel::Error, "Failed to initialize Input, Window must be initialized first");
+            Logger::Log(LogLevel::Error, "Failed to initialize input, window must be initialized first");
             return;
         }
         s_Enabled = true;
-        Logger::Log(LogLevel::Info, "Initialized Input");
+        Logger::Log(LogLevel::Info, "Initialized input");
     }
 
     void Input::Shutdown()
     {
         s_Enabled = false;
         s_WindowHandle = nullptr;
-        Logger::Log(LogLevel::Info, "Input Shutdown");
+        Logger::Log(LogLevel::Info, "Input shutdown");
     }
 
     bool Input::IsKeyPressed(KeyCode keycode)

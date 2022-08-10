@@ -10,8 +10,14 @@ src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
+src/Core/KeyCodes.h
 
 # RENDERER
+src/Renderer/Renderer.h src/Renderer/Renderer.cpp
+src/Renderer/GraphicsContext.h
+
+# OPENGL
+src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp
 )
 
 add_subdirectory(deps/GLFW)

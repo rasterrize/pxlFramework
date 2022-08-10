@@ -4,12 +4,16 @@
 
 namespace pxl
 {
+    Application* Application::s_Instance;
+
     Application::Application()
     {
-    }
-
-    Application::~Application()
-    {
+        if (s_Instance)
+        {
+            Logger::Log(LogLevel::Error, "Can't create application, one already exists");
+            throw;
+        }
+        s_Instance = this;
     }
 
     void Application::Run()
@@ -25,5 +29,6 @@ namespace pxl
     {
         Window::Shutdown();
         Input::Shutdown();  
+        m_Running = false;
     }
 }

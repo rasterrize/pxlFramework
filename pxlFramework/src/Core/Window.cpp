@@ -1,11 +1,14 @@
 #include "Window.h"
+#include "../Renderer/OpenGL/OpenGLContext.h"
+#include "Application.h"
 #include <glad/glad.h>
 
 namespace pxl
 {
     GLFWwindow* Window::s_Window;
+    std::unique_ptr<GraphicsContext> Window::s_GraphicsContext;
 
-    void Window::Init(unsigned int width, unsigned int height, std::string title)
+    void Window::Init(unsigned int width, unsigned int height, std::string title, RendererAPI rendererAPI)
     {   
         if (s_Window)
         {
@@ -20,6 +23,7 @@ namespace pxl
         else
         {
             Logger::Log(LogLevel::Error, "Failed to initialize GLFW");
+            return;
         }
 
         s_Window = glfwCreateWindow((int)width, (int)height, title.c_str(), NULL, NULL);
@@ -31,18 +35,34 @@ namespace pxl
         else
         {
             Logger::Log(LogLevel::Error, "Failed to create window '" + title + "'");
+            return;
+        }
+        
+        switch (rendererAPI)
+        {
+            case RendererAPI::OpenGL:
+                s_GraphicsContext = std::make_unique<OpenGLContext>();
+                break;        
+            case RendererAPI::Vulkan:
+                return;
+                break;            
+            case RendererAPI::DirectX12:
+                return;
+                break;        
         }
 
-        glfwMakeContextCurrent(s_Window);
-        gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        Renderer::Init(rendererAPI);
+
+        SetCallbacks();
     }
 
     void Window::Update()
     {
         if (s_Window)
         {
+            //Renderer::Clear();
             glClear(GL_COLOR_BUFFER_BIT);
-            glfwSwapBuffers(s_Window);
+            s_GraphicsContext->SwapBuffers();
             glfwPollEvents();
         }
     }
@@ -55,6 +75,11 @@ namespace pxl
 
     void Window::SetCallbacks()
     {
+        glfwSetWindowCloseCallback(s_Window, WindowCloseCallback);
+    }
 
+    void Window::WindowCloseCallback(GLFWwindow* window)
+    {
+        Application::Get().Close();
     }
 }

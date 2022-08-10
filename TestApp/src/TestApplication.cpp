@@ -5,7 +5,7 @@ namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        pxl::Window::Init(1280, 720, "pxlFramework");
+        pxl::Window::Init(1280, 720, "pxlFramework", pxl::RendererAPI::OpenGL);
         pxl::Input::Init();
     }
 
@@ -19,7 +19,8 @@ namespace TestApp
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_L))
         {
             pxl::Logger::Log(pxl::LogLevel::Info, "L");
-            pxl::Input::Shutdown();
         }
+
+        pxl::Renderer::Clear();
     }
 }
