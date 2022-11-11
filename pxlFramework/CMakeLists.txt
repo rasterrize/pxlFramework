@@ -15,9 +15,18 @@ src/Core/KeyCodes.h
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
 src/Renderer/GraphicsContext.h
+src/Renderer/VertexBuffer.h
+src/Renderer/IndexBuffer.h
+src/Renderer/VertexArray.h
+src/Renderer/BufferLayout.h
+src/Renderer/Shader.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp
+src/Renderer/OpenGL/OpenGLVertexBuffer.h src/Renderer/OpenGL/OpenGLVertexBuffer.cpp
+#src/Renderer/OpenGL/OpenGLIndexBuffer.h src/Renderer/OpenGL/OpenGLIndexBuffer.cpp
+src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
+src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
 )
 
 add_subdirectory(deps/GLFW)

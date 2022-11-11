@@ -17,6 +17,10 @@ namespace pxl
         {
             Logger::Log(LogLevel::Error, "Failed to initialize Glad");
         }
+        else
+        {
+            Logger::LogInfo("Successfully initialized Glad");
+        }
     }
 
     void OpenGLContext::SwapBuffers()

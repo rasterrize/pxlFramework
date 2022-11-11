@@ -1,6 +1,10 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include "GraphicsContext.h"
+#include "VertexBuffer.h"
+#include "VertexArray.h"
+#include "Shader.h"
 
 namespace pxl
 {
@@ -8,7 +12,7 @@ namespace pxl
     {
         OpenGL,
         Vulkan,
-        DirectX12,
+        DirectX12
     };
 
     class Renderer
@@ -18,9 +22,18 @@ namespace pxl
         static void Shutdown();
         
         static void Clear();
+        static void SetClearColour(float r, float g, float b, float a);
+
+        static void Draw(); // temp
     private:
         static bool s_Enabled;
         static RendererAPI s_RendererAPI;
         static GLFWwindow* s_WindowHandle;
+        static std::unique_ptr<GraphicsContext> s_GraphicsContext;
+        
+        static std::shared_ptr<VertexBuffer> s_VertexBuffer; // do these need to be shared pointers when they are static and always exist?
+        static std::shared_ptr<VertexArray> s_VertexArray;
+        static std::shared_ptr<Shader> s_Shader;
+        //static std::unique_ptr<IndexBuffer> s_IndexBuffer;
     };
-}
+}   

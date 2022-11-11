@@ -30,4 +30,24 @@ namespace pxl
 
         }
     }
+
+    void Logger::LogInfo(std::string text)
+    {
+        s_Logger->info(text);
+    }
+
+    void Logger::LogWarn(std::string text)
+    {
+        s_Logger->warn(text);
+    }
+
+    void Logger::LogError(std::string text)
+    {
+        s_Logger->error(text);
+    }
+
+    void Logger::LogCritical(std::string text)
+    {
+        s_Logger->critical(text);
+    }
 }

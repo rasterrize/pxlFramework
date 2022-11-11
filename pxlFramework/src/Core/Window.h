@@ -1,6 +1,5 @@
 #include <GLFW/glfw3.h>
 #include "../Renderer/Renderer.h"
-#include "../Renderer/GraphicsContext.h"
 
 namespace pxl
 {
@@ -29,6 +28,5 @@ namespace pxl
         static void WindowCloseCallback(GLFWwindow* window);
     private:
         static GLFWwindow* s_Window;
-        static std::unique_ptr<GraphicsContext> s_GraphicsContext;
     };
 }

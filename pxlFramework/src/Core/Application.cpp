@@ -20,8 +20,10 @@ namespace pxl
     {
         while (m_Running)
         {
-            Window::Update();
             OnUpdate();
+            Renderer::Clear();
+            Renderer::Draw();
+            Window::Update(); // Does this go before or after?
         }
     }
 

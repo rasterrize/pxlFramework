@@ -7,6 +7,8 @@ namespace TestApp
     {
         pxl::Window::Init(1280, 720, "pxlFramework", pxl::RendererAPI::OpenGL);
         pxl::Input::Init();
+
+        pxl::Renderer::SetClearColour(0.2, 0.5, 0.4, 1.0);
     }
 
     TestApplication::~TestApplication()
@@ -21,6 +23,8 @@ namespace TestApp
             pxl::Logger::Log(pxl::LogLevel::Info, "L");
         }
 
-        pxl::Renderer::Clear();
+        //pxl::Renderer::Clear();
+
+        //pxl::Renderer::Draw();
     }
 }

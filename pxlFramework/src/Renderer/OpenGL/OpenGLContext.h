@@ -8,9 +8,9 @@ namespace pxl
     public:
         OpenGLContext();
 
-        virtual void Init() override;
         virtual void SwapBuffers() override;
     private:
+        virtual void Init() override;
         GLFWwindow* m_WindowHandle;
     };
 }
