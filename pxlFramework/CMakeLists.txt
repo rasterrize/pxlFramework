@@ -32,8 +32,9 @@ src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
 add_subdirectory(deps/GLFW)
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/spdlog)
+add_subdirectory(deps/GLM)
 
-target_link_libraries(pxlFramework glfw glad spdlog)
+target_link_libraries(pxlFramework glfw glad spdlog glm)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map>)
 

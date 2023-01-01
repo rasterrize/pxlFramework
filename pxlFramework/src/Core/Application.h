@@ -9,6 +9,14 @@ namespace pxl
         void Run();
         void Close();
 
+        bool IsRunning() 
+        { 
+            if (s_Instance)
+            {
+                return m_Running; 
+            }
+        }
+
         static Application& Get() { return *s_Instance; }
 
         virtual void OnUpdate() = 0;

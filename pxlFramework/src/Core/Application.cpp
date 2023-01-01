@@ -31,6 +31,7 @@ namespace pxl
     {
         Window::Shutdown();
         Input::Shutdown();  
+        s_Instance = nullptr;
         m_Running = false;
     }
 }

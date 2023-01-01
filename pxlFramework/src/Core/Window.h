@@ -24,9 +24,11 @@ namespace pxl
         friend class Application;
         static void Update();
 
+        static void InitGLFWWindow(unsigned int width, unsigned int height, std::string title);
+
         static void SetCallbacks();
         static void WindowCloseCallback(GLFWwindow* window);
     private:
-        static GLFWwindow* s_Window;
+        static GLFWwindow* s_Window; // Might need seperate custom window object for DX12
     };
 }

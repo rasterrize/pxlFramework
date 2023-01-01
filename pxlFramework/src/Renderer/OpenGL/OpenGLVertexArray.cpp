@@ -29,7 +29,6 @@ namespace pxl
             //offset += element.Count * element.GetSizeOfType();
             glEnableVertexAttribArray(index);
             glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, 0, (void*)0); // FIX STRIDE
-            offset += 
             index++;
         }
     }

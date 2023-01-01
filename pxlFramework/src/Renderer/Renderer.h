@@ -20,6 +20,8 @@ namespace pxl
     public:
         static void Init(RendererAPI api);
         static void Shutdown();
+
+        static bool IsInitialized() { return s_Enabled; }
         
         static void Clear();
         static void SetClearColour(float r, float g, float b, float a);

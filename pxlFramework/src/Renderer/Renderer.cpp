@@ -8,6 +8,8 @@
 #include "OpenGL/OpenGLVertexArray.h"
 #include "OpenGL/OpenGLShader.h"
 
+#include "../Core/Application.h"
+
 namespace pxl
 {
     bool Renderer::s_Enabled = false;
@@ -105,7 +107,6 @@ namespace pxl
                 {
                     Logger::LogInfo("Successfully created OpenGL shader object");
                 }
-                
 
                 // TEMP
                 BufferLayout layout;
@@ -116,13 +117,15 @@ namespace pxl
             }
             case RendererAPI::Vulkan:
             {
-                Logger::LogError("Vulkan isn't currently supported");
-                break;
+                Logger::LogError("Vulkan isn't currently supported, closing application");
+                Application::Get().Close();
+                return;
             }
             case RendererAPI::DirectX12:
             {
-                Logger::LogError("DirectX isn't currently supported");
-                break;
+                Logger::LogError("DirectX isn't currently supported, closing application");
+                Application::Get().Close();
+                return;
             }
         }
 
@@ -138,21 +141,30 @@ namespace pxl
     void Renderer::Clear()
     {
         // Not api-agnostic
-        glClear(GL_COLOR_BUFFER_BIT);
+        if (s_Enabled)
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
     }
 
     void Renderer::SetClearColour(float r, float g, float b, float a)
     {
         // Not api-agnostic
-        glClearColor(r, g, b, a);
+        if (s_Enabled)
+        {
+            glClearColor(r, g, b, a);
+        }
     }
 
     void Renderer::Draw()
     {
-        s_VertexBuffer->Bind();
-        s_VertexArray->Bind();
-        s_Shader->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        s_GraphicsContext->SwapBuffers();
+        if (s_Enabled)
+        {
+            s_VertexBuffer->Bind();
+            s_VertexArray->Bind();
+            s_Shader->Bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            s_GraphicsContext->SwapBuffers();
+        }
     }
 }
