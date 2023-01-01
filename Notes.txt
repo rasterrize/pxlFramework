@@ -1,0 +1,56 @@
+General Coding Notes:
+	- Rewatch OpenGL videos
+	- Setup basic OpenGL program
+	- More commenting
+	- More time designing
+	- Ignore code design/semantics/syntax for the moment
+	
+Framework Notes:
+	- Finish OpenGL vertex buffers/index buffers/vertex arrays
+	- BufferLayout might not work for other graphics apis
+	- Vertex Arrays should be bound before Vertex/Index Buffers
+	- Should window update before the OnUpdate function? (Application.cpp)
+	- Move positions and shader code out of renderer class
+	- Fix renderer abstract classes
+	- function pointers for clear and draw functions
+	- Each window will use the same rendering api, rendering context should be on the renderer.
+	- Ability to have multiple windows (with the same rendering api)
+	- Close application properly when selecting unsupported graphics api
+	- Switch GLM to submodule if possible
+	
+FRAMEWORK LINKS
+	- Github Repo: 	https://github.com/pixel34/pxlFramework
+	- Trello:		https://trello.com/b/QKcphO5T/pxlframework
+	
+Framework/Engine Ideas
+	- DirectX 12/11 (custom window creation instead of GLFW?)
+	- Vulkan
+	- FMOD audio (for 3D) or BASS audio (for 2D)
+	- Model loading (fbx/obj format)
+	- Multithreading
+
+REFERENCES
+  	CHERNO:
+		Cherno C++: 			https://www.youtube.com/playlist?list=PLlrATfBNZ98dudnM48yfGUldqGD0S4FFb
+		Cherno Game Engine:		https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT
+		Cherno OpenGL:			https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
+		Cherno Hazel Repo:		https://github.com/TheCherno/Hazel
+		
+	GENERAL:
+		GLFW Documentation: 		https://www.glfw.org/documentation.html
+		Book of Shaders:			https://thebookofshaders.com/
+		Config File Serialization:	https://www.ndhillon.com/post/config_files/
+	
+	OPENGL:
+		OpenGL Documentation:	https://docs.gl/
+		OpenGL Tutorial:		https://learnopengl.com/
+		Vertex Buffer Objects: 	https://antongerdelan.net/opengl/vertexbuffers.html
+		
+	VULKAN:
+		Vulkan Tutorial:		https://vulkan-tutorial.com/OverviewVulkan 
+		Beginner Resources:		https://www.vulkan.org/learn#new-to-graphics-programming
+		
+	OTHER:
+		DX12 Tutorial:			https://www.3dgep.com/learning-directx-12-1/
+		DX12 Documentation:		https://learn.microsoft.com/en-us/windows/win32/direct3d12/directx-12-programming-guide
+		Learning DX12 Github:	https://github.com/jpvanoosten/LearningDirectX12/tree/v0.0.1
