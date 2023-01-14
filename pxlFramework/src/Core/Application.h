@@ -15,6 +15,10 @@ namespace pxl
             {
                 return m_Running; 
             }
+            else
+            {
+                return false;
+            }
         }
 
         static Application& Get() { return *s_Instance; }

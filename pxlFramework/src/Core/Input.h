@@ -8,6 +8,8 @@ namespace pxl
     public:
         static void Init();
         static void Shutdown();
+
+        static const bool IsInitialized() { return s_Enabled; }
     
         static bool IsKeyPressed(KeyCode keycode);
         static bool IsKeyHeld(KeyCode keycode);

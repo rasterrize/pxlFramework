@@ -16,6 +16,8 @@ namespace pxl
         static void Init(unsigned int width, unsigned int height, std::string title, RendererAPI rendererAPI);
         static void Shutdown();
 
+        //static const bool IsInitialized() { return s_Enabled; }
+
         //static void SetWindowSize();
         //static void SetWindowMode();
 

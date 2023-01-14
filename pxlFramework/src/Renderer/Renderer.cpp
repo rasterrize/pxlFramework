@@ -53,6 +53,20 @@ namespace pxl
             }
         )";
 
+        std::string vertexShaderCamera = R"(
+            #version 450 core
+
+            layout (location = 0) in vec3 a_Position;
+
+            uniform mat4 u_Projection;
+            uniform mat4 u_View;
+
+            void main()
+            {
+                gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
+            }
+        )";
+
         std::string fragmentShaderSource = R"(
             #version 450 core
             
@@ -98,7 +112,7 @@ namespace pxl
                     Logger::LogInfo("Successfully created OpenGL vertex array object");
                 }
 
-                s_Shader = std::make_shared<OpenGLShader>(vertexShaderSource, fragmentShaderSource);
+                s_Shader = std::make_shared<OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
                 if (!s_Shader)
                 {
                     Logger::LogError("Failed to create OpenGL shader object");

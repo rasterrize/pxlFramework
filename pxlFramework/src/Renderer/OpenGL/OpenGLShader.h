@@ -1,4 +1,5 @@
 #include "../Shader.h"
+#include <glm/mat4x4.hpp>
 
 namespace pxl
 {
@@ -10,6 +11,8 @@ namespace pxl
 
         virtual void Bind() override;
         virtual void Unbind() override;
+
+        virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) override;
     private:
         unsigned int m_RendererID;
     };

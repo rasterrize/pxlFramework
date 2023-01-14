@@ -1,0 +1,78 @@
+#include "Camera.h"
+#include "Renderer.h"
+
+#include "OpenGL/OpenGLOrthographicCamera.h"
+#include "OpenGL/OpenGLPerspectiveCamera.h"
+
+namespace pxl
+{
+    bool Camera::s_Enabled;
+    std::shared_ptr<BaseCamera> Camera::s_Camera;
+
+    void Camera::Init(CameraType type)
+    {
+        if (s_Enabled)
+        {
+            Logger::LogWarn("Can't initialize camera, it is already initialized");
+            return;
+        }
+
+        if (!Renderer::IsInitialized())
+        {
+            Logger::LogWarn("Can't initialize camera, renderer must be initialized first");
+            return;
+        }
+
+        switch (Renderer::GetRendererAPI())
+        {
+            case RendererAPI::OpenGL:
+            {
+                switch (type)
+                {
+                    case CameraType::Orthographic:
+                        s_Camera = std::make_shared<OpenGLOrthographicCamera>();
+                    break;
+                    case CameraType::Perspective:
+                        Logger::LogWarn("OpenGL Perspective Camera not implemented");
+                        //s_Camera = std::make_shared<OpenGLPerspectiveCamera>();
+                    break;
+                }
+            }
+            break;
+            case RendererAPI::Vulkan:
+            {
+                Logger::LogWarn("Vulkan Cameras not implemented");
+                return;
+            }
+            break;
+            case RendererAPI::DirectX12:
+            {
+                Logger::LogWarn("DirectX12 Cameras not implemented");
+                return;
+            }
+            break;
+        }
+
+        if (!s_Camera)
+        {
+            Logger::LogError("Failed to create camera object");
+            return;
+        }
+
+        s_Enabled = true;
+    }
+
+    void Camera::Update()
+    {
+        if (s_Enabled)
+        {
+            s_Camera->Update();
+        }
+    }
+
+    void Camera::Shutdown()
+    {
+        s_Camera = nullptr;
+        s_Enabled = false;
+    }
+}

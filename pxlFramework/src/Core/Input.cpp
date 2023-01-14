@@ -15,9 +15,9 @@ namespace pxl
             return;
         }
         
-        if (Application::Get().IsRunning());
+        if (!Application::Get().IsRunning())
         {
-            Logger::LogError("Can't intialize input, no application exists");
+            Logger::LogError("Can't initialize input, no application exists");
             return;
         }
 

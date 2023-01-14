@@ -20,6 +20,8 @@ src/Renderer/IndexBuffer.h
 src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
 src/Renderer/Shader.h
+src/Renderer/Camera.h src/Renderer/Camera.cpp
+src/Renderer/BaseCamera.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp
@@ -27,6 +29,8 @@ src/Renderer/OpenGL/OpenGLVertexBuffer.h src/Renderer/OpenGL/OpenGLVertexBuffer.
 #src/Renderer/OpenGL/OpenGLIndexBuffer.h src/Renderer/OpenGL/OpenGLIndexBuffer.cpp
 src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
 src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
+src/Renderer/OpenGL/OpenGLOrthographicCamera.h src/Renderer/OpenGL/OpenGLOrthographicCamera.cpp
+src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspectiveCamera.cpp
 )
 
 add_subdirectory(deps/GLFW)

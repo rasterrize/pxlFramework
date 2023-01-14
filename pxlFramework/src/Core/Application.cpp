@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Window.h"
 #include "Input.h"
+#include "../Renderer/Camera.h"
 
 namespace pxl
 {
@@ -20,7 +21,10 @@ namespace pxl
     {
         while (m_Running)
         {
+            // these should maybe check if they are initalized first
+
             OnUpdate();
+            Camera::Update();
             Renderer::Clear();
             Renderer::Draw();
             Window::Update(); // Does this go before or after?
@@ -30,7 +34,10 @@ namespace pxl
     void Application::Close()
     {
         Window::Shutdown();
-        Input::Shutdown();  
+        if (Input::IsInitialized())
+        {
+            Input::Shutdown();  
+        }
         s_Instance = nullptr;
         m_Running = false;
     }

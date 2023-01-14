@@ -26,6 +26,7 @@ namespace pxl
             break;
             case RendererAPI::DirectX12:
                 Logger::LogError("Can't initialize window for DX12");
+                Application::Get().Close();
                 return;
             break;
         }
@@ -46,6 +47,7 @@ namespace pxl
 
     void Window::Shutdown()
     {
+        //if (Renderer::)
         glfwDestroyWindow(s_Window);
         glfwTerminate();
     }

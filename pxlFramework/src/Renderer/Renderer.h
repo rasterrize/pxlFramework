@@ -21,7 +21,10 @@ namespace pxl
         static void Init(RendererAPI api);
         static void Shutdown();
 
-        static bool IsInitialized() { return s_Enabled; }
+        static const bool IsInitialized() { return s_Enabled; }
+
+        static const RendererAPI GetRendererAPI() { return s_RendererAPI; }
+        static const std::shared_ptr<Shader> GetShader() { return s_Shader; }
         
         static void Clear();
         static void SetClearColour(float r, float g, float b, float a);
@@ -30,7 +33,7 @@ namespace pxl
     private:
         static bool s_Enabled;
         static RendererAPI s_RendererAPI;
-        static GLFWwindow* s_WindowHandle;
+        static GLFWwindow* s_WindowHandle; // Might need to change this with DX12
         static std::unique_ptr<GraphicsContext> s_GraphicsContext;
         
         static std::shared_ptr<VertexBuffer> s_VertexBuffer; // do these need to be shared pointers when they are static and always exist?
