@@ -31,10 +31,17 @@ namespace pxl
                 {
                     case CameraType::Orthographic:
                         s_Camera = std::make_shared<OpenGLOrthographicCamera>();
+                        if (s_Camera)
+                        {
+                            Logger::LogInfo("Successfully created OpenGL orthographic camera");
+                        }
                     break;
                     case CameraType::Perspective:
-                        Logger::LogWarn("OpenGL Perspective Camera not implemented");
-                        //s_Camera = std::make_shared<OpenGLPerspectiveCamera>();
+                        s_Camera = std::make_shared<OpenGLPerspectiveCamera>();
+                        if (s_Camera)
+                        {
+                            Logger::LogInfo("Successfully created OpenGL perspective camera");
+                        }
                     break;
                 }
             }

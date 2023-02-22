@@ -18,7 +18,13 @@ namespace pxl
 
         //static const bool IsInitialized() { return s_Enabled; }
 
-        //static void SetWindowSize();
+        static unsigned int GetWidth() { return s_Width; }
+        static unsigned int GetHeight() { return s_Height; }
+
+        static float GetAspectRatio() { return ((float)s_Width / s_Height); } // should be cached in a variable
+
+        static void SetSize(unsigned int width, unsigned int height);
+
         //static void SetWindowMode();
 
         static GLFWwindow* GetNativeWindow() { return s_Window; }
@@ -32,5 +38,10 @@ namespace pxl
         static void WindowCloseCallback(GLFWwindow* window);
     private:
         static GLFWwindow* s_Window; // Might need seperate custom window object for DX12
+
+        //static bool s_Enabled;
+
+        static unsigned int s_Width;
+        static unsigned int s_Height;
     };
 }

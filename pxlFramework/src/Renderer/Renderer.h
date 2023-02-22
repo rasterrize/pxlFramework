@@ -1,8 +1,10 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+
 #include "GraphicsContext.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
 
@@ -38,7 +40,7 @@ namespace pxl
         
         static std::shared_ptr<VertexBuffer> s_VertexBuffer; // do these need to be shared pointers when they are static and always exist?
         static std::shared_ptr<VertexArray> s_VertexArray;
+        static std::shared_ptr<IndexBuffer> s_IndexBuffer;
         static std::shared_ptr<Shader> s_Shader;
-        //static std::unique_ptr<IndexBuffer> s_IndexBuffer;
     };
 }   

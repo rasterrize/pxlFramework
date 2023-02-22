@@ -6,9 +6,11 @@
 namespace pxl
 {
     GLFWwindow* Window::s_Window;
+    unsigned int Window::s_Width;
+    unsigned int Window::s_Height;
 
     void Window::Init(unsigned int width, unsigned int height, std::string title, RendererAPI rendererAPI)
-    {   
+    {
         if (s_Window)
         {
             Logger::Log(LogLevel::Warn, "Can't initialize window, one already exists!");
@@ -30,6 +32,9 @@ namespace pxl
                 return;
             break;
         }
+
+        s_Width = width;
+        s_Height = height;
 
         Renderer::Init(rendererAPI);
 
@@ -86,5 +91,21 @@ namespace pxl
     void Window::WindowCloseCallback(GLFWwindow* window)
     {
         Application::Get().Close();
+    }
+
+    void Window::SetSize(unsigned int width, unsigned int height)
+    {
+        glfwSetWindowSize(s_Window, width, height);
+
+        // Check for successful window size change
+        int windowWidth, windowHeight;
+        glfwGetWindowSize(s_Window, &windowWidth, &windowHeight);
+        if (windowWidth != width | windowHeight != height)
+        {
+            Logger::LogWarn("Failed to change window resolution to " + std::to_string(windowWidth) + "x" + std::to_string(windowHeight));
+            return;
+        }
+
+        glViewport(0, 0, width, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
     }
 }
