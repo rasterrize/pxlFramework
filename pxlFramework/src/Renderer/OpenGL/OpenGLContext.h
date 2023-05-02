@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../GraphicsContext.h"
 #include <GLFW/glfw3.h>
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../IndexBuffer.h"
 
 namespace pxl
@@ -9,7 +11,7 @@ namespace pxl
 
         virtual void Bind() override;
         virtual void Unbind() override;
-
+        
     private:
         unsigned int m_RendererID;
     };

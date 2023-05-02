@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../VertexArray.h"
 #include "../VertexBuffer.h"
 
@@ -11,7 +13,7 @@ namespace pxl
         virtual void Bind() override;
         virtual void Unbind() override;
 
-        virtual void SetLayout(const BufferLayout& layout) override;
+        virtual void SetLayout(BufferLayout& layout) override;
     private:
         unsigned int m_RendererID;
     };

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <GLFW/glfw3.h>
 #include "../Renderer/Renderer.h"
 
@@ -13,7 +15,7 @@ namespace pxl
     class Window
     {
     public:
-        static void Init(unsigned int width, unsigned int height, std::string title, RendererAPI rendererAPI);
+        static void Init(unsigned int width, unsigned int height, std::string title, RendererAPIType rendererAPI);
         static void Shutdown();
 
         //static const bool IsInitialized() { return s_Enabled; }
@@ -25,7 +27,9 @@ namespace pxl
 
         static void SetSize(unsigned int width, unsigned int height);
 
-        //static void SetWindowMode();
+        static void SetWindowMode(WindowMode mode);
+        static void NextWindowMode();
+        //static void ToggleFullscreen();
 
         static GLFWwindow* GetNativeWindow() { return s_Window; }
     private:
@@ -36,8 +40,11 @@ namespace pxl
 
         static void SetCallbacks();
         static void WindowCloseCallback(GLFWwindow* window);
+        static void WindowResizeCallback(GLFWwindow *window, int width, int height);
     private:
         static GLFWwindow* s_Window; // Might need seperate custom window object for DX12
+
+        static WindowMode s_WindowMode;
 
         //static bool s_Enabled;
 

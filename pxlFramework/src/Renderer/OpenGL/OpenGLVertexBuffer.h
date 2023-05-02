@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../VertexBuffer.h"
 #include "../BufferLayout.h"
 
@@ -13,7 +15,7 @@ namespace pxl
 
         virtual const BufferLayout GetLayout() override { return m_Layout; }
 
-        virtual void AddLayout(const BufferLayout& layout) override { m_Layout = layout; }
+        virtual void AddLayout(const BufferLayout& layout) override { m_Layout = layout; } // ??? Vertex Arrays need this
     private:
         unsigned int m_RendererID;
         BufferLayout m_Layout;

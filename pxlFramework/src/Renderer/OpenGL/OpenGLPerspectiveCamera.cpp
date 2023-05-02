@@ -19,7 +19,7 @@ namespace pxl
 
         m_ViewMatrix = glm::inverse(transform);
 
-        std::shared_ptr<Shader> shader = Renderer::GetShader();
+        auto shader = Renderer::GetShader();
         shader->Bind();
         shader->SetUniformMat4("u_Model", m_ModelMatrix);
         shader->SetUniformMat4("u_View", m_ViewMatrix);

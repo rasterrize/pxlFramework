@@ -23,9 +23,15 @@ namespace pxl
             return;
         }
 
-        switch (Renderer::GetRendererAPI())
+        if (!Renderer::GetShader())
         {
-            case RendererAPI::OpenGL:
+            Logger::LogWarn("Can't initialize camera, Camera needs a shader");
+            return;
+        }
+
+        switch (Renderer::GetRendererAPIType())
+        {
+            case RendererAPIType::OpenGL:
             {
                 switch (type)
                 {
@@ -46,13 +52,13 @@ namespace pxl
                 }
             }
             break;
-            case RendererAPI::Vulkan:
+            case RendererAPIType::Vulkan:
             {
                 Logger::LogWarn("Vulkan Cameras not implemented");
                 return;
             }
             break;
-            case RendererAPI::DirectX12:
+            case RendererAPIType::DirectX12:
             {
                 Logger::LogWarn("DirectX12 Cameras not implemented");
                 return;

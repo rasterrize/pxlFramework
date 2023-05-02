@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "../Renderer/Camera.h"
+#include "../Debug/ImGui/ImGuiOpenGL.h"
 
 namespace pxl
 {
@@ -22,11 +23,9 @@ namespace pxl
         while (m_Running)
         {
             // these should maybe check if they are initalized first
-
-            OnUpdate();
             Camera::Update();
-            Renderer::Clear();
-            Renderer::Draw();
+            OnUpdate();
+            pxl_ImGui::Update();
             Window::Update(); // Does this go before or after?
         }
     }

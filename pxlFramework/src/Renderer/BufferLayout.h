@@ -52,11 +52,13 @@ namespace pxl
 
         void CalculateStride()
         {
+            unsigned int stride = 0;
             for (BufferElement element : m_Elements)
             {
-                m_Stride = element.Count * element.GetSizeOfType();
+                stride += element.Count * element.GetSizeOfType();
             }
-            Logger::LogInfo("Stride: " + m_Stride);
+            m_Stride = stride;
+            Logger::LogInfo("Calculated Stride: " + m_Stride);
         }
     private:
         std::vector<BufferElement> m_Elements;

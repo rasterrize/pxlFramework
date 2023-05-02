@@ -8,9 +8,17 @@
 #include "VertexArray.h"
 #include "Shader.h"
 
+#include "OpenGL/OpenGLContext.h"
+#include "OpenGL/OpenGLVertexBuffer.h"
+#include "OpenGL/OpenGLVertexArray.h"
+#include "OpenGL/OpenGLIndexBuffer.h"
+#include "OpenGL/OpenGLShader.h"
+
+#include "RendererAPI.h"
+
 namespace pxl
 {
-    enum class RendererAPI
+    enum class RendererAPIType
     {
         OpenGL,
         Vulkan,
@@ -20,27 +28,35 @@ namespace pxl
     class Renderer
     {
     public:
-        static void Init(RendererAPI api);
+        static void Init(RendererAPIType api);
         static void Shutdown();
 
         static const bool IsInitialized() { return s_Enabled; }
 
-        static const RendererAPI GetRendererAPI() { return s_RendererAPI; }
-        static const std::shared_ptr<Shader> GetShader() { return s_Shader; }
+        static const RendererAPIType GetRendererAPIType() { return s_RendererAPIType; }
+        static std::shared_ptr<Shader> GetShader() { return s_RendererAPI->GetShader(); }
         
         static void Clear();
         static void SetClearColour(float r, float g, float b, float a);
 
-        static void Draw(); // temp
+        static void DrawArrays(int count);
+        static void DrawLines(int count);
+        static void DrawIndexed();
+
+        static void Submit(OpenGLVertexBuffer* vertexBuffer);
+        static void Submit(OpenGLVertexArray* vertexArray);
+        static void Submit(OpenGLIndexBuffer* indexBuffer);
+        static void Submit(OpenGLShader* shader);
+        //static void Submit(Mesh mesh);
+
     private:
         static bool s_Enabled;
-        static RendererAPI s_RendererAPI;
+        static RendererAPIType s_RendererAPIType;
         static GLFWwindow* s_WindowHandle; // Might need to change this with DX12
         static std::unique_ptr<GraphicsContext> s_GraphicsContext;
-        
-        static std::shared_ptr<VertexBuffer> s_VertexBuffer; // do these need to be shared pointers when they are static and always exist?
-        static std::shared_ptr<VertexArray> s_VertexArray;
-        static std::shared_ptr<IndexBuffer> s_IndexBuffer;
-        static std::shared_ptr<Shader> s_Shader;
+
+        static std::unique_ptr<RendererAPI> s_RendererAPI;
+
+        //static std::vector<Mesh> s_Meshes;
     };
 }   

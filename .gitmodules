@@ -7,3 +7,10 @@
 [submodule "pxlFramework/deps/GLM"]
 	path = pxlFramework/deps/GLM
 	url = https://github.com/g-truc/glm
+[submodule "pxlFramework/deps/ImGui"]
+	path = pxlFramework/deps/ImGui
+	url = https://github.com/ocornut/imgui
+	branch = docking
+[submodule "pxlFramework/deps/assimp"]
+	path = pxlFramework/deps/assimp
+	url = https://github.com/assimp/assimp

@@ -3,7 +3,7 @@
 namespace pxl
 {
     // from glfw
-    enum class KeyCode
+    enum KeyCode
     {
         PXL_KEY_SPACE             = 32,
         PXL_KEY_APOSTROPHE        = 39,  /* ' */
