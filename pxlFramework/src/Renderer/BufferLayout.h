@@ -58,7 +58,7 @@ namespace pxl
                 stride += element.Count * element.GetSizeOfType();
             }
             m_Stride = stride;
-            Logger::LogInfo("Calculated Stride: " + m_Stride);
+            Logger::LogInfo(std::string("Calculated Stride: ") + std::to_string(m_Stride));
         }
     private:
         std::vector<BufferElement> m_Elements;

@@ -57,4 +57,4 @@ target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <stri
 
 target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE) #IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 
-target_include_directories(pxlFramework PUBLIC include/pxl.h)
+target_include_directories(pxlFramework PUBLIC include)
