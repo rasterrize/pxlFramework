@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.23)
 project(pxlFramework)
 
 add_library(pxlFramework STATIC 
-# SRC
-pxl.h
+# INCLUDE
+include/pxl.h
 
 # CORE
 src/Core/Application.h src/Core/Application.cpp
@@ -56,3 +56,5 @@ target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp)
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map>)
 
 target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE) #IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+
+target_include_directories(pxlFramework PUBLIC include/pxl.h)

@@ -4,6 +4,6 @@ project(TestApp)
 
 add_executable(TestApp src/Entrypoint.cpp src/TestApplication.h src/TestApplication.cpp)
 
-target_include_directories(TestApp PUBLIC ${CMAKE_SOURCE_DIR}/pxlFramework)
+target_include_directories(TestApp PUBLIC ${CMAKE_SOURCE_DIR}/pxlFramework/include)
 
 target_link_libraries(TestApp pxlFramework)
