@@ -97,28 +97,13 @@ namespace TestApp
             }
         )";
 
-        // pxl::Mesh mesh;
-        // auto vertexcount = (sizeof(cubepositions) / sizeof(cubepositions[0]));
-        // for (int i = 0; i < vertexcount; i += 3)
-        // {
-        //     glm::vec3 vertex;
-        //     vertex.x = cubepositions[i];
-        //     vertex.y = cubepositions[i + 1];
-        //     vertex.z = cubepositions[i + 2];
+        m_Window = pxl::Window::Create({1280, 720, "pxlFramework", pxl::RendererAPIType::OpenGL});
 
-        //     mesh.m_Vertices.push_back(vertex);
-        // }
+        auto testwindow = pxl::Window::Create({600, 400, "TEST", pxl::RendererAPIType::OpenGL});
 
-        // auto indicecount = (sizeof(cubeindices) / sizeof(cubeindices[0]));
-        // for (int i = 0; i < indicecount; i++)
-        // {
-        //     mesh.m_Indices.push_back(cubeindices[i]);
-        // }
+        pxl::Input::Init(m_Window);
 
-        pxl::Window::Init(1280, 720, "pxlFramework", pxl::RendererAPIType::OpenGL);
-        pxl::Input::Init();
-
-        pxl::Renderer::SetClearColour(0.2, 0.5, 0.4, 1.0);
+        pxl::Renderer::SetClearColour(0.2f, 0.5f, 0.4f, 1.0f);
 
         pxl::OpenGLVertexArray* vertexArray = new pxl::OpenGLVertexArray();
         pxl::OpenGLVertexBuffer* vertexBuffer = new pxl::OpenGLVertexBuffer(sizeof(cubepositions), cubepositions);
@@ -137,7 +122,7 @@ namespace TestApp
         pxl::Camera::Init(pxl::CameraType::Perspective);
         pxl::Camera::SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        pxl::Texture* texture = pxl::TextureLoader::Load("Textures/stone.png");
+        //pxl::Texture* texture = pxl::TextureLoader::Load("Textures/stone.png");
 
         //pxl::pxl_ImGui::Init();
     }
@@ -150,12 +135,15 @@ namespace TestApp
     void TestApplication::OnUpdate()
     {
         auto cameraPosition = pxl::Camera::GetPosition();
-        //pxl::Logger::LogWarn(std::to_string(cameraPosition.x) + ", " + std::to_string(cameraPosition.y) + ", " + std::to_string(cameraPosition.z));
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F11))
         {
-            pxl::Window::NextWindowMode();
+            m_Window->NextWindowMode();
         }
-
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        {
+            Application::Close();
+        }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
             cameraPosition.y += 0.01f;

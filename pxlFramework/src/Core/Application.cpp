@@ -25,7 +25,7 @@ namespace pxl
             // these should maybe check if they are initalized first
             Camera::Update();
             OnUpdate();
-            pxl_ImGui::Update();
+            //pxl_ImGui::Update();
             Window::Update(); // Does this go before or after?
         }
     }
@@ -33,10 +33,7 @@ namespace pxl
     void Application::Close()
     {
         Window::Shutdown();
-        if (Input::IsInitialized())
-        {
-            Input::Shutdown();  
-        }
+        Input::Shutdown();  
         s_Instance = nullptr;
         m_Running = false;
     }

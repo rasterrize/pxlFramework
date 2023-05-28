@@ -20,8 +20,10 @@ namespace pxl
 {
     enum class RendererAPIType
     {
+        None,
         OpenGL,
         Vulkan,
+        DirectX11,
         DirectX12
     };
 
@@ -53,7 +55,6 @@ namespace pxl
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;
         static GLFWwindow* s_WindowHandle; // Might need to change this with DX12
-        static std::unique_ptr<GraphicsContext> s_GraphicsContext;
 
         static std::unique_ptr<RendererAPI> s_RendererAPI;
 

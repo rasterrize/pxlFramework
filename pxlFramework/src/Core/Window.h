@@ -12,43 +12,58 @@ namespace pxl
         Fullscreen
     };
 
+    struct WindowSpecs
+    {
+        unsigned int Width;
+        unsigned int Height;
+        std::string Title;
+        RendererAPIType RendererAPI;
+    };
+
     class Window
     {
     public:
-        static void Init(unsigned int width, unsigned int height, std::string title, RendererAPIType rendererAPI);
+        Window(const WindowSpecs& windowSpecs);
+
+        unsigned int GetWidth() { return m_WindowSpecs.Width; }
+        unsigned int GetHeight() { return m_WindowSpecs.Height; }
+
+        float GetAspectRatio() { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
+
+        void SetSize(unsigned int width, unsigned int height);
+
+        void SetWindowMode(WindowMode mode);
+        void NextWindowMode();
+        //void ToggleFullscreen();
+
+        GLFWwindow* GetNativeWindow() { return m_Window; }
+
+        void Close();
         static void Shutdown();
 
-        //static const bool IsInitialized() { return s_Enabled; }
-
-        static unsigned int GetWidth() { return s_Width; }
-        static unsigned int GetHeight() { return s_Height; }
-
-        static float GetAspectRatio() { return ((float)s_Width / s_Height); } // should be cached in a variable
-
-        static void SetSize(unsigned int width, unsigned int height);
-
-        static void SetWindowMode(WindowMode mode);
-        static void NextWindowMode();
-        //static void ToggleFullscreen();
-
-        static GLFWwindow* GetNativeWindow() { return s_Window; }
+        static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs) { return std::make_shared<Window>(windowSpecs); }
     private:
         friend class Application;
-        static void Update();
+        static void Update(); // temp, should be private
 
-        static void InitGLFWWindow(unsigned int width, unsigned int height, std::string title);
+        void Init(const WindowSpecs& windowSpecs);
 
-        static void SetCallbacks();
+        bool InitGLFWWindow(const WindowSpecs& windowSpecs);
+        void SetGLFWCallbacks();
+
         static void WindowCloseCallback(GLFWwindow* window);
-        static void WindowResizeCallback(GLFWwindow *window, int width, int height);
+        static void WindowResizeCallback(GLFWwindow* window, int width, int height);
     private:
-        static GLFWwindow* s_Window; // Might need seperate custom window object for DX12
+        GLFWwindow* m_Window;
+        static std::unique_ptr<GraphicsContext> s_GraphicsContext;
 
-        static WindowMode s_WindowMode;
+        WindowSpecs m_WindowSpecs;
+        WindowMode m_WindowMode;
 
-        //static bool s_Enabled;
+        static uint8_t s_WindowCount;
 
-        static unsigned int s_Width;
-        static unsigned int s_Height;
+        //static bool s_GLFWInitialized;
+
+        //static std::vector<Window*> s_WindowHandles;
     };
 }

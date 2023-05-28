@@ -1,63 +1,47 @@
 #include "Renderer.h"
-
-#include "../../src/Core/Window.h"
-#include <glad/glad.h>
-
-#include "../Core/Application.h"
-
 #include "RendererAPI.h"
 #include "OpenGL/OpenGLRenderer.h"
+
+#include "../Core/Application.h"
+#include "../../src/Core/Window.h"
+
+#include <glad/glad.h>
 
 namespace pxl
 {
     bool Renderer::s_Enabled = false;
     RendererAPIType Renderer::s_RendererAPIType;
     std::unique_ptr<RendererAPI> Renderer::s_RendererAPI;
-    GLFWwindow* Renderer::s_WindowHandle;
-    std::unique_ptr<GraphicsContext> Renderer::s_GraphicsContext;
 
     void Renderer::Init(RendererAPIType api)
     {   
         if (s_Enabled)
-        {
             Logger::Log(LogLevel::Warn, "Can't initialize renderer, it's already initialized.");
-        }
-
-        s_WindowHandle = Window::GetNativeWindow();
-
-        if (!s_WindowHandle) // Should check if window is initialized instead of getting the window handle (this should be thought through when multiple windows is implemented)
-        {
-            Logger::Log(LogLevel::Error, "Can't initialize renderer, no window handle exists (window must be initialized first)");
-        }
 
         switch (api)
         {
             case RendererAPIType::OpenGL:
             {
-                s_GraphicsContext = std::make_unique<OpenGLContext>();
-                if (!s_GraphicsContext)
-                {
-                    Logger::LogError("Failed to create OpenGL graphics context");
-                }
-
-                Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
-
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
                 if (!s_RendererAPI)
                     Logger::LogError("Failed to create OpenGL renderer api object");
 
+                Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
                 break;
             }
             case RendererAPIType::Vulkan:
             {
-                Logger::LogError("Vulkan isn't currently supported, closing application");
-                Application::Get().Close();
+                Logger::LogError("Vulkan isn't currently supported");
+                return;
+            }
+            case RendererAPIType::DirectX11:
+            {
+                Logger::LogError("DirectX11 isn't currently supported");
                 return;
             }
             case RendererAPIType::DirectX12:
             {
-                Logger::LogError("DirectX isn't currently supported, closing application");
-                Application::Get().Close();
+                Logger::LogError("DirectX12 isn't currently supported");
                 return;
             }
         }
@@ -84,19 +68,16 @@ namespace pxl
     void Renderer::DrawArrays(int count)
     {
         s_RendererAPI->DrawArrays(count);
-        s_GraphicsContext->SwapBuffers();
     }
 
     void Renderer::DrawLines(int count)
     {
         s_RendererAPI->DrawLines(count);
-        s_GraphicsContext->SwapBuffers();
     }    
 
     void Renderer::DrawIndexed()
     {
         s_RendererAPI->DrawIndexed();
-        s_GraphicsContext->SwapBuffers();
     }
 
     void Renderer::Submit(OpenGLVertexBuffer* vertexBuffer)
@@ -118,9 +99,4 @@ namespace pxl
     {
         s_RendererAPI->SetShader(shader);
     }
-
-    // void Renderer::Submit(Mesh mesh)
-    // {
-    //     s_Meshes.push_back(mesh);
-    // }
 }

@@ -8,7 +8,7 @@ namespace pxl
     class OpenGLContext : public GraphicsContext
     {
     public:
-        OpenGLContext();
+        OpenGLContext(GLFWwindow* windowHandle);
 
         virtual void SwapBuffers() override;
     private:

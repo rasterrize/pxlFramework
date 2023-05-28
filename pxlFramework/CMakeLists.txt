@@ -49,11 +49,11 @@ add_subdirectory(deps/spdlog)
 add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
-add_subdirectory(deps/assimp)
+#add_subdirectory(deps/assimp)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp)
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb)
 
-target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map>)
+target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
 target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE) #IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 

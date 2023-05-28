@@ -9,7 +9,7 @@ namespace pxl
     class Input
     {
     public:
-        static void Init();
+        static void Init(std::shared_ptr<Window> window);
         static void Shutdown();
 
         static const bool IsInitialized() { return s_Enabled; }

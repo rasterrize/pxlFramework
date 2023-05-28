@@ -11,7 +11,7 @@ namespace pxl
 {
     bool pxl_ImGui::s_Enabled;
 
-    void pxl_ImGui::Init()
+    void pxl_ImGui::Init(GLFWwindow* window)
     {
         // Setup Dear ImGui context
         ImGui::CreateContext();
@@ -22,7 +22,7 @@ namespace pxl
 
         // Setup Platform/Renderer backends
         ImGui_ImplOpenGL3_Init();
-        ImGui_ImplGlfw_InitForOpenGL(Window::GetNativeWindow(), true);
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
 
         s_Enabled = true;
     }

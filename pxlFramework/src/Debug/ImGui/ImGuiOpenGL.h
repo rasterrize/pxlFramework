@@ -6,7 +6,7 @@ namespace pxl
     class pxl_ImGui
     {
     public:
-        static void Init();
+        static void Init(GLFWwindow* window);
         static void Update();
         static void Shutdown();
     private:

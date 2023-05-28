@@ -4,9 +4,9 @@
 
 namespace pxl
 {
-    OpenGLContext::OpenGLContext()
+    OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
+        : m_WindowHandle(windowHandle)
     {
-        m_WindowHandle = Window::GetNativeWindow();
         Init();
     }
 
@@ -14,13 +14,9 @@ namespace pxl
     {
         glfwMakeContextCurrent(m_WindowHandle);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            Logger::Log(LogLevel::Error, "Failed to initialize Glad");
-        }
+            Logger::LogError("Failed to initialize Glad");
         else
-        {
             Logger::LogInfo("Successfully initialized Glad");
-        }
     }
 
     void OpenGLContext::SwapBuffers()
