@@ -8,6 +8,9 @@ namespace pxl
     bool Input::s_Enabled = false;
     std::unordered_map<int, int> Input::s_CurrentKeyStates;
     std::unordered_map<int, int> Input::s_PreviousKeyStates;
+    std::unordered_map<int, int> Input::s_CurrentMBStates;
+    std::unordered_map<int, int> Input::s_PreviousMBStates;
+    glm::vec2 Input::s_CursorPosition;
 
     void Input::Init(std::shared_ptr<Window> window)
     {
@@ -43,14 +46,14 @@ namespace pxl
         }
     }
 
-    bool Input::IsKeyPressed(KeyCode keycode)
+    bool Input::IsKeyPressed(KeyCode keyCode)
     {
         if (!s_Enabled)
             return false;
 
         bool keyPressed = false;
         
-        if (s_CurrentKeyStates[keycode] == GLFW_PRESS && s_PreviousKeyStates[keycode] != GLFW_PRESS)
+        if (s_CurrentKeyStates[keyCode] == GLFW_PRESS && s_PreviousKeyStates[keyCode] != GLFW_PRESS)
         {
             keyPressed = true;
         }
@@ -59,16 +62,48 @@ namespace pxl
             keyPressed = false;
         }
 
-        s_PreviousKeyStates[keycode] = s_CurrentKeyStates[keycode];
+        s_PreviousKeyStates[keyCode] = s_CurrentKeyStates[keyCode];
         return keyPressed;
     }
 
-    bool Input::IsKeyHeld(KeyCode keycode)
+    bool Input::IsKeyHeld(KeyCode keyCode)
     {
         if (!s_Enabled)
             return false;
 
-        if (glfwGetKey(s_WindowHandle, keycode) == GLFW_PRESS)
+        if (glfwGetKey(s_WindowHandle, keyCode) == GLFW_PRESS)
+            return true;
+
+        return false;
+    }
+
+    bool Input::IsMouseButtonPressed(ButtonCode buttonCode)
+    {
+        if (!s_Enabled)
+            return false;
+
+        bool buttonPressed = false;
+        
+        if (s_CurrentMBStates[buttonCode] == GLFW_PRESS && s_PreviousMBStates[buttonCode] != GLFW_PRESS)
+        {
+            buttonPressed = true;
+        }
+        else
+        {
+            buttonPressed = false;
+        }
+
+        s_PreviousMBStates[buttonCode] = s_CurrentMBStates[buttonCode];
+
+        return buttonPressed;
+    }
+
+    bool Input::IsMouseButtonHeld(ButtonCode buttonCode)
+    {
+        if (!s_Enabled)
+            return false;
+
+        if (glfwGetMouseButton(s_WindowHandle, buttonCode) == GLFW_PRESS)
             return true;
 
         return false;
@@ -77,5 +112,15 @@ namespace pxl
     void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         s_CurrentKeyStates[key] = action;
+    }
+
+    void Input::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+    {
+        s_CurrentMBStates[button] = action;
+    }
+
+    void Input::CursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+    {
+        s_CursorPosition = glm::vec2((float)xpos, (float)ypos);
     }
 }

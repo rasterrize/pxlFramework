@@ -99,7 +99,7 @@ namespace TestApp
 
         m_Window = pxl::Window::Create({1280, 720, "pxlFramework", pxl::RendererAPIType::OpenGL});
 
-        auto testwindow = pxl::Window::Create({600, 400, "TEST", pxl::RendererAPIType::OpenGL});
+        //auto testwindow = pxl::Window::Create({600, 400, "TEST", pxl::RendererAPIType::OpenGL});
 
         pxl::Input::Init(m_Window);
 
@@ -168,6 +168,13 @@ namespace TestApp
         {
             cameraPosition.z += 0.01f;
         }
+        if (pxl::Input::IsMouseButtonHeld(pxl::ButtonCode::PXL_MOUSE_BUTTON_RIGHT))
+        {
+            cameraPosition.y -= 0.01f;
+        }
+        
+        auto cursorPosition = pxl::Input::GetCursorPosition();
+        pxl::Logger::LogInfo(std::string("Cursor position: " + std::to_string(cursorPosition.x) + ", " + std::to_string(cursorPosition.y)));
 
         pxl::Camera::SetPosition(glm::vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
 

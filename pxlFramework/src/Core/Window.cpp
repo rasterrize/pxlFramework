@@ -138,8 +138,11 @@ namespace pxl
     void Window::SetGLFWCallbacks()
     {
         glfwSetWindowCloseCallback(m_Window, WindowCloseCallback);
-        glfwSetKeyCallback(m_Window, Input::KeyCallback);
         glfwSetWindowSizeCallback(m_Window, WindowResizeCallback);
+
+        glfwSetKeyCallback(m_Window, Input::KeyCallback);
+        glfwSetMouseButtonCallback(m_Window, Input::MouseButtonCallback);
+        glfwSetCursorPosCallback(m_Window, Input::CursorPosCallback);
     }
 
     void Window::WindowCloseCallback(GLFWwindow* window)
