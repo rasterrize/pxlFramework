@@ -2,11 +2,14 @@
 
 #include <GLFW/glfw3.h>
 
+#include "../Core/Math.h"
+
 #include "GraphicsContext.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+
 
 #include "OpenGL/OpenGLContext.h"
 #include "OpenGL/OpenGLVertexBuffer.h"
@@ -27,6 +30,12 @@ namespace pxl
         DirectX12
     };
 
+    struct Vertex
+    {
+        glm::vec3 Position;
+        //glm::vec2 TexCoords;
+    };
+
     class Renderer
     {
     public:
@@ -39,17 +48,14 @@ namespace pxl
         static std::shared_ptr<Shader> GetShader() { return s_RendererAPI->GetShader(); }
         
         static void Clear();
-        static void SetClearColour(float r, float g, float b, float a);
+        static void SetClearColour(const vec4& colour);
 
         static void DrawArrays(int count);
         static void DrawLines(int count);
         static void DrawIndexed();
 
-        static void Submit(OpenGLVertexBuffer* vertexBuffer);
-        static void Submit(OpenGLVertexArray* vertexArray);
-        static void Submit(OpenGLIndexBuffer* indexBuffer);
-        static void Submit(OpenGLShader* shader);
-        //static void Submit(Mesh mesh);
+        static void Submit(const std::shared_ptr<OpenGLVertexArray>& vertexArray);
+        static void Submit(const std::shared_ptr<OpenGLShader>& shader);
 
     private:
         static bool s_Enabled;

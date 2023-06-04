@@ -9,9 +9,5 @@ namespace pxl
     public:
         virtual void Bind() = 0;
         virtual void Unbind() = 0;
-
-        virtual const BufferLayout GetLayout() = 0;
-
-        virtual void AddLayout(const BufferLayout& layout) = 0;
     };
 }

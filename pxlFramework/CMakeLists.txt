@@ -3,7 +3,7 @@ project(pxlFramework)
 
 add_library(pxlFramework STATIC 
 # INCLUDE
-include/pxl.h
+inc/pxl.h
 
 # CORE
 src/Core/Application.h src/Core/Application.cpp
@@ -11,6 +11,8 @@ src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
+src/Core/Timestep.h
+src/Core/Math.h
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -43,6 +45,12 @@ src/Utils/TextureLoader.h src/Utils/TextureLoader.cpp
 src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 )
 
+target_compile_features(pxlFramework PUBLIC cxx_std_17)
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(deps/GLFW)
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/spdlog)
@@ -57,4 +65,4 @@ target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <stri
 
 target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE) #IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 
-target_include_directories(pxlFramework PUBLIC include)
+target_include_directories(pxlFramework PUBLIC inc)

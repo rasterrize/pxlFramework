@@ -36,6 +36,6 @@ namespace pxl
     {
         s_VertexArray->Bind();
         s_Shader->Bind();
-        glDrawElements(GL_TRIANGLES, s_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, s_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 }

@@ -5,6 +5,6 @@ namespace pxl
     class TextureLoader
     {
     public:
-        static Texture* Load(const std::string& filePath);
+        static std::shared_ptr<Texture> Load(const std::string& filePath);
     };
 }

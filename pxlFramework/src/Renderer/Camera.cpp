@@ -23,11 +23,11 @@ namespace pxl
             return;
         }
 
-        if (!Renderer::GetShader())
-        {
-            Logger::LogWarn("Can't initialize camera, Camera needs a shader");
-            return;
-        }
+        // if (!Renderer::GetShader())
+        // {
+        //     Logger::LogWarn("Can't initialize camera, Camera needs a shader");
+        //     return;
+        // }
 
         switch (Renderer::GetRendererAPIType())
         {

@@ -22,6 +22,8 @@ namespace pxl
         static void LogError(std::string text);
         static void LogCritical(std::string text);
     private:
+        static bool s_Enabled;
+
         static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_Sink;
         static std::shared_ptr<spdlog::logger> s_Logger;
     };

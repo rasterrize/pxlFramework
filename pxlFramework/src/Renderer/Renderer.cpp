@@ -46,7 +46,7 @@ namespace pxl
             }
         }
 
-        s_RendererAPIType = api; // could this be put into initializer list?
+        s_RendererAPIType = api;
         s_Enabled = true;
     }
 
@@ -60,9 +60,9 @@ namespace pxl
         s_RendererAPI->Clear();
     }
 
-    void Renderer::SetClearColour(float r, float g, float b, float a)
+    void Renderer::SetClearColour(const vec4& colour)
     {
-        s_RendererAPI->SetClearColour(r, g, b, a);
+        s_RendererAPI->SetClearColour(colour.r, colour.g, colour.b, colour.a);
     }
 
     void Renderer::DrawArrays(int count)
@@ -80,22 +80,12 @@ namespace pxl
         s_RendererAPI->DrawIndexed();
     }
 
-    void Renderer::Submit(OpenGLVertexBuffer* vertexBuffer)
-    {
-        s_RendererAPI->SetVertexBuffer(vertexBuffer);
-    }
-
-    void Renderer::Submit(OpenGLVertexArray* vertexArray)
+    void Renderer::Submit(const std::shared_ptr<OpenGLVertexArray>& vertexArray)
     {
         s_RendererAPI->SetVertexArray(vertexArray);
     }
 
-    void Renderer::Submit(OpenGLIndexBuffer* indexBuffer)
-    {
-        s_RendererAPI->SetIndexBuffer(indexBuffer);
-    }
-
-    void Renderer::Submit(OpenGLShader* shader)
+    void Renderer::Submit(const std::shared_ptr<OpenGLShader>& shader)
     {
         s_RendererAPI->SetShader(shader);
     }

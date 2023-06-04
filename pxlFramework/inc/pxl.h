@@ -5,6 +5,8 @@
 #include "../src/Core/Logger.h"
 #include "../src/Core/Input.h"
 #include "../src/Core/KeyCodes.h"
+#include "../src/Core/Timestep.h"
+#include "../src/Core/Math.h"
 
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/Camera.h"

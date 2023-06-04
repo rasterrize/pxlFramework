@@ -21,7 +21,6 @@ namespace pxl
 
         auto shader = Renderer::GetShader();
         shader->Bind();
-        shader->SetUniformMat4("u_Model", m_ModelMatrix);
         shader->SetUniformMat4("u_View", m_ViewMatrix);
         shader->SetUniformMat4("u_Projection", m_ProjectionMatrix);
     }

@@ -22,11 +22,18 @@ namespace pxl
     {
         while (m_Running)
         {
-            // these should maybe check if they are initalized first
-            Camera::Update();
-            OnUpdate();
-            //pxl_ImGui::Update();
-            Window::Update(); // Does this go before or after?
+            float time = (float)glfwGetTime(); // temp, glfw shouldn't be in application
+            float timestep = time - m_LastFrameTime;
+            m_LastFrameTime = time;
+
+            if (!m_Minimized)
+            {
+                Camera::Update();
+                OnUpdate(timestep);
+                pxl_ImGui::Update();
+            }
+
+            Window::Update();
         }
     }
 
@@ -34,6 +41,7 @@ namespace pxl
     {
         Window::Shutdown();
         Input::Shutdown();  
+        pxl_ImGui::Shutdown();
         s_Instance = nullptr;
         m_Running = false;
     }

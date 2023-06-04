@@ -2,27 +2,35 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+#include "../../Core/Application.h"
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-
-#include "../../Core/Window.h"
 
 namespace pxl
 {
     bool pxl_ImGui::s_Enabled;
+    GLFWwindow* pxl_ImGui::m_WindowHandle;
 
-    void pxl_ImGui::Init(GLFWwindow* window)
+    void pxl_ImGui::Init(std::shared_ptr<Window> window)
     {
+        m_WindowHandle = window->GetNativeWindow();
+
         // Setup Dear ImGui context
         ImGui::CreateContext();
+
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.IniFilename = NULL;
+
         ImGui::StyleColorsDark();
 
-        ImGuiIO& io = ImGuiIO();
-        io = ImGui::GetIO(); (void)io;
-
         // Setup Platform/Renderer backends
-        ImGui_ImplOpenGL3_Init();
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init("#version 460");
+        ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
+
+        Logger::LogInfo("ImGui Initialized");
 
         s_Enabled = true;
     }
@@ -37,6 +45,7 @@ namespace pxl
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        Application::Get().OnImGuiRender();
         ImGui::ShowDemoWindow();
             
         // Rendering
@@ -47,8 +56,12 @@ namespace pxl
     void pxl_ImGui::Shutdown()
     {
         // Cleanup
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
+        if (s_Enabled);
+        {
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+            s_Enabled = false;
+        }
     }
 }

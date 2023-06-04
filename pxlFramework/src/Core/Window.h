@@ -32,27 +32,37 @@ namespace pxl
 
         void SetSize(unsigned int width, unsigned int height);
 
-        void SetWindowMode(WindowMode mode);
+        void SetWindowMode(WindowMode winMode);
         void NextWindowMode();
-        //void ToggleFullscreen();
+        void ToggleFullscreen();
+        void SetVsync(bool vsync);
+        void ToggleVsync();
+
+        void SetMonitor(unsigned int monitorIndex);
 
         GLFWwindow* GetNativeWindow() { return m_Window; }
 
         void Close();
         static void Shutdown();
 
+        static const float GetFPS() { return s_FPS; }
+        static const float GetFrameTimeMS() { return 1 / s_FPS * 1000; }
+
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs) { return std::make_shared<Window>(windowSpecs); }
     private:
         friend class Application;
-        static void Update(); // temp, should be private
+        static void Update();
 
         void Init(const WindowSpecs& windowSpecs);
 
         bool InitGLFWWindow(const WindowSpecs& windowSpecs);
         void SetGLFWCallbacks();
 
+        static void CalculateFPS();
+
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+        static void WindowIconifyCallback(GLFWwindow* window, int iconification);
     private:
         GLFWwindow* m_Window;
         static std::unique_ptr<GraphicsContext> s_GraphicsContext;
@@ -60,10 +70,17 @@ namespace pxl
         WindowSpecs m_WindowSpecs;
         WindowMode m_WindowMode;
 
+        static bool s_Vsync;
+        static unsigned int s_FPSLimit;
+        static bool s_Minimized;
+
+        static uint16_t s_FrameCount;
+        static double s_ElapsedTime; // could be in application class
+        static float s_FPS;
+
         static uint8_t s_WindowCount;
 
-        //static bool s_GLFWInitialized;
-
-        //static std::vector<Window*> s_WindowHandles;
+        static GLFWmonitor** s_Monitors;
+        static int s_MonitorCount;
     };
 }

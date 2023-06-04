@@ -11,6 +11,8 @@ namespace pxl
     void OpenGLVertexArray::Bind()
     {
         glBindVertexArray(m_RendererID);
+        m_VertexBuffer->Bind();
+        m_IndexBuffer->Bind();
     }
 
     void OpenGLVertexArray::Unbind()
@@ -20,9 +22,9 @@ namespace pxl
 
     void OpenGLVertexArray::SetLayout(BufferLayout& layout)
     {
-        glBindVertexArray(m_RendererID); // should this be binding only the vertex buffer instead of binding the va which binds vb and ib aswell?
-        unsigned int index = 0;
-        unsigned int offset = 0;
+        glBindVertexArray(m_RendererID);
+        unsigned int index = 0; // attribute number
+        unsigned int offset = 0; // amount of bytes currently allocated
         for (BufferElement element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);

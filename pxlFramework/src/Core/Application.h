@@ -23,9 +23,15 @@ namespace pxl
 
         static Application& Get() { return *s_Instance; }
 
-        virtual void OnUpdate() = 0;
+        virtual void OnUpdate(float ts) = 0;
+        virtual void OnImGuiRender() = 0;
+
+        // should be accessible by only window class
+        void SetMinimization(bool minimized) { m_Minimized = minimized; }
     private:
         bool m_Running = true;
+        bool m_Minimized = false;
+        float m_LastFrameTime = 0.0f;
 
         static Application* s_Instance;
     };

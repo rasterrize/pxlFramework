@@ -128,9 +128,22 @@ namespace pxl
         glUseProgram(0);
     }
 
+    {
+
+    int OpenGLShader::GetUniformLocation(const std::string& name) const
+    {
+        if (m_UniformCache.find(name) != m_UniformCache.end())
+            return m_UniformCache[name];
+
+        int location = glGetUniformLocation(m_RendererID, name.c_str());
+        m_UniformCache[name] = location;
+
+        return location;
+    }
+
     void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& value)
     {
-        int location = glGetUniformLocation(m_RendererID, name.c_str());
+        int location = GetUniformLocation(name);
         glUniformMatrix4fv(location, 1, false, glm::value_ptr(value)); // fv ~ float value, dv ~ decimal value
     }
 }

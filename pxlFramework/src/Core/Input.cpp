@@ -10,7 +10,7 @@ namespace pxl
     std::unordered_map<int, int> Input::s_PreviousKeyStates;
     std::unordered_map<int, int> Input::s_CurrentMBStates;
     std::unordered_map<int, int> Input::s_PreviousMBStates;
-    glm::vec2 Input::s_CursorPosition;
+    glm::vec2 Input::s_CursorPosition = glm::vec2(1.0f);
 
     void Input::Init(std::shared_ptr<Window> window)
     {
