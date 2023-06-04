@@ -10,7 +10,6 @@
 #include "VertexArray.h"
 #include "Shader.h"
 
-
 #include "OpenGL/OpenGLContext.h"
 #include "OpenGL/OpenGLVertexBuffer.h"
 #include "OpenGL/OpenGLVertexArray.h"

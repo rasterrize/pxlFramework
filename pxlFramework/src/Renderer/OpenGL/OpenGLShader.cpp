@@ -128,8 +128,6 @@ namespace pxl
         glUseProgram(0);
     }
 
-    {
-
     int OpenGLShader::GetUniformLocation(const std::string& name) const
     {
         if (m_UniformCache.find(name) != m_UniformCache.end())
