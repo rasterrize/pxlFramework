@@ -14,13 +14,13 @@ namespace pxl
     {
     public:
         static void Init();
-        static void Log(LogLevel level, std::string text);
+        static void Log(LogLevel level, const std::string& text);
 
         // Confusing, will change
-        static void LogInfo(std::string text);
-        static void LogWarn(std::string text);
-        static void LogError(std::string text);
-        static void LogCritical(std::string text);
+        static void LogInfo(const std::string& text);
+        static void LogWarn(const std::string& text);
+        static void LogError(const std::string& text);
+        static void LogCritical(const std::string& text);
     private:
         static bool s_Enabled;
 

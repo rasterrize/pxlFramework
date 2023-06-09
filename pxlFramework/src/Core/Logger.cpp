@@ -15,7 +15,7 @@ namespace pxl
         s_Enabled = true;
     }
 
-    void Logger::Log(LogLevel level, std::string text)
+    void Logger::Log(LogLevel level, const std::string& text)
     {
         if (!s_Enabled)
             return;
@@ -37,35 +37,23 @@ namespace pxl
         }
     }
 
-    void Logger::LogInfo(std::string text)
+    void Logger::LogInfo(const std::string& text)
     {
-        if (!s_Enabled)
-            return;
-
-        s_Logger->info(text);
+        Logger::Log(LogLevel::Info, text);
     }
 
-    void Logger::LogWarn(std::string text)
+    void Logger::LogWarn(const std::string& text)
     {
-        if (!s_Enabled)
-            return;
-
-        s_Logger->warn(text);
+        Logger::Log(LogLevel::Warn, text);
     }
 
-    void Logger::LogError(std::string text)
+    void Logger::LogError(const std::string& text)
     {
-        if (!s_Enabled)
-            return;
-
-        s_Logger->error(text);
+        Logger::Log(LogLevel::Error, text);
     }
 
-    void Logger::LogCritical(std::string text)
+    void Logger::LogCritical(const std::string& text)
     {
-        if (!s_Enabled)
-            return;
-
-        s_Logger->critical(text);
+        Logger::Log(LogLevel::Critical, text);
     }
 }

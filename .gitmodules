@@ -11,6 +11,3 @@
 	path = pxlFramework/deps/ImGui
 	url = https://github.com/ocornut/imgui
 	branch = docking
-[submodule "pxlFramework/deps/assimp"]
-	path = pxlFramework/deps/assimp
-	url = https://github.com/assimp/assimp
