@@ -9,9 +9,12 @@ namespace pxl
     {
     public:
         OpenGLVertexBuffer(int size, const void* data);
+        OpenGLVertexBuffer();
 
         virtual void Bind() override;
         virtual void Unbind() override;
+
+        virtual void SetData(int size, const void* data) override;
     private:
         unsigned int m_RendererID;
     };

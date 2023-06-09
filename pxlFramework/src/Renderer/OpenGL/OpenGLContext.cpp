@@ -17,6 +17,7 @@ namespace pxl
             Logger::LogError("Failed to initialize Glad");
         else
             Logger::LogInfo("Successfully initialized Glad");
+        glfwSwapInterval(1);
     }
 
     void OpenGLContext::SwapBuffers()

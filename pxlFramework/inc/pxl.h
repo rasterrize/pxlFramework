@@ -9,8 +9,8 @@
 
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/Camera.h"
+#include "../src/Renderer/ShaderLibrary.h"
 
-#include "../src/Renderer/OpenGL/OpenGLContext.h"
 #include "../src/Renderer/OpenGL/OpenGLVertexBuffer.h"
 #include "../src/Renderer/OpenGL/OpenGLVertexArray.h"
 #include "../src/Renderer/OpenGL/OpenGLIndexBuffer.h"
@@ -18,4 +18,4 @@
 
 #include "../src/Debug/ImGui/ImGuiOpenGL.h"
 
-#include "../src/Utils/TextureLoader.h"
+#include "../src/Utils/FileLoader.h"

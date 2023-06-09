@@ -35,8 +35,8 @@ namespace pxl
         void SetWindowMode(WindowMode winMode);
         void NextWindowMode();
         void ToggleFullscreen();
-        void SetVsync(bool vsync);
-        void ToggleVsync();
+        void SetVSync(bool vsync);
+        void ToggleVSync();
 
         void SetMonitor(unsigned int monitorIndex);
 
@@ -44,9 +44,6 @@ namespace pxl
 
         void Close();
         static void Shutdown();
-
-        static const float GetFPS() { return s_FPS; }
-        static const float GetFrameTimeMS() { return 1 / s_FPS * 1000; }
 
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs) { return std::make_shared<Window>(windowSpecs); }
     private:
@@ -58,8 +55,6 @@ namespace pxl
         bool InitGLFWWindow(const WindowSpecs& windowSpecs);
         void SetGLFWCallbacks();
 
-        static void CalculateFPS();
-
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
@@ -70,14 +65,9 @@ namespace pxl
         WindowSpecs m_WindowSpecs;
         WindowMode m_WindowMode;
 
-        static bool s_Vsync;
-        static unsigned int s_FPSLimit;
+        static bool s_VSync;
         static bool s_Minimized;
-
-        static uint16_t s_FrameCount;
-        static double s_ElapsedTime; // could be in application class
-        static float s_FPS;
-
+        
         static uint8_t s_WindowCount;
 
         static GLFWmonitor** s_Monitors;

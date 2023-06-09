@@ -8,10 +8,10 @@ namespace pxl
         virtual void Bind() = 0;
         virtual void Unbind() = 0;
 
-        const unsigned int GetCount() const { return m_Count; }
-    protected:
-        IndexBuffer(unsigned int count) : m_Count(count) {};
+        virtual const unsigned int GetCount() const = 0;
 
+        virtual void SetData(int count, const void* data) = 0;
+    protected:
         unsigned int m_Count;
     };
 }

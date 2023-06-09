@@ -1,15 +1,10 @@
 #include "OpenGLRenderer.h"
+#include "../../Core/Platform.h"
 
 namespace pxl
 {
     OpenGLRenderer::OpenGLRenderer()
     {
-        //s_VertexBuffer = std::make_shared<OpenGLVertexBuffer>(0, nullptr); 
-        //s_VertexArray = std::make_shared<OpenGLVertexArray>();
-        //s_IndexBuffer = std::make_shared<OpenGLIndexBuffer>(0, nullptr);
-
-        // TODO: add checking for variable existences
-
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -37,5 +32,10 @@ namespace pxl
         s_VertexArray->Bind();
         s_Shader->Bind();
         glDrawElements(GL_TRIANGLES, s_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+    }
+
+    void OpenGLRenderer::BatchGeometry()
+    {
+        
     }
 }

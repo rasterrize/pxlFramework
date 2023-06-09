@@ -1,0 +1,16 @@
+#include "../Renderer/Texture.h"
+#include "../Renderer/Shader.h"
+#include "../Renderer/Renderer.h"
+
+#include <filesystem>
+
+namespace pxl
+{
+    class FileLoader
+    {
+    public:
+        static std::shared_ptr<Texture> LoadTexture(const std::string& filePath);
+        static std::shared_ptr<Shader> LoadShader(const std::filesystem::path& path);
+        static std::shared_ptr<Mesh> LoadOBJ(const std::string& filePath);
+    };
+}

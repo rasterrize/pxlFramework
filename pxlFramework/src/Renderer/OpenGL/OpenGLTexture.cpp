@@ -16,8 +16,6 @@ namespace pxl
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_ImageSize.x, m_ImageSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_ImageBuffer);
         glBindTexture(GL_TEXTURE_2D, 0);
-
-        
     }
 
     void OpenGLTexture::Bind()

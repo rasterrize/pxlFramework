@@ -11,8 +11,8 @@ src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
-src/Core/Timestep.h
 src/Core/Math.h
+src/Core/Platform.h
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -22,10 +22,11 @@ src/Renderer/VertexBuffer.h
 src/Renderer/IndexBuffer.h
 src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
-src/Renderer/Shader.h src/Renderer/Shader.cpp
+src/Renderer/Shader.h
 src/Renderer/Camera.h src/Renderer/Camera.cpp
 src/Renderer/BaseCamera.h
-src/Renderer/Texture.h
+src/Renderer/Texture.h src/Renderer/Texture.cpp
+src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
@@ -39,7 +40,7 @@ src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspect
 src/Renderer/OpenGL/OpenGLTexture.h src/Renderer/OpenGL/OpenGLTexture.cpp
 
 # UTILS
-src/Utils/TextureLoader.h src/Utils/TextureLoader.cpp
+src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 
 # DEBUG
 src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
@@ -57,12 +58,11 @@ add_subdirectory(deps/spdlog)
 add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
-#add_subdirectory(deps/assimp)
 
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
-target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE) #IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 target_include_directories(pxlFramework PUBLIC inc)

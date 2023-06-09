@@ -3,7 +3,8 @@
 #include "OpenGL/OpenGLRenderer.h"
 
 #include "../Core/Application.h"
-#include "../../src/Core/Window.h"
+#include "../Core/Window.h"
+#include "../Core/Platform.h"
 
 #include <glad/glad.h>
 
@@ -12,6 +13,11 @@ namespace pxl
     bool Renderer::s_Enabled = false;
     RendererAPIType Renderer::s_RendererAPIType;
     std::unique_ptr<RendererAPI> Renderer::s_RendererAPI;
+
+    float Renderer::s_FPS = 0.0f;
+    uint16_t Renderer::s_FrameCount = 0;
+    float Renderer::s_TimeAtLastFrame = 0.0f;
+    float Renderer::s_LastFPS = 0.0f; 
 
     void Renderer::Init(RendererAPIType api)
     {   
@@ -55,6 +61,19 @@ namespace pxl
         s_Enabled = false;
     }
 
+    void Renderer::CalculateFPS()
+    {
+        float currentTime = (float)Platform::GetTime();
+        float elapsedTime = currentTime - s_TimeAtLastFrame;
+
+        if (elapsedTime > 0.05)
+        {
+            s_FPS = s_FrameCount / elapsedTime;
+            s_TimeAtLastFrame = currentTime;
+            s_FrameCount = 0;
+        }
+    }
+
     void Renderer::Clear()
     {
         s_RendererAPI->Clear();
@@ -80,13 +99,37 @@ namespace pxl
         s_RendererAPI->DrawIndexed();
     }
 
-    void Renderer::Submit(const std::shared_ptr<OpenGLVertexArray>& vertexArray)
+    void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray)
     {
         s_RendererAPI->SetVertexArray(vertexArray);
     }
 
-    void Renderer::Submit(const std::shared_ptr<OpenGLShader>& shader)
+    void Renderer::Submit(const std::shared_ptr<Shader>& shader)
     {
         s_RendererAPI->SetShader(shader);
+    }
+
+    void Renderer::Submit(const std::shared_ptr<Mesh>& mesh, float x, float y, float z)
+    {
+        //const int size = mesh->Vertices.size();
+        auto vertices = std::array<Vertex, 100>();
+        float indices[100];
+        auto meshVertices = mesh->Vertices;
+        auto meshIndices = mesh->Indices;
+
+        for (int i = 0; i < meshVertices.size(); i++)
+        {
+            auto vertex = meshVertices[i];
+            vertices[i] = {vertex.Position[0] + x, vertex.Position[1] + y, vertex.Position[2] + z};
+        }
+
+        int indiceOffset;
+        for (int i = 0; i < meshIndices.size(); i++)
+        {
+            indices[i] = meshIndices[i];
+        }
+
+        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(sizeof(vertices), &vertices);
+        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(100, indices);
     }
 }

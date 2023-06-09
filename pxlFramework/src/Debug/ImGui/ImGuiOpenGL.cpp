@@ -9,7 +9,7 @@
 
 namespace pxl
 {
-    bool pxl_ImGui::s_Enabled;
+    bool pxl_ImGui::s_Enabled = false;
     GLFWwindow* pxl_ImGui::m_WindowHandle;
 
     void pxl_ImGui::Init(std::shared_ptr<Window> window)
@@ -17,8 +17,8 @@ namespace pxl
         m_WindowHandle = window->GetNativeWindow();
 
         // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -27,8 +27,8 @@ namespace pxl
         ImGui::StyleColorsDark();
 
         // Setup Platform/Renderer backends
-        ImGui_ImplOpenGL3_Init("#version 460");
         ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
+        ImGui_ImplOpenGL3_Init("#version 460");
 
         Logger::LogInfo("ImGui Initialized");
 
@@ -46,7 +46,7 @@ namespace pxl
         ImGui::NewFrame();
 
         Application::Get().OnImGuiRender();
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
             
         // Rendering
         ImGui::Render();
@@ -56,12 +56,12 @@ namespace pxl
     void pxl_ImGui::Shutdown()
     {
         // Cleanup
-        if (s_Enabled);
-        {
-            ImGui_ImplOpenGL3_Shutdown();
-            ImGui_ImplGlfw_Shutdown();
-            ImGui::DestroyContext();
-            s_Enabled = false;
-        }
+        if (!s_Enabled)
+            return;
+
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        s_Enabled = false;
     }
 }

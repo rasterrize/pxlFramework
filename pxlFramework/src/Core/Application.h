@@ -12,19 +12,15 @@ namespace pxl
         bool IsRunning() 
         { 
             if (s_Instance)
-            {
                 return m_Running; 
-            }
             else
-            {
                 return false;
-            }
         }
-
-        static Application& Get() { return *s_Instance; }
 
         virtual void OnUpdate(float ts) = 0;
         virtual void OnImGuiRender() = 0;
+
+        static Application& Get() { return *s_Instance; }
 
         // should be accessible by only window class
         void SetMinimization(bool minimized) { m_Minimized = minimized; }

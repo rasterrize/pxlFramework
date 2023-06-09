@@ -14,11 +14,7 @@ namespace pxl
     GLFWmonitor** Window::s_Monitors;
     int Window::s_MonitorCount;
 
-    uint16_t Window::s_FrameCount;
-    double Window::s_ElapsedTime;
-    float Window::s_FPS;
-    bool Window::s_Vsync = true;
-    unsigned int Window::s_FPSLimit = 0;
+    bool Window::s_VSync = true;
     bool Window::s_Minimized = false;
 
     Window::Window(const WindowSpecs& windowSpecs)
@@ -89,9 +85,9 @@ namespace pxl
                 break;
             case RendererAPIType::OpenGL:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 break;
             case RendererAPIType::Vulkan:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -105,9 +101,8 @@ namespace pxl
                 return false;
         }
 
-        m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);
+        m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), nullptr, nullptr);
         glfwSetWindowUserPointer(m_Window, this);
-        glfwSwapInterval(s_Vsync);
         SetGLFWCallbacks();
 
         // Check to see if the window object was created successfully
@@ -136,9 +131,9 @@ namespace pxl
             glfwPollEvents();
         else
             glfwWaitEvents(); // this could be bad if a game needs updating in the background
-        
-        s_FrameCount++;
-        CalculateFPS();
+
+        Renderer::s_FrameCount++; // should fps be calculated in the window class?
+        Renderer::CalculateFPS();
     }
 
     void Window::Close()
@@ -175,11 +170,13 @@ namespace pxl
 
     void Window::WindowResizeCallback(GLFWwindow* window, int width, int height)
     {
-        auto windowHandle = (Window*)glfwGetWindowUserPointer(window);
-        windowHandle->m_WindowSpecs.Width = width;
-        windowHandle->m_WindowSpecs.Height = height;
+        int fbWidth, fbHeight;
+        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+        glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
 
-        glViewport(0, 0, width, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
+        auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
+        windowInstance->m_WindowSpecs.Width = width;
+        windowInstance->m_WindowSpecs.Height = height;
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
@@ -270,26 +267,26 @@ namespace pxl
             SetWindowMode(WindowMode::Windowed);
     }
 
-    void Window::SetVsync(bool vsync)
+    void Window::SetVSync(bool vsync)
     {
         if (vsync)
         {
             glfwSwapInterval(1);
-            s_Vsync = true;
+            s_VSync = true;
         }
         else
         {
             glfwSwapInterval(0);
-            s_Vsync = false;
+            s_VSync = false;
         }
     }
 
-    void Window::ToggleVsync()
+    void Window::ToggleVSync()
     {
-        if (s_Vsync)
-            SetVsync(true);
+        if (s_VSync)
+            SetVSync(true);
         else
-            SetVsync(false);
+            SetVSync(false);
     }
 
     void Window::SetMonitor(unsigned int monitorIndex)
@@ -328,19 +325,6 @@ namespace pxl
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
                 break;
-        }
-    }
-
-    void Window::CalculateFPS()
-    {
-        double currentTime = glfwGetTime();
-        double elapsedTime = currentTime - s_ElapsedTime;
-
-        if (elapsedTime > 0.05)
-        {
-            s_FPS = s_FrameCount / elapsedTime;
-            s_ElapsedTime = currentTime;
-            s_FrameCount = 0;
         }
     }
 }

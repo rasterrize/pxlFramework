@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Window.h"
 #include "Input.h"
+#include "Platform.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/ImGuiOpenGL.h"
 
@@ -22,7 +23,7 @@ namespace pxl
     {
         while (m_Running)
         {
-            float time = (float)glfwGetTime(); // temp, glfw shouldn't be in application
+            float time = (float)Platform::GetTime();
             float timestep = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
@@ -39,10 +40,10 @@ namespace pxl
 
     void Application::Close()
     {
-        Window::Shutdown();
+        Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
         Input::Shutdown();  
         pxl_ImGui::Shutdown();
-        s_Instance = nullptr;
         m_Running = false;
+        s_Instance = nullptr;
     }
 }

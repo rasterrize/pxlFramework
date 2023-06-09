@@ -1,17 +1,16 @@
 #pragma once
 
-#include "IndexBuffer.h"
-#include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
 
-#include "OpenGL/OpenGLVertexBuffer.h"
-#include "OpenGL/OpenGLVertexArray.h"
-#include "OpenGL/OpenGLIndexBuffer.h"
-#include "OpenGL/OpenGLShader.h" 
-
 namespace pxl
 {
+    struct Vertex
+    {
+        float Position[3];
+        //glm::vec2 TexCoords;
+    };
+
     class RendererAPI
     {
     public:
@@ -22,15 +21,10 @@ namespace pxl
         virtual void DrawLines(int count) = 0;
         virtual void DrawIndexed() = 0;
 
-        std::shared_ptr<VertexArray> GetVertexArray()   { return s_VertexArray; }
-        std::shared_ptr<Shader> GetShader()             { return s_Shader; }
+        virtual std::shared_ptr<VertexArray> const GetVertexArray() = 0;
+        virtual std::shared_ptr<Shader> const GetShader() = 0;
 
-        void SetVertexArray(std::shared_ptr<VertexArray> vertexArray)    { s_VertexArray.swap(vertexArray); s_VertexArray->Bind(); }
-        void SetShader(std::shared_ptr<Shader> shader)                   { s_Shader.swap(shader); s_Shader->Bind(); }
-
-        // SetVertexBuffer(VulkanVertexBuffer* vertexBuffer)
-    protected:
-        std::shared_ptr<VertexArray> s_VertexArray;
-        std::shared_ptr<Shader> s_Shader;
+        virtual void SetVertexArray(std::shared_ptr<VertexArray> vertexArray) = 0;
+        virtual void SetShader(std::shared_ptr<Shader> shader) = 0;
     };
 }
