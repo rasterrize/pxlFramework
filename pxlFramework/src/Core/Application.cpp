@@ -3,7 +3,7 @@
 #include "Input.h"
 #include "Platform.h"
 #include "../Renderer/Camera.h"
-#include "../Debug/ImGui/ImGuiOpenGL.h"
+#include "../Debug/ImGui/pxl_ImGui.h"
 
 namespace pxl
 {
@@ -34,7 +34,7 @@ namespace pxl
                 pxl_ImGui::Update();
             }
 
-            Window::Update();
+            Window::UpdateAll();
         }
     }
 

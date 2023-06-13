@@ -1,4 +1,5 @@
 #include "FileLoader.h"
+
 #include <stb_image.h>
 
 namespace pxl

@@ -1,10 +1,14 @@
 #include "OpenGLRenderer.h"
+
+#include <glad/glad.h>
+
 #include "../../Core/Platform.h"
 
 namespace pxl
 {
     OpenGLRenderer::OpenGLRenderer()
     {
+        // could maybe check for an opengl context ???
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -29,12 +33,17 @@ namespace pxl
 
     void OpenGLRenderer::DrawIndexed()
     {
-        s_VertexArray->Bind();
-        s_Shader->Bind();
-        glDrawElements(GL_TRIANGLES, s_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+        m_VertexArray->Bind();
+        m_Shader->Bind();
+        glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 
-    void OpenGLRenderer::BatchGeometry()
+    void OpenGLRenderer::BatchStart()
+    {
+        
+    }
+
+    void OpenGLRenderer::Flush()
     {
         
     }

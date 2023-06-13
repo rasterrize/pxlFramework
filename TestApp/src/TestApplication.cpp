@@ -1,4 +1,5 @@
 #include "TestApplication.h"
+
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -100,6 +101,8 @@ namespace TestApp
 
         m_Window = pxl::Window::Create({1280, 720, "pxlFramework", pxl::RendererAPIType::OpenGL});
 
+        pxl::Renderer::Init(m_Window);
+
         pxl::Input::Init(m_Window);
 
         auto clearColour = pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
@@ -111,7 +114,7 @@ namespace TestApp
         m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(36, cubeindices);
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
-        pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
+        // pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
         std::shared_ptr<pxl::Mesh> mesh = std::make_shared<pxl::Mesh>();
 
@@ -133,10 +136,10 @@ namespace TestApp
         mesh->Vertices.push_back(v6);
         mesh->Vertices.push_back(v7);
 
-        // for (int i = 0; i < 36; i++)
-        // {
-        //     mesh->Indices.push_back(cubeindices[i]);
-        // }
+        // // for (int i = 0; i < 36; i++)
+        // // {
+        // //     mesh->Indices.push_back(cubeindices[i]);
+        // // }
 
         m_Meshes.push_back(mesh);
 
@@ -236,7 +239,7 @@ namespace TestApp
             -0.5f,  0.5f, -0.5f
         };
 
-        //m_VBO->SetData(sizeof(cubepositions), cubepositions);
+        m_VBO->SetData(sizeof(cubepositions), cubepositions);
 
         unsigned int cubeindices[] = { 
             0, 1, 2, 
@@ -284,7 +287,7 @@ namespace TestApp
 
     void TestApplication::OnImGuiRender()
     {
-        // Only gets called after ImGui is initialized
+        // Function only gets called if ImGui is initialized
         ImGui::ShowDemoWindow();
 
         ImGui::SetNextWindowSize(ImVec2(300, 680), ImGuiCond_FirstUseEver);

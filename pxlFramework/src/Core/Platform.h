@@ -1,3 +1,5 @@
+#pragma once
+
 #include <GLFW/glfw3.h>
 
 // platform specific utilities (getting time or date from operating system, etc)

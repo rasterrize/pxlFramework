@@ -1,4 +1,5 @@
 #include "OpenGLTexture.h"
+
 #include <glad/glad.h>
 
 namespace pxl

@@ -1,12 +1,11 @@
 #include "Renderer.h"
-#include "RendererAPI.h"
-#include "OpenGL/OpenGLRenderer.h"
-
-#include "../Core/Application.h"
-#include "../Core/Window.h"
-#include "../Core/Platform.h"
 
 #include <glad/glad.h>
+
+#include "RendererAPI.h"
+#include "OpenGL/OpenGLRenderer.h"
+#include "../Core/Application.h"
+#include "../Core/Platform.h"
 
 namespace pxl
 {
@@ -19,13 +18,20 @@ namespace pxl
     float Renderer::s_TimeAtLastFrame = 0.0f;
     float Renderer::s_LastFPS = 0.0f; 
 
-    void Renderer::Init(RendererAPIType api)
+    void Renderer::Init(std::shared_ptr<Window> window)
     {   
         if (s_Enabled)
             Logger::Log(LogLevel::Warn, "Can't initialize renderer, it's already initialized.");
 
-        switch (api)
+        auto windowSpecs = window->GetWindowSpecs();
+
+        switch (windowSpecs.RendererAPI)
         {
+            case RendererAPIType::None:
+            {
+                Logger::LogError("Can't initialize renderer since window specified no renderer api");    
+                return;
+            }
             case RendererAPIType::OpenGL:
             {
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
@@ -52,7 +58,7 @@ namespace pxl
             }
         }
 
-        s_RendererAPIType = api;
+        s_RendererAPIType = windowSpecs.RendererAPI;
         s_Enabled = true;
     }
 

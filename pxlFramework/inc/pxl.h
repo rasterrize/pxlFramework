@@ -5,6 +5,7 @@
 #include "../src/Core/Logger.h"
 #include "../src/Core/Input.h"
 #include "../src/Core/KeyCodes.h"
+#include "../src/Core/ButtonCodes.h"
 #include "../src/Core/Math.h"
 
 #include "../src/Renderer/Renderer.h"
@@ -16,6 +17,6 @@
 #include "../src/Renderer/OpenGL/OpenGLIndexBuffer.h"
 #include "../src/Renderer/OpenGL/OpenGLShader.h"
 
-#include "../src/Debug/ImGui/ImGuiOpenGL.h"
+#include "../src/Debug/ImGui/pxl_ImGui.h"
 
 #include "../src/Utils/FileLoader.h"

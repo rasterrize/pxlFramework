@@ -5,12 +5,6 @@
 
 namespace pxl
 {
-    struct Vertex
-    {
-        float Position[3];
-        //glm::vec2 TexCoords;
-    };
-
     class RendererAPI
     {
     public:

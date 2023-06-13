@@ -11,13 +11,16 @@ src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
+src/Core/ButtonCodes.h
 src/Core/Math.h
 src/Core/Platform.h
+src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
 src/Renderer/RendererAPI.h
-src/Renderer/GraphicsContext.h
+src/Renderer/RendererAPIType.h
+src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
 src/Renderer/VertexBuffer.h
 src/Renderer/IndexBuffer.h
 src/Renderer/VertexArray.h
@@ -43,8 +46,12 @@ src/Renderer/OpenGL/OpenGLTexture.h src/Renderer/OpenGL/OpenGLTexture.cpp
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 
 # DEBUG
+src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp
+src/Debug/ImGui/ImGuiBase.h
 src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 )
+
+#target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
 
 target_compile_features(pxlFramework PUBLIC cxx_std_17)
 

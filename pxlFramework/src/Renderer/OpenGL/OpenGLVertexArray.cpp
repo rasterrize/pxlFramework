@@ -1,4 +1,5 @@
 #include "OpenGLVertexArray.h"
+
 #include <glad/glad.h>
 
 namespace pxl
@@ -28,7 +29,7 @@ namespace pxl
         for (BufferElement element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, layout.GetStride(), (const void*)offset);
+            glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, layout.GetStride(), (const void*)offset); // static cast to fix warning?
             offset += element.Count * element.GetSizeOfType();
             index++;
         }

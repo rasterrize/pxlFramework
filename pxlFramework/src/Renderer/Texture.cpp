@@ -11,7 +11,7 @@ namespace pxl
         {
             case RendererAPIType::None:
                 Logger::LogError("Can't create Texture for no renderer api.");
-                return nullptr;
+                break;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLTexture>(imageBuffer, imageSize, channels);
             case RendererAPIType::Vulkan:

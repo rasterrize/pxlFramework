@@ -2,9 +2,7 @@
 
 #include "../RendererAPI.h"
 
-#include "OpenGLVertexBuffer.h"
 #include "OpenGLVertexArray.h"
-#include "OpenGLIndexBuffer.h"
 #include "OpenGLShader.h" 
 
 namespace pxl
@@ -21,15 +19,16 @@ namespace pxl
         virtual void DrawLines(int count) override;
         virtual void DrawIndexed() override;
 
-        virtual std::shared_ptr<VertexArray> const GetVertexArray() override { return s_VertexArray; }
-        virtual std::shared_ptr<Shader> const GetShader() override           { return s_Shader; }
+        virtual std::shared_ptr<VertexArray> const GetVertexArray() override { return m_VertexArray; }
+        virtual std::shared_ptr<Shader> const GetShader() override           { return m_Shader; }
 
-        virtual void SetVertexArray(std::shared_ptr<VertexArray> vertexArray) override { s_VertexArray.swap(vertexArray); s_VertexArray->Bind(); }
-        virtual void SetShader(std::shared_ptr<Shader> shader) override                { s_Shader.swap(shader); s_Shader->Bind(); }
+        virtual void SetVertexArray(std::shared_ptr<VertexArray> vertexArray) override { m_VertexArray.swap(vertexArray); m_VertexArray->Bind(); }
+        virtual void SetShader(std::shared_ptr<Shader> shader) override                { m_Shader.swap(shader); m_Shader->Bind(); }
     private:
-        void BatchGeometry();
+        void BatchStart();
+        void Flush();
     private:
-        std::shared_ptr<VertexArray> s_VertexArray;
-        std::shared_ptr<Shader> s_Shader;
+        std::shared_ptr<VertexArray> m_VertexArray;
+        std::shared_ptr<Shader> m_Shader;
     };
 }

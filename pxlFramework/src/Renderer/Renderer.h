@@ -1,32 +1,18 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-
-#include "../Core/Math.h"
-
-#include "GraphicsContext.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
+#include "../Core/Window.h"
+#include "RendererAPIType.h"
 #include "Shader.h"
-
-#include "OpenGL/OpenGLContext.h"
-#include "OpenGL/OpenGLVertexBuffer.h"
-#include "OpenGL/OpenGLVertexArray.h"
-#include "OpenGL/OpenGLIndexBuffer.h"
-#include "OpenGL/OpenGLShader.h"
-
+#include "VertexArray.h"
+#include "../Core/Math.h"
 #include "RendererAPI.h"
 
 namespace pxl
 {
-    enum class RendererAPIType
+    struct Vertex
     {
-        None,
-        OpenGL,
-        Vulkan,
-        DirectX11,
-        DirectX12
+        float Position[3];
+        //glm::vec2 TexCoords;
     };
 
     struct Mesh
@@ -38,7 +24,7 @@ namespace pxl
     class Renderer
     {
     public:
-        static void Init(RendererAPIType api);
+        static void Init(std::shared_ptr<Window> window);
         static void Shutdown();
 
         static const bool IsInitialized() { return s_Enabled; }
@@ -62,11 +48,10 @@ namespace pxl
     private:
         static void CalculateFPS();
     private:
-        friend class Window;
+        friend class WindowGLFW;
 
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;
-        static GLFWwindow* s_WindowHandle; // Might need to change this with DX12
 
         static std::unique_ptr<RendererAPI> s_RendererAPI;
 

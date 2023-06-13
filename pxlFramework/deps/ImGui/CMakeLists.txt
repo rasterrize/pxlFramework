@@ -14,7 +14,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/imstb_textedit.h
 ${CMAKE_CURRENT_SOURCE_DIR}/imstb_truetype.h
 
 ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_glfw.h ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_win32.h ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_win32.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_opengl3.h ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_dx11.h ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

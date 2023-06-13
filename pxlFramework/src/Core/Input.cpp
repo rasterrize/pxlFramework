@@ -12,7 +12,7 @@ namespace pxl
     std::unordered_map<int, int> Input::s_PreviousMBStates;
     glm::vec2 Input::s_CursorPosition = glm::vec2(1.0f);
 
-    void Input::Init(std::shared_ptr<Window> window)
+    void Input::Init(const std::shared_ptr<Window> window)
     {
         if (s_Enabled)
         {
@@ -27,7 +27,7 @@ namespace pxl
             return;
         }
 
-        s_WindowHandle = window->GetNativeWindow();
+        s_WindowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
         s_Enabled = true;
         Logger::Log(LogLevel::Info, "Input initialized");
     }
@@ -109,17 +109,17 @@ namespace pxl
         return false;
     }
 
-    void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    void Input::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         s_CurrentKeyStates[key] = action;
     }
 
-    void Input::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+    void Input::GLFWMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
     {
         s_CurrentMBStates[button] = action;
     }
 
-    void Input::CursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+    void Input::GLFWCursorPosCallback(GLFWwindow *window, double xpos, double ypos)
     {
         s_CursorPosition = glm::vec2((float)xpos, (float)ypos);
     }

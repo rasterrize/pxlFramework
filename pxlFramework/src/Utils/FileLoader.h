@@ -1,8 +1,10 @@
+#pragma once
+
+#include <filesystem>
+
 #include "../Renderer/Texture.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Renderer.h"
-
-#include <filesystem>
 
 namespace pxl
 {

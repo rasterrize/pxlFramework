@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-#include "../Renderer/Renderer.h"
+#include "../Renderer/GraphicsContext.h"
+#include "../Renderer/RendererAPIType.h"
 
 namespace pxl
 {
@@ -23,54 +23,49 @@ namespace pxl
     class Window
     {
     public:
-        Window(const WindowSpecs& windowSpecs);
+        virtual void Update() = 0;
+        virtual void Close() = 0;
 
-        unsigned int GetWidth() { return m_WindowSpecs.Width; }
-        unsigned int GetHeight() { return m_WindowSpecs.Height; }
+        virtual void SetSize(unsigned int width, unsigned int height) = 0;
+        virtual void SetWindowMode(WindowMode winMode) = 0;
+        virtual void SetMonitor(unsigned int monitorIndex) = 0;
 
-        float GetAspectRatio() { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
+        virtual void* GetNativeWindow() = 0;
 
-        void SetSize(unsigned int width, unsigned int height);
+        virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() = 0; // could be private or protected
 
-        void SetWindowMode(WindowMode winMode);
+        const unsigned int GetWidth() const { return m_WindowSpecs.Width; }
+        const unsigned int GetHeight() const { return m_WindowSpecs.Height; }
+
+        const WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
+
+        const float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
+
         void NextWindowMode();
         void ToggleFullscreen();
-        void SetVSync(bool vsync);
+
+        void SetVSync(bool vsync) { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync();
-
-        void SetMonitor(unsigned int monitorIndex);
-
-        GLFWwindow* GetNativeWindow() { return m_Window; }
-
-        void Close();
+    public:
         static void Shutdown();
 
-        static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs) { return std::make_shared<Window>(windowSpecs); }
-    private:
-        friend class Application;
-        static void Update();
-
-        void Init(const WindowSpecs& windowSpecs);
-
-        bool InitGLFWWindow(const WindowSpecs& windowSpecs);
-        void SetGLFWCallbacks();
-
-        static void WindowCloseCallback(GLFWwindow* window);
-        static void WindowResizeCallback(GLFWwindow* window, int width, int height);
-        static void WindowIconifyCallback(GLFWwindow* window, int iconification);
-    private:
-        GLFWwindow* m_Window;
-        static std::unique_ptr<GraphicsContext> s_GraphicsContext;
+        static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
+    protected:
+        Window(const WindowSpecs& windowSpecs);
+        
+        std::shared_ptr<GraphicsContext> m_GraphicsContext;
 
         WindowSpecs m_WindowSpecs;
         WindowMode m_WindowMode;
+        bool m_Minimized = false;
 
-        static bool s_VSync;
-        static bool s_Minimized;
-        
+        std::shared_ptr<Window> m_Handle;
+    protected:
         static uint8_t s_WindowCount;
+        static std::vector<std::shared_ptr<Window>> s_WindowHandles;
+    private:
+        friend class Application;
 
-        static GLFWmonitor** s_Monitors;
-        static int s_MonitorCount;
+        static void UpdateAll();
     };
 }

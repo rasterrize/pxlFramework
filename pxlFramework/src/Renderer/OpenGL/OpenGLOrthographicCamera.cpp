@@ -1,5 +1,7 @@
 #include "OpenGLOrthographicCamera.h"
+
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "../Renderer.h"
 #include "../../Core/Window.h"
 

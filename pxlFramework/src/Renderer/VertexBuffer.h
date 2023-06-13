@@ -1,7 +1,5 @@
 #pragma once
 
-#include "BufferLayout.h"
-
 namespace pxl
 {
     class VertexBuffer

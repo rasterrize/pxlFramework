@@ -1,18 +1,16 @@
-#include "../../Core/Window.h"
+#pragma once
 
-#include <imgui.h>
-#include <GLFW/glfw3.h>
+#include "ImGuiBase.h"
 
 namespace pxl
 {
-    class pxl_ImGui
+    class ImGuiOpenGL : public ImGuiBase
     {
     public:
-        static void Init(std::shared_ptr<Window> window);
-        static void Update();
-        static void Shutdown();
-    private:
-        static GLFWwindow* m_WindowHandle;
-        static bool s_Enabled;
+        ImGuiOpenGL();
+
+        virtual void NewFrame() override;
+        virtual void Render() override;
+        virtual void Shutdown() override;
     };
 }

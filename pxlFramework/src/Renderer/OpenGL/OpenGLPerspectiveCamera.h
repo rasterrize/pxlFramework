@@ -1,4 +1,7 @@
+#pragma once
+
 #include "../BaseCamera.h"
+
 #include <glm/glm.hpp>
 
 namespace pxl
