@@ -1,6 +1,3 @@
-[submodule "pxlFramework/deps/GLFW"]
-	path = pxlFramework/deps/GLFW
-	url = https://github.com/glfw/glfw
 [submodule "pxlFramework/deps/spdlog"]
 	path = pxlFramework/deps/spdlog
 	url = https://github.com/gabime/spdlog
@@ -11,3 +8,7 @@
 	path = pxlFramework/deps/ImGui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "pxlFramework/deps/GLFW"]
+	path = pxlFramework/deps/GLFW
+	url = https://github.com/glfw/glfw
+	branch = 3.3-stable
