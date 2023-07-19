@@ -29,8 +29,8 @@ namespace pxl
 
             if (!m_Minimized)
             {
+                OnUpdate(timestep); // should camera or onupdate go first??
                 Camera::Update();
-                OnUpdate(timestep);
                 pxl_ImGui::Update();
             }
 

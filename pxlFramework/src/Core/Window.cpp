@@ -23,12 +23,12 @@ namespace pxl
 
     void Window::UpdateAll()
     {
-        WindowGLFW::ProcessEvents();
-
         for (auto window : s_WindowHandles)
         {
             window->Update();
         }
+
+        WindowGLFW::ProcessEvents(); // glfw docs use pollevents after swapbuffers // also this should be moved for due to other window systems (mac)
     }
 
     void Window::Shutdown()

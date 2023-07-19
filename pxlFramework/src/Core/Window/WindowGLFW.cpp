@@ -68,7 +68,7 @@ namespace pxl
                 return;
         }
 
-        m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), nullptr, nullptr);
+        m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);
         glfwSetWindowUserPointer(m_Window, (Window*)this);
         SetGLFWCallbacks();
 
@@ -88,7 +88,6 @@ namespace pxl
 
     void WindowGLFW::Update()
     {
-        // glfw docs show poll events after swap buffers
         if (m_GraphicsContext)
             m_GraphicsContext->SwapBuffers();
 
@@ -135,7 +134,7 @@ namespace pxl
     {
         int fbWidth, fbHeight;
         glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-        //glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
+        glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
         // ^ this should be in the renderer somewhere.
 
         auto windowInstance = (WindowGLFW*)glfwGetWindowUserPointer(window);

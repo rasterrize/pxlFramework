@@ -70,6 +70,6 @@ target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
-target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE IMGUI_IMPL_OPENGL_LOADER_GLAD)
+target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE ) #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)
