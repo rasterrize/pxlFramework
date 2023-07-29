@@ -54,6 +54,7 @@ namespace pxl
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+                //glfwWindowHint(GLFW_REFRESH_RATE, 144);
                 break;
             case RendererAPIType::Vulkan:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -69,6 +70,7 @@ namespace pxl
         }
 
         m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);
+        s_Monitors = glfwGetMonitors(&s_MonitorCount);
         glfwSetWindowUserPointer(m_Window, (Window*)this);
         SetGLFWCallbacks();
 
@@ -119,9 +121,12 @@ namespace pxl
         glfwSetWindowSizeCallback(m_Window, WindowResizeCallback);
         glfwSetWindowIconifyCallback(m_Window, WindowIconifyCallback);
 
+        glfwSetMonitorCallback(MonitorCallback);
+
         glfwSetKeyCallback(m_Window, Input::GLFWKeyCallback);
         glfwSetMouseButtonCallback(m_Window, Input::GLFWMouseButtonCallback);
         glfwSetCursorPosCallback(m_Window, Input::GLFWCursorPosCallback);
+
     }
 
     void WindowGLFW::WindowCloseCallback(GLFWwindow* window)
@@ -155,6 +160,35 @@ namespace pxl
         }
     }
 
+    void WindowGLFW::MonitorCallback(GLFWmonitor* monitor, int event)
+    {
+        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
+        {
+            s_Monitors = glfwGetMonitors(&s_MonitorCount);
+        }
+    }
+
+    GLFWmonitor* WindowGLFW::GetCurrentMonitor()
+    {
+        int windowX, windowY;
+        glfwGetWindowPos(m_Window, &windowX, &windowY);
+
+        int monitorX, monitorY;
+        int monitorWidth, monitorHeight;
+
+        for (int i = 0; i < s_MonitorCount; i++)
+        {   
+            glfwGetMonitorWorkarea(s_Monitors[i], &monitorX, &monitorY, &monitorWidth, &monitorHeight);
+            if ((windowX >= monitorX && windowX < (monitorX + monitorWidth)) && (windowY >= monitorY && windowY < (monitorY + monitorHeight)))
+            {
+                return s_Monitors[i];
+            }
+        }
+
+        Logger::LogError("Failed to get window current monitor");
+        return nullptr;
+    }
+
     void WindowGLFW::SetSize(unsigned int width, unsigned int height)
     {
         glfwSetWindowSize(m_Window, width, height);
@@ -170,51 +204,51 @@ namespace pxl
     }
 
     void WindowGLFW::SetWindowMode(WindowMode winMode)
-    {
+    { 
+        auto currentMonitor = GetCurrentMonitor();
+        if (!currentMonitor)
+        {
+            currentMonitor = glfwGetPrimaryMonitor();
+            Logger::LogInfo("Current monitor was null, so the primary monitor was used");
+        }
 
-        const GLFWvidmode* vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        int vidmodeCount;
-        const GLFWvidmode* vidmodes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &vidmodeCount);
+        const GLFWvidmode* vidmode = glfwGetVideoMode(currentMonitor);
+
+        int monitorX, monitorY;
+        int monitorWidth, monitorHeight;
+        glfwGetMonitorWorkarea(currentMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
         switch (winMode)
         {
             case WindowMode::Windowed:
-                // Should set it to what monitor its on
-                glfwSetWindowMonitor(m_Window, NULL, 100, 100, m_WindowSpecs.Width, m_WindowSpecs.Height, GLFW_DONT_CARE);
-                SetSize(1280, 720);
+                glfwSetWindowMonitor(m_Window, nullptr, monitorX + (monitorWidth / 2) - (1280 / 2), monitorY + (monitorHeight / 2) - (720 / 2), 1280, 720, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
                 m_WindowMode = WindowMode::Windowed;
                 Logger::LogInfo("Set window mode to Windowed");
                 break;
             case WindowMode::Borderless:
-
-                // Should set it to what monitor its on
-                //auto monitor = glfwGetWindowMonitor(m_Window);
-                
-                glfwSetWindowMonitor(m_Window, NULL, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
-
+                glfwSetWindowMonitor(m_Window, nullptr, monitorX, monitorY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
                 m_WindowMode = WindowMode::Borderless;
                 Logger::LogInfo("Set window mode to Borderless");
                 break;
             case WindowMode::Fullscreen:
-                // Should set it to what monitor its on
-                glfwSetWindowMonitor(m_Window, glfwGetPrimaryMonitor(), 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+                glfwSetWindowMonitor(m_Window, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+                // Set VSync because bug idk
+                m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync());
                 m_WindowMode = WindowMode::Fullscreen;
                 Logger::LogInfo("Set window mode to Fullscreen");
                 break;
         }
     }
 
-    void WindowGLFW::SetMonitor(unsigned int monitorIndex)
+    void WindowGLFW::SetMonitor(uint8_t monitorIndex)
     {
-        if (monitorIndex == 0)
+        if (monitorIndex <= 0)
             return;
         
         if (s_WindowCount == 0)
             return;
 
-        s_Monitors = glfwGetMonitors(&s_MonitorCount);
-
-        auto currentMonitor = glfwGetWindowMonitor(m_Window);
+        //auto currentMonitor = glfwGetWindowMonitor(m_Window);
         
         if (monitorIndex > s_MonitorCount)
         {
@@ -222,20 +256,27 @@ namespace pxl
             return;
         }
 
+
+        // Get video mode for fullscreen and borderless
         GLFWmonitor* monitor = s_Monitors[monitorIndex - 1];
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-        int nextXpos, nextYpos;
-        int nextWidth, nextHeight;
-        glfwGetMonitorWorkarea(monitor, &nextXpos, &nextYpos, &nextWidth, &nextHeight);
+
+        // Get window and monitor sizes/positions for windowed/borderless
+        int windowWidth, windowHeight; // could these be the stored width and height variables in the window specs?
+        glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
+
+        int nextMonX, nextMonY;
+        int nextMonWidth, nextMonHeight;
+        glfwGetMonitorWorkarea(monitor, &nextMonX, &nextMonY, &nextMonWidth, &nextMonHeight); // excludes taskbar
 
         switch (m_WindowMode)
         {
             case WindowMode::Windowed:
-                glfwSetWindowMonitor(m_Window, NULL, nextXpos + 50, nextYpos + 50, m_WindowSpecs.Width, m_WindowSpecs.Height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_Window, nullptr, nextMonX + (nextMonWidth / 2) - (windowWidth / 2), nextMonY + (nextMonHeight / 2) - (windowHeight / 2), m_WindowSpecs.Width, m_WindowSpecs.Height, GLFW_DONT_CARE);
                 break;
             case WindowMode::Borderless:
-                glfwSetWindowMonitor(m_Window, NULL, nextXpos, nextYpos, mode->width, mode->height, mode->refreshRate);
+                glfwSetWindowMonitor(m_Window, nullptr, nextMonX, nextMonY, mode->width, mode->height, GLFW_DONT_CARE);
                 break;
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);

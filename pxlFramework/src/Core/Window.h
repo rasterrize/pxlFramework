@@ -28,16 +28,19 @@ namespace pxl
 
         virtual void SetSize(unsigned int width, unsigned int height) = 0;
         virtual void SetWindowMode(WindowMode winMode) = 0;
-        virtual void SetMonitor(unsigned int monitorIndex) = 0;
+        virtual void SetMonitor(uint8_t monitorIndex) = 0;
 
         virtual void* GetNativeWindow() = 0;
+        virtual uint8_t GetAvailableMonitorCount() = 0;
 
-        virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() = 0; // could be private or protected
+
+        virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() = 0;
 
         const unsigned int GetWidth() const { return m_WindowSpecs.Width; }
         const unsigned int GetHeight() const { return m_WindowSpecs.Height; }
 
         const WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
+        const WindowMode GetWindowMode() const { return m_WindowMode; }
 
         const float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
 
@@ -47,7 +50,7 @@ namespace pxl
         void SetVSync(bool vsync) { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync();
     public:
-        static void Shutdown();
+        static void Shutdown(); // I don't think this should be public
 
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
     protected:
