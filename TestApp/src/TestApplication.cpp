@@ -186,51 +186,51 @@ namespace TestApp
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            m_CameraPosition.y += 1.0f * ts;
+            m_CameraPosition.y += 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
         {
-            m_CameraPosition.x -= 1.0f * ts;
+            m_CameraPosition.x -= 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-            m_CameraPosition.y -= 1.0f * ts;
+            m_CameraPosition.y -= 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         {
-            m_CameraPosition.x += 1.0f * ts;
+            m_CameraPosition.x += 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
         {
-            m_CameraPosition.z -= 2.0f * ts;
+            m_CameraPosition.z -= 2.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
         {
-            m_CameraPosition.z += 2.0f * ts;
+            m_CameraPosition.z += 2.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_UP))
         {
-            m_MeshPosition.y += 1.0f * ts;
+            m_MeshPosition.y += 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT))
         {
-            m_MeshPosition.x -= 1.0f * ts;
+            m_MeshPosition.x -= 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DOWN))
         {
-            m_MeshPosition.y -= 1.0f * ts;
+            m_MeshPosition.y -= 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_RIGHT))
         {
-            m_MeshPosition.x += 1.0f * ts;
+            m_MeshPosition.x += 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DELETE))
         {
-            m_MeshPosition.z += 1.0f * ts;
+            m_MeshPosition.z += 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_PAGE_DOWN))
         {
-            m_MeshPosition.z -= 1.0f * ts;
+            m_MeshPosition.z -= 1.0f * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
         {
@@ -291,39 +291,66 @@ namespace TestApp
             //}
         //}
 
-        //glm::mat4 testmodelmatrix = glm::mat4(1.0f);
-        //m_Shader->SetUniformMat4("u_Model", testmodelmatrix);
-
         pxl::Renderer::DrawIndexed();
     }
 
     void TestApplication::OnImGuiRender()
     {
-        // Function only gets called if ImGui is initialized
-        ImGui::ShowDemoWindow();
+        #ifdef TA_DEBUG
+            // Function only gets called if ImGui is initialized
+            //ImGui::ShowDemoWindow();
 
-        ImGui::SetNextWindowSize(ImVec2(300, 680), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(21, 21), ImGuiCond_FirstUseEver);
-        ImGui::Begin("pxlFramework: Test App");
-        ImGui::Text("FPS: %f (%fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
-        ImGui::Text("Clear Colour");
-        ImGui::ColorEdit3("", &m_ClearColour.x);
-        pxl::Renderer::SetClearColour(m_ClearColour);
-        ImGui::End();
+            ImGui::SetNextWindowSize(ImVec2(300, 680), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(21, 21), ImGuiCond_FirstUseEver);
+            ImGui::Begin("pxlFramework: Test App");
+            ImGui::Text("FPS: %f (%fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
+            ImGui::Text("Clear Colour");
+            ImGui::ColorEdit3("", &m_ClearColour.x);
+            pxl::Renderer::SetClearColour(m_ClearColour);
+            if (ImGui::Button("Reload Shader"))
+            {
+                m_Shader->Reload();
+            }
+            ImGui::End();
 
-        ImGui::SetNextWindowSize(ImVec2(300, 100), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(335, 21), ImGuiCond_FirstUseEver);
-        ImGui::Begin("Settings");
-        static uint8_t monitor = 1;
-        int step = 1;
-        ImGui::InputScalar("Monitor", ImGuiDataType_U8, &monitor, &step, NULL, NULL, NULL);
-        static bool vsync = true;
-        ImGui::Checkbox("VSync", &vsync);
-        if (ImGui::Button("Apply"))
-        {
-             m_Window->SetVSync(vsync);
-             m_Window->SetMonitor(monitor);
-        }
-        ImGui::End();
+            ImGui::SetNextWindowSize(ImVec2(310, 150), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(335, 21), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Settings");
+            static uint8_t monitor = 1;
+            int step = 1;
+            ImGui::InputScalar("Monitor", ImGuiDataType_U8, &monitor, &step, NULL, NULL, NULL);
+
+            const char* windowModes[] = { "Windowed", "Borderless", "Fullscreen" };
+            switch (m_Window->GetWindowMode())
+            {
+                
+            }
+            static int item_current = 0;
+            static pxl::WindowMode windowMode = m_Window->GetWindowMode();
+            ImGui::Combo("Display Mode", &item_current, windowModes, IM_ARRAYSIZE(windowModes));
+
+            switch (item_current)
+            {
+                case 0:
+                    windowMode = pxl::WindowMode::Windowed;
+                    break;
+                case 1:
+                    windowMode = pxl::WindowMode::Borderless;
+                    break;
+                case 2:
+                    windowMode = pxl::WindowMode::Fullscreen;
+                    break;
+            }
+
+            static bool vsync = m_Window->GetGraphicsContext()->GetVSync();
+            ImGui::Checkbox("VSync", &vsync);
+            if (ImGui::Button("Apply"))
+            {
+                 m_Window->SetVSync(vsync);
+                 m_Window->SetMonitor(monitor);
+                 m_Window->SetWindowMode(windowMode);
+            }
+            ImGui::End();
+        #endif
     }
 }
