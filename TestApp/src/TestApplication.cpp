@@ -99,7 +99,17 @@ namespace TestApp
             }
         )";
 
-        m_Window = pxl::Window::Create({1280, 720, "pxlFramework", pxl::RendererAPIType::OpenGL});
+        std::string windowTitle = "pxlFramework Test App";
+
+        #ifdef TA_DEBUG
+            windowTitle = "pxlFramework Test App - Debug x64";
+        #elif TA_RELEASE
+            windowTitle = "pxlFramework Test App - Release x64";
+        #else
+            windowTitle = "pxlFramework Test App - Unknown Build Type";
+        #endif
+        
+        m_Window = pxl::Window::Create({1280, 720, windowTitle, pxl::RendererAPIType::OpenGL});
 
         pxl::Renderer::Init(m_Window);
 
@@ -156,7 +166,9 @@ namespace TestApp
 
         //auto texture = pxl::TextureLoader::Load("Textures/stone.png");
 
-        pxl::pxl_ImGui::Init(m_Window);
+        #ifdef TA_DEBUG
+            pxl::pxl_ImGui::Init(m_Window);
+        #endif
     }
 
     TestApplication::~TestApplication()
