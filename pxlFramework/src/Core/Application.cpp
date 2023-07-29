@@ -24,12 +24,12 @@ namespace pxl
         while (m_Running)
         {
             float time = (float)Platform::GetTime();
-            float timestep = time - m_LastFrameTime;
+            float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
             if (!m_Minimized)
             {
-                OnUpdate(timestep); // should camera or onupdate go first??
+                OnUpdate(deltaTime);
                 Camera::Update();
                 pxl_ImGui::Update();
             }

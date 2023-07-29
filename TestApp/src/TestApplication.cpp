@@ -176,7 +176,7 @@ namespace TestApp
 
     }
 
-    void TestApplication::OnUpdate(float ts)
+    void TestApplication::OnUpdate(float dt)
     {
         m_CameraPosition = pxl::Camera::GetPosition();
 

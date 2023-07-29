@@ -19,7 +19,7 @@ namespace pxl
                 return false;
         }
 
-        virtual void OnUpdate(float ts) = 0;
+        virtual void OnUpdate(float dt) = 0;
         virtual void OnImGuiRender() = 0;
 
         static Application& Get() { return *s_Instance; }

@@ -8,7 +8,7 @@ namespace TestApp
         TestApplication();
         ~TestApplication();
 
-        virtual void OnUpdate(float ts) override;
+        virtual void OnUpdate(float dt) override;
         virtual void OnImGuiRender() override;
     private:
         std::shared_ptr<pxl::Window> m_Window;
