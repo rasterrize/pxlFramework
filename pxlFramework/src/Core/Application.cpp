@@ -5,6 +5,8 @@
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
 
+#include "Stopwatch.h"
+
 namespace pxl
 {
     Application* Application::s_Instance;
@@ -21,6 +23,7 @@ namespace pxl
 
     void Application::Run()
     {
+        Stopwatch stopwatch;
         while (m_Running)
         {
             float time = (float)Platform::GetTime();
@@ -36,6 +39,8 @@ namespace pxl
 
             Window::UpdateAll();
         }
+        stopwatch.Stop();
+        Logger::LogInfo("Application ran for " + std::to_string(stopwatch.GetElapsedSec()) + " seconds");
     }
 
     void Application::Close()

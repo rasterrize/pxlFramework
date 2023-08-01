@@ -15,6 +15,7 @@ src/Core/ButtonCodes.h
 src/Core/Math.h
 src/Core/Platform.h
 src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
+src/Core/Stopwatch.h
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp

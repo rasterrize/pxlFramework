@@ -7,6 +7,7 @@
 #include "../src/Core/KeyCodes.h"
 #include "../src/Core/ButtonCodes.h"
 #include "../src/Core/Math.h"
+#include "../src/Core/Stopwatch.h"
 
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/Camera.h"
