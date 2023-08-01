@@ -58,7 +58,6 @@ namespace pxl
         static float s_FPS;
         static uint16_t s_FrameCount;
         static float s_TimeAtLastFrame;
-        static float s_LastFPS; 
 
         //static std::vector<Mesh> s_Meshes;
     };

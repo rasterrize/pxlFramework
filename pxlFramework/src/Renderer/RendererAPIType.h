@@ -6,8 +6,6 @@ namespace pxl
     {
         None,
         OpenGL,
-        Vulkan,
-        DirectX11,
-        DirectX12
+        Vulkan
     };
 }

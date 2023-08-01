@@ -17,12 +17,6 @@ namespace pxl
             case RendererAPIType::Vulkan:
                 Logger::LogError("Can't create Texture for Vulkan renderer api.");
                 break;
-            case RendererAPIType::DirectX11:
-                Logger::LogError("Can't create Texture for DirectX11 renderer api.");
-                break;
-            case RendererAPIType::DirectX12:
-                Logger::LogError("Can't create Texture for DirectX12 renderer api.");
-                break;
         }
 
         return nullptr;

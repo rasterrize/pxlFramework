@@ -16,7 +16,6 @@ namespace pxl
     float Renderer::s_FPS = 0.0f;
     uint16_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
-    float Renderer::s_LastFPS = 0.0f; 
 
     void Renderer::Init(std::shared_ptr<Window> window)
     {   
@@ -28,34 +27,19 @@ namespace pxl
         switch (windowSpecs.RendererAPI)
         {
             case RendererAPIType::None:
-            {
                 Logger::LogError("Can't initialize renderer since window specified no renderer api");    
                 return;
-            }
             case RendererAPIType::OpenGL:
-            {
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
+
                 if (!s_RendererAPI)
                     Logger::LogError("Failed to create OpenGL renderer api object");
 
                 Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
                 break;
-            }
             case RendererAPIType::Vulkan:
-            {
                 Logger::LogError("Vulkan isn't currently supported");
                 return;
-            }
-            case RendererAPIType::DirectX11:
-            {
-                Logger::LogError("DirectX11 isn't currently supported");
-                return;
-            }
-            case RendererAPIType::DirectX12:
-            {
-                Logger::LogError("DirectX12 isn't currently supported");
-                return;
-            }
         }
 
         s_RendererAPIType = windowSpecs.RendererAPI;

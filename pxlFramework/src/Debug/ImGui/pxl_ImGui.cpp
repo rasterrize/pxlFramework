@@ -40,12 +40,6 @@ namespace pxl
             case RendererAPIType::Vulkan:
                 Logger::LogError("Can't initialize ImGui for Vulkan");
                 return;
-            case RendererAPIType::DirectX11:
-                Logger::LogError("Can't initialize ImGui for DirectX11");
-                return;
-            case RendererAPIType::DirectX12:
-                Logger::LogError("Can't initialize ImGui for DirectX12");
-                return;
         }
 
         m_RendererAPI = window->GetWindowSpecs().RendererAPI;

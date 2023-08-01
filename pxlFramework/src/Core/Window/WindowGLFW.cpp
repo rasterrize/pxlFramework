@@ -54,19 +54,11 @@ namespace pxl
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-                //glfwWindowHint(GLFW_REFRESH_RATE, 144);
                 break;
             case RendererAPIType::Vulkan:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
                 break;
-            case RendererAPIType::DirectX11:
-                glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-                break;
-            case RendererAPIType::DirectX12:
-                Logger::LogError("DirectX12 window support not implemented");
-                return;
         }
 
         m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);

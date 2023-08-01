@@ -32,7 +32,6 @@ namespace pxl
         switch (Renderer::GetRendererAPIType())
         {
             case RendererAPIType::OpenGL:
-            {
                 switch (type)
                 {
                     case CameraType::Orthographic:
@@ -41,29 +40,18 @@ namespace pxl
                         {
                             Logger::LogInfo("Successfully created OpenGL orthographic camera");
                         }
-                    break;
+                        break;
                     case CameraType::Perspective:
                         s_Camera = std::make_shared<OpenGLPerspectiveCamera>();
+                        
                         if (s_Camera)
-                        {
                             Logger::LogInfo("Successfully created OpenGL perspective camera");
-                        }
-                    break;
+                        break;
                 }
-            }
-            break;
+                break;
             case RendererAPIType::Vulkan:
-            {
                 Logger::LogWarn("Vulkan Cameras not implemented");
                 return;
-            }
-            break;
-            case RendererAPIType::DirectX12:
-            {
-                Logger::LogWarn("DirectX12 Cameras not implemented");
-                return;
-            }
-            break;
         }
 
         if (!s_Camera)

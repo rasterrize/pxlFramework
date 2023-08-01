@@ -86,12 +86,6 @@ namespace pxl
             case RendererAPIType::Vulkan:
                 window = std::make_shared<WindowGLFW>(windowSpecs);
                 break;
-            case RendererAPIType::DirectX11:
-                window = std::make_shared<WindowGLFW>(windowSpecs);
-                break;
-            case RendererAPIType::DirectX12:
-                window = std::make_shared<WindowGLFW>(windowSpecs);
-                break;
         }
 
         if (window)

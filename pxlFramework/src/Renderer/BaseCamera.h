@@ -28,10 +28,10 @@ namespace pxl
         BaseCamera(CameraType cameraType, float nearClip, float farClip) : m_CameraType(cameraType), m_NearClip(nearClip), m_FarClip(farClip), m_AspectRatio(16.0f / 9.0f) {};
 
         glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
-        glm::mat4 m_ViewMatrix       = glm::mat4(1.0f); // it does work with directx but it has it's own math class // probably should make own math class
+        glm::mat4 m_ViewMatrix       = glm::mat4(1.0f);
         
         glm::vec3 m_Position = glm::vec3(0.0f);
-        glm::vec3 m_Rotation = glm::vec3(0.0f); // do all these vectors and matrices need to be initialized?
+        glm::vec3 m_Rotation = glm::vec3(0.0f);
 
         float m_NearClip;
         float m_FarClip;
