@@ -7,7 +7,7 @@ namespace pxl
 {
     std::shared_ptr<Texture> Texture::Create(unsigned char* imageBuffer, glm::vec2 imageSize, int channels)
     {
-        switch (Renderer::GetRendererAPIType())
+        switch (Renderer::GetAPIType())
         {
             case RendererAPIType::None:
                 Logger::LogError("Can't create Texture for no renderer api.");

@@ -29,7 +29,7 @@ namespace pxl
         //     return;
         // }
 
-        switch (Renderer::GetRendererAPIType())
+        switch (Renderer::GetAPIType())
         {
             case RendererAPIType::OpenGL:
                 switch (type)

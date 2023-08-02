@@ -29,7 +29,7 @@ namespace pxl
 
         static const bool IsInitialized() { return s_Enabled; }
 
-        static const RendererAPIType GetRendererAPIType() { return s_RendererAPIType; }
+        static const RendererAPIType GetAPIType() { return s_RendererAPIType; }
         static std::shared_ptr<Shader> GetShader() { return s_RendererAPI->GetShader(); }
 
         static const float GetFPS() { return s_FPS; }
