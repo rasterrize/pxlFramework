@@ -33,7 +33,7 @@ namespace pxl
             if (!m_Minimized)
             {
                 OnUpdate(deltaTime);
-                Camera::Update();
+                Camera::UpdateAll();
                 pxl_ImGui::Update();
             }
 

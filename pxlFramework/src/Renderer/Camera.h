@@ -1,27 +1,58 @@
 #pragma once
 
-#include "BaseCamera.h"
+#include "../Core/Application.h"
+
+#include <glm/glm.hpp>
 
 namespace pxl
-{
+{   
+    enum class CameraType
+    {
+        Orthographic, Perspective
+    };
+
+    struct CameraSettings
+    {
+        //CameraType CameraType;
+        float AspectRatio;
+        float NearClip;
+        float FarClip;
+    };
+
     class Camera
     {
     public:
-        static void Init(CameraType type);
-        static void Shutdown();
+        virtual void Update() = 0;
 
-        static std::shared_ptr<BaseCamera> GetBaseCamera() { if (s_Enabled) { return s_Camera; } return nullptr; }
+        const glm::vec3 GetPosition() const { return m_Position; }
+        const glm::vec3 GetRotation() const { return m_Rotation; }
 
-        static glm::vec3 GetPosition() { if (s_Enabled) { return s_Camera->GetPosition(); } return glm::vec3(0.0f); } // once again not api-agnostic // should return an error instead
-        static glm::vec3 GetRotation() { if (s_Enabled) { return s_Camera->GetRotation(); } return glm::vec3(0.0f); }
+        void SetPosition(glm::vec3 position) { m_Position = position; }
+        void SetRotation(glm::vec3 rotation) { m_Rotation = rotation; }
 
-        static void SetPosition(glm::vec3 position) { if (s_Enabled) s_Camera->SetPosition(position); }
-        static void SetRotation(glm::vec3 rotation) { if (s_Enabled) s_Camera->SetRotation(rotation); }
+        virtual void SetFOV(float fov) = 0;
+
+        static std::shared_ptr<Camera> Create(CameraType type);
+    protected:
+        Camera(CameraType cameraType, const CameraSettings& cameraSettings) 
+            : m_CameraSettings(cameraSettings) {};
+
+        glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
+        glm::mat4 m_ViewMatrix       = glm::mat4(1.0f);
+        
+        glm::vec3 m_Position = glm::vec3(0.0f); // not sure whether these should be per camera type yet 
+        glm::vec3 m_Rotation = glm::vec3(0.0f); //
+
+        //CameraType m_CameraType;
+        CameraSettings m_CameraSettings;
+
+        std::shared_ptr<Camera> m_Handle; // This is isn't used currently
     private:
-        friend class Application;
-        static void Update();
+        virtual void RecalculateProjection() = 0;
 
-        static bool s_Enabled;
-        static std::shared_ptr<BaseCamera> s_Camera;
+        friend class Application;
+        static void UpdateAll();
+    private:
+        static std::vector<std::shared_ptr<Camera>> s_Cameras;
     };
 }

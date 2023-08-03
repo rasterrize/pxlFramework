@@ -8,9 +8,9 @@
 namespace pxl
 {
     OpenGLPerspectiveCamera::OpenGLPerspectiveCamera()
-    : BaseCamera(CameraType::Perspective, 0.001f, 1000.0f), m_FOV(45.0f)
+    : Camera(CameraType::Perspective, { 16.0f / 9.0f, 0.001f, 1000.0f }), m_FOV(45.0f)
     {
-        m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearClip, m_FarClip);
+        m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_CameraSettings.AspectRatio, m_CameraSettings.NearClip, m_CameraSettings.FarClip);
     }
 
     void OpenGLPerspectiveCamera::Update()
@@ -30,6 +30,6 @@ namespace pxl
 
     void OpenGLPerspectiveCamera::RecalculateProjection()
     {
-        m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearClip, m_FarClip);
+        m_ProjectionMatrix = glm::perspective(glm::radians(m_FOV), m_CameraSettings.AspectRatio, m_CameraSettings.NearClip, m_CameraSettings.FarClip);
     }
 }

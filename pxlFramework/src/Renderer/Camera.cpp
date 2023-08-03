@@ -6,74 +6,53 @@
 
 namespace pxl
 {
-    bool Camera::s_Enabled;
-    std::shared_ptr<BaseCamera> Camera::s_Camera;
+    std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
 
-    void Camera::Init(CameraType type)
+    std::shared_ptr<Camera> Camera::Create(CameraType type)
     {
-        if (s_Enabled)
-        {
-            Logger::LogWarn("Can't initialize camera, it is already initialized");
-            return;
-        }
-
-        if (!Renderer::IsInitialized())
-        {
-            Logger::LogWarn("Can't initialize camera, renderer must be initialized first");
-            return;
-        }
-
-        // if (!Renderer::GetShader())
-        // {
-        //     Logger::LogWarn("Can't initialize camera, Camera needs a shader");
-        //     return;
-        // }
+        std::shared_ptr<Camera> camera;
 
         switch (Renderer::GetAPIType())
         {
+            case RendererAPIType::None:
+                Logger::LogError("Can't create camera for no renderer api");
+                return nullptr;
             case RendererAPIType::OpenGL:
                 switch (type)
                 {
                     case CameraType::Orthographic:
-                        s_Camera = std::make_shared<OpenGLOrthographicCamera>();
-                        if (s_Camera)
-                        {
+                        camera = std::make_shared<OpenGLOrthographicCamera>();
+                        if (camera)
                             Logger::LogInfo("Successfully created OpenGL orthographic camera");
-                        }
                         break;
                     case CameraType::Perspective:
-                        s_Camera = std::make_shared<OpenGLPerspectiveCamera>();
-                        
-                        if (s_Camera)
+                        camera = std::make_shared<OpenGLPerspectiveCamera>();
+                        if (camera)
                             Logger::LogInfo("Successfully created OpenGL perspective camera");
                         break;
                 }
                 break;
             case RendererAPIType::Vulkan:
                 Logger::LogWarn("Vulkan Cameras not implemented");
-                return;
+                return nullptr;
         }
 
-        if (!s_Camera)
+        if (camera) // technically this check is unnecessary but im gonna leave it here for now
         {
-            Logger::LogError("Failed to create camera object");
-            return;
+            s_Cameras.push_back(camera);
+            camera->m_Handle = camera;
+            return camera;
         }
 
-        s_Enabled = true;
+        Logger::LogError("Failed to create camera");
+        return nullptr;
     }
 
-    void Camera::Update()
+    void Camera::UpdateAll()
     {
-        if (s_Enabled)
+        for (auto camera : s_Cameras)
         {
-            s_Camera->Update();
+            camera->Update();
         }
-    }
-
-    void Camera::Shutdown()
-    {
-        s_Camera = nullptr;
-        s_Enabled = false;
     }
 }

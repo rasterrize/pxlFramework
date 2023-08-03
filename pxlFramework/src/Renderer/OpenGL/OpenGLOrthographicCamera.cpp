@@ -8,9 +8,9 @@
 namespace pxl
 {
     OpenGLOrthographicCamera::OpenGLOrthographicCamera() 
-    : BaseCamera(CameraType::Orthographic, -1.0f, 1.0f)
+    : Camera(CameraType::Orthographic, {16.0f / 9.0f, -1.0f, 1.0f})
     {
-        m_ProjectionMatrix = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, m_NearClip, m_FarClip);
+        m_ProjectionMatrix = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, m_CameraSettings.NearClip, m_CameraSettings.FarClip);
     }
 
     void OpenGLOrthographicCamera::Update()
@@ -29,6 +29,6 @@ namespace pxl
 
     void OpenGLOrthographicCamera::RecalculateProjection()
     {
-        m_ProjectionMatrix = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, m_NearClip, m_FarClip);
+        m_ProjectionMatrix = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, m_CameraSettings.NearClip, m_CameraSettings.FarClip);
     }
 }

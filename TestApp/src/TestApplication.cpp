@@ -161,8 +161,8 @@ namespace TestApp
         m_VAO->SetVertexBuffer(m_VBO);
         m_VAO->SetIndexBuffer(m_IBO);
 
-        pxl::Camera::Init(pxl::CameraType::Perspective);
-        pxl::Camera::SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+        m_Camera = pxl::Camera::Create(pxl::CameraType::Perspective);
+        m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
         //auto texture = pxl::TextureLoader::Load("Textures/stone.png");
 
@@ -178,27 +178,34 @@ namespace TestApp
 
     void TestApplication::OnUpdate(float dt)
     {
-        m_CameraPosition = pxl::Camera::GetPosition();
+        m_CameraPosition = m_Camera->GetPosition();
+        float cameraSpeed = 1.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             Application::Close();
         }
+
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
+        {
+            cameraSpeed *= 2.0f;
+        }
+
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            m_CameraPosition.y += 1.0f * dt;
+            m_CameraPosition.y += cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
         {
-            m_CameraPosition.x -= 1.0f * dt;
+            m_CameraPosition.x -= cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-            m_CameraPosition.y -= 1.0f * dt;
+            m_CameraPosition.y -= cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         {
-            m_CameraPosition.x += 1.0f * dt;
+            m_CameraPosition.x += cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
         {
@@ -237,7 +244,7 @@ namespace TestApp
             m_Window->NextWindowMode();
         }
 
-        pxl::Camera::SetPosition(glm::vec3(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z));
+        m_Camera->SetPosition(glm::vec3(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z));
 
         // set vertex buffer data
         float cubepositions[] = {
@@ -304,7 +311,7 @@ namespace TestApp
             ImGui::SetNextWindowPos(ImVec2(21, 21), ImGuiCond_FirstUseEver);
             ImGui::Begin("pxlFramework: Test App");
             ImGui::Text("FPS: %f (%fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
-            ImGui::Text("Clear Colour");
+            ImGui::Text("Clear Colour:");
             ImGui::ColorEdit3("", &m_ClearColour.x);
             pxl::Renderer::SetClearColour(m_ClearColour);
             if (ImGui::Button("Reload Shader"))
@@ -313,7 +320,7 @@ namespace TestApp
             }
             ImGui::End();
 
-            ImGui::SetNextWindowSize(ImVec2(310, 150), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(330, 200), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(335, 21), ImGuiCond_FirstUseEver);
             ImGui::Begin("Settings");
             static uint8_t monitor = 1;
@@ -321,12 +328,8 @@ namespace TestApp
             ImGui::InputScalar("Monitor", ImGuiDataType_U8, &monitor, &step, NULL, NULL, NULL);
 
             const char* windowModes[] = { "Windowed", "Borderless", "Fullscreen" };
-            switch (m_Window->GetWindowMode())
-            {
-                
-            }
             static int item_current = 0;
-            static pxl::WindowMode windowMode = m_Window->GetWindowMode();
+            pxl::WindowMode windowMode = m_Window->GetWindowMode();
             ImGui::Combo("Display Mode", &item_current, windowModes, IM_ARRAYSIZE(windowModes));
 
             switch (item_current)
@@ -344,12 +347,21 @@ namespace TestApp
 
             static bool vsync = m_Window->GetGraphicsContext()->GetVSync();
             ImGui::Checkbox("VSync", &vsync);
+
+            static float cameraFOV = 45.0f; // should retrieve cameras FOV
+            ImGui::SliderFloat("Camera FOV", &cameraFOV, 30.0f, 120.0f);
+
             if (ImGui::Button("Apply"))
             {
-                 m_Window->SetVSync(vsync);
-                 m_Window->SetMonitor(monitor);
-                 m_Window->SetWindowMode(windowMode);
+                m_Window->SetVSync(vsync);
+                m_Window->SetMonitor(monitor);
+                if (windowMode != m_Window->GetWindowMode())
+                {
+                    m_Window->SetWindowMode(windowMode);
+                }
+                m_Camera->SetFOV(cameraFOV);
             }
+
             ImGui::End();
         #endif
     }

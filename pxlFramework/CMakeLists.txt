@@ -28,7 +28,6 @@ src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
 src/Renderer/Shader.h
 src/Renderer/Camera.h src/Renderer/Camera.cpp
-src/Renderer/BaseCamera.h
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 
