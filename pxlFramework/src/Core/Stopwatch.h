@@ -5,16 +5,31 @@ namespace pxl
     class Stopwatch
     {
     public:
-        Stopwatch()
-            : m_StartTime(std::chrono::high_resolution_clock::now()) {}
+        Stopwatch(bool start = true) 
+        {
+            if (start)
+                m_StartTime = std::chrono::high_resolution_clock::now(); // could calling Start() be convenient or dangerous?
+        }
 
         ~Stopwatch() { Stop(); }
+
+        void Start()
+        {
+            m_StartTime = std::chrono::high_resolution_clock::now();
+        }
 
         void Stop()
         {
             m_EndTime = std::chrono::high_resolution_clock::now();
-            m_Elapsed = m_EndTime - m_StartTime;
             m_Stopped = true;
+            CalculateElapsed();
+        }
+
+        void Restart()
+        {
+            m_StartTime = std::chrono::high_resolution_clock::now();
+            m_EndTime = std::chrono::time_point<std::chrono::steady_clock>::min(); // TODO: Make this equal to a time point of 0 nanoseconds
+            m_Elapsed = std::chrono::duration<float>::zero();
         }
 
         float GetElapsedSec() { if (!m_Stopped) { CalculateElapsed(); } return m_Elapsed.count(); }
@@ -24,7 +39,14 @@ namespace pxl
     private:
         void CalculateElapsed()
         {
-            m_Elapsed = m_StartTime - std::chrono::high_resolution_clock::now();
+            if (m_Stopped)
+            {
+                m_Elapsed = m_EndTime - m_StartTime;
+            }
+            else
+            {
+                m_Elapsed = std::chrono::high_resolution_clock::now() - m_StartTime;
+            }
         }
     
     private:
