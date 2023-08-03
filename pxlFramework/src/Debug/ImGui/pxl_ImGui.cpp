@@ -5,6 +5,8 @@
 
 #include "../../Core/Application.h"
 
+#include <filesystem>
+
 #include <backends/imgui_impl_glfw.h>
 
 namespace pxl
@@ -15,6 +17,8 @@ namespace pxl
 
     void pxl_ImGui::Init(std::shared_ptr<Window> window)
     {
+        const char* fontFilename = "assets/fonts/Roboto-Medium.ttf";
+
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -22,6 +26,14 @@ namespace pxl
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.IniFilename = NULL;
+        if (std::filesystem::exists(fontFilename))
+        {
+            io.Fonts->AddFontFromFileTTF(fontFilename, 16);
+        }
+        else
+        {
+            io.Fonts->AddFontDefault();
+        }
 
         ImGui::StyleColorsDark();
 
