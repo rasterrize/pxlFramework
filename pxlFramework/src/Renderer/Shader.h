@@ -12,6 +12,11 @@ namespace pxl
         virtual void Bind() = 0;
         virtual void Unbind() = 0;
 
+        virtual void Reload() = 0;
+
         virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) = 0; // not api-agnostic
+        virtual void SetUniformInt1(const std::string& name, int value) = 0;
+
+        static std::shared_ptr<Shader> Create(const std::string vertSrc, const std::string fragSrc);
     };
 }

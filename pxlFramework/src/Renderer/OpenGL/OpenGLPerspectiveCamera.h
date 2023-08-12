@@ -12,6 +12,7 @@ namespace pxl
         OpenGLPerspectiveCamera();
 
         virtual void SetFOV(float fov) override { m_FOV = fov; RecalculateProjection(); }
+        virtual float GetFOV() override { return m_FOV; }
         
         virtual void Update() override;
     private:

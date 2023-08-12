@@ -57,7 +57,7 @@ namespace TestApp
         };
 
         std::string vertexShaderSource = R"(
-            #version 450 core
+            #version 460 core
 
             layout (location = 0) in vec3 a_Position;
             out vec3 v_Position;
@@ -70,10 +70,13 @@ namespace TestApp
         )";
 
         std::string vertexShaderCamera = R"(
-            #version 450 core
+            #version 460 core
 
             layout (location = 0) in vec3 a_Position;
+            layout (location = 1) in vec2 a_TexCoords;
+
             out vec3 v_Position;
+            out vec2 v_TexCoords;
 
             uniform mat4 u_Model;
             uniform mat4 u_Projection;
@@ -82,6 +85,7 @@ namespace TestApp
             void main()
             {
                 v_Position = a_Position;
+                v_TexCoords = a_TexCoords;
                 gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
             }
         )";
@@ -90,12 +94,17 @@ namespace TestApp
             #version 450 core
             
             layout (location = 0) out vec4 color;
+
             in vec3 v_Position;
+            in vec2 v_TexCoords;
+
+            uniform sampler2D u_Texture;
 
             void main()
             {
                 //color = vec4(1.0, 0.2, 0.4, 1.0);
-                color = vec4(v_Position, 1.0);
+                //color = vec4(v_Position, 1.0);
+                color = texture(u_Texture, v_TexCoords);
             }
         )";
 
@@ -115,7 +124,7 @@ namespace TestApp
 
         pxl::Input::Init(m_Window);
 
-        auto clearColour = pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
+        auto clearColour = pxl::vec4(20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
         pxl::Renderer::SetClearColour(clearColour);
         m_ClearColour = pxl::vec4(clearColour);
 
@@ -128,14 +137,14 @@ namespace TestApp
 
         std::shared_ptr<pxl::Mesh> mesh = std::make_shared<pxl::Mesh>();
 
-        pxl::Vertex v0 = { -0.5f, -0.5f, 0.5f };
-        pxl::Vertex v1 = { 0.5f, -0.5f, 0.5f };
-        pxl::Vertex v2 = { 0.5f, 0.5f, 0.5f };
-        pxl::Vertex v3 = { -0.5f, 0.5f, 0.5f };
-        pxl::Vertex v4 = { -0.5f, -0.5f, -0.5f };
-        pxl::Vertex v5 = { 0.5f, -0.5f, -0.5f };
-        pxl::Vertex v6 = { 0.5f, 0.5f, -0.5f };
-        pxl::Vertex v7 = { -0.5f, 0.5f, -0.5f };
+        pxl::Vertex v0 = { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f };
+        pxl::Vertex v1 = { 0.5f, -0.5f, 0.5f, 1.0f, 0.0f };
+        pxl::Vertex v2 = { 0.5f, 0.5f, 0.5f, 1.0f, 1.0f };
+        pxl::Vertex v3 = { -0.5f, 0.5f, 0.5f, 0.0f, 1.0f };
+        pxl::Vertex v4 = { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f };
+        pxl::Vertex v5 = { 0.5f, -0.5f, -0.5f, 1.0f, 0.0f };
+        pxl::Vertex v6 = { 0.5f, 0.5f, -0.5f, 1.0f, 1.0f };
+        pxl::Vertex v7 = { -0.5f, 0.5f, -0.5f, 0.0f, 1.0f };
 
         mesh->Vertices.push_back(v0);
         mesh->Vertices.push_back(v1);
@@ -146,15 +155,16 @@ namespace TestApp
         mesh->Vertices.push_back(v6);
         mesh->Vertices.push_back(v7);
 
-        // // for (int i = 0; i < 36; i++)
-        // // {
-        // //     mesh->Indices.push_back(cubeindices[i]);
-        // // }
+        for (int i = 0; i < 36; i++)
+        {
+            mesh->Indices.push_back(cubeindices[i]);
+        }
 
-        m_Meshes.push_back(mesh);
+        m_CubeMeshes.push_back(mesh);
 
         pxl::BufferLayout layout;
-        layout.Add(3, pxl::BufferDataType::Float, false);
+        layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
+        layout.Add(2, pxl::BufferDataType::Float, false); // texture coords
 
         m_VAO->SetLayout(layout);
 
@@ -164,7 +174,10 @@ namespace TestApp
         m_Camera = pxl::Camera::Create(pxl::CameraType::Perspective);
         m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        //auto texture = pxl::TextureLoader::Load("Textures/stone.png");
+        auto texture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
+        texture->Bind();
+
+        //m_Shader->SetUniformInt1("u_Texture", 0);
 
         #ifdef TA_DEBUG
             pxl::pxl_ImGui::Init(m_Window);
@@ -245,47 +258,14 @@ namespace TestApp
         }
 
         m_Camera->SetPosition(glm::vec3(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z));
-
-        // set vertex buffer data
-        float cubepositions[] = {
-            -0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
-             0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f,
-            -0.5f, -0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
-             0.5f,  0.5f, -0.5f,
-            -0.5f,  0.5f, -0.5f
-        };
-
-        m_VBO->SetData(sizeof(cubepositions), cubepositions);
-
-        unsigned int cubeindices[] = { 
-            0, 1, 2, 
-            2, 3, 0, // front
-
-            1, 5, 6,
-            6, 2, 1, // right
-
-            5, 4, 7,
-            7, 6, 5, // back
-
-            4, 0, 3,
-            3, 7, 4, // left
-
-            3, 2, 6,
-            6, 7, 3, // top
-
-            0, 1, 5,
-            5, 4, 0 // bottom
-        };
-
-        //m_IBO->SetData(36, cubeindices);
+        m_CubeMeshes[0]->Translate(m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
         pxl::Renderer::Clear();
 
         pxl::Renderer::Submit(m_VAO);
         pxl::Renderer::Submit(m_Shader);
+        pxl::Renderer::Submit(m_CubeMeshes[0]); // this submits the mesh vertices, indices, and transform
+
         
         //float offsetX = 0.0f, offsetY = 0.0f, offsetZ = 0.0f;
 
@@ -293,7 +273,7 @@ namespace TestApp
         //{
             //for (int n = 0; n <= 5; n++)
             //{
-                pxl::Renderer::Submit(m_Meshes[0], m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
+                //pxl::Renderer::Submit(m_CubeMeshes[0], m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
                 //offsetX += 1;
             //}
         //}
@@ -318,47 +298,73 @@ namespace TestApp
             {
                 m_Shader->Reload();
             }
+            ImGui::Text("MeshPosition.x: %f", m_MeshPosition.x);
+            ImGui::Text("MeshPosition.y: %f", m_MeshPosition.y);
+            ImGui::Text("MeshPosition.z: %f", m_MeshPosition.z);
             ImGui::End();
 
+            // Settings Window
             ImGui::SetNextWindowSize(ImVec2(330, 200), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(335, 21), ImGuiCond_FirstUseEver);
             ImGui::Begin("Settings");
+
+            // Monitor select
             static uint8_t monitor = 1;
             int step = 1;
             ImGui::InputScalar("Monitor", ImGuiDataType_U8, &monitor, &step, NULL, NULL, NULL);
 
+            // Display mode
             const char* windowModes[] = { "Windowed", "Borderless", "Fullscreen" };
-            static int item_current = 0;
-            pxl::WindowMode windowMode = m_Window->GetWindowMode();
-            ImGui::Combo("Display Mode", &item_current, windowModes, IM_ARRAYSIZE(windowModes));
-
-            switch (item_current)
+            static int windowModeSelect = 0;
+            static pxl::WindowMode currentWindowMode = m_Window->GetWindowMode();
+            pxl::WindowMode windowMode;
+            if (currentWindowMode != m_Window->GetWindowMode())
             {
-                case 0:
-                    windowMode = pxl::WindowMode::Windowed;
-                    break;
-                case 1:
-                    windowMode = pxl::WindowMode::Borderless;
-                    break;
-                case 2:
-                    windowMode = pxl::WindowMode::Fullscreen;
-                    break;
+                switch (m_Window->GetWindowMode())
+                {
+                    case pxl::WindowMode::Windowed:
+                        windowModeSelect = 0;
+                        break;
+                    case pxl::WindowMode::Borderless:
+                        windowModeSelect = 1;
+                        break;
+                    case pxl::WindowMode::Fullscreen:
+                        windowModeSelect = 2;
+                        break;
+                }
+                currentWindowMode = m_Window->GetWindowMode();
             }
 
+            ImGui::Combo("Display Mode", &windowModeSelect, windowModes, IM_ARRAYSIZE(windowModes));
+
+            switch (windowModeSelect)
+                {
+                    case 0:
+                        windowMode = pxl::WindowMode::Windowed;
+                        break;
+                    case 1:
+                        windowMode = pxl::WindowMode::Borderless;
+                        break;
+                    case 2:
+                        windowMode = pxl::WindowMode::Fullscreen;
+                        break;
+                }
+
+            // VSync
             static bool vsync = m_Window->GetGraphicsContext()->GetVSync();
             ImGui::Checkbox("VSync", &vsync);
 
-            static float cameraFOV = 45.0f; // should retrieve cameras FOV
+            // Camera FOV
+            static float cameraFOV = m_Camera->GetFOV(); // should retrieve cameras FOV
             ImGui::SliderFloat("Camera FOV", &cameraFOV, 30.0f, 120.0f);
 
+            // Apply Button
             if (ImGui::Button("Apply"))
             {
                 m_Window->SetVSync(vsync);
                 m_Window->SetMonitor(monitor);
-                if (windowMode != m_Window->GetWindowMode())
-                {
-                    m_Window->SetWindowMode(windowMode);
-                }
+                m_Window->SetWindowMode(windowMode);
+
                 m_Camera->SetFOV(cameraFOV);
             }
 

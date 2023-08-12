@@ -38,16 +38,18 @@ namespace pxl
     {
     public:
         std::vector<BufferElement> GetElements() const { return m_Elements; }
-        unsigned int GetStride() { CalculateStride(); return m_Stride; }
+        unsigned int GetStride() { return m_Stride; }
 
         void Add(unsigned int count, BufferDataType type, bool normalized)
         {
             m_Elements.push_back({count, type, normalized});
+            CalculateStride();
         }
 
         void Add(const BufferElement& element)
         {
             m_Elements.push_back(element);
+            CalculateStride();
         }
 
         void CalculateStride()

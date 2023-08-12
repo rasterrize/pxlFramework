@@ -26,7 +26,7 @@ src/Renderer/VertexBuffer.h
 src/Renderer/IndexBuffer.h
 src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
-src/Renderer/Shader.h
+src/Renderer/Shader.h src/Renderer/Shader.cpp
 src/Renderer/Camera.h src/Renderer/Camera.cpp
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp

@@ -31,6 +31,7 @@ namespace pxl
         void SetRotation(glm::vec3 rotation) { m_Rotation = rotation; }
 
         virtual void SetFOV(float fov) = 0;
+        virtual float GetFOV() = 0;
 
         static std::shared_ptr<Camera> Create(CameraType type);
     protected:

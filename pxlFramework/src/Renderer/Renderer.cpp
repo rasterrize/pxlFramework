@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include <glad/glad.h>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "RendererAPI.h"
 #include "OpenGL/OpenGLRenderer.h"
@@ -99,7 +100,7 @@ namespace pxl
         s_RendererAPI->SetShader(shader);
     }
 
-    void Renderer::Submit(const std::shared_ptr<Mesh>& mesh, float x, float y, float z)
+    void Renderer::Submit(const std::shared_ptr<Mesh>& mesh)
     {
         //const int size = mesh->Vertices.size();
         auto vertices = std::array<Vertex, 100>();
@@ -107,13 +108,17 @@ namespace pxl
         auto meshVertices = mesh->Vertices;
         auto meshIndices = mesh->Indices;
 
+        glm::vec3 meshPosition;
+        glm::decompose(mesh->Transform, glm::vec3(1.0f), glm::quat(), meshPosition, glm::vec3(1.0f), glm::vec4(1.0f));
+
+        // Transform the meshes vertices
         for (int i = 0; i < meshVertices.size(); i++)
         {
             auto vertex = meshVertices[i];
-            vertices[i] = {vertex.Position[0] + x, vertex.Position[1] + y, vertex.Position[2] + z};
+            vertices[i] = { vertex.Position[0] + meshPosition.x, vertex.Position[1] + meshPosition.y, vertex.Position[2] + meshPosition.z, vertex.TexCoords[0], vertex.TexCoords[1] };
         }
 
-        int indiceOffset;
+        // int indiceOffset;
         for (int i = 0; i < meshIndices.size(); i++)
         {
             indices[i] = meshIndices[i];

@@ -12,7 +12,7 @@ namespace pxl
         OpenGLContext(GLFWwindow* windowHandle);
 
         virtual void SwapBuffers() override;
-        virtual void SetVSync(bool vsync) override;
+        virtual void SetVSync(bool vsync) override; // not sure whether to call the parameter 'vsync' or 'value'
         virtual bool GetVSync() override { return m_VSync; }
 
         virtual void* GetNativeContext() override { return nullptr; }

@@ -45,10 +45,13 @@ namespace pxl
 
     void Application::Close()
     {
-        Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
-        Input::Shutdown();  
-        pxl_ImGui::Shutdown();
-        m_Running = false;
-        s_Instance = nullptr;
+        if (m_Running)
+        {
+            m_Running = false; // this must be set first so window or input don't call the close function as well
+            Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
+            Input::Shutdown();  
+            pxl_ImGui::Shutdown();
+            s_Instance = nullptr;
+        }
     }
 }

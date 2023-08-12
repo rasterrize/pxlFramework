@@ -12,18 +12,21 @@ namespace TestApp
         virtual void OnImGuiRender() override;
     private:
         std::shared_ptr<pxl::Window> m_Window;
+        std::shared_ptr<pxl::Camera> m_Camera;
 
         std::shared_ptr<pxl::VertexArray> m_VAO;
         std::shared_ptr<pxl::VertexBuffer> m_VBO;
         std::shared_ptr<pxl::IndexBuffer> m_IBO;
         std::shared_ptr<pxl::Shader> m_Shader;
 
-        std::vector<std::shared_ptr<pxl::Mesh>> m_Meshes;
+        std::vector<std::shared_ptr<pxl::Mesh>> m_CubeMeshes;
         glm::vec3 m_MeshPosition = glm::vec3(0.0f);
         
         glm::vec3 m_CameraPosition;
         pxl::vec4 m_ClearColour = pxl::vec4(1.0f);
 
         glm::vec2 m_LastCursorPos = glm::vec2(1.0f);
+
+        pxl::WindowMode m_WindowMode;
     };
 }

@@ -14,7 +14,7 @@ namespace pxl
 {
     uint8_t Window::s_WindowCount = 0;
 
-    std::vector<std::shared_ptr<Window>> Window::s_WindowHandles;
+    std::vector<std::shared_ptr<Window>> Window::s_Windows;
 
     Window::Window(const WindowSpecs& windowSpecs)
         : m_WindowSpecs(windowSpecs), m_WindowMode(WindowMode::Windowed)
@@ -23,17 +23,17 @@ namespace pxl
 
     void Window::UpdateAll()
     {
-        for (auto window : s_WindowHandles)
+        for (auto window : s_Windows)
         {
             window->Update();
         }
 
-        WindowGLFW::ProcessEvents(); // glfw docs use pollevents after swapbuffers // also this should be moved for due to other window systems (mac)
+        WindowGLFW::ProcessEvents(); // glfw docs use pollevents after swapbuffers // also this should be moved if I decide to support other platforms (linux/mac)
     }
 
     void Window::Shutdown()
     {
-        for (auto window : s_WindowHandles)
+        for (auto window : s_Windows)
         {
             window->Close();
         }
@@ -90,7 +90,7 @@ namespace pxl
 
         if (window)
         {
-            s_WindowHandles.push_back(window);
+            s_Windows.push_back(window);
             window->m_Handle = window;
             return window;
         }

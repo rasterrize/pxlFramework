@@ -33,7 +33,6 @@ namespace pxl
         virtual void* GetNativeWindow() = 0;
         virtual uint8_t GetAvailableMonitorCount() = 0;
 
-
         virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() = 0;
 
         const unsigned int GetWidth() const { return m_WindowSpecs.Width; }
@@ -65,7 +64,7 @@ namespace pxl
         std::shared_ptr<Window> m_Handle;
     protected:
         static uint8_t s_WindowCount;
-        static std::vector<std::shared_ptr<Window>> s_WindowHandles;
+        static std::vector<std::shared_ptr<Window>> s_Windows;
     private:
         friend class Application;
 

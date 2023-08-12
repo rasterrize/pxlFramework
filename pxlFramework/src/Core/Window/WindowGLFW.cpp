@@ -97,7 +97,7 @@ namespace pxl
     void WindowGLFW::Close()
     {
         glfwDestroyWindow(m_Window);
-        s_WindowHandles.erase(std::find(s_WindowHandles.begin(), s_WindowHandles.end(), m_Handle));
+        s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle));
         --s_WindowCount;
 
         if (s_WindowCount == 0)
@@ -197,6 +197,9 @@ namespace pxl
 
     void WindowGLFW::SetWindowMode(WindowMode winMode)
     { 
+        if (winMode == GetWindowMode())
+            return;
+
         auto currentMonitor = GetCurrentMonitor();
         if (!currentMonitor)
         {
@@ -213,21 +216,24 @@ namespace pxl
         switch (winMode)
         {
             case WindowMode::Windowed:
+                glfwSetWindowAttrib(m_Window, GLFW_DECORATED, GLFW_TRUE);
+                glfwSetWindowAttrib(m_Window, GLFW_RESIZABLE, GLFW_TRUE);
                 glfwSetWindowMonitor(m_Window, nullptr, monitorX + (monitorWidth / 2) - (1280 / 2), monitorY + (monitorHeight / 2) - (720 / 2), 1280, 720, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
                 m_WindowMode = WindowMode::Windowed;
-                Logger::LogInfo("Set window mode to Windowed");
+                Logger::LogInfo("Switched window mode to Windowed");
                 break;
             case WindowMode::Borderless:
+                glfwSetWindowAttrib(m_Window, GLFW_DECORATED, GLFW_FALSE);
+                glfwSetWindowAttrib(m_Window, GLFW_RESIZABLE, GLFW_FALSE);
                 glfwSetWindowMonitor(m_Window, nullptr, monitorX, monitorY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
                 m_WindowMode = WindowMode::Borderless;
-                Logger::LogInfo("Set window mode to Borderless");
+                Logger::LogInfo("Switched window mode to Borderless");
                 break;
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_Window, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
-                // Set VSync because bug idk
-                m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync());
+                m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync()); // Set VSync because bug idk
                 m_WindowMode = WindowMode::Fullscreen;
-                Logger::LogInfo("Set window mode to Fullscreen");
+                Logger::LogInfo("Switched window mode to Fullscreen");
                 break;
         }
     }
@@ -248,11 +254,9 @@ namespace pxl
             return;
         }
 
-
         // Get video mode for fullscreen and borderless
         GLFWmonitor* monitor = s_Monitors[monitorIndex - 1];
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
 
         // Get window and monitor sizes/positions for windowed/borderless
         int windowWidth, windowHeight; // could these be the stored width and height variables in the window specs?

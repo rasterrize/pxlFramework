@@ -7,18 +7,27 @@
 #include "../Core/Math.h"
 #include "RendererAPI.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace pxl
 {
     struct Vertex
     {
         float Position[3];
-        //glm::vec2 TexCoords;
+        float TexCoords[2];
     };
 
     struct Mesh
     {
         std::vector<Vertex> Vertices;
         std::vector<unsigned int> Indices;
+
+        glm::mat4 Transform = glm::mat4(1.0f);
+
+        void Translate(float x, float y, float z)
+        {
+            Transform = glm::translate(glm::mat4(1.0f), { x, y, z });
+        }
     };
 
     class Renderer
@@ -42,7 +51,7 @@ namespace pxl
         static void DrawLines(int count);
         static void DrawIndexed();
         
-        static void Submit(const std::shared_ptr<Mesh>& mesh, float x, float y, float z);
+        static void Submit(const std::shared_ptr<Mesh>& mesh);
         static void Submit(const std::shared_ptr<VertexArray>& vertexArray);
         static void Submit(const std::shared_ptr<Shader>& shader);
     private:

@@ -7,6 +7,38 @@ namespace pxl
 {
     OpenGLShader::OpenGLShader(const std::string& vertSrc, const std::string& fragSrc)
     {
+        m_vertSource = vertSrc;
+        m_fragSource = fragSrc;
+        
+        Compile(m_vertSource, m_fragSource);
+    }
+
+    OpenGLShader::~OpenGLShader()
+    {
+        glDeleteProgram(m_RendererID);
+    }
+
+    void OpenGLShader::Bind()
+    {
+        glUseProgram(m_RendererID);
+    }
+
+    void OpenGLShader::Unbind()
+    {
+        glUseProgram(0);
+    }
+
+    void OpenGLShader::Reload()
+    {
+        glUseProgram(0);
+
+        // TODO: Load shader from file (hot reload)
+
+        Compile(m_vertSource, m_fragSource); 
+    }
+
+    void OpenGLShader::Compile(const std::string& vertSrc, const std::string& fragSrc)
+    {
         // Read our shaders into the appropriate buffers
         std::string vertexSource = vertSrc;
         std::string fragmentSource = fragSrc;
@@ -111,25 +143,10 @@ namespace pxl
 
         // Always detach shaders after a successful link.
         glDetachShader(m_RendererID, vertexShader);
-        glDetachShader(m_RendererID, fragmentShader);
+        glDetachShader(m_RendererID, fragmentShader);    
     }
 
-    OpenGLShader::~OpenGLShader()
-    {
-        glDeleteProgram(m_RendererID);
-    }
-
-    void OpenGLShader::Bind()
-    {
-        glUseProgram(m_RendererID);
-    }
-
-    void OpenGLShader::Unbind()
-    {
-        glUseProgram(0);
-    }
-
-    int OpenGLShader::GetUniformLocation(const std::string& name) const
+    int OpenGLShader::GetUniformLocation(const std::string &name) const
     {
         if (m_UniformCache.find(name) != m_UniformCache.end())
             return m_UniformCache[name];
@@ -142,7 +159,11 @@ namespace pxl
 
     void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& value)
     {
-        int location = GetUniformLocation(name);
-        glUniformMatrix4fv(location, 1, false, glm::value_ptr(value)); // fv ~ float value, dv ~ decimal value
+        glUniformMatrix4fv(GetUniformLocation(name), 1, false, glm::value_ptr(value)); // fv ~ float value, dv ~ decimal value
+    }
+
+    void OpenGLShader::SetUniformInt1(const std::string& name, int value)
+    {
+        glUniform1i(GetUniformLocation(name), value);
     }
 }
