@@ -15,6 +15,7 @@ src/Core/ButtonCodes.h
 src/Core/Math.h
 src/Core/Platform.h
 src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
+src/Core/Window/WindowSDL.h src/Core/Window/WindowSDL.cpp
 src/Core/Stopwatch.h
 
 # RENDERER
@@ -66,7 +67,13 @@ add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb)
+set(SDL2_DIR deps/SDL2/cmake)
+find_package(SDL2 REQUIRED)
+target_include_directories(pxlFramework PUBLIC deps/SDL2/include)
+target_link_directories(pxlFramework PUBLIC deps/SDL2/lib/x64)
+
+
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb sdl2)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
