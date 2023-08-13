@@ -33,6 +33,40 @@ namespace pxl
 
     std::shared_ptr<Shader> FileLoader::LoadShader(const std::filesystem::path& path)
     {
+        const std::string vertID = "#type vertex";
+        const std::string fragID = "#type fragment";
+    
+        if (!std::filesystem::exists(path))
+        {
+            Logger::LogError("Failed to load shader from path because the file doesn't exist '" + path.string() + "'");
+            return nullptr;
+        }
+
+        std::ifstream file(path, std::ios::in | std::ios::binary);
+        if (file)
+        {
+            Logger::LogInfo("Successfully loaded shader '" + path.string() + "'");
+        }
+        else
+        {
+            Logger::LogInfo("Failed to load shader '" + path.string() + "'");
+        }
+        
+        std::string line;
+        std::string vert;
+        std::string frag;
+
+        while (std::getline(file, line))
+        {
+            if (line == "#type vertex")
+                while (line != "#type fragment")
+                Logger::LogWarn(line);
+        }
+
+        file.close();
+
+        //std::shared_ptr<Shader> shader = Shader::Create
+    
         return nullptr;
     }
 

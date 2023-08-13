@@ -133,7 +133,7 @@ namespace TestApp
         m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(36, cubeindices);
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
-        // pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
+        pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
         std::shared_ptr<pxl::Mesh> mesh = std::make_shared<pxl::Mesh>();
 
