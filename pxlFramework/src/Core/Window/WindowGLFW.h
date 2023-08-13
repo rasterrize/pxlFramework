@@ -20,8 +20,6 @@ namespace pxl
         virtual void SetMonitor(uint8_t monitorIndex) override;
         
         virtual void* GetNativeWindow() override { return m_Window; }
-
-        virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() override { return m_GraphicsContext; }
         
     private:
         friend class Window;

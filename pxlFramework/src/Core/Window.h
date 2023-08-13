@@ -33,7 +33,7 @@ namespace pxl
         virtual void* GetNativeWindow() = 0;
         virtual uint8_t GetAvailableMonitorCount() = 0;
 
-        virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() = 0;
+        std::shared_ptr<GraphicsContext> GetGraphicsContext() { return m_GraphicsContext; }
 
         const unsigned int GetWidth() const { return m_WindowSpecs.Width; }
         const unsigned int GetHeight() const { return m_WindowSpecs.Height; }
