@@ -10,6 +10,8 @@ namespace pxl
     std::unordered_map<int, int> Input::s_PreviousKeyStates;
     std::unordered_map<int, int> Input::s_CurrentMBStates;
     std::unordered_map<int, int> Input::s_PreviousMBStates;
+    double Input::s_VerticalScrollOffset = 0.0f;
+    double Input::s_HorizontalScrollOffset = 0.0f;
     glm::vec2 Input::s_CursorPosition = glm::vec2(1.0f);
 
     void Input::Init(const std::shared_ptr<Window> window)
@@ -109,6 +111,38 @@ namespace pxl
         return false;
     }
 
+    bool Input::IsMouseScrolledUp()
+    {
+        if (!s_Enabled)
+            return false;
+
+        bool scrolledUp = false;
+
+        if (s_VerticalScrollOffset == 1.0f)
+        {
+            scrolledUp = true;
+            s_VerticalScrollOffset = 0.0f;
+        }
+
+        return scrolledUp;
+    }
+
+    bool Input::IsMouseScrolledDown()
+    {
+        if (!s_Enabled)
+            return false;
+
+        bool scrolledUp = false;
+
+        if (s_VerticalScrollOffset == -1.0f)
+        {
+            scrolledUp = true;
+            s_VerticalScrollOffset = 0.0f;
+        }
+
+        return scrolledUp;
+    }
+
     void Input::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         s_CurrentKeyStates[key] = action;
@@ -122,5 +156,10 @@ namespace pxl
     void Input::GLFWCursorPosCallback(GLFWwindow *window, double xpos, double ypos)
     {
         s_CursorPosition = glm::vec2((float)xpos, (float)ypos);
+    }
+
+    void Input::GLFWScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        s_VerticalScrollOffset = yoffset;
     }
 }

@@ -14,6 +14,8 @@ namespace TestApp
         std::shared_ptr<pxl::Window> m_Window;
         std::shared_ptr<pxl::Camera> m_Camera;
 
+        float m_NextCameraFOV = 0.0f;
+
         std::shared_ptr<pxl::VertexArray> m_VAO;
         std::shared_ptr<pxl::VertexBuffer> m_VBO;
         std::shared_ptr<pxl::IndexBuffer> m_IBO;

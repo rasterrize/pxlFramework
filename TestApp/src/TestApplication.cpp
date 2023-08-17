@@ -173,6 +173,7 @@ namespace TestApp
 
         m_Camera = pxl::Camera::Create(pxl::CameraType::Perspective);
         m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+        m_NextCameraFOV = m_Camera->GetFOV();
 
         auto texture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
         texture->Bind();
@@ -192,6 +193,7 @@ namespace TestApp
     void TestApplication::OnUpdate(float dt)
     {
         m_CameraPosition = m_Camera->GetPosition();
+        auto cameraFOV = m_Camera->GetFOV();
         float cameraSpeed = 1.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
@@ -257,7 +259,44 @@ namespace TestApp
             m_Window->NextWindowMode();
         }
 
+        if (pxl::Input::IsMouseScrolledUp())
+        {
+            m_NextCameraFOV -= 5.0f;
+        }
+
+        if (pxl::Input::IsMouseScrolledDown())
+        {
+            m_NextCameraFOV += 5.0f;
+        }
+
+        if (cameraFOV != m_NextCameraFOV)
+        {
+            if (cameraFOV < m_NextCameraFOV)
+            {
+                if (cameraFOV + 25.0f * dt < m_NextCameraFOV)
+                {
+                    cameraFOV += 100.0f * dt;
+                }
+                else
+                {
+                    cameraFOV = m_NextCameraFOV;
+                }
+            }
+            else if (cameraFOV > m_NextCameraFOV)
+            {
+                if (cameraFOV - 25.0f * dt > m_NextCameraFOV)
+                {
+                    cameraFOV -= 100.0f * dt;
+                }
+                else
+                {
+                    cameraFOV = m_NextCameraFOV;
+                }
+            }
+        }
+
         m_Camera->SetPosition(glm::vec3(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z));
+        m_Camera->SetFOV(cameraFOV);
         m_CubeMeshes[0]->Translate(m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
         pxl::Renderer::Clear();
@@ -358,8 +397,17 @@ namespace TestApp
             ImGui::Checkbox("VSync", &vsync);
 
             // Camera FOV
-            static float cameraFOV = m_Camera->GetFOV(); // should retrieve cameras FOV
-            ImGui::SliderFloat("Camera FOV", &cameraFOV, 30.0f, 120.0f);
+            static float cameraFOVInput = m_Camera->GetFOV(); // should retrieve cameras FOV
+            static float cameraFOV = m_Camera->GetFOV();
+
+            if (cameraFOV != m_NextCameraFOV)
+            {
+                cameraFOVInput = m_NextCameraFOV;
+                cameraFOV = m_NextCameraFOV;
+            }
+
+            ImGui::SliderFloat("Camera FOV", &cameraFOVInput, 30.0f, 120.0f);
+
 
             // Apply Button
             if (ImGui::Button("Apply"))
@@ -368,7 +416,7 @@ namespace TestApp
                 m_Window->SetMonitor(monitor);
                 m_Window->SetWindowMode(windowModeToSet);
 
-                m_Camera->SetFOV(cameraFOV);
+                m_NextCameraFOV = cameraFOVInput;
             }
 
             ImGui::End();

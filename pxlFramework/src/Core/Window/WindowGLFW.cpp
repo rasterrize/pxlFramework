@@ -117,6 +117,7 @@ namespace pxl
 
         glfwSetKeyCallback(m_Window, Input::GLFWKeyCallback);
         glfwSetMouseButtonCallback(m_Window, Input::GLFWMouseButtonCallback);
+        glfwSetScrollCallback(m_Window, Input::GLFWScrollCallback);
         glfwSetCursorPosCallback(m_Window, Input::GLFWCursorPosCallback);
 
     }
