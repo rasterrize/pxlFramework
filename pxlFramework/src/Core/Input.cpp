@@ -114,7 +114,7 @@ namespace pxl
         s_CurrentKeyStates[key] = action;
     }
 
-    void Input::GLFWMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+    void Input::GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
         s_CurrentMBStates[button] = action;
     }

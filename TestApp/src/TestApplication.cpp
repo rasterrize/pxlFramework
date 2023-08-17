@@ -1,7 +1,6 @@
 #include "TestApplication.h"
 
 #include <imgui.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace TestApp
 {
@@ -105,6 +104,7 @@ namespace TestApp
                 //color = vec4(1.0, 0.2, 0.4, 1.0);
                 //color = vec4(v_Position, 1.0);
                 color = texture(u_Texture, v_TexCoords);
+                // * vec4(v_Position.x + 0.6, v_Position.y + 0.6, v_Position.z, 1.0);
             }
         )";
 
@@ -290,7 +290,7 @@ namespace TestApp
             ImGui::SetNextWindowSize(ImVec2(300, 680), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(21, 21), ImGuiCond_FirstUseEver);
             ImGui::Begin("pxlFramework: Test App");
-            ImGui::Text("FPS: %f (%fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
+            ImGui::Text("FPS: %.2f (%.3fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
             ImGui::Text("Clear Colour:");
             ImGui::ColorEdit3("", &m_ClearColour.x);
             pxl::Renderer::SetClearColour(m_ClearColour);
@@ -298,14 +298,15 @@ namespace TestApp
             {
                 m_Shader->Reload();
             }
-            ImGui::Text("MeshPosition.x: %f", m_MeshPosition.x);
-            ImGui::Text("MeshPosition.y: %f", m_MeshPosition.y);
-            ImGui::Text("MeshPosition.z: %f", m_MeshPosition.z);
+            ImGui::Text("Camera FOV: %.2f", m_Camera->GetFOV());
+            ImGui::Text("MeshPosition.x: %.2f", m_MeshPosition.x);
+            ImGui::Text("MeshPosition.y: %.2f", m_MeshPosition.y);
+            ImGui::Text("MeshPosition.z: %.2f", m_MeshPosition.z);
             ImGui::End();
 
             // Settings Window
             ImGui::SetNextWindowSize(ImVec2(330, 200), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2(335, 21), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(929, 21), ImGuiCond_FirstUseEver);
             ImGui::Begin("Settings");
 
             // Monitor select
@@ -315,40 +316,42 @@ namespace TestApp
 
             // Display mode
             const char* windowModes[] = { "Windowed", "Borderless", "Fullscreen" };
-            static int windowModeSelect = 0;
-            static pxl::WindowMode currentWindowMode = m_Window->GetWindowMode();
-            pxl::WindowMode windowMode;
-            if (currentWindowMode != m_Window->GetWindowMode())
+            static int windowModeInput = 0;
+            static pxl::WindowMode windowMode;
+            static pxl::WindowMode windowModeToSet;
+
+            if (windowMode != m_Window->GetWindowMode())
             {
                 switch (m_Window->GetWindowMode())
                 {
                     case pxl::WindowMode::Windowed:
-                        windowModeSelect = 0;
+                        windowModeInput = 0;
                         break;
                     case pxl::WindowMode::Borderless:
-                        windowModeSelect = 1;
+                        windowModeInput = 1;
                         break;
                     case pxl::WindowMode::Fullscreen:
-                        windowModeSelect = 2;
+                        windowModeInput = 2;
                         break;
                 }
-                currentWindowMode = m_Window->GetWindowMode();
+
+                windowMode = m_Window->GetWindowMode();
             }
 
-            ImGui::Combo("Display Mode", &windowModeSelect, windowModes, IM_ARRAYSIZE(windowModes));
+            ImGui::Combo("Display Mode", &windowModeInput, windowModes, IM_ARRAYSIZE(windowModes));
 
-            switch (windowModeSelect)
-                {
-                    case 0:
-                        windowMode = pxl::WindowMode::Windowed;
-                        break;
-                    case 1:
-                        windowMode = pxl::WindowMode::Borderless;
-                        break;
-                    case 2:
-                        windowMode = pxl::WindowMode::Fullscreen;
-                        break;
-                }
+            switch (windowModeInput)
+            {
+                case 0:
+                    windowModeToSet = pxl::WindowMode::Windowed;
+                    break;
+                case 1:
+                    windowModeToSet = pxl::WindowMode::Borderless;
+                    break;
+                case 2:
+                    windowModeToSet = pxl::WindowMode::Fullscreen;
+                    break;
+            }
 
             // VSync
             static bool vsync = m_Window->GetGraphicsContext()->GetVSync();
@@ -363,7 +366,7 @@ namespace TestApp
             {
                 m_Window->SetVSync(vsync);
                 m_Window->SetMonitor(monitor);
-                m_Window->SetWindowMode(windowMode);
+                m_Window->SetWindowMode(windowModeToSet);
 
                 m_Camera->SetFOV(cameraFOV);
             }

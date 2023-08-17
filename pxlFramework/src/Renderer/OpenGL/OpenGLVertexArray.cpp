@@ -29,7 +29,7 @@ namespace pxl
         for (BufferElement element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, layout.GetStride(), (const void*)offset); // static cast to fix warning?
+            glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, layout.GetStride(), (const void*)offset); // TODO: change this to use the offsetoff() function
             offset += element.Count * element.GetSizeOfType();
             index++;
         }

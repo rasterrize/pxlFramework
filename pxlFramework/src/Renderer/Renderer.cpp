@@ -57,7 +57,7 @@ namespace pxl
         float currentTime = (float)Platform::GetTime();
         float elapsedTime = currentTime - s_TimeAtLastFrame;
 
-        if (elapsedTime > 0.05)
+        if (elapsedTime > 0.05f)
         {
             s_FPS = s_FrameCount / elapsedTime;
             s_TimeAtLastFrame = currentTime;

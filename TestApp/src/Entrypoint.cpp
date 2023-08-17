@@ -4,7 +4,6 @@
     #include <Windows.h>
 #endif
 
-
 #ifndef TA_DIST
     int main()
 #else
