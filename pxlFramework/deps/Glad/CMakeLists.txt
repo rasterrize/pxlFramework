@@ -1,5 +1,5 @@
 project(glad)
 
-add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/include/glad/glad.h ${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c ${CMAKE_CURRENT_SOURCE_DIR}/include/KHR/khrplatform.h)
+add_library(glad STATIC include/glad/glad.h src/glad.c include/KHR/khrplatform.h)
 
-target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(glad PUBLIC include)
