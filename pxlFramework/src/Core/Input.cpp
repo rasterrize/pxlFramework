@@ -31,7 +31,7 @@ namespace pxl
 
         s_WindowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
         s_Enabled = true;
-        Logger::Log(LogLevel::Info, "Input initialized");
+        Logger::Log(LogLevel::Info, "Input Initialized");
     }
 
     void Input::Shutdown()
@@ -41,10 +41,6 @@ namespace pxl
             s_Enabled = false;
             s_WindowHandle = nullptr;
             Logger::Log(LogLevel::Info, "Input shutdown");
-        }
-        else
-        {
-            Logger::LogWarn("Can't shutdown input, it hasn't been initialized first");
         }
     }
 

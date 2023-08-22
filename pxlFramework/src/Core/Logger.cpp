@@ -11,6 +11,7 @@ namespace pxl
     {
         s_Sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         s_Logger = std::make_shared<spdlog::logger>("Logger", s_Sink);
+        s_Logger->set_pattern("[%I:%M:%S] [%n] [%^%l%$] %v");
 
         s_Enabled = true;
     }

@@ -15,7 +15,7 @@ namespace pxl
 
         if (bytes)
         {
-            Logger::LogInfo("Successfully loaded texture '" + filePath + "'");
+            Logger::LogInfo("Loaded texture '" + filePath + "'");
         }
         else
         {
@@ -45,7 +45,7 @@ namespace pxl
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (file)
         {
-            Logger::LogInfo("Successfully loaded shader '" + path.string() + "'");
+            Logger::LogInfo("Loaded shader '" + path.string() + "'");
         }
         else
         {

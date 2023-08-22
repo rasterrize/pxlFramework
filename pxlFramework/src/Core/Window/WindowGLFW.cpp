@@ -30,7 +30,7 @@ namespace pxl
         {
             if (glfwInit())
             {
-                Logger::Log(LogLevel::Info, "Initialized GLFW");
+                Logger::Log(LogLevel::Info, "GLFW Initialized");
             }
             else
             {
@@ -69,7 +69,7 @@ namespace pxl
         // Check to see if the window object was created successfully
         if (m_Window)
         {
-            Logger::Log(LogLevel::Info, "Successfully created window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
+            Logger::Log(LogLevel::Info, "Created window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
             s_GLFWWindowCount++;
         }
         else 
