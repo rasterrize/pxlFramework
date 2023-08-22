@@ -23,7 +23,7 @@ namespace pxl
         void Compile(const std::string& vertSrc, const std::string& fragSrc);
         int GetUniformLocation(const std::string& name) const;
     private:
-        unsigned int m_RendererID;
+        uint32_t m_RendererID;
         mutable std::unordered_map<std::string, int> m_UniformCache;
 
         std::string m_vertSource;

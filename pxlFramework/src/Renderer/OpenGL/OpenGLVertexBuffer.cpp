@@ -6,18 +6,25 @@
 
 namespace pxl
 {
-    OpenGLVertexBuffer::OpenGLVertexBuffer(int size, const void* data)
+    // Static Buffer
+    OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size, const void* data)
     {
-        glCreateBuffers(1, &m_RendererID); // Create Buffer
-        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID); // Access this buffer (OpenGL is a state machine)
+        glCreateBuffers(1, &m_RendererID); // Create Buffer - NOTE: glCreateBuffers is supposed to bind the buffer at the same time, but from testing that doesnt seem to work
+        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW); // Write the data into the buffer
     }
 
-    OpenGLVertexBuffer::OpenGLVertexBuffer()
+    // Dynamic Buffer
+    OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
     {
         glCreateBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 1000, nullptr, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    OpenGLVertexBuffer::~OpenGLVertexBuffer()
+    {
+        glDeleteBuffers(1, &m_RendererID);
     }
 
     void OpenGLVertexBuffer::Bind()
@@ -30,7 +37,7 @@ namespace pxl
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void OpenGLVertexBuffer::SetData(int size, const void *data)
+    void OpenGLVertexBuffer::SetData(uint32_t size, const void* data)
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);

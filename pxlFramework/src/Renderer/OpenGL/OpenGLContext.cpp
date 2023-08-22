@@ -16,10 +16,10 @@ namespace pxl
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             Logger::LogError("Failed to initialize Glad");
         else
-            Logger::LogInfo("Successfully initialized Glad");
+            Logger::LogInfo("Glad Initialized");
+            Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
 
-        glfwSwapInterval(1);
-        m_VSync = true;
+        glfwSwapInterval(m_VSync);
     }
 
     void OpenGLContext::SwapBuffers()

@@ -11,6 +11,17 @@
             "cwd": "${workspaceFolder}/TestApp",
             "environment": [],
             "console": "externalTerminal"
+        },
+        {
+            "name": "TestApp Launch Release",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Release/TestApp.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/TestApp",
+            "environment": [],
+            "console": "externalTerminal"
         }
     ]
 }

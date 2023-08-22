@@ -14,10 +14,6 @@ namespace pxl
         virtual void SetVSync(bool vsync) = 0;
         virtual bool GetVSync() = 0;
 
-        virtual void* GetNativeContext() = 0;
-        virtual void* GetDevice() = 0;
-        virtual void* GetBackBuffer() = 0;
-
         static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, GLFWwindow* windowHandle);
     };
 }

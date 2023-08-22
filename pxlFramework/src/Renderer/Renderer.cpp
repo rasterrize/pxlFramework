@@ -18,6 +18,14 @@ namespace pxl
     uint16_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
+    const size_t Renderer::s_MaxVertexCount = 2000000;
+    const size_t Renderer::s_MaxIndiceCount = 2000000;
+
+    std::vector<Vertex> Renderer::s_Vertices;
+    std::vector<uint32_t> Renderer::s_Indices;
+    
+    std::vector<Mesh> Renderer::s_Meshes;
+
     void Renderer::Init(std::shared_ptr<Window> window)
     {   
         if (s_Enabled)
@@ -36,12 +44,14 @@ namespace pxl
                 if (!s_RendererAPI)
                     Logger::LogError("Failed to create OpenGL renderer api object");
 
-                Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
                 break;
             case RendererAPIType::Vulkan:
                 Logger::LogError("Vulkan isn't currently supported");
                 return;
         }
+
+        s_Vertices.reserve(s_MaxVertexCount);
+        s_Indices.reserve(s_MaxIndiceCount);
 
         s_RendererAPIType = windowSpecs.RendererAPI;
         s_Enabled = true;
@@ -100,31 +110,55 @@ namespace pxl
         s_RendererAPI->SetShader(shader);
     }
 
-    void Renderer::Submit(const std::shared_ptr<Mesh>& mesh)
+    void Renderer::Submit(const Mesh& mesh)
     {
-        //const int size = mesh->Vertices.size();
-        auto vertices = std::array<Vertex, 100>();
-        float indices[100];
-        auto meshVertices = mesh->Vertices;
-        auto meshIndices = mesh->Indices;
+        s_Meshes.push_back(mesh);
+    }
 
-        glm::vec3 meshPosition;
-        glm::decompose(mesh->Transform, glm::vec3(1.0f), glm::quat(), meshPosition, glm::vec3(1.0f), glm::vec4(1.0f));
+    void Renderer::BatchGeometry()
+    {    
+        int VertexCount = 0;
 
-        // Transform the meshes vertices
-        for (int i = 0; i < meshVertices.size(); i++)
+        for (const Mesh& mesh : s_Meshes)
         {
-            auto vertex = meshVertices[i];
-            vertices[i] = { vertex.Position[0] + meshPosition.x, vertex.Position[1] + meshPosition.y, vertex.Position[2] + meshPosition.z, vertex.TexCoords[0], vertex.TexCoords[1] };
+            auto vertices = mesh.Vertices;
+            auto indices = mesh.Indices;
+
+            glm::vec3 meshPosition;
+            glm::decompose(mesh.Transform, glm::vec3(1.0f), glm::quat(), meshPosition, glm::vec3(1.0f), glm::vec4(1.0f));
+
+            // Vertices
+            Vertex batchedVertex = {{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }};
+            for (const Vertex& vertex : vertices)
+            {
+                batchedVertex.Position = { vertex.Position[0] + meshPosition.x, vertex.Position[1] + meshPosition.y, vertex.Position[2] + meshPosition.z };
+                batchedVertex.TexCoords = { vertex.TexCoords[0], vertex.TexCoords[1] };
+
+                s_Vertices.push_back(batchedVertex);
+            }
+
+            // Indices
+            for (const uint32_t& index : indices)
+            {
+                s_Indices.push_back(index + VertexCount);
+            }
+
+            VertexCount += mesh.Vertices.size();
         }
 
-        // int indiceOffset;
-        for (int i = 0; i < meshIndices.size(); i++)
-        {
-            indices[i] = meshIndices[i];
-        }
+        // Upload data to gpu
+        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(s_Vertices.size() * sizeof(Vertex), s_Vertices.data()); // THIS TAKES SIZE IN BYTES
+        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(s_Indices.size(), s_Indices.data()); // THIS TAKES COUNT (NUMBER OF INDICES, NOT SIZE)
 
-        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(sizeof(vertices), &vertices);
-        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(100, indices);
+        // Currently, this code assumes everything is done with one batch
+
+        s_Meshes.clear();
+        s_Vertices.clear();
+        s_Indices.clear();
+    }
+
+    void Renderer::DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+    {
+
     }
 }

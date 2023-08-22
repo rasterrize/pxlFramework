@@ -8,14 +8,15 @@ namespace pxl
     class OpenGLVertexBuffer : public VertexBuffer
     {
     public:
-        OpenGLVertexBuffer(int size, const void* data);
-        OpenGLVertexBuffer();
+        OpenGLVertexBuffer(uint32_t size, const void* data);
+        OpenGLVertexBuffer(uint32_t size);
+        virtual ~OpenGLVertexBuffer();
 
         virtual void Bind() override;
         virtual void Unbind() override;
 
-        virtual void SetData(int size, const void* data) override;
+        virtual void SetData(uint32_t size, const void* data) override;
     private:
-        unsigned int m_RendererID;
+        uint32_t m_RendererID;
     };
 }

@@ -7,17 +7,18 @@ namespace pxl
     class OpenGLIndexBuffer : public IndexBuffer
     {
     public:
-        OpenGLIndexBuffer(unsigned int count, unsigned int* data);
-        OpenGLIndexBuffer();
+        OpenGLIndexBuffer(uint32_t count, const void* data);
+        OpenGLIndexBuffer(uint32_t count);
+        virtual ~OpenGLIndexBuffer();
 
         virtual void Bind() override;
         virtual void Unbind() override;
         
-        virtual const unsigned int GetCount() const { return m_Count; }
+        virtual const uint32_t GetCount() const { return m_Count; }
 
-        virtual void SetData(int count, const void* data) override;
+        virtual void SetData(uint32_t count, const void* data) override;
     private:
-        unsigned int m_RendererID;
-        unsigned int m_Count;
+        uint32_t m_RendererID;
+        uint32_t m_Count;
     };
 }

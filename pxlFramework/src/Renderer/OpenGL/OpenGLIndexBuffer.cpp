@@ -4,19 +4,25 @@
 
 namespace pxl
 {
-    OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned int count, unsigned int* data)
-    : m_Count(count)
+    OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count, const void* data)
+        : m_Count(count)
     {
         glCreateBuffers(1, &m_RendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(uint32_t), data, GL_STATIC_DRAW);
     }
 
-    OpenGLIndexBuffer::OpenGLIndexBuffer()
+    OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
+        : m_Count(count)
     {
         glCreateBuffers(1, &m_RendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 36, nullptr, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    OpenGLIndexBuffer::~OpenGLIndexBuffer()
+    {
+        glDeleteBuffers(1, &m_RendererID);
     }
 
     void OpenGLIndexBuffer::Bind()
@@ -29,9 +35,9 @@ namespace pxl
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    void OpenGLIndexBuffer::SetData(int count, const void *data)
+    void OpenGLIndexBuffer::SetData(uint32_t count, const void* data)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(uint32_t), data);
     }
 }

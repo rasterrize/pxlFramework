@@ -13,14 +13,14 @@ namespace pxl
 {
     struct Vertex
     {
-        float Position[3];
-        float TexCoords[2];
+        glm::vec3 Position = glm::vec3(0.0f);
+        glm::vec2 TexCoords = glm::vec2(0.0f);
     };
 
     struct Mesh
     {
         std::vector<Vertex> Vertices;
-        std::vector<unsigned int> Indices;
+        std::vector<uint32_t> Indices;
 
         glm::mat4 Transform = glm::mat4(1.0f);
 
@@ -51,11 +51,15 @@ namespace pxl
         static void DrawLines(int count);
         static void DrawIndexed();
         
-        static void Submit(const std::shared_ptr<Mesh>& mesh);
         static void Submit(const std::shared_ptr<VertexArray>& vertexArray);
         static void Submit(const std::shared_ptr<Shader>& shader);
+        static void Submit(const Mesh& mesh);
+
+        static void DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+        static void BatchGeometry(); // should be private and automatically called by the engine
     private:
         static void CalculateFPS();
+
     private:
         friend class WindowGLFW;
 
@@ -68,6 +72,21 @@ namespace pxl
         static uint16_t s_FrameCount;
         static float s_TimeAtLastFrame;
 
-        //static std::vector<Mesh> s_Meshes;
+        static const size_t s_MaxVertexCount;
+        static const size_t s_MaxIndiceCount;
+
+        static std::vector<Vertex> s_Vertices;
+        static std::vector<uint32_t> s_Indices;
+
+        static std::vector<Mesh> s_Meshes;
+
+        struct Statistics
+        {
+            uint32_t DrawCalls = 0;
+            uint32_t VertexCount = 0;
+            uint32_t IndiceCount = 0;
+            uint32_t TriangleCount = 0;
+
+        };
     };
 }   

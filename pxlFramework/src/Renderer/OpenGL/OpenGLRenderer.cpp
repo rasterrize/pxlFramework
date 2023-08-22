@@ -37,14 +37,4 @@ namespace pxl
         m_Shader->Bind();
         glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
-
-    void OpenGLRenderer::BatchStart()
-    {
-        
-    }
-
-    void OpenGLRenderer::Flush()
-    {
-        
-    }
 }

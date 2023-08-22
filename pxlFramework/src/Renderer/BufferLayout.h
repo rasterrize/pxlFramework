@@ -11,11 +11,11 @@ namespace pxl
 
     struct BufferElement
     {
-        unsigned int Count; // How many variables/data of the specified data type (eg. the amount/count of floats in the element)
+        uint32_t Count; // How many variables/data of the specified data type (eg. the amount/count of floats in the element)
         BufferDataType Type; // The type of data (float, int, etc)
         bool Normalized;
 
-        unsigned int GetSizeOfType()
+        uint32_t GetSizeOfType()
         {
             switch (Type)
             {
@@ -38,9 +38,9 @@ namespace pxl
     {
     public:
         std::vector<BufferElement> GetElements() const { return m_Elements; }
-        unsigned int GetStride() { return m_Stride; }
+        uint32_t GetStride() { return m_Stride; }
 
-        void Add(unsigned int count, BufferDataType type, bool normalized)
+        void Add(uint32_t count, BufferDataType type, bool normalized)
         {
             m_Elements.push_back({count, type, normalized});
             CalculateStride();
@@ -54,7 +54,7 @@ namespace pxl
 
         void CalculateStride()
         {
-            unsigned int stride = 0;
+            uint32_t stride = 0;
             for (BufferElement element : m_Elements)
             {
                 stride += element.Count * element.GetSizeOfType();
@@ -64,6 +64,6 @@ namespace pxl
         }
     private:
         std::vector<BufferElement> m_Elements;
-        unsigned int m_Stride; // Stride is the size of the entire buffer (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
+        uint32_t m_Stride; // Stride is the size of the entire buffer (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
     };
 }

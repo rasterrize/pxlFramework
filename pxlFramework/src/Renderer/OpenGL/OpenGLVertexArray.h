@@ -10,6 +10,7 @@ namespace pxl
     {
     public:
         OpenGLVertexArray();
+        virtual ~OpenGLVertexArray();
 
         virtual void Bind() override;
         virtual void Unbind() override;
@@ -22,7 +23,7 @@ namespace pxl
         virtual std::shared_ptr<VertexBuffer> GetVertexBuffer() override { return m_VertexBuffer; }
         virtual std::shared_ptr<IndexBuffer> GetIndexBuffer() override { return m_IndexBuffer; }
     private:
-        unsigned int m_RendererID;
+        uint32_t m_RendererID;
         std::shared_ptr<VertexBuffer> m_VertexBuffer;
         std::shared_ptr<IndexBuffer> m_IndexBuffer;
     };
