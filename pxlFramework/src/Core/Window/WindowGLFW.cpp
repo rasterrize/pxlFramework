@@ -182,7 +182,7 @@ namespace pxl
         return nullptr;
     }
 
-    void WindowGLFW::SetSize(unsigned int width, unsigned int height)
+    void WindowGLFW::SetSize(uint32_t width, uint32_t height)
     {
         glfwSetWindowSize(m_Window, width, height);
 
@@ -196,9 +196,15 @@ namespace pxl
         }
     }
 
+    void WindowGLFW::SetPosition(uint32_t xpos, uint32_t ypos)
+    {
+        glfwSetWindowPos(m_Window, xpos, ypos); // TODO: should this take the monitor into consideration?
+        // TODO: add logging
+    }
+
     void WindowGLFW::SetWindowMode(WindowMode winMode)
     { 
-        if (winMode == GetWindowMode())
+        if (winMode == m_WindowMode)
             return;
 
         auto currentMonitor = GetCurrentMonitor();
@@ -219,7 +225,7 @@ namespace pxl
             case WindowMode::Windowed:
                 glfwSetWindowAttrib(m_Window, GLFW_DECORATED, GLFW_TRUE);
                 glfwSetWindowAttrib(m_Window, GLFW_RESIZABLE, GLFW_TRUE);
-                glfwSetWindowMonitor(m_Window, nullptr, monitorX + (monitorWidth / 2) - (1280 / 2), monitorY + (monitorHeight / 2) - (720 / 2), 1280, 720, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
+                glfwSetWindowMonitor(m_Window, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedWidth / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedHeight / 2), m_LastWindowedWidth, m_LastWindowedHeight, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
                 m_WindowMode = WindowMode::Windowed;
                 Logger::LogInfo("Switched window mode to Windowed");
                 break;
@@ -241,42 +247,29 @@ namespace pxl
 
     void WindowGLFW::SetMonitor(uint8_t monitorIndex)
     {
-        if (monitorIndex <= 0)
-            return;
-        
-        if (s_WindowCount == 0)
-            return;
-
-        //auto currentMonitor = glfwGetWindowMonitor(m_Window);
-        
-        if (monitorIndex > s_MonitorCount)
+        if (monitorIndex > s_MonitorCount || monitorIndex <= 0)
         {
             Logger::LogWarn("Can't set specified monitor for window '" + m_WindowSpecs.Title + "'. Monitor doesn't exist");
             return;
         }
 
-        // Get video mode for fullscreen and borderless
-        GLFWmonitor* monitor = s_Monitors[monitorIndex - 1];
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        // Get window and monitor sizes/positions for windowed/borderless
-        int windowWidth, windowHeight; // could these be the stored width and height variables in the window specs?
-        glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
+        // Get the current video mode of the specified monitor
+        GLFWmonitor* monitor = s_Monitors[monitorIndex - 1]; // monitor indexes start at 1, arrays start at 0
+        const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
 
         int nextMonX, nextMonY;
-        int nextMonWidth, nextMonHeight;
-        glfwGetMonitorWorkarea(monitor, &nextMonX, &nextMonY, &nextMonWidth, &nextMonHeight); // excludes taskbar
+        glfwGetMonitorWorkarea(monitor, &nextMonX, &nextMonY, NULL, NULL);
 
         switch (m_WindowMode)
         {
             case WindowMode::Windowed:
-                glfwSetWindowMonitor(m_Window, nullptr, nextMonX + (nextMonWidth / 2) - (windowWidth / 2), nextMonY + (nextMonHeight / 2) - (windowHeight / 2), m_WindowSpecs.Width, m_WindowSpecs.Height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_Window, nullptr, nextMonX + (vidmode->width / 2) - (m_WindowSpecs.Width / 2), nextMonY + (vidmode->height / 2) - (m_WindowSpecs.Height / 2), m_WindowSpecs.Width, m_WindowSpecs.Height, GLFW_DONT_CARE);
                 break;
             case WindowMode::Borderless:
-                glfwSetWindowMonitor(m_Window, nullptr, nextMonX, nextMonY, mode->width, mode->height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_Window, nullptr, nextMonX, nextMonY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
                 break;
             case WindowMode::Fullscreen:
-                glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+                glfwSetWindowMonitor(m_Window, monitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
                 break;
         }
     }

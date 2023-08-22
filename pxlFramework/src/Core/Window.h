@@ -14,8 +14,8 @@ namespace pxl
 
     struct WindowSpecs
     {
-        unsigned int Width;
-        unsigned int Height;
+        uint32_t Width;
+        uint32_t Height;
         std::string Title;
         RendererAPIType RendererAPI;
     };
@@ -26,17 +26,17 @@ namespace pxl
         virtual void Update() = 0;
         virtual void Close() = 0;
 
-        virtual void SetSize(unsigned int width, unsigned int height) = 0;
+        virtual void SetSize(uint32_t width, uint32_t height) = 0;
+        virtual void SetPosition(uint32_t x, uint32_t y) = 0;
         virtual void SetWindowMode(WindowMode winMode) = 0;
         virtual void SetMonitor(uint8_t monitorIndex) = 0;
 
         virtual void* GetNativeWindow() = 0;
-        virtual uint8_t GetAvailableMonitorCount() = 0;
 
         std::shared_ptr<GraphicsContext> GetGraphicsContext() { return m_GraphicsContext; }
 
-        const unsigned int GetWidth() const { return m_WindowSpecs.Width; }
-        const unsigned int GetHeight() const { return m_WindowSpecs.Height; }
+        const uint32_t GetWidth() const { return m_WindowSpecs.Width; }
+        const uint32_t GetHeight() const { return m_WindowSpecs.Height; }
 
         const WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
         const WindowMode GetWindowMode() const { return m_WindowMode; }
@@ -51,6 +51,8 @@ namespace pxl
     public:
         static void Shutdown(); // I don't think this should be public
 
+        static int GetMonitorCount() { return s_MonitorCount; }
+
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
     protected:
         Window(const WindowSpecs& windowSpecs);
@@ -61,10 +63,15 @@ namespace pxl
         WindowMode m_WindowMode;
         bool m_Minimized = false;
 
+        uint32_t m_LastWindowedWidth = m_WindowSpecs.Width; // TODO: make these change when the window size changes via user resize
+        uint32_t m_LastWindowedHeight = m_WindowSpecs.Height;
+
         std::shared_ptr<Window> m_Handle;
     protected:
         static uint8_t s_WindowCount;
         static std::vector<std::shared_ptr<Window>> s_Windows;
+        
+        static int s_MonitorCount;
     private:
         friend class Application;
 

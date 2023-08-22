@@ -13,14 +13,12 @@ namespace pxl
 
         virtual void Close() override;
 
-        virtual uint8_t GetAvailableMonitorCount() override { return (uint8_t)s_MonitorCount; }
-
-        virtual void SetSize(unsigned int width, unsigned int height) override;
+        virtual void SetSize(uint32_t width, uint32_t height) override;
+        virtual void SetPosition(uint32_t x, uint32_t y) override;
         virtual void SetWindowMode(WindowMode winMode) override;
         virtual void SetMonitor(uint8_t monitorIndex) override;
         
         virtual void* GetNativeWindow() override { return m_Window; }
-        
     private:
         friend class Window;
         
@@ -45,6 +43,5 @@ namespace pxl
 
         static uint8_t s_GLFWWindowCount;
         static GLFWmonitor** s_Monitors;
-        static int s_MonitorCount;
     };
 }

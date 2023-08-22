@@ -119,6 +119,8 @@ namespace TestApp
         #endif
         
         m_Window = pxl::Window::Create({1280, 720, windowTitle, pxl::RendererAPIType::OpenGL});
+        m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
+        m_Window->SetVSync(false);
 
         pxl::Renderer::Init(m_Window);
 
