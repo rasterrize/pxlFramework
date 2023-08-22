@@ -3,7 +3,7 @@
 namespace pxl
 {
     // from glfw
-    enum ButtonCode
+    enum MouseCode
     {
         PXL_MOUSE_BUTTON_1        = 0,
         PXL_MOUSE_BUTTON_2        = 1,

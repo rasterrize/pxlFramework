@@ -5,8 +5,9 @@
 #include "../src/Core/Logger.h"
 #include "../src/Core/Input.h"
 #include "../src/Core/KeyCodes.h"
-#include "../src/Core/ButtonCodes.h"
+#include "../src/Core/MouseCodes.h"
 #include "../src/Core/Math.h"
+#include "../src/Core/Platform.h"
 #include "../src/Core/Stopwatch.h"
 
 #include "../src/Renderer/Renderer.h"

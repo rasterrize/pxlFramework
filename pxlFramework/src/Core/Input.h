@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include "KeyCodes.h"
-#include "ButtonCodes.h"
+#include "MouseCodes.h"
 #include "Window.h"
 
 namespace pxl
@@ -20,8 +20,8 @@ namespace pxl
         static bool IsKeyPressed(KeyCode keyCode);
         static bool IsKeyHeld(KeyCode keyCode);
 
-        static bool IsMouseButtonPressed(ButtonCode buttonCode);
-        static bool IsMouseButtonHeld(ButtonCode buttonCode);
+        static bool IsMouseButtonPressed(MouseCode buttonCode);
+        static bool IsMouseButtonHeld(MouseCode buttonCode);
 
         static bool IsMouseScrolledUp(); // this should be only 'IsMouseScrolled' and then have a MouseCode a parameter
         static bool IsMouseScrolledDown();

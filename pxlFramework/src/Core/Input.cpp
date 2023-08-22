@@ -79,7 +79,7 @@ namespace pxl
         return false;
     }
 
-    bool Input::IsMouseButtonPressed(ButtonCode buttonCode)
+    bool Input::IsMouseButtonPressed(MouseCode buttonCode)
     {
         if (!s_Enabled)
             return false;
@@ -100,7 +100,7 @@ namespace pxl
         return buttonPressed;
     }
 
-    bool Input::IsMouseButtonHeld(ButtonCode buttonCode)
+    bool Input::IsMouseButtonHeld(MouseCode buttonCode)
     {
         if (!s_Enabled)
             return false;

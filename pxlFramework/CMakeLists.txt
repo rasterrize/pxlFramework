@@ -11,7 +11,7 @@ src/Core/Window.h src/Core/Window.cpp
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
-src/Core/ButtonCodes.h
+src/Core/MouseCodes.h
 src/Core/Math.h
 src/Core/Platform.h
 src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
