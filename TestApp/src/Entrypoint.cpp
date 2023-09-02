@@ -4,10 +4,10 @@
     #include <Windows.h>
 #endif
 
-#ifndef TA_DIST
-    int main()
-#else
+#ifdef TA_DIST
     int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+    int main()
 #endif
 {
     #ifndef TA_DIST

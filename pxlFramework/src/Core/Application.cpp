@@ -9,7 +9,7 @@
 
 namespace pxl
 {
-    Application* Application::s_Instance;
+    Application* Application::s_Instance = nullptr;
 
     Application::Application()
     {

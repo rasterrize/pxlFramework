@@ -49,6 +49,8 @@ namespace TestApp
             windowTitle = "pxlFramework Test App - Debug x64";
         #elif TA_RELEASE
             windowTitle = "pxlFramework Test App - Release x64";
+        #elif TA_DIST
+            windowTitle = "pxlFramework Test App - Distribute x64";
         #else
             windowTitle = "pxlFramework Test App - Unknown Build Type";
         #endif

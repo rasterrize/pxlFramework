@@ -12,7 +12,6 @@ namespace pxl
     uint8_t WindowGLFW::s_GLFWWindowCount = 0;
 
     GLFWmonitor** WindowGLFW::s_Monitors;
-    int WindowGLFW::s_MonitorCount;
 
     WindowGLFW::WindowGLFW(const WindowSpecs& windowSpecs)
         : Window(windowSpecs)
@@ -61,6 +60,7 @@ namespace pxl
                 break;
         }
 
+        // Create GLFW window and set it up
         m_Window = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);
         s_Monitors = glfwGetMonitors(&s_MonitorCount);
         glfwSetWindowUserPointer(m_Window, (Window*)this);
@@ -119,7 +119,6 @@ namespace pxl
         glfwSetMouseButtonCallback(m_Window, Input::GLFWMouseButtonCallback);
         glfwSetScrollCallback(m_Window, Input::GLFWScrollCallback);
         glfwSetCursorPosCallback(m_Window, Input::GLFWCursorPosCallback);
-
     }
 
     void WindowGLFW::WindowCloseCallback(GLFWwindow* window)

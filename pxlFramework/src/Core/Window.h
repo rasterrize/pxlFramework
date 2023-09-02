@@ -71,7 +71,7 @@ namespace pxl
         static uint8_t s_WindowCount;
         static std::vector<std::shared_ptr<Window>> s_Windows;
         
-        static int s_MonitorCount;
+        static int s_MonitorCount; // must be int instead of uint8_t because glfw
     private:
         friend class Application;
 

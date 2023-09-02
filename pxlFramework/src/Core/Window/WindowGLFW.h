@@ -39,7 +39,7 @@ namespace pxl
 
     private:
         GLFWwindow* m_Window;
-        uint8_t m_MonitorIndex;
+        uint8_t m_MonitorIndex = 1;
 
         static uint8_t s_GLFWWindowCount;
         static GLFWmonitor** s_Monitors;

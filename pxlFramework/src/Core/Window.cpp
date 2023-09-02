@@ -13,6 +13,7 @@
 namespace pxl
 {
     uint8_t Window::s_WindowCount = 0;
+    int WindowGLFW::s_MonitorCount = 0;
 
     std::vector<std::shared_ptr<Window>> Window::s_Windows;
 

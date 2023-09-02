@@ -11,7 +11,7 @@
 
 namespace pxl
 {
-    std::unique_ptr<ImGuiBase> pxl_ImGui::m_ImGuiRenderer;
+    std::unique_ptr<ImGuiBase> pxl_ImGui::m_ImGuiRenderer = nullptr;
     RendererAPIType pxl_ImGui::m_RendererAPI = RendererAPIType::None;
     bool pxl_ImGui::s_Enabled = false;
 
