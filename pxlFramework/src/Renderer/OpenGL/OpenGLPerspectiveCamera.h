@@ -18,6 +18,6 @@ namespace pxl
     private:
         virtual void RecalculateProjection() override;
 
-        float m_FOV;
+        float m_FOV = 45.0f;
     };
 }

@@ -15,7 +15,18 @@ namespace pxl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_ImageSize.x, m_ImageSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_ImageBuffer);
+        int channelType;
+
+        if (channels == 3)          // All this is very temporary
+        {   
+            channelType = GL_RGB;
+        }
+        else if (channels == 4)
+        {
+            channelType = GL_RGBA;
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_ImageSize.x, m_ImageSize.y, 0, channelType, GL_UNSIGNED_BYTE, m_ImageBuffer);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 

@@ -18,7 +18,7 @@ namespace pxl
     private:
         virtual void Init() override;
     private:
-        GLFWwindow* m_WindowHandle;
+        GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;
     };
 }

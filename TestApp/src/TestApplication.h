@@ -21,8 +21,7 @@ namespace TestApp
         std::shared_ptr<pxl::IndexBuffer> m_IBO;
         std::shared_ptr<pxl::Shader> m_Shader;
 
-        pxl::Mesh m_CubeMesh;
-        glm::vec3 m_MeshPosition = glm::vec3(0.0f);
+        glm::vec3 m_MeshPosition = glm::vec3(-2.0f, -2.0f, 0.0f);
         
         glm::vec3 m_CameraPosition = glm::vec3(0.0f);
         glm::vec3 m_CameraRotation = glm::vec3(0.0f);
@@ -35,5 +34,7 @@ namespace TestApp
         bool controllingCamera = true;
 
         pxl::WindowMode m_WindowMode;
+
+        std::vector<std::shared_ptr<pxl::Texture>> m_TextureLibrary;
     };
 }

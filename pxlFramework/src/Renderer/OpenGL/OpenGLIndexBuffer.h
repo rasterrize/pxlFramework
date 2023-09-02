@@ -19,6 +19,6 @@ namespace pxl
         virtual void SetData(uint32_t count, const void* data) override;
     private:
         uint32_t m_RendererID;
-        uint32_t m_Count;
+        uint32_t m_Count = 0;
     };
 }

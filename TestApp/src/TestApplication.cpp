@@ -6,68 +6,6 @@ namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        // float trianglepositions[6] = {
-        //     -0.5f, -0.5f,
-        //     0.5f, -0.5f,
-        //     0.0f, 0.5f
-        // };
-
-        // float squarepositions[] = {
-        //     -0.5f, -0.5f,
-        //      0.5f, -0.5f,
-        //      0.5f,  0.5f,
-        //     -0.5f,  0.5f
-        // };
-
-        // uint32_t squareindices[] = {
-        //     0, 1, 2,
-        //     2, 3, 0
-        // };
-
-        // float cubepositions[] = {
-        //     -0.5f, -0.5f,  0.5f,
-        //      0.5f, -0.5f,  0.5f,
-        //      0.5f,  0.5f,  0.5f,
-        //     -0.5f,  0.5f,  0.5f,
-        //     -0.5f, -0.5f, -0.5f,
-        //      0.5f, -0.5f, -0.5f,
-        //      0.5f,  0.5f, -0.5f,
-        //     -0.5f,  0.5f, -0.5f
-        // };
-
-        uint32_t cubeIndices[] = { 
-            0, 1, 2, 
-            2, 3, 0, // front
-
-            4, 5, 6,
-            6, 7, 4, // back
-
-            8, 9, 10,
-            10, 11, 8, // left
-    
-            12, 13, 14,
-            14, 15, 12, // top
-
-            16, 17, 18,
-            18, 19, 16, // right
-
-            20, 21, 22,
-            22, 23, 20 // bottom
-        };
-
-        std::string vertexShaderSource = R"(
-            #version 460 core
-
-            layout (location = 0) in vec3 a_Position;
-            out vec3 v_Position;
-
-            void main()
-            {
-                v_Position = a_Position;
-                gl_Position = vec4(a_Position, 1.0);
-            }
-        )";
-
         std::string vertexShaderCamera = R"(
             #version 460 core
 
@@ -117,7 +55,7 @@ namespace TestApp
         
         m_Window = pxl::Window::Create({1280, 720, windowTitle, pxl::RendererAPIType::OpenGL});
         m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
-        m_Window->SetVSync(false);
+        m_Window->SetVSync(true);
 
         pxl::Renderer::Init(m_Window);
 
@@ -128,84 +66,11 @@ namespace TestApp
         m_ClearColour = pxl::vec4(clearColour);
 
         m_VAO = std::make_shared<pxl::OpenGLVertexArray>();
-        m_VBO = std::make_shared<pxl::OpenGLVertexBuffer>(2000000);
-        m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(2000000);
+        m_VBO = std::make_shared<pxl::OpenGLVertexBuffer>((uint32_t)(50000 * sizeof(pxl::Vertex)));
+        m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(50000);
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
         pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
-
-        pxl::Mesh mesh;
-
-        // Front
-        pxl::Vertex v1 = {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v2 = {{ 0.5f, -0.5f, 0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v3 = {{ 0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f }};
-        pxl::Vertex v4 = {{ -0.5f, 0.5f, 0.5f }, { 0.0f, 1.0f }};
-
-        // Back
-        pxl::Vertex v5 = {{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v6 = {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v7 = {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }};
-        pxl::Vertex v8 = {{ 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f }};
-
-        // For Textured Cube
-
-        // Left
-        pxl::Vertex v9  = {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v10 = {{ -0.5f, -0.5f, 0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v11 = {{ -0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f }};
-        pxl::Vertex v12 = {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }};
-
-        // Top
-        pxl::Vertex v13 = {{ -0.5f, 0.5f, 0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v14 = {{ 0.5f, 0.5f, 0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v15 = {{ 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f }};
-        pxl::Vertex v16 = {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }};
-
-        // Right
-        pxl::Vertex v17 = {{ 0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v18 = {{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v19 = {{ 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f }};
-        pxl::Vertex v20 = {{ 0.5f, 0.5f, 0.5f }, { 0.0f, 1.0f }};
-
-        // Bottom
-        pxl::Vertex v21 = {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }};
-        pxl::Vertex v22 = {{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }};
-        pxl::Vertex v23 = {{ 0.5f, -0.5f, 0.5f }, { 1.0f, 1.0f }};
-        pxl::Vertex v24 = {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 1.0f }};
-
-        mesh.Vertices.push_back(v1);
-        mesh.Vertices.push_back(v2);
-        mesh.Vertices.push_back(v3);
-        mesh.Vertices.push_back(v4);
-        mesh.Vertices.push_back(v5);
-        mesh.Vertices.push_back(v6);
-        mesh.Vertices.push_back(v7);
-        mesh.Vertices.push_back(v8);
-        mesh.Vertices.push_back(v9);
-        mesh.Vertices.push_back(v10);
-        mesh.Vertices.push_back(v11);
-        mesh.Vertices.push_back(v12);
-        mesh.Vertices.push_back(v13);
-        mesh.Vertices.push_back(v14);
-        mesh.Vertices.push_back(v15);
-        mesh.Vertices.push_back(v16);
-        mesh.Vertices.push_back(v17);
-        mesh.Vertices.push_back(v18);
-        mesh.Vertices.push_back(v19);
-        mesh.Vertices.push_back(v20);
-        mesh.Vertices.push_back(v21);
-        mesh.Vertices.push_back(v22);
-        mesh.Vertices.push_back(v23);
-        mesh.Vertices.push_back(v24);
-
-        for (int i = 0; i < 36; i++)
-        {
-            mesh.Indices.push_back(cubeIndices[i]);
-
-        }
-
-        m_CubeMesh = mesh;
 
         pxl::BufferLayout layout;
         layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
@@ -220,15 +85,20 @@ namespace TestApp
         m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
         m_NextCameraFOV = m_Camera->GetFOV();
 
-        auto texture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
-        texture->Bind();
+        auto texture1 = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
+        auto texture2 = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
 
+        m_TextureLibrary.push_back(texture1);
+        m_TextureLibrary.push_back(texture2);
+
+        texture1->Bind();
         //m_Shader->SetUniformInt1("u_Texture", 0);
 
-        #ifdef TA_DEBUG
         pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
         pxl::Input::SetRawInput(true);
         m_LastCursorPosition = pxl::Input::GetCursorPosition();
+
+        #ifndef TA_DIST
             pxl::pxl_ImGui::Init(m_Window);
         #endif
     }
@@ -383,25 +253,19 @@ namespace TestApp
 
         pxl::Renderer::Submit(m_VAO);
         pxl::Renderer::Submit(m_Shader);
-        //pxl::Renderer::Submit(m_CubeMesh);
 
-        for (int x = 0; x < 10; x++)
+        // pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f));
+
+        for (int x = 0; x < 5; x++)
         {
-            for (int y = 0; y < 10; y++)
+            for (int y = 0; y < 5; y++)
             {
-                for (int z = 0; z < 10; z++)
+                for (int z = 0; z < 5; z++)
                 {
-                    m_CubeMesh.Translate(x * 3.0f, y * 3.0f, z * -3.0f);
-                    pxl::Renderer::Submit(m_CubeMesh); // this submits the mesh vertices, indices, and transform
+                    pxl::Renderer::DrawCube({ x * 3.0f, y * 3.0f, z * -3.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
                 }
             }
         }
-
-        // for (int i = 0; i < 5; i++)
-        // {
-        //     m_CubeMesh.Translate(i * 2.0f, 0.0f, 0.0f);
-        //     pxl::Renderer::Submit(m_CubeMesh); // this submits the mesh vertices, indices, and transform
-        // }
 
         pxl::Renderer::BatchGeometry();
 
@@ -410,7 +274,6 @@ namespace TestApp
 
     void TestApplication::OnImGuiRender()
     {
-        #ifdef TA_DEBUG
             // Function only gets called if ImGui is initialized
             //ImGui::ShowDemoWindow();
 
@@ -432,10 +295,39 @@ namespace TestApp
             ImGui::Text("Camera Rotation: %.3f, %.3f, %.3f", m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z);
             ImGui::Text("Mesh Position: %.3f, %.3f, %.3f", m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
+            auto stats = pxl::Renderer::GetStats();
+
+            ImGui::Text("Renderer Stats:");
+            ImGui::Text("  Vertices: %u", stats.VertexCount);
+            ImGui::Text("  Indices: %u", stats.IndiceCount);
+            ImGui::Text("  Triangles: %u", stats.GetTriangleCount());
+
             auto cursorPos = pxl::Input::GetCursorPosition(); 
 
             ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
             ImGui::Text("Mouse Delta: %f, %f", m_MouseDelta.x, m_MouseDelta.y);
+
+            static int selectedTextureInput = 0;
+            static int lastSelectedTexture = 0;
+            const char* textures[] = { "Stone", "Atlas" };
+
+            ImGui::Combo("Texture", &selectedTextureInput, textures, IM_ARRAYSIZE(textures));
+
+            if (selectedTextureInput != lastSelectedTexture)
+            {
+                switch(selectedTextureInput)
+                {
+                    case 0:
+                        m_TextureLibrary.at(0)->Bind();
+                        break;
+                    case 1:
+                        m_TextureLibrary.at(1)->Bind();
+                        break;
+                }
+
+                lastSelectedTexture = selectedTextureInput;
+            }
+
             ImGui::End();
 
             // Settings Window
@@ -520,6 +412,5 @@ namespace TestApp
             }
 
             ImGui::End();
-        #endif
     }
 }

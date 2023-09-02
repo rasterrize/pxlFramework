@@ -57,8 +57,21 @@ namespace pxl
 
         static void DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
         static void BatchGeometry(); // should be private and automatically called by the engine
+
+        struct Statistics
+        {
+            uint32_t DrawCalls = 0;
+            uint32_t VertexCount = 0;
+            uint32_t IndiceCount = 0;
+            
+            uint32_t GetTriangleCount() { return IndiceCount / 3; }
+        };
+
+        static const Statistics& GetStats() { return s_Stats; }
     private:
+        static void PrepareCubeMesh();
         static void CalculateFPS();
+        static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
 
     private:
         friend class WindowGLFW;
@@ -69,7 +82,7 @@ namespace pxl
         static std::unique_ptr<RendererAPI> s_RendererAPI;
 
         static float s_FPS;
-        static uint16_t s_FrameCount;
+        static uint32_t s_FrameCount;
         static float s_TimeAtLastFrame;
 
         static const size_t s_MaxVertexCount;
@@ -79,14 +92,8 @@ namespace pxl
         static std::vector<uint32_t> s_Indices;
 
         static std::vector<Mesh> s_Meshes;
+        static Mesh s_CubeMesh;
 
-        struct Statistics
-        {
-            uint32_t DrawCalls = 0;
-            uint32_t VertexCount = 0;
-            uint32_t IndiceCount = 0;
-            uint32_t TriangleCount = 0;
-
-        };
+        static Statistics s_Stats;
     };
 }   

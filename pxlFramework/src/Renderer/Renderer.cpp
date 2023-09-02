@@ -15,16 +15,19 @@ namespace pxl
     std::unique_ptr<RendererAPI> Renderer::s_RendererAPI;
 
     float Renderer::s_FPS = 0.0f;
-    uint16_t Renderer::s_FrameCount = 0;
+    uint32_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
-    const size_t Renderer::s_MaxVertexCount = 2000000;
-    const size_t Renderer::s_MaxIndiceCount = 2000000;
+    const size_t Renderer::s_MaxVertexCount = 50000;
+    const size_t Renderer::s_MaxIndiceCount = 50000;
 
     std::vector<Vertex> Renderer::s_Vertices;
     std::vector<uint32_t> Renderer::s_Indices;
     
     std::vector<Mesh> Renderer::s_Meshes;
+    Mesh Renderer::s_CubeMesh;
+
+    Renderer::Statistics Renderer::s_Stats;
 
     void Renderer::Init(std::shared_ptr<Window> window)
     {   
@@ -50,8 +53,10 @@ namespace pxl
                 return;
         }
 
-        s_Vertices.reserve(s_MaxVertexCount);
+        s_Vertices.reserve(s_MaxVertexCount); // apparently this function is dangerous in some situations
         s_Indices.reserve(s_MaxIndiceCount);
+
+        PrepareCubeMesh();
 
         s_RendererAPIType = windowSpecs.RendererAPI;
         s_Enabled = true;
@@ -60,19 +65,6 @@ namespace pxl
     void Renderer::Shutdown()
     {
         s_Enabled = false;
-    }
-
-    void Renderer::CalculateFPS()
-    {
-        float currentTime = (float)Platform::GetTime();
-        float elapsedTime = currentTime - s_TimeAtLastFrame;
-
-        if (elapsedTime > 0.05f)
-        {
-            s_FPS = s_FrameCount / elapsedTime;
-            s_TimeAtLastFrame = currentTime;
-            s_FrameCount = 0;
-        }
     }
 
     void Renderer::Clear()
@@ -88,16 +80,19 @@ namespace pxl
     void Renderer::DrawArrays(int count)
     {
         s_RendererAPI->DrawArrays(count);
+        s_Stats.DrawCalls++;
     }
 
     void Renderer::DrawLines(int count)
     {
         s_RendererAPI->DrawLines(count);
+        s_Stats.DrawCalls++;
     }    
 
     void Renderer::DrawIndexed()
     {
         s_RendererAPI->DrawIndexed();
+        s_Stats.DrawCalls++;
     }
 
     void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray)
@@ -117,6 +112,8 @@ namespace pxl
 
     void Renderer::BatchGeometry()
     {    
+        ResetStats();
+
         int VertexCount = 0;
 
         for (const Mesh& mesh : s_Meshes)
@@ -135,12 +132,14 @@ namespace pxl
                 batchedVertex.TexCoords = { vertex.TexCoords[0], vertex.TexCoords[1] };
 
                 s_Vertices.push_back(batchedVertex);
+                s_Stats.VertexCount++;
             }
 
             // Indices
             for (const uint32_t& index : indices)
             {
                 s_Indices.push_back(index + VertexCount);
+                s_Stats.IndiceCount++;
             }
 
             VertexCount += mesh.Vertices.size();
@@ -157,8 +156,130 @@ namespace pxl
         s_Indices.clear();
     }
 
+    void Renderer::PrepareCubeMesh()
+    {
+        // TEMPORARY: sprite sheet test
+        constexpr uint32_t x = 3, y = 1;
+
+
+        // Front
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 1.0f }});
+
+        // Back
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f   }, { 1.0f, 1.0f }});
+
+        // For Textured Cube
+
+        // Left
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
+
+        // Top
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }});
+
+        // Right
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 0.0f, 1.0f }});
+
+        // Bottom
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
+        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 0.0f, 1.0f }});
+
+        // // Front
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 1.0f }});
+
+        // // Back
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f   }, { 1.0f, 1.0f }});
+
+        // // For Textured Cube
+
+        // // Left
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
+
+        // // Top
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }});
+
+        // // Right
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 0.0f, 1.0f }});
+
+        // // Bottom
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
+        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f   }, { 1.0f, 1.0f }});
+        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 0.0f, 1.0f }});
+
+        uint32_t cubeIndices[] = { 
+            0, 1, 2, 
+            2, 3, 0,    // front
+
+            4, 5, 6,
+            6, 7, 4,    // back
+
+            8, 9, 10,
+            10, 11, 8,  // left
+    
+            12, 13, 14,
+            14, 15, 12, // top
+
+            16, 17, 18,
+            18, 19, 16, // right
+
+            20, 21, 22,
+            22, 23, 20  // bottom
+        };
+
+        for (int i = 0; i < 36; i++)
+        {
+            s_CubeMesh.Indices.push_back(cubeIndices[i]);
+        }
+    }
+
     void Renderer::DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
+        s_CubeMesh.Translate(position.x, position.y, position.z);
+        s_Meshes.push_back(s_CubeMesh);
+    }
 
+    void Renderer::CalculateFPS()
+    {
+        float currentTime = (float)Platform::GetTime();
+        float elapsedTime = currentTime - s_TimeAtLastFrame;
+
+        if (elapsedTime > 0.05f)
+        {
+            s_FPS = s_FrameCount / elapsedTime;
+            s_TimeAtLastFrame = currentTime;
+            s_FrameCount = 0;
+        }
     }
 }

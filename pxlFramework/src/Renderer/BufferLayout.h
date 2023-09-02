@@ -9,13 +9,13 @@ namespace pxl
         None = 0, Float, Float2, Float3, Float4, Int, Int2, Int3, Int4, Mat3, Mat4, Bool
     };
 
-    struct BufferElement
+    struct BufferElement // is this really a struct if it has member functions?
     {
         uint32_t Count; // How many variables/data of the specified data type (eg. the amount/count of floats in the element)
         BufferDataType Type; // The type of data (float, int, etc)
         bool Normalized;
 
-        uint32_t GetSizeOfType()
+        uint32_t GetSizeOfType() const
         {
             switch (Type)
             {
@@ -24,7 +24,7 @@ namespace pxl
             return 0;
         }
 
-        GLenum GetOpenGLType()
+        GLenum GetOpenGLType() const // opengl code shouldnt be here
         {
             switch (Type)
             {
@@ -38,32 +38,23 @@ namespace pxl
     {
     public:
         std::vector<BufferElement> GetElements() const { return m_Elements; }
-        uint32_t GetStride() { return m_Stride; }
+        const uint32_t GetStride() const { return m_Stride; }
 
         void Add(uint32_t count, BufferDataType type, bool normalized)
         {
-            m_Elements.push_back({count, type, normalized});
-            CalculateStride();
+            BufferElement element = { count, type, normalized };
+            m_Elements.push_back(element);
+            m_Stride += element.Count * element.GetSizeOfType();
         }
 
-        void Add(const BufferElement& element)
+        void Add(BufferElement& element)
         {
             m_Elements.push_back(element);
-            CalculateStride();
+            m_Stride += element.Count * element.GetSizeOfType();
         }
 
-        void CalculateStride()
-        {
-            uint32_t stride = 0;
-            for (BufferElement element : m_Elements)
-            {
-                stride += element.Count * element.GetSizeOfType();
-            }
-            m_Stride = stride;
-            Logger::LogInfo(std::string("Calculated Stride: ") + std::to_string(m_Stride));
-        }
     private:
         std::vector<BufferElement> m_Elements;
-        uint32_t m_Stride; // Stride is the size of the entire buffer (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
+        uint32_t m_Stride = 0; // Stride is the size of the entire buffer (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
     };
 }

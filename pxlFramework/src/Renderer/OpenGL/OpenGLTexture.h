@@ -18,6 +18,8 @@ namespace pxl
         glm::vec2 m_ImageSize;
         int m_Channels;
 
+        //uint32_t m_Rows;
+
         uint32_t m_RendererID;
     };
 }
