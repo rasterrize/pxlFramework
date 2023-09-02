@@ -1,6 +1,7 @@
 #include "OpenGLPerspectiveCamera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "../Renderer.h"
 #include "../../Core/Window.h"
@@ -15,7 +16,10 @@ namespace pxl
 
     void OpenGLPerspectiveCamera::Update()
     {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0, 0, 1));
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) 
+        * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.y), glm::vec3(0, 1, 0)) 
+        * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.z), glm::vec3(0, 0, 1))
+        * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(1, 0, 0)); // are these technically quaternion rotations?
 
         m_ViewMatrix = glm::inverse(transform);
 

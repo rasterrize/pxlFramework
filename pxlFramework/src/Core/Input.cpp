@@ -12,7 +12,7 @@ namespace pxl
     std::unordered_map<int, int> Input::s_PreviousMBStates;
     double Input::s_VerticalScrollOffset = 0.0f;
     double Input::s_HorizontalScrollOffset = 0.0f;
-    glm::vec2 Input::s_CursorPosition = glm::vec2(1.0f);
+    glm::vec2 Input::s_CursorPosition = glm::vec2(0.0f);
 
     void Input::Init(const std::shared_ptr<Window> window)
     {
@@ -137,6 +137,66 @@ namespace pxl
         }
 
         return scrolledUp;
+    }
+
+    void Input::SetCursorPosition(uint32_t x, uint32_t y)
+    {
+        if (!s_Enabled)
+            return;
+        
+        // TODO: check if x and y values are outside the bounds of the window
+
+        glfwSetCursorPos(s_WindowHandle, x, y);
+    }
+
+    void Input::SetCursorMode(CursorMode cursorMode)
+    {
+        if (!s_Enabled)
+            return;
+        
+        switch (cursorMode)
+        {
+            case CursorMode::Normal:
+                glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                break;
+            case CursorMode::Hidden:
+                glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                break;
+            case CursorMode::Disabled:
+                glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                break;
+        }
+    }
+
+    void Input::SetRawInput(bool value)
+    {
+        if (value)
+        {
+            if (glfwRawMouseMotionSupported()) // this function really only needs to be called once
+            {
+                glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+                Logger::LogInfo("Enabled Raw Input");
+            }
+            else
+            {
+                Logger::LogWarn("Failed to enabled Raw Input");
+            }
+        }
+    }
+
+    void Input::SetCursorVisibility(bool visible)
+    {
+        if (!s_Enabled)
+            return;
+
+        if (visible)
+        {
+            glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
+        }
+        else
+        {
+            glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        }
     }
 
     void Input::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

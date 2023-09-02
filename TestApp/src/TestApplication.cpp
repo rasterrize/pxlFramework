@@ -226,6 +226,9 @@ namespace TestApp
         //m_Shader->SetUniformInt1("u_Texture", 0);
 
         #ifdef TA_DEBUG
+        pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
+        pxl::Input::SetRawInput(true);
+        m_LastCursorPosition = pxl::Input::GetCursorPosition();
             pxl::pxl_ImGui::Init(m_Window);
         #endif
     }
@@ -238,17 +241,37 @@ namespace TestApp
     void TestApplication::OnUpdate(float dt)
     {
         m_CameraPosition = m_Camera->GetPosition();
+        m_CameraRotation = m_Camera->GetRotation();
         auto cameraFOV = m_Camera->GetFOV();
         float cameraSpeed = 1.0f;
+        // float meshSpeed = 1.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             Application::Close();
         }
 
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
+        {
+            if (controllingCamera)
+            {
+                pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
+                pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
+                controllingCamera = false;
+            }
+            else
+            {
+                pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
+                m_LastCursorPosition = pxl::Input::GetCursorPosition();
+                m_MouseDelta = glm::vec2(0.0f);
+                controllingCamera = true;
+            }
+        }
+
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
         {
             cameraSpeed *= 10.0f;
+            //meshSpeed *= 10.0f;
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
@@ -277,39 +300,32 @@ namespace TestApp
         }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_UP))
         // {
-        //     m_MeshPosition.y += 1.0f * dt;
+        //     m_MeshPosition.y += meshSpeed * dt;
         // }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT))
         // {
-        //     m_MeshPosition.x -= 1.0f * dt;
+        //     m_MeshPosition.x -= meshSpeed * dt;
         // }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DOWN))
         // {
-        //     m_MeshPosition.y -= 1.0f * dt;
+        //     m_MeshPosition.y -= meshSpeed * dt;
         // }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_RIGHT))
         // {
-        //     m_MeshPosition.x += 1.0f * dt;
+        //     m_MeshPosition.x += meshSpeed * dt;
         // }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DELETE))
         // {
-        //     m_MeshPosition.z += 1.0f * dt;
+        //     m_MeshPosition.z += meshSpeed * dt;
         // }
         // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_PAGE_DOWN))
         // {
-        //     m_MeshPosition.z -= 1.0f * dt;
+        //     m_MeshPosition.z -= meshSpeed * dt;
         // }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
         {
             m_Window->NextWindowMode();
         }
-
-        //float radius = 5.0f;
-        //static float sinValue = 0.1f * dt;
-        //m_CameraPosition.x = sin(pxl::Platform::GetTime()) * radius;
-        //m_CameraPosition.z = cos(pxl::Platform::GetTime()) * radius;
-        //sinValue += 0.1f * dt;
-
 
         if (pxl::Input::IsMouseScrolledUp())
         {
@@ -327,35 +343,41 @@ namespace TestApp
         {
             if (cameraFOV < m_NextCameraFOV)
             {
-                if (cameraFOV + fovScrollValue * dt < m_NextCameraFOV)
-                {
-                    cameraFOV += fovScrollValue * dt;
-                }
-                else
-                {
-                    cameraFOV = m_NextCameraFOV;
-                }
+                cameraFOV += fovScrollValue * dt;
+
+                if (cameraFOV > m_NextCameraFOV)
+                    cameraFOV = m_NextCameraFOV; // should be able to clamp these values
             }
             else if (cameraFOV > m_NextCameraFOV)
             {
-                if (cameraFOV - fovScrollValue * dt > m_NextCameraFOV)
-                {
-                    cameraFOV -= fovScrollValue * dt;
-                }
-                else
-                {
+                cameraFOV -= fovScrollValue * dt;
+
+                if (cameraFOV < m_NextCameraFOV)
                     cameraFOV = m_NextCameraFOV;
-                }
             }
         }
 
         auto cursorPos = pxl::Input::GetCursorPosition();
-        //pxl::Logger::LogInfo(std::to_string(cursorPos.x) + ", " + std::to_string(cursorPos.y));
 
+        if (controllingCamera)
+        {
+            if (cursorPos != m_LastCursorPosition)
+            {
+                m_MouseDelta.x = cursorPos.x - m_LastCursorPosition.x;
+                m_MouseDelta.y = cursorPos.y - m_LastCursorPosition.y;
 
-        m_Camera->SetPosition(glm::vec3(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z));
+                m_CameraRotation.x -= m_MouseDelta.y * m_SensitivityH;
+                m_CameraRotation.y -= m_MouseDelta.x * m_SensitivityV;
+
+                m_LastCursorPosition = cursorPos;
+            }
+        }
+
+        m_CameraRotation.x = glm::clamp(m_CameraRotation.x, -90.0f, 90.0f);
+
+        m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
+        m_Camera->SetRotation({m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z});
         m_Camera->SetFOV(cameraFOV);
-        //m_CubeMesh->Translate(m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
         pxl::Renderer::Clear();
 
@@ -407,8 +429,13 @@ namespace TestApp
             }
             ImGui::Text("Camera FOV: %.2f", m_Camera->GetFOV());
             ImGui::Text("Camera Position: %.3f, %.3f, %.3f", m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z);
+            ImGui::Text("Camera Rotation: %.3f, %.3f, %.3f", m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z);
             ImGui::Text("Mesh Position: %.3f, %.3f, %.3f", m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
+            auto cursorPos = pxl::Input::GetCursorPosition(); 
+
+            ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
+            ImGui::Text("Mouse Delta: %f, %f", m_MouseDelta.x, m_MouseDelta.y);
             ImGui::End();
 
             // Settings Window

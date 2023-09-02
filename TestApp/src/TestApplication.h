@@ -24,10 +24,15 @@ namespace TestApp
         pxl::Mesh m_CubeMesh;
         glm::vec3 m_MeshPosition = glm::vec3(0.0f);
         
-        glm::vec3 m_CameraPosition;
-        pxl::vec4 m_ClearColour = pxl::vec4(1.0f);
+        glm::vec3 m_CameraPosition = glm::vec3(0.0f);
+        glm::vec3 m_CameraRotation = glm::vec3(0.0f);
+        pxl::vec4 m_ClearColour = pxl::vec4(0.0f);
 
-        glm::vec2 m_LastCursorPos = glm::vec2(1.0f);
+        glm::vec2 m_LastCursorPosition = glm::vec2(0.0f);
+        glm::vec2 m_MouseDelta = glm::vec2(0.0f);
+        float m_SensitivityH = 0.1f, m_SensitivityV = 0.1f;
+
+        bool controllingCamera = true;
 
         pxl::WindowMode m_WindowMode;
     };

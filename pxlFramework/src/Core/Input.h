@@ -9,6 +9,11 @@
 
 namespace pxl
 {
+    enum class CursorMode
+    {
+        Normal = 0, Hidden, Disabled
+    };
+
     class Input
     {
     public:
@@ -27,6 +32,11 @@ namespace pxl
         static bool IsMouseScrolledDown();
 
         static const glm::vec2 GetCursorPosition() { return s_CursorPosition; }
+        static void SetCursorPosition(uint32_t x, uint32_t y);
+        static void SetCursorMode(CursorMode cursorMode);
+        static void SetRawInput(bool value);
+
+        static void SetCursorVisibility(bool visible);
         //static int GetKeyState(KeyCode keycode) { return s_KeyStates[keycode]; }
     private:
         static void GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

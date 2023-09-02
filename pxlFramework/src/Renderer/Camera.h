@@ -27,8 +27,8 @@ namespace pxl
         const glm::vec3 GetPosition() const { return m_Position; }
         const glm::vec3 GetRotation() const { return m_Rotation; }
 
-        void SetPosition(glm::vec3 position) { m_Position = position; }
-        void SetRotation(glm::vec3 rotation) { m_Rotation = rotation; }
+        void SetPosition(const glm::vec3& position) { m_Position = position; }
+        void SetRotation(const glm::vec3& rotation) { m_Rotation = rotation; }
 
         virtual void SetFOV(float fov) = 0;
         virtual float GetFOV() = 0;
