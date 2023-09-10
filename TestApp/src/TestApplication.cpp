@@ -96,8 +96,10 @@ namespace TestApp
         texture1->Bind();
         //m_Shader->SetUniformInt1("u_Texture", 0);
 
+        // Prepare cursor for camera control
         pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
         pxl::Input::SetRawInput(true);
+        pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
         m_LastCursorPosition = pxl::Input::GetCursorPosition();
 
         #ifndef TA_DIST
@@ -126,6 +128,9 @@ namespace TestApp
         m_CameraRotation = m_Camera->GetRotation();
         auto cameraFOV = m_Camera->GetFOV();
         float cameraSpeed = 1.0f;
+        glm::vec3 cameraForward = m_Camera->GetForwardVector();
+        glm::vec3 cameraUp = m_Camera->GetUpVector();
+        glm::vec3 cameraRight = m_Camera->GetRightVector();
         // float meshSpeed = 1.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
@@ -135,10 +140,12 @@ namespace TestApp
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
+            pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
+
             if (controllingCamera)
             {
                 pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
-                pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
+                //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
                 controllingCamera = false;
             }
             else
@@ -163,7 +170,7 @@ namespace TestApp
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            m_CameraPosition.y += cameraSpeed * dt;
+            m_CameraPosition += cameraForward * cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
         {
@@ -171,7 +178,7 @@ namespace TestApp
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-            m_CameraPosition.y -= cameraSpeed * dt;
+           m_CameraPosition += -cameraForward * cameraSpeed * dt;
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         {
@@ -273,7 +280,7 @@ namespace TestApp
         pxl::Renderer::Submit(m_VAO);
         pxl::Renderer::Submit(m_Shader);
 
-        // pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f));
+        pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f));
 
         for (int x = 0; x < 5; x++)
         {
@@ -291,9 +298,8 @@ namespace TestApp
         pxl::Renderer::DrawIndexed();
     }
 
-    void TestApplication::OnImGuiRender()
+    void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized
     {
-            // Function only gets called if ImGui is initialized
             //ImGui::ShowDemoWindow();
 
             ImGui::SetNextWindowSize(ImVec2(300, 680), ImGuiCond_FirstUseEver);

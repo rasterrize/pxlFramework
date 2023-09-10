@@ -55,4 +55,47 @@ namespace pxl
             camera->Update();
         }
     }
+
+    const glm::vec3 Camera::GetForwardVector()
+    {
+        glm::vec3 forward;
+
+        forward.z = -(cos(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x)));
+        forward.x = -(sin(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x))); // I need to understand how this actually works
+        forward.y = sin(glm::radians(m_Rotation.x));
+
+        forward = glm::normalize(forward); // Unit Vector
+
+        return forward;
+    }
+
+    const glm::vec3 Camera::GetUpVector()
+    {
+        // glm::vec3 up;
+
+        // up.y = cos(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x));
+        // up.z = sin(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x)); // I need to understand how this actually works
+        // up.x = sin(glm::radians(m_Rotation.x));
+
+        // up = glm::normalize(up); // Unit Vector
+
+        // return up;
+
+        return glm::vec3(1.0f);
+    }
+
+    const glm::vec3 Camera::GetRightVector()
+    {
+        // glm::vec3 right;
+
+        // right.x = cos(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x));
+        // right.z = sin(glm::radians(m_Rotation.y)) * cos(glm::radians(m_Rotation.x)); // I need to understand how this actually works
+        // right.y = sin(glm::radians(m_Rotation.x));
+
+        // right = glm::normalize(right); // Unit Vector
+
+        // return right;
+
+        return glm::vec3(1.0f);
+    }
 }
