@@ -103,6 +103,16 @@ namespace TestApp
         #ifndef TA_DIST
             pxl::pxl_ImGui::Init(m_Window);
         #endif
+
+        // Audio
+        pxl::AudioManager::Init(m_Window);
+        auto track = pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3");
+        pxl::AudioManager::Add("wings", track);
+        track = pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.ogg");
+        pxl::AudioManager::Add("stone_dig", track);
+
+        m_AudioLibrary = pxl::AudioManager::GetLibrary();
+
     }
 
     TestApplication::~TestApplication()
@@ -138,6 +148,11 @@ namespace TestApp
                 m_MouseDelta = glm::vec2(0.0f);
                 controllingCamera = true;
             }
+        }
+
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_P))
+        {
+            pxl::AudioManager::Play("wings");
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
@@ -201,12 +216,14 @@ namespace TestApp
 
         if (pxl::Input::IsMouseScrolledUp())
         {
-            m_NextCameraFOV -= 5.0f;
+            if (controllingCamera)
+                m_NextCameraFOV -= 5.0f;
         }
 
         if (pxl::Input::IsMouseScrolledDown())
         {
-            m_NextCameraFOV += 5.0f;
+            if (controllingCamera)
+                m_NextCameraFOV += 5.0f;
         }
 
         float fovScrollValue = 100.0f;
@@ -411,6 +428,58 @@ namespace TestApp
                 m_Window->SetWindowMode(windowModeToSet);
 
                 m_NextCameraFOV = cameraFOVInput;
+            }
+
+            ImGui::End();
+
+            // Audio player window
+            ImGui::SetNextWindowSize(ImVec2(330, 400), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(929, 300), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Audio Player");
+
+            const char* tracks[20]; // should probably set a const max here
+
+            for (int i = 0; i < m_AudioLibrary.size(); i++)
+            {
+                tracks[i] = m_AudioLibrary[i].c_str();
+            }
+
+            static int selectedAudioIndex;
+            static std::string selectedAudioName;
+
+            ImGui::Text("Audio Library");
+            static int item_current_idx = 0; // Here we store our selection data as an index.
+            if (ImGui::BeginListBox("##"))
+            {
+                for (int n = 0; n < m_AudioLibrary.size(); n++)
+                {
+                    const bool is_selected = (item_current_idx == n);
+                    if (ImGui::Selectable(m_AudioLibrary[n].c_str(), is_selected))
+                    {
+                        item_current_idx = n;
+                        selectedAudioName = m_AudioLibrary[n];
+                    }
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+            ImGui::EndListBox();
+            }
+            
+            if (ImGui::Button("Play"))
+            {
+                pxl::AudioManager::Play(selectedAudioName);
+            }
+
+            if (ImGui::Button("Pause"))
+            {
+                pxl::AudioManager::Pause(selectedAudioName);
+            }
+
+            if (ImGui::Button("Stop"))
+            {
+                pxl::AudioManager::Stop(selectedAudioName);
             }
 
             ImGui::End();

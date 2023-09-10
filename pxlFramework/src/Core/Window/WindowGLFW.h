@@ -1,8 +1,9 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-
 #include "../Window.h"
+
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 namespace pxl
 {
@@ -19,6 +20,8 @@ namespace pxl
         virtual void SetMonitor(uint8_t monitorIndex) override;
         
         virtual void* GetNativeWindow() override { return m_Window; }
+        virtual HWND GetHWND() override;
+
     private:
         friend class Window;
         

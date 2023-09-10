@@ -2,6 +2,7 @@
 
 #include <stb_image.h>
 #include <fstream>
+#include <bass.h>
 
 namespace pxl
 {
@@ -79,5 +80,16 @@ namespace pxl
 
         // Logger::LogInfo(line);
         return nullptr;
-    }    
+    }
+    std::shared_ptr<AudioTrack> FileLoader::LoadAudioTrack(const std::string& filePath)
+    {
+        HSTREAM stream = BASS_StreamCreateFile(FALSE, filePath.c_str(), 0, 0, BASS_SAMPLE_FLOAT);
+
+        if (stream)
+            Logger::LogInfo("Audio loaded successfully: '" + filePath + "'");
+        else
+            Logger::LogError("Audio failed to load: '" + filePath + "'");
+
+        return std::make_shared<AudioTrack>(stream);
+    }
 }

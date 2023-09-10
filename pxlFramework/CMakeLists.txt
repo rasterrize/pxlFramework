@@ -42,6 +42,9 @@ src/Renderer/OpenGL/OpenGLOrthographicCamera.h src/Renderer/OpenGL/OpenGLOrthogr
 src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspectiveCamera.cpp
 src/Renderer/OpenGL/OpenGLTexture.h src/Renderer/OpenGL/OpenGLTexture.cpp
 
+# AUDIO
+src/Audio/AudioManager.h src/Audio/AudioManager.cpp
+src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 
@@ -59,6 +62,8 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+
+# Add Dependencies (CMake projects)
 add_subdirectory(deps/GLFW)
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/spdlog)
@@ -66,10 +71,15 @@ add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb)
+target_include_directories(pxlFramework PUBLIC deps/BASS/include)
+target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb bass)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
-target_compile_definitions(pxlFramework PUBLIC GLFW_INCLUDE_NONE ) #IMGUI_IMPL_OPENGL_LOADER_GLAD
+target_compile_definitions(pxlFramework PUBLIC 
+GLFW_INCLUDE_NONE
+GLFW_EXPOSE_NATIVE_WIN32) #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)

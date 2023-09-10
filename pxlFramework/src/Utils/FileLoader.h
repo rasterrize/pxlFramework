@@ -6,6 +6,8 @@
 #include "../Renderer/Shader.h"
 #include "../Renderer/Renderer.h"
 
+#include "../Audio/AudioTrack.h"
+
 namespace pxl
 {
     class FileLoader
@@ -14,5 +16,6 @@ namespace pxl
         static std::shared_ptr<Texture> LoadTextureFromImage(const std::string& filePath);
         static std::shared_ptr<Shader> LoadShader(const std::filesystem::path& path);
         static std::shared_ptr<Mesh> LoadOBJ(const std::string& filePath);
+        static std::shared_ptr<AudioTrack> LoadAudioTrack(const std::string& filePath);
     };
 }

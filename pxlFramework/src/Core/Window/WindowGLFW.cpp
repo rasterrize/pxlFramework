@@ -272,4 +272,9 @@ namespace pxl
                 break;
         }
     }
+
+    HWND WindowGLFW::GetHWND()
+    {
+        return glfwGetWin32Window(m_Window);
+    }
 }

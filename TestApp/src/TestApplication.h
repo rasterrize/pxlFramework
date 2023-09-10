@@ -36,5 +36,6 @@ namespace TestApp
         pxl::WindowMode m_WindowMode;
 
         std::vector<std::shared_ptr<pxl::Texture>> m_TextureLibrary;
+        std::vector<std::string> m_AudioLibrary;
     };
 }
