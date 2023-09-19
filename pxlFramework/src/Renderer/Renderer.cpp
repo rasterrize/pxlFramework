@@ -18,14 +18,27 @@ namespace pxl
     uint32_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
-    const size_t Renderer::s_MaxVertexCount = 50000;
-    const size_t Renderer::s_MaxIndiceCount = 50000;
+    // const size_t Renderer::s_MaxQuadCount = 100000;
+    // const size_t Renderer::s_MaxQuadVertexCount = s_MaxQuadCount * 4;
+    // const size_t Renderer::s_MaxQuadIndexCount = s_MaxQuadCount * 6;
 
-    std::vector<Vertex> Renderer::s_Vertices;
-    std::vector<uint32_t> Renderer::s_Indices;
+    // size_t Renderer::s_QuadVertexCount;
+    // size_t Renderer::s_QuadIndexCount;
+
+    // std::array<Vertex, Renderer::s_MaxQuadVertexCount> Renderer::s_QuadVertices;
+    // std::array<uint32_t, Renderer::s_MaxQuadIndexCount> Renderer::s_QuadIndices;
+
+    constexpr size_t s_MaxCubeCount = 1000;
+    constexpr size_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
+    constexpr size_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
+ 
+    std::array<Vertex, s_MaxCubeVertexCount> s_CubeVertices {};
+    std::array<uint32_t, s_MaxCubeIndexCount> s_CubeIndices {};
+
+    size_t s_CubeVertexCount = 0;
+    size_t s_CubeIndexCount = 0;
     
-    std::vector<Mesh> Renderer::s_Meshes;
-    Mesh Renderer::s_CubeMesh;
+    std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
 
     Renderer::Statistics Renderer::s_Stats;
 
@@ -53,10 +66,24 @@ namespace pxl
                 return;
         }
 
-        s_Vertices.reserve(s_MaxVertexCount); // apparently this function is dangerous in some situations
-        s_Indices.reserve(s_MaxIndiceCount);
+        {
+            uint32_t offset = 0;
+            for (size_t i = 0; i < s_MaxCubeIndexCount; i += 6) // all this assumes the cube is made of 6 quads
+            {
+                s_CubeIndices[i + 0] = 0 + offset;
+                s_CubeIndices[i + 1] = 1 + offset;
+                s_CubeIndices[i + 2] = 2 + offset;
 
-        PrepareCubeMesh();
+                s_CubeIndices[i + 3] = 2 + offset;
+                s_CubeIndices[i + 4] = 3 + offset;
+                s_CubeIndices[i + 5] = 0 + offset;
+
+                s_CubeIndexCount += 6;
+                s_Stats.IndiceCount += 6;
+
+                offset += 4;
+            }
+        }
 
         s_RendererAPIType = windowSpecs.RendererAPI;
         s_Enabled = true;
@@ -105,169 +132,95 @@ namespace pxl
         s_RendererAPI->SetShader(shader);
     }
 
-    void Renderer::Submit(const Mesh& mesh)
+    void Renderer::Submit(const std::shared_ptr<Mesh> mesh)
     {
-        s_Meshes.push_back(mesh);
-    }
-
-    void Renderer::BatchGeometry()
-    {    
-        ResetStats();
-
-        int VertexCount = 0;
-
-        for (const Mesh& mesh : s_Meshes)
-        {
-            auto vertices = mesh.Vertices;
-            auto indices = mesh.Indices;
-
-            glm::vec3 meshPosition;
-            glm::decompose(mesh.Transform, glm::vec3(1.0f), glm::quat(), meshPosition, glm::vec3(1.0f), glm::vec4(1.0f));
-
-            // Vertices
-            Vertex batchedVertex = {{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }};
-            for (const Vertex& vertex : vertices)
-            {
-                batchedVertex.Position = { vertex.Position[0] + meshPosition.x, vertex.Position[1] + meshPosition.y, vertex.Position[2] + meshPosition.z };
-                batchedVertex.TexCoords = { vertex.TexCoords[0], vertex.TexCoords[1] };
-
-                s_Vertices.push_back(batchedVertex);
-                s_Stats.VertexCount++;
-            }
-
-            // Indices
-            for (const uint32_t& index : indices)
-            {
-                s_Indices.push_back(index + VertexCount);
-                s_Stats.IndiceCount++;
-            }
-
-            VertexCount += mesh.Vertices.size();
-        }
-
-        // Upload data to gpu
-        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(s_Vertices.size() * sizeof(Vertex), s_Vertices.data()); // THIS TAKES SIZE IN BYTES
-        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(s_Indices.size(), s_Indices.data()); // THIS TAKES COUNT (NUMBER OF INDICES, NOT SIZE)
-
-        // Currently, this code assumes everything is done with one batch
-
-        s_Meshes.clear();
-        s_Vertices.clear();
-        s_Indices.clear();
-    }
-
-    void Renderer::PrepareCubeMesh()
-    {
-        // TEMPORARY: sprite sheet test
-        constexpr uint32_t x = 3, y = 1;
-
-
-        // Front
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 1.0f }});
-
-        // Back
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f   }, { 1.0f, 1.0f }});
-
-        // For Textured Cube
-
-        // Left
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
-
-        // Top
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }});
-
-        // Right
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 0.0f, 1.0f }});
-
-        // Bottom
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
-        s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 0.0f, 1.0f }});
-
-        // // Front
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 1.0f }});
-
-        // // Back
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f   }, { 1.0f, 1.0f }});
-
-        // // For Textured Cube
-
-        // // Left
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f  }, { 0.0f, 1.0f }});
-
-        // // Top
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, 0.5f  }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f }});
-
-        // // Right
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f  }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, -0.5f  }, { 1.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, 0.5f, 0.5f   }, { 0.0f, 1.0f }});
-
-        // // Bottom
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, -0.5f  }, { 1.0f, 0.0f }});
-        // s_CubeMesh.Vertices.push_back({{ 0.5f, -0.5f, 0.5f   }, { 1.0f, 1.0f }});
-        // s_CubeMesh.Vertices.push_back({{ -0.5f, -0.5f, 0.5f  }, { 0.0f, 1.0f }});
-
-        uint32_t cubeIndices[] = { 
-            0, 1, 2, 
-            2, 3, 0,    // front
-
-            4, 5, 6,
-            6, 7, 4,    // back
-
-            8, 9, 10,
-            10, 11, 8,  // left
-    
-            12, 13, 14,
-            14, 15, 12, // top
-
-            16, 17, 18,
-            18, 19, 16, // right
-
-            20, 21, 22,
-            22, 23, 20  // bottom
-        };
-
-        for (int i = 0; i < 36; i++)
-        {
-            s_CubeMesh.Indices.push_back(cubeIndices[i]);
-        }
+        s_Meshes.push_back(mesh); // not sure if this copies the shared_ptr
     }
 
     void Renderer::DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
-        s_CubeMesh.Translate(position.x, position.y, position.z);
-        s_Meshes.push_back(s_CubeMesh);
+        if (s_CubeVertexCount >= s_MaxCubeVertexCount)
+        {
+            EndBatch();
+            DrawIndexed();
+            StartBatch();
+        }
+
+        // Front
+        s_CubeVertices[s_CubeVertexCount + 0] = {{ position.x - 0.5f, position.y - 0.5f, position.z + 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 1] = {{ position.x + 0.5f, position.y - 0.5f, position.z + 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 2] = {{ position.x + 0.5f, position.y + 0.5f, position.z + 0.5f }, { 1.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 3] = {{ position.x - 0.5f, position.y + 0.5f, position.z + 0.5f }, { 0.0f, 1.0f }};
+
+        // Back
+        s_CubeVertices[s_CubeVertexCount + 4] = {{ position.x - 0.5f, position.y - 0.5f, position.z - 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 5] = {{ position.x + 0.5f, position.y - 0.5f, position.z - 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 6] = {{ position.x + 0.5f, position.y + 0.5f, position.z - 0.5f }, { 0.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 7] = {{ position.x - 0.5f, position.y + 0.5f, position.z - 0.5f }, { 1.0f, 1.0f }};
+
+        // Left
+        s_CubeVertices[s_CubeVertexCount + 8]  = {{ position.x - 0.5f, position.y - 0.5f, position.z - 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 9]  = {{ position.x - 0.5f, position.y - 0.5f, position.z + 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 10] = {{ position.x - 0.5f, position.y + 0.5f, position.z + 0.5f }, { 1.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 11] = {{ position.x - 0.5f, position.y + 0.5f, position.z - 0.5f }, { 0.0f, 1.0f }};
+
+        // Top
+        s_CubeVertices[s_CubeVertexCount + 12] = {{ position.x - 0.5f, position.y + 0.5f, position.z + 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 13] = {{ position.x + 0.5f, position.y + 0.5f, position.z + 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 14] = {{ position.x + 0.5f, position.y + 0.5f, position.z - 0.5f }, { 1.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 15] = {{ position.x - 0.5f, position.y + 0.5f, position.z - 0.5f }, { 0.0f, 1.0f }};
+
+        // Right
+        s_CubeVertices[s_CubeVertexCount + 16] = {{ position.x + 0.5f, position.y - 0.5f, position.z + 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 17] = {{ position.x + 0.5f, position.y - 0.5f, position.z - 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 18] = {{ position.x + 0.5f, position.y + 0.5f, position.z - 0.5f }, { 1.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 19] = {{ position.x + 0.5f, position.y + 0.5f, position.z + 0.5f }, { 0.0f, 1.0f }};
+
+        // Bottom
+        s_CubeVertices[s_CubeVertexCount + 20] = {{ position.x - 0.5f, position.y - 0.5f, position.z - 0.5f }, { 0.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 21] = {{ position.x + 0.5f, position.y - 0.5f, position.z - 0.5f }, { 1.0f, 0.0f }};
+        s_CubeVertices[s_CubeVertexCount + 22] = {{ position.x + 0.5f, position.y - 0.5f, position.z + 0.5f }, { 1.0f, 1.0f }};
+        s_CubeVertices[s_CubeVertexCount + 23] = {{ position.x - 0.5f, position.y - 0.5f, position.z + 0.5f }, { 0.0f, 1.0f }};
+
+        s_CubeVertexCount += 24;
+        
+        s_Stats.VertexCount += 24;
+        s_Stats.IndiceCount += 36; // based on number of cubes, not actual indices in the index buffer
+    }
+
+    void Renderer::DrawTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex)
+    {
+        // constexpr uint32_t x = 2, y = 15;
+        // constexpr float sheetSize = 256.0f;
+        // constexpr float textureSize = 16.0f;
+        // glm::vec2 texCoords[] = {
+        //     { (textureIndex * textureSize) / sheetSize, (y * textureSize) / sheetSize },
+        //     { ((textureIndex + 1) * textureSize) / sheetSize, (y * textureSize) / sheetSize },
+        //     { ((textureIndex + 1) * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
+        //     { (textureIndex * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
+        // };
+        
+        // for (int i = 0; i < 24; i += 4)
+        // {
+        //     s_CubeMesh.Vertices[0 + i].TexCoords = texCoords[0]; 
+        //     s_CubeMesh.Vertices[1 + i].TexCoords = texCoords[1]; 
+        //     s_CubeMesh.Vertices[2 + i].TexCoords = texCoords[2]; 
+        //     s_CubeMesh.Vertices[3 + i].TexCoords = texCoords[3]; 
+        // }
+        // s_CubeMesh.Translate(position.x, position.y, position.z);
+        // s_Meshes.push_back(s_CubeMesh);
+    }
+
+    void Renderer::StartBatch()
+    {
+        //s_QuadVertexCount = 0;
+        s_CubeVertexCount = 0;
+    }
+
+    void Renderer::EndBatch()
+    {
+        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(s_CubeVertexCount * sizeof(Vertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
+        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(s_CubeIndexCount, s_CubeIndices.data()); // THIS TAKES COUNT (NUMBER OF INDICES, NOT SIZE)
     }
 
     void Renderer::CalculateFPS()

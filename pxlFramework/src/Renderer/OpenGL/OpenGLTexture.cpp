@@ -30,6 +30,11 @@ namespace pxl
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    OpenGLTexture::~OpenGLTexture()
+    {
+        glDeleteTextures(1, &m_RendererID);
+    }
+
     void OpenGLTexture::Bind()
     {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);

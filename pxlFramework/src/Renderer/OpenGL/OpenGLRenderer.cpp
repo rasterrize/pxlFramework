@@ -10,6 +10,7 @@ namespace pxl
     {
         // could maybe check for an opengl context ???
         glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_CULL_FACE);
     }
 
     void OpenGLRenderer::Clear()

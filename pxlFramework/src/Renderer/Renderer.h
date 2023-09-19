@@ -22,7 +22,7 @@ namespace pxl
         std::vector<Vertex> Vertices;
         std::vector<uint32_t> Indices;
 
-        glm::mat4 Transform = glm::mat4(1.0f);
+        glm::mat4 Transform = glm::mat4(0.0f);
 
         void Translate(float x, float y, float z)
         {
@@ -53,25 +53,28 @@ namespace pxl
         
         static void Submit(const std::shared_ptr<VertexArray>& vertexArray);
         static void Submit(const std::shared_ptr<Shader>& shader);
-        static void Submit(const Mesh& mesh);
+        static void Submit(const std::shared_ptr<Mesh> mesh); // not a reference currently so things dont break
 
+        //static void DrawQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
         static void DrawCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
-        static void BatchGeometry(); // should be private and automatically called by the engine
+        static void DrawTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex);
+
+        static void StartBatch();
+        static void EndBatch();
 
         struct Statistics
         {
             uint32_t DrawCalls = 0;
             uint32_t VertexCount = 0;
-            uint32_t IndiceCount = 0;
+            uint32_t IndiceCount = 0; // should be index
             
             uint32_t GetTriangleCount() { return IndiceCount / 3; }
         };
 
+        static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
         static const Statistics& GetStats() { return s_Stats; }
     private:
-        static void PrepareCubeMesh();
         static void CalculateFPS();
-        static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
 
     private:
         friend class WindowGLFW;
@@ -81,18 +84,32 @@ namespace pxl
 
         static std::unique_ptr<RendererAPI> s_RendererAPI;
 
+        //static std::unique_ptr<VertexBuffer> s_CubeVBO;
+
         static float s_FPS;
         static uint32_t s_FrameCount;
         static float s_TimeAtLastFrame;
 
-        static const size_t s_MaxVertexCount;
-        static const size_t s_MaxIndiceCount;
+        // Quad Buffer Data
+        // static const size_t s_MaxQuadCount = 1000;
+        // static const size_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
+        // static const size_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
 
-        static std::vector<Vertex> s_Vertices;
-        static std::vector<uint32_t> s_Indices;
+        // static std::array<Vertex, s_MaxQuadVertexCount> s_QuadVertices;
+        // static std::array<uint32_t, s_MaxQuadIndexCount> s_QuadIndices;
 
-        static std::vector<Mesh> s_Meshes;
-        static Mesh s_CubeMesh;
+        // static size_t Renderer::s_QuadVertexCount;
+        // static size_t Renderer::s_QuadIndexCount;
+
+        // Cube Buffer Data
+        // static const size_t s_MaxCubeCount = 1000;
+        // static const size_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved. This is technically just a bunch of quads
+        // static const size_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
+
+        // static std::array<Vertex, s_MaxCubeVertexCount> s_CubeVertices; 
+        // static std::array<uint32_t, s_MaxCubeIndexCount> s_CubeIndices;
+
+        static std::vector<std::shared_ptr<Mesh>> s_Meshes;
 
         static Statistics s_Stats;
     };

@@ -9,7 +9,8 @@ namespace pxl
     class OpenGLTexture : public Texture
     {
     public:
-        OpenGLTexture::OpenGLTexture(unsigned char* imageBuffer, glm::vec2 imageSize, int channels);
+        OpenGLTexture(unsigned char* imageBuffer, glm::vec2 imageSize, int channels);
+        ~OpenGLTexture();
 
         virtual void Bind() override;
         virtual void Unbind() override;

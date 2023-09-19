@@ -63,6 +63,8 @@ namespace TestApp
 
         pxl::Input::Init(m_Window);
 
+        pxl::AudioManager::Init(m_Window);
+
         auto clearColour = pxl::vec4(20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
         pxl::Renderer::SetClearColour(clearColour);
         m_ClearColour = pxl::vec4(clearColour);
@@ -71,8 +73,6 @@ namespace TestApp
         m_VBO = std::make_shared<pxl::OpenGLVertexBuffer>((uint32_t)(50000 * sizeof(pxl::Vertex)));
         m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(50000);
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
-
-        pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
         pxl::BufferLayout layout;
         layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
@@ -84,8 +84,12 @@ namespace TestApp
         m_VAO->SetIndexBuffer(m_IBO);
 
         m_Camera = pxl::Camera::Create(pxl::CameraType::Perspective);
-        m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+        m_Camera->SetPosition({-9.0f, -2.0f, -9.0f});
+        m_Camera->SetRotation({20.0f, -135.3f, 0.0f});
         m_NextCameraFOV = m_Camera->GetFOV();
+
+        // Load Assets
+        pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
         auto texture1 = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
         auto texture2 = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
@@ -96,25 +100,20 @@ namespace TestApp
         texture1->Bind();
         //m_Shader->SetUniformInt1("u_Texture", 0);
 
+        //pxl::AudioManager::Add("wings", pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3"));
+        //pxl::AudioManager::Add("stone_dig", pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.mp3"));
+
+        m_AudioLibrary = pxl::AudioManager::GetLibrary();
+
         // Prepare cursor for camera control
         pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
         pxl::Input::SetRawInput(true);
         pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
         m_LastCursorPosition = pxl::Input::GetCursorPosition();
 
-        #ifndef TA_DIST
+        #ifndef TA_RELEASE
             pxl::pxl_ImGui::Init(m_Window);
         #endif
-
-        // Audio
-        pxl::AudioManager::Init(m_Window);
-        auto track = pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3");
-        pxl::AudioManager::Add("wings", track);
-        track = pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.ogg");
-        pxl::AudioManager::Add("stone_dig", track);
-
-        m_AudioLibrary = pxl::AudioManager::GetLibrary();
-
     }
 
     TestApplication::~TestApplication()
@@ -127,11 +126,10 @@ namespace TestApp
         m_CameraPosition = m_Camera->GetPosition();
         m_CameraRotation = m_Camera->GetRotation();
         auto cameraFOV = m_Camera->GetFOV();
-        float cameraSpeed = 1.0f;
+        float cameraSpeed = 10.0f;
         glm::vec3 cameraForward = m_Camera->GetForwardVector();
         glm::vec3 cameraUp = m_Camera->GetUpVector();
         glm::vec3 cameraRight = m_Camera->GetRightVector();
-        // float meshSpeed = 1.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
@@ -165,56 +163,23 @@ namespace TestApp
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
         {
             cameraSpeed *= 10.0f;
-            //meshSpeed *= 10.0f;
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            m_CameraPosition += cameraForward * cameraSpeed * dt;
+            m_CameraPosition += m_Camera->GetForwardVector() * cameraSpeed * dt;
         }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
-        {
-            m_CameraPosition.x -= cameraSpeed * dt;
-        }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
+        // {
+        //     m_CameraPosition += -cameraRight * cameraSpeed * dt;
+        // }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-           m_CameraPosition += -cameraForward * cameraSpeed * dt;
+           m_CameraPosition += -m_Camera->GetForwardVector() * cameraSpeed * dt;
         }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
-        {
-            m_CameraPosition.x += cameraSpeed * dt;
-        }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
-        {
-            m_CameraPosition.z -= cameraSpeed * dt;
-        }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
-        {
-            m_CameraPosition.z += cameraSpeed * dt;
-        }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_UP))
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         // {
-        //     m_MeshPosition.y += meshSpeed * dt;
-        // }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT))
-        // {
-        //     m_MeshPosition.x -= meshSpeed * dt;
-        // }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DOWN))
-        // {
-        //     m_MeshPosition.y -= meshSpeed * dt;
-        // }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_RIGHT))
-        // {
-        //     m_MeshPosition.x += meshSpeed * dt;
-        // }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_DELETE))
-        // {
-        //     m_MeshPosition.z += meshSpeed * dt;
-        // }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_PAGE_DOWN))
-        // {
-        //     m_MeshPosition.z -= meshSpeed * dt;
+        //     m_CameraPosition.x += cameraSpeed * dt;
         // }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
         {
@@ -275,27 +240,31 @@ namespace TestApp
         m_Camera->SetRotation({m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z});
         m_Camera->SetFOV(cameraFOV);
 
+        pxl::Renderer::ResetStats();
         pxl::Renderer::Clear();
 
         pxl::Renderer::Submit(m_VAO);
         pxl::Renderer::Submit(m_Shader);
 
-        pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f));
+        pxl::Renderer::StartBatch();
 
-        for (int x = 0; x < 5; x++)
+        //pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f), 0);
+
+        for (uint32_t x = 0; x < 10; x++)
         {
-            for (int y = 0; y < 5; y++)
+            for (uint32_t y = 0; y < 10; y++)
             {
-                for (int z = 0; z < 5; z++)
+                for (uint32_t z = 0; z < 10; z++)
                 {
-                    pxl::Renderer::DrawCube({ x * 3.0f, y * 3.0f, z * -3.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+                    //auto tex = (x + y + z) % 2;
+                    pxl::Renderer::DrawCube({ x * 50.0f, y * 50.0f, z * 50.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
                 }
             }
         }
 
-        pxl::Renderer::BatchGeometry();
+        pxl::Renderer::EndBatch();
 
-        pxl::Renderer::DrawIndexed();
+        pxl::Renderer::DrawIndexed(); // Draws any geometry that hasn't been flushed
     }
 
     void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized
@@ -318,11 +287,11 @@ namespace TestApp
             ImGui::Text("Camera FOV: %.2f", m_Camera->GetFOV());
             ImGui::Text("Camera Position: %.3f, %.3f, %.3f", m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z);
             ImGui::Text("Camera Rotation: %.3f, %.3f, %.3f", m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z);
-            ImGui::Text("Mesh Position: %.3f, %.3f, %.3f", m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z);
 
             auto stats = pxl::Renderer::GetStats();
 
             ImGui::Text("Renderer Stats:");
+            ImGui::Text("  Draw Calls: %u", stats.DrawCalls);
             ImGui::Text("  Vertices: %u", stats.VertexCount);
             ImGui::Text("  Indices: %u", stats.IndiceCount);
             ImGui::Text("  Triangles: %u", stats.GetTriangleCount());

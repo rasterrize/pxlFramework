@@ -25,9 +25,6 @@ namespace pxl
         virtual void SetVertexArray(std::shared_ptr<VertexArray> vertexArray) override { m_VertexArray.swap(vertexArray); m_VertexArray->Bind(); }
         virtual void SetShader(std::shared_ptr<Shader> shader) override                { m_Shader.swap(shader); m_Shader->Bind(); }
     private:
-        void BatchStart();
-        void Flush();
-    private:
         std::shared_ptr<VertexArray> m_VertexArray;
         std::shared_ptr<Shader> m_Shader;
     };
