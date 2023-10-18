@@ -7,7 +7,7 @@ namespace pxl
     OpenGLVertexArray::OpenGLVertexArray()
     {
         glCreateVertexArrays(1, &m_RendererID); 
-        // Bind Vertex Array ? 
+        glBindVertexArray(m_RendererID);
     }
 
     OpenGLVertexArray::~OpenGLVertexArray()

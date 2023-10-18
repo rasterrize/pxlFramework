@@ -10,9 +10,11 @@ namespace TestApp
             #version 460 core
 
             layout (location = 0) in vec3 a_Position;
-            layout (location = 1) in vec2 a_TexCoords;
+            layout (location = 1) in vec4 a_Colour;
+            layout (location = 2) in vec2 a_TexCoords;
 
             out vec3 v_Position;
+            out vec4 v_Colour;
             out vec2 v_TexCoords;
 
             uniform mat4 u_VP;
@@ -20,6 +22,7 @@ namespace TestApp
             void main()
             {
                 v_Position = a_Position;
+                v_Colour = a_Colour;
                 v_TexCoords = a_TexCoords;
                 gl_Position = u_VP * vec4(a_Position, 1.0);
             }
@@ -31,31 +34,47 @@ namespace TestApp
             layout (location = 0) out vec4 color;
 
             in vec3 v_Position;
+            in vec4 v_Colour;
             in vec2 v_TexCoords;
 
             uniform sampler2D u_Texture;
 
             void main()
             {
-                //color = vec4(1.0, 0.2, 0.4, 1.0);
-                //color = vec4(v_Position, 1.0);
-                color = texture(u_Texture, v_TexCoords);
+                color = v_Colour;
+                //color = texture(u_Texture, v_TexCoords) * v_Colour;
             }
         )";
 
         std::string windowTitle = "pxlFramework Test App";
+        std::string buildType = "Unknown Build Type";
+        std::string rendererAPIType = "Unknown Renderer API";
+        pxl::RendererAPIType windowRendererAPI = pxl::RendererAPIType::OpenGL;
 
         #ifdef TA_DEBUG
-            windowTitle = "pxlFramework Test App - Debug x64";
+            buildType = "Debug x64";
         #elif TA_RELEASE
-            windowTitle = "pxlFramework Test App - Release x64";
+            buildType = "Release x64";
         #elif TA_DIST
-            windowTitle = "pxlFramework Test App - Distribute x64";
-        #else
-            windowTitle = "pxlFramework Test App - Unknown Build Type";
+            buildType = "Distribute x64";
         #endif
+
+        switch (windowRendererAPI)
+        {
+            case pxl::RendererAPIType::None:
+                rendererAPIType = "No Renderer API";
+                break;
+            case pxl::RendererAPIType::OpenGL:
+                rendererAPIType = "OpenGL";
+                break;
+            case pxl::RendererAPIType::Vulkan:
+                rendererAPIType = "Vulkan";
+                break;
+        }
+
+        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
         
-        m_Window = pxl::Window::Create({1280, 720, windowTitle, pxl::RendererAPIType::OpenGL});
+        m_Window = pxl::Window::Create({1280, 720, windowTitle, windowRendererAPI});
         m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
         m_Window->SetVSync(true);
 
@@ -65,40 +84,30 @@ namespace TestApp
 
         pxl::AudioManager::Init(m_Window);
 
-        auto clearColour = pxl::vec4(20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
+        auto clearColour = pxl::vec4(0.078f, 0.094f, 0.109f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
         pxl::Renderer::SetClearColour(clearColour);
         m_ClearColour = pxl::vec4(clearColour);
 
-        m_VAO = std::make_shared<pxl::OpenGLVertexArray>();
-        m_VBO = std::make_shared<pxl::OpenGLVertexBuffer>((uint32_t)(50000 * sizeof(pxl::Vertex)));
-        m_IBO = std::make_shared<pxl::OpenGLIndexBuffer>(50000);
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
-        pxl::BufferLayout layout;
-        layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
-        layout.Add(2, pxl::BufferDataType::Float, false); // texture coords
-
-        m_VAO->SetLayout(layout);
-
-        m_VAO->SetVertexBuffer(m_VBO);
-        m_VAO->SetIndexBuffer(m_IBO);
-
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Perspective);
-        m_Camera->SetPosition({-9.0f, -2.0f, -9.0f});
-        m_Camera->SetRotation({20.0f, -135.3f, 0.0f});
+        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic);
+        m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
         m_NextCameraFOV = m_Camera->GetFOV();
 
         // Load Assets
         pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
-        auto texture1 = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
-        auto texture2 = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
+        auto stoneTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
+        auto atlasTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
+        auto cursorTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/cursor@2x.png");
 
-        m_TextureLibrary.push_back(texture1);
-        m_TextureLibrary.push_back(texture2);
+        m_TextureLibrary.push_back(stoneTexture);
+        m_TextureLibrary.push_back(atlasTexture);
+        m_TextureLibrary.push_back(cursorTexture);
 
-        texture1->Bind();
-        //m_Shader->SetUniformInt1("u_Texture", 0);
+        cursorTexture->Bind();
+        m_Shader->SetUniformInt1("u_Texture", 0);
 
         //pxl::AudioManager::Add("wings", pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3"));
         //pxl::AudioManager::Add("stone_dig", pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.mp3"));
@@ -126,14 +135,24 @@ namespace TestApp
         m_CameraPosition = m_Camera->GetPosition();
         m_CameraRotation = m_Camera->GetRotation();
         auto cameraFOV = m_Camera->GetFOV();
-        float cameraSpeed = 10.0f;
-        glm::vec3 cameraForward = m_Camera->GetForwardVector();
-        glm::vec3 cameraUp = m_Camera->GetUpVector();
-        glm::vec3 cameraRight = m_Camera->GetRightVector();
+        float cameraSpeed = 2.0f;
+        auto cameraZoom = m_Camera->GetZoom();
+        auto cursorPos = pxl::Input::GetCursorPosition();
+
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             Application::Close();
+        }
+
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        {
+            m_Window->NextWindowMode();
+        }
+
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
+        {
+            m_Window->ToggleVSync();
         }
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
@@ -143,7 +162,6 @@ namespace TestApp
             if (controllingCamera)
             {
                 pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
-                //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
                 controllingCamera = false;
             }
             else
@@ -155,116 +173,90 @@ namespace TestApp
             }
         }
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_P))
-        {
-            pxl::AudioManager::Play("wings");
-        }
-
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
         {
-            cameraSpeed *= 10.0f;
+            cameraSpeed *= 5.0f;
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            m_CameraPosition += m_Camera->GetForwardVector() * cameraSpeed * dt;
+            if (controllingCamera)
+            {
+                m_CameraPosition.y += cameraSpeed * dt;
+            }
         }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
-        // {
-        //     m_CameraPosition += -cameraRight * cameraSpeed * dt;
-        // }
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
+        {
+            if (controllingCamera)
+            {
+                m_CameraPosition.x -= cameraSpeed * dt;
+            }
+            else
+            {
+                m_PlayerPosition.x -= 1.0f * dt;
+            }
+        }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-           m_CameraPosition += -m_Camera->GetForwardVector() * cameraSpeed * dt;
+            if (controllingCamera)
+            {
+                m_CameraPosition.y -= cameraSpeed * dt;
+            }
         }
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
-        // {
-        //     m_CameraPosition.x += cameraSpeed * dt;
-        // }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         {
-            m_Window->NextWindowMode();
+            if (controllingCamera)
+            {
+                m_CameraPosition.x += cameraSpeed * dt;
+            }
+            else
+            {
+                m_PlayerPosition.x += 1.0f * dt;
+            }
         }
 
         if (pxl::Input::IsMouseScrolledUp())
         {
-            if (controllingCamera)
-                m_NextCameraFOV -= 5.0f;
+            cameraZoom -= 1.0f;
         }
-
         if (pxl::Input::IsMouseScrolledDown())
         {
-            if (controllingCamera)
-                m_NextCameraFOV += 5.0f;
+            cameraZoom += 1.0f;
         }
 
-        float fovScrollValue = 100.0f;
-
-        if (cameraFOV != m_NextCameraFOV)
-        {
-            if (cameraFOV < m_NextCameraFOV)
-            {
-                cameraFOV += fovScrollValue * dt;
-
-                if (cameraFOV > m_NextCameraFOV)
-                    cameraFOV = m_NextCameraFOV; // should be able to clamp these values
-            }
-            else if (cameraFOV > m_NextCameraFOV)
-            {
-                cameraFOV -= fovScrollValue * dt;
-
-                if (cameraFOV < m_NextCameraFOV)
-                    cameraFOV = m_NextCameraFOV;
-            }
-        }
-
-        auto cursorPos = pxl::Input::GetCursorPosition();
-
-        if (controllingCamera)
-        {
-            if (cursorPos != m_LastCursorPosition)
-            {
-                m_MouseDelta.x = cursorPos.x - m_LastCursorPosition.x;
-                m_MouseDelta.y = cursorPos.y - m_LastCursorPosition.y;
-
-                m_CameraRotation.x -= m_MouseDelta.y * m_SensitivityH;
-                m_CameraRotation.y -= m_MouseDelta.x * m_SensitivityV;
-
-                m_LastCursorPosition = cursorPos;
-            }
-        }
-
-        m_CameraRotation.x = glm::clamp(m_CameraRotation.x, -90.0f, 90.0f);
+        //std::clamp(cameraZoom, 1.0f, 100.0f);
 
         m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
-        m_Camera->SetRotation({m_CameraRotation.x, m_CameraRotation.y, m_CameraRotation.z});
-        m_Camera->SetFOV(cameraFOV);
+        m_Camera->SetZoom(cameraZoom);
+    }
 
+    void TestApplication::OnRender()
+    {
         pxl::Renderer::ResetStats();
         pxl::Renderer::Clear();
 
-        pxl::Renderer::Submit(m_VAO);
-        pxl::Renderer::Submit(m_Shader);
+        pxl::Renderer::Submit(m_Shader, m_Camera);
 
-        pxl::Renderer::StartBatch();
+        pxl::Renderer::Begin();
 
-        //pxl::Renderer::DrawCube({ m_MeshPosition.x, m_MeshPosition.y, m_MeshPosition.z }, glm::vec3(1.0f), glm::vec3(1.0f), 0);
-
-        for (uint32_t x = 0; x < 10; x++)
+        // Draw Grid
+        for (int v = 0; v < 101; v++)
         {
-            for (uint32_t y = 0; y < 10; y++)
-            {
-                for (uint32_t z = 0; z < 10; z++)
-                {
-                    //auto tex = (x + y + z) % 2;
-                    pxl::Renderer::DrawCube({ x * 50.0f, y * 50.0f, z * 50.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
-                }
-            }
+            pxl::Renderer::AddLine({v - 50.0f, -50.0f, -0.1f }, {v - 50.0f, 50.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
         }
 
-        pxl::Renderer::EndBatch();
+        for (int h = 0; h < 101; h++)
+        {
+            pxl::Renderer::AddLine({ -50.0f, h - 50.0f, -0.1f }, {50.0f, h - 50.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+        }
 
-        pxl::Renderer::DrawIndexed(); // Draws any geometry that hasn't been flushed
+        // Draw Level
+        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 10.0f, 1.0f, 1.0f }, m_QuadColour);
+        pxl::Renderer::AddQuad(m_PlayerPosition, glm::vec3(0.0f), glm::vec3(0.5f), glm::vec4(1.0f));
+
+        pxl::Renderer::End();
+
+        pxl::Renderer::Draw();
     }
 
     void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized
@@ -278,7 +270,9 @@ namespace TestApp
 
             ImGui::Text("FPS: %.2f (%.3fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
             ImGui::Text("Clear Colour:");
-            ImGui::ColorEdit3("", &m_ClearColour.x);
+            ImGui::ColorEdit3("Clear Colour", &m_ClearColour.x);
+            ImGui::Text("Quad Colour:");
+            ImGui::ColorEdit3("Quad Colour", &m_QuadColour.x);
             pxl::Renderer::SetClearColour(m_ClearColour);
             if (ImGui::Button("Reload Shader"))
             {
@@ -293,7 +287,7 @@ namespace TestApp
             ImGui::Text("Renderer Stats:");
             ImGui::Text("  Draw Calls: %u", stats.DrawCalls);
             ImGui::Text("  Vertices: %u", stats.VertexCount);
-            ImGui::Text("  Indices: %u", stats.IndiceCount);
+            ImGui::Text("  Indices: %u", stats.IndexCount);
             ImGui::Text("  Triangles: %u", stats.GetTriangleCount());
 
             auto cursorPos = pxl::Input::GetCursorPosition(); 
@@ -407,56 +401,56 @@ namespace TestApp
 
             ImGui::End();
 
-            // Audio player window
-            ImGui::SetNextWindowSize(ImVec2(330, 400), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2(929, 300), ImGuiCond_FirstUseEver);
-            ImGui::Begin("Audio Player");
+            // // Audio player window
+            // ImGui::SetNextWindowSize(ImVec2(330, 400), ImGuiCond_FirstUseEver);
+            // ImGui::SetNextWindowPos(ImVec2(929, 300), ImGuiCond_FirstUseEver);
+            // ImGui::Begin("Audio Player");
 
-            const char* tracks[20]; // should probably set a const max here
+            // const char* tracks[20]; // should probably set a const max here
 
-            for (int i = 0; i < m_AudioLibrary.size(); i++)
-            {
-                tracks[i] = m_AudioLibrary[i].c_str();
-            }
+            // for (int i = 0; i < m_AudioLibrary.size(); i++)
+            // {
+            //     tracks[i] = m_AudioLibrary[i].c_str();
+            // }
 
-            static int selectedAudioIndex;
-            static std::string selectedAudioName;
+            // static int selectedAudioIndex;
+            // static std::string selectedAudioName = m_AudioLibrary[0];
 
-            ImGui::Text("Audio Library");
-            static int item_current_idx = 0; // Here we store our selection data as an index.
-            if (ImGui::BeginListBox("##"))
-            {
-                for (int n = 0; n < m_AudioLibrary.size(); n++)
-                {
-                    const bool is_selected = (item_current_idx == n);
-                    if (ImGui::Selectable(m_AudioLibrary[n].c_str(), is_selected))
-                    {
-                        item_current_idx = n;
-                        selectedAudioName = m_AudioLibrary[n];
-                    }
+            // ImGui::Text("Audio Library");
+            // static int item_current_idx = 0; // Here we store our selection data as an index.
+            // if (ImGui::BeginListBox("##"))
+            // {
+            //     for (int n = 0; n < m_AudioLibrary.size(); n++)
+            //     {
+            //         const bool is_selected = (item_current_idx == n);
+            //         if (ImGui::Selectable(m_AudioLibrary[n].c_str(), is_selected))
+            //         {
+            //             item_current_idx = n;
+            //             selectedAudioName = m_AudioLibrary[n];
+            //         }
 
-                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-            ImGui::EndListBox();
-            }
+            //         // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            //         if (is_selected)
+            //             ImGui::SetItemDefaultFocus();
+            //     }
+            // ImGui::EndListBox();
+            // }
             
-            if (ImGui::Button("Play"))
-            {
-                pxl::AudioManager::Play(selectedAudioName);
-            }
+            // if (ImGui::Button("Play"))
+            // {
+            //     pxl::AudioManager::Play(selectedAudioName);
+            // }
 
-            if (ImGui::Button("Pause"))
-            {
-                pxl::AudioManager::Pause(selectedAudioName);
-            }
+            // if (ImGui::Button("Pause"))
+            // {
+            //     pxl::AudioManager::Pause(selectedAudioName);
+            // }
 
-            if (ImGui::Button("Stop"))
-            {
-                pxl::AudioManager::Stop(selectedAudioName);
-            }
+            // if (ImGui::Button("Stop"))
+            // {
+            //     pxl::AudioManager::Stop(selectedAudioName);
+            // }
 
-            ImGui::End();
+            //ImGui::End();
     }
 }

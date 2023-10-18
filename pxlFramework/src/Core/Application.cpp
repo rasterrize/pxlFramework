@@ -34,6 +34,7 @@ namespace pxl
             {
                 OnUpdate(deltaTime);
                 Camera::UpdateAll();
+                OnRender();
                 pxl_ImGui::Update();
             }
 

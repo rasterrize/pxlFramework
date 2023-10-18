@@ -1,14 +1,8 @@
 #include "Window.h"
 
 #include "Window/WindowGLFW.h"
-#include "Input.h"
 
 #include <glad/glad.h>
-
-#include "Application.h"
-#include "../Renderer/OpenGL/OpenGLContext.h"
-#include "../Debug/ImGui/ImGuiOpenGL.h"
-
 
 namespace pxl
 {

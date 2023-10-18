@@ -13,6 +13,9 @@ namespace pxl
 
         virtual void SetFOV(float fov) override { m_FOV = fov; RecalculateProjection(); }
         virtual float GetFOV() override { return m_FOV; }
+
+        virtual void SetZoom(float zoom) override {}
+        virtual float GetZoom() override { return 0.0f; }
         
         virtual void Update() override;
     private:

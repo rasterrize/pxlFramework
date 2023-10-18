@@ -1,8 +1,5 @@
 #pragma once
 
-#include "VertexArray.h"
-#include "Shader.h"
-
 namespace pxl
 {
     class RendererAPI
@@ -11,14 +8,8 @@ namespace pxl
         virtual void Clear() = 0;
         virtual void SetClearColour(float r, float g, float b, float a) = 0;
 
-        virtual void DrawArrays(int count) = 0;
-        virtual void DrawLines(int count) = 0;
-        virtual void DrawIndexed() = 0;
-
-        virtual std::shared_ptr<VertexArray> const GetVertexArray() = 0;
-        virtual std::shared_ptr<Shader> const GetShader() = 0;
-
-        virtual void SetVertexArray(std::shared_ptr<VertexArray> vertexArray) = 0;
-        virtual void SetShader(std::shared_ptr<Shader> shader) = 0;
+        virtual void DrawArrays(uint32_t vertexCount) = 0;
+        virtual void DrawLines(uint32_t vertexCount) = 0;
+        virtual void DrawIndexed(uint32_t indexCount) = 0;
     };
 }

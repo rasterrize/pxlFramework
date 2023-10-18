@@ -1,7 +1,7 @@
 #include "Texture.h"
 #include "Renderer.h"
 
-#include "OpenGL/OpenGLTexture.h"
+#include "OpenGL/OpenGLTexture2D.h"
 
 namespace pxl
 {
@@ -13,7 +13,7 @@ namespace pxl
                 Logger::LogError("Can't create Texture for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLTexture>(imageBuffer, imageSize, channels);
+                return std::make_shared<OpenGLTexture2D>(imageBuffer, imageSize, channels);
             case RendererAPIType::Vulkan:
                 Logger::LogError("Can't create Texture for Vulkan renderer api.");
                 break;

@@ -30,6 +30,7 @@ src/Renderer/Shader.h src/Renderer/Shader.cpp
 src/Renderer/Camera.h src/Renderer/Camera.cpp
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
+src/Renderer/RendererData.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
@@ -40,7 +41,7 @@ src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cp
 src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
 src/Renderer/OpenGL/OpenGLOrthographicCamera.h src/Renderer/OpenGL/OpenGLOrthographicCamera.cpp
 src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspectiveCamera.cpp
-src/Renderer/OpenGL/OpenGLTexture.h src/Renderer/OpenGL/OpenGLTexture.cpp
+src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 
 # AUDIO
 src/Audio/AudioManager.h src/Audio/AudioManager.cpp
@@ -56,7 +57,7 @@ src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 
 #target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
 
-target_compile_features(pxlFramework PUBLIC cxx_std_17)
+target_compile_features(pxlFramework PUBLIC cxx_std_20)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

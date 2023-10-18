@@ -1,10 +1,10 @@
-#include "OpenGLTexture.h"
+#include "OpenGLTexture2D.h"
 
 #include <glad/glad.h>
 
 namespace pxl
 {
-    OpenGLTexture::OpenGLTexture(unsigned char* imageBuffer, glm::vec2 imageSize, int channels)
+    OpenGLTexture2D::OpenGLTexture2D(unsigned char* imageBuffer, glm::vec2 imageSize, int channels)
         : m_ImageBuffer(imageBuffer), m_ImageSize(imageSize), m_Channels(channels)
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
@@ -30,17 +30,17 @@ namespace pxl
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    OpenGLTexture::~OpenGLTexture()
+    OpenGLTexture2D::~OpenGLTexture2D()
     {
         glDeleteTextures(1, &m_RendererID);
     }
 
-    void OpenGLTexture::Bind()
+    void OpenGLTexture2D::Bind()
     {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
 
-    void OpenGLTexture::Unbind()
+    void OpenGLTexture2D::Unbind()
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }

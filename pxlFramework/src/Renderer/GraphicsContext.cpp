@@ -2,8 +2,6 @@
 
 #include "OpenGL/OpenGLContext.h"
 
-#include <GLFW/glfw3native.h>
-
 namespace pxl
 {
     std::shared_ptr<GraphicsContext> GraphicsContext::Create(RendererAPIType api, GLFWwindow* windowHandle)

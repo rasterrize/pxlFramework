@@ -1,16 +1,16 @@
-#include "TestApplication.h"
-
-#ifdef TA_DIST
+#ifdef TA_RELEASE
     #include <Windows.h>
 #endif
 
-#ifdef TA_DIST
+#include "TestApplication.h"
+
+#ifdef TA_RELEASE
     int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
     int main()
 #endif
 {
-    #ifndef TA_DIST
+    #ifndef TA_RELEASE
         pxl::Logger::Init();
     #endif
     auto application = new TestApp::TestApplication();

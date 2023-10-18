@@ -3,8 +3,6 @@
 #include "../Renderer/GraphicsContext.h"
 #include "../Renderer/RendererAPIType.h"
 
-#include <Windows.h>
-
 namespace pxl
 {
     enum class WindowMode
@@ -34,7 +32,6 @@ namespace pxl
         virtual void SetMonitor(uint8_t monitorIndex) = 0;
 
         virtual void* GetNativeWindow() = 0;
-        virtual HWND GetHWND() = 0;
 
         std::shared_ptr<GraphicsContext> GetGraphicsContext() { return m_GraphicsContext; }
 

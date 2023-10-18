@@ -37,6 +37,11 @@ namespace pxl
         virtual void SetFOV(float fov) = 0;
         virtual float GetFOV() = 0;
 
+        virtual void SetZoom(float zoom) = 0;
+        virtual float GetZoom() = 0;
+
+        const glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
+
         static std::shared_ptr<Camera> Create(CameraType type);
     protected:
         Camera(CameraType cameraType, const CameraSettings& cameraSettings) 
