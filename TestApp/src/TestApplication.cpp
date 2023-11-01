@@ -74,7 +74,7 @@ namespace TestApp
 
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
         
-        m_Window = pxl::Window::Create({1280, 720, windowTitle, windowRendererAPI});
+        m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
         m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
         m_Window->SetVSync(true);
 
@@ -98,16 +98,16 @@ namespace TestApp
         // Load Assets
         pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
 
-        auto stoneTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
-        auto atlasTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
-        auto cursorTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/cursor@2x.png");
+        //auto stoneTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
+        //auto atlasTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
+        //auto cursorTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/cursor@2x.png");
 
-        m_TextureLibrary.push_back(stoneTexture);
-        m_TextureLibrary.push_back(atlasTexture);
-        m_TextureLibrary.push_back(cursorTexture);
+        //m_TextureLibrary.push_back(stoneTexture);
+        //m_TextureLibrary.push_back(atlasTexture);
+        //m_TextureLibrary.push_back(cursorTexture);
 
-        cursorTexture->Bind();
-        m_Shader->SetUniformInt1("u_Texture", 0);
+        //cursorTexture->Bind();
+        //m_Shader->SetUniformInt1("u_Texture", 0);
 
         //pxl::AudioManager::Add("wings", pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3"));
         //pxl::AudioManager::Add("stone_dig", pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.mp3"));
@@ -115,9 +115,9 @@ namespace TestApp
         m_AudioLibrary = pxl::AudioManager::GetLibrary();
 
         // Prepare cursor for camera control
-        pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
-        pxl::Input::SetRawInput(true);
-        pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
+        //pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
+        //pxl::Input::SetRawInput(true);
+        //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
         m_LastCursorPosition = pxl::Input::GetCursorPosition();
 
         #ifndef TA_RELEASE
@@ -157,16 +157,16 @@ namespace TestApp
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
-            pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
+            //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
 
             if (controllingCamera)
             {
-                pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
+                //pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
                 controllingCamera = false;
             }
             else
             {
-                pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
+                //pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
                 m_LastCursorPosition = pxl::Input::GetCursorPosition();
                 m_MouseDelta = glm::vec2(0.0f);
                 controllingCamera = true;
@@ -286,35 +286,36 @@ namespace TestApp
 
             ImGui::Text("Renderer Stats:");
             ImGui::Text("  Draw Calls: %u", stats.DrawCalls);
-            ImGui::Text("  Vertices: %u", stats.VertexCount);
-            ImGui::Text("  Indices: %u", stats.IndexCount);
+            ImGui::Text("  Vertices: %u", stats.QuadVertexCount + stats.LineVertexCount);
+            ImGui::Text("  Indices: %u", stats.QuadIndexCount);
             ImGui::Text("  Triangles: %u", stats.GetTriangleCount());
+            ImGui::Text("  Estimated VRAM Usage: %u bytes", stats.GetEstimatedVRAMUsage());
 
             auto cursorPos = pxl::Input::GetCursorPosition(); 
 
             ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
             ImGui::Text("Mouse Delta: %f, %f", m_MouseDelta.x, m_MouseDelta.y);
 
-            static int selectedTextureInput = 0;
-            static int lastSelectedTexture = 0;
-            const char* textures[] = { "Stone", "Atlas" };
+            //static int selectedTextureInput = 0;
+            //static int lastSelectedTexture = 0;
+            //const char* textures[] = { "Stone", "Atlas" };
 
-            ImGui::Combo("Texture", &selectedTextureInput, textures, IM_ARRAYSIZE(textures));
+            //ImGui::Combo("Texture", &selectedTextureInput, textures, IM_ARRAYSIZE(textures));
 
-            if (selectedTextureInput != lastSelectedTexture)
-            {
-                switch(selectedTextureInput)
-                {
-                    case 0:
-                        m_TextureLibrary.at(0)->Bind();
-                        break;
-                    case 1:
-                        m_TextureLibrary.at(1)->Bind();
-                        break;
-                }
+            // if (selectedTextureInput != lastSelectedTexture)
+            // {
+            //     switch(selectedTextureInput)
+            //     {
+            //         case 0:
+            //             m_TextureLibrary.at(0)->Bind();
+            //             break;
+            //         case 1:
+            //             m_TextureLibrary.at(1)->Bind();
+            //             break;
+            //     }
 
-                lastSelectedTexture = selectedTextureInput;
-            }
+            //     lastSelectedTexture = selectedTextureInput;
+            // }
 
             ImGui::End();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Core/Window.h"
+#include "../Core/Window/WindowGLFW.h"
 #include "RendererAPIType.h"
 #include "RendererAPI.h"
 #include "RendererData.h"
@@ -55,10 +56,17 @@ namespace pxl
         struct Statistics
         {
             uint32_t DrawCalls = 0;
-            uint32_t VertexCount = 0;
-            uint32_t IndexCount = 0;
+            uint32_t QuadVertexCount = 0;
+            uint32_t QuadIndexCount = 0;
+            uint32_t LineVertexCount = 0;
             
-            uint32_t GetTriangleCount() { return IndexCount / 3; }
+            uint32_t GetTriangleCount() { return QuadIndexCount / 3; }
+            uint32_t GetEstimatedVRAMUsage() { return 
+            (QuadVertexCount * (uint32_t)sizeof(TriangleVertex)) +
+            (QuadIndexCount * 4) +
+            (LineVertexCount * (uint32_t)sizeof(LineVertex)); // In Bytes
+            
+            }
         };
 
         static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
@@ -79,6 +87,7 @@ namespace pxl
         static void DrawLines();
 
     private:
+        friend class Window;
         friend class WindowGLFW;
 
         static bool s_Enabled;

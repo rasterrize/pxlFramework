@@ -16,15 +16,15 @@ namespace pxl
 
         if (bytes)
         {
-            Logger::LogInfo("Loaded texture '" + filePath + "'");
+            Logger::LogInfo("Loaded texture: '" + filePath + "'");
         }
         else
         {
-            Logger::LogError("Failed to load texture '" + filePath + "'");
+            Logger::LogError("Failed to load texture: '" + filePath + "'");
             return nullptr;
         }
 
-        std::shared_ptr<Texture> texture = Texture::Create(bytes, glm::vec2(width, height), channels); // should glm be used here?
+        std::shared_ptr<Texture> texture = Texture::Create(bytes, { width, height }, channels); // should glm be used here?
 
         // stb image requires we manually free the loaded image from memory
         stbi_image_free(bytes);
@@ -46,23 +46,13 @@ namespace pxl
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (file)
         {
-            Logger::LogInfo("Loaded shader '" + path.string() + "'");
+            Logger::LogInfo("Loaded shader: '" + path.string() + "'");
         }
         else
         {
-            Logger::LogInfo("Failed to load shader '" + path.string() + "'");
+            Logger::LogInfo("Failed to load shader: '" + path.string() + "'");
         }
-        
-        std::string line;
-        std::string vert;
-        std::string frag;
-
-        while (std::getline(file, line))
-        {
-            if (line == "#type vertex")
-                while (line != "#type fragment")
-                Logger::LogWarn(line);
-        }
+    
 
         file.close();
 

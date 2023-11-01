@@ -17,7 +17,7 @@ namespace pxl
             Logger::LogError("Failed to initialize Glad");
         else
             Logger::LogInfo("Glad Initialized");
-            Logger::LogInfo("OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
+            Logger::LogInfo("- OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
 
         glfwSwapInterval(m_VSync);
     }
@@ -27,9 +27,9 @@ namespace pxl
         glfwSwapBuffers(m_WindowHandle);
     }
 
-    void OpenGLContext::SetVSync(bool vsync)
+    void OpenGLContext::SetVSync(bool value)
     {
-        if (vsync)
+        if (value)
         {
             glfwSwapInterval(1);
             m_VSync = true;

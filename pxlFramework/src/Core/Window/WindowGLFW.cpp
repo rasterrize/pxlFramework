@@ -19,8 +19,11 @@ namespace pxl
         CreateGLFWWindow(windowSpecs);
         s_WindowCount++;
 
-        if (s_GLFWWindowCount == 1)
-            m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, m_Window);
+        m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, m_Window);
+
+        if (!m_GraphicsContext)
+            Logger::LogError("Failed to create graphics context for window " + m_WindowSpecs.Title);
+
     }
 
     void WindowGLFW::CreateGLFWWindow(const WindowSpecs& windowSpecs) // refresh rate/other params
@@ -72,7 +75,7 @@ namespace pxl
             Logger::Log(LogLevel::Info, "Created window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
             s_GLFWWindowCount++;
         }
-        else 
+        else
         {
             Logger::Log(LogLevel::Error, "Failed to create window '" + windowSpecs.Title + "'");
             if (s_WindowCount == 0)
@@ -84,9 +87,6 @@ namespace pxl
     {
         if (m_GraphicsContext)
             m_GraphicsContext->SwapBuffers();
-
-        Renderer::s_FrameCount++; // should be done at the end of making a frame in the renderer class (Renderer::EndFrame)
-        Renderer::CalculateFPS();
     }
 
     void WindowGLFW::ProcessEvents()

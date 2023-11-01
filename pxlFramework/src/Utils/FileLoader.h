@@ -4,7 +4,7 @@
 
 #include "../Renderer/Texture.h"
 #include "../Renderer/Shader.h"
-#include "../Renderer/Renderer.h"
+#include "../Renderer/RendererData.h"
 
 #include "../Audio/AudioTrack.h"
 

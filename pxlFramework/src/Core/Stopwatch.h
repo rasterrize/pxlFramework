@@ -34,7 +34,9 @@ namespace pxl
 
         float GetElapsedSec() { if (!m_Stopped) { CalculateElapsed(); } return m_Elapsed.count(); }
 
-        float GetElapsedMS() { if (!m_Stopped) { CalculateElapsed(); } return std::chrono::duration_cast<std::chrono::milliseconds>(m_Elapsed).count(); }
+        float GetElapsedMilliSec() { if (!m_Stopped) { CalculateElapsed(); } return std::chrono::duration_cast<std::chrono::milliseconds>(m_Elapsed).count(); }
+
+        float GetElapsedMicroSec() { if (!m_Stopped) { CalculateElapsed(); } return std::chrono::duration_cast<std::chrono::microseconds>(m_Elapsed).count(); }
 
     private:
         void CalculateElapsed()

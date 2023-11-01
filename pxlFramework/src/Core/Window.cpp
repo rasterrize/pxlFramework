@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "Window/WindowGLFW.h"
+#include "../Renderer/Renderer.h"
 
 #include <glad/glad.h>
 
@@ -22,6 +23,9 @@ namespace pxl
         {
             window->Update();
         }
+
+        Renderer::s_FrameCount++; // should be done at the end of making a frame in the renderer class (Renderer::EndFrame)
+        Renderer::CalculateFPS();
 
         WindowGLFW::ProcessEvents(); // glfw docs use pollevents after swapbuffers // also this should be moved if I decide to support other platforms (linux/mac)
     }
@@ -85,8 +89,8 @@ namespace pxl
 
         if (window)
         {
-            s_Windows.push_back(window);
             window->m_Handle = window;
+            s_Windows.push_back(window);
             return window;
         }
 

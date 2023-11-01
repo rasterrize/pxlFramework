@@ -198,7 +198,7 @@ namespace pxl
 
     void Renderer::SetClearColour(const glm::vec4& colour)
     {
-        s_RendererAPI->SetClearColour(colour.r, colour.g, colour.b, colour.a);
+        s_RendererAPI->SetClearColour(colour);
     }
 
     void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera)
@@ -265,8 +265,8 @@ namespace pxl
 
         s_QuadVertexCount += 4;
         
-        s_Stats.VertexCount += 4;
-        s_Stats.IndexCount += 6;
+        s_Stats.QuadVertexCount += 4;
+        s_Stats.QuadIndexCount += 6;
     }
 
     // void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
@@ -336,8 +336,8 @@ namespace pxl
 
         s_CubeVertexCount += 24;
         
-        s_Stats.VertexCount += 24;
-        s_Stats.IndexCount += 36; // based on number of cubes, not actual indices in the index buffer
+        s_Stats.QuadVertexCount += 24; // TODO: probably should be CubeVertexCount
+        s_Stats.QuadIndexCount += 36; // based on number of cubes, not actual indices in the index buffer
     }
 
     // void Renderer::AddTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex)
@@ -377,7 +377,7 @@ namespace pxl
 
         s_LineVertexCount += 2;
 
-        s_Stats.VertexCount += 2;
+        s_Stats.LineVertexCount += 2;
     }
 
     // void Renderer::AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)

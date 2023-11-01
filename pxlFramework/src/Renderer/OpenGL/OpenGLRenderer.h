@@ -10,7 +10,7 @@ namespace pxl
         OpenGLRenderer();
         
         virtual void Clear() override;
-        virtual void SetClearColour(float r, float g, float b, float a) override;
+        virtual void SetClearColour(const glm::vec4& colour) override;
 
         virtual void DrawArrays(uint32_t vertexCount) override;
         virtual void DrawLines(uint32_t vertexCount) override;

@@ -20,9 +20,9 @@ namespace pxl
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void OpenGLRenderer::SetClearColour(float r, float g, float b, float a)
+    void OpenGLRenderer::SetClearColour(const glm::vec4& colour)
     {
-        glClearColor(r, g, b, a);
+        glClearColor(colour.r, colour.g, colour.b, colour.a);
     }
     void OpenGLRenderer::DrawArrays(uint32_t vertexCount)
     {

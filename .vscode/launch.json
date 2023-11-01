@@ -6,6 +6,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Debug/TestApp.exe",
+            "preLaunchTask": "MSBuild - Debug",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/TestApp",
@@ -17,11 +18,12 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Release/TestApp.exe",
+            "preLaunchTask": "MSBuild - Release",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/TestApp",
             "environment": [],
-            "console": "externalTerminal"
+            "console": "internalConsole"
         }
     ]
 }
