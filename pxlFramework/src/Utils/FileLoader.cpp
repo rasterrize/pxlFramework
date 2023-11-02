@@ -6,7 +6,7 @@
 
 namespace pxl
 {
-    std::shared_ptr<Texture> FileLoader::LoadTextureFromImage(const std::string& filePath)
+    std::shared_ptr<Texture2D> FileLoader::LoadTextureFromImage(const std::string& filePath)
     {
         // stb image loads images from bottom to top I guess
         stbi_set_flip_vertically_on_load(1);
@@ -24,7 +24,7 @@ namespace pxl
             return nullptr;
         }
 
-        std::shared_ptr<Texture> texture = Texture::Create(bytes, { width, height }, channels); // should glm be used here?
+        std::shared_ptr<Texture2D> texture = Texture2D::Create(bytes, { width, height }, channels); // should glm be used here?
 
         // stb image requires we manually free the loaded image from memory
         stbi_image_free(bytes);
@@ -33,30 +33,12 @@ namespace pxl
     }
 
     std::shared_ptr<Shader> FileLoader::LoadShader(const std::filesystem::path& path)
-    {
-        const std::string vertID = "#type vertex";
-        const std::string fragID = "#type fragment";
-    
+    {    
         if (!std::filesystem::exists(path))
         {
             Logger::LogError("Failed to load shader from path because the file doesn't exist '" + path.string() + "'");
             return nullptr;
         }
-
-        std::ifstream file(path, std::ios::in | std::ios::binary);
-        if (file)
-        {
-            Logger::LogInfo("Loaded shader: '" + path.string() + "'");
-        }
-        else
-        {
-            Logger::LogInfo("Failed to load shader: '" + path.string() + "'");
-        }
-    
-
-        file.close();
-
-        //std::shared_ptr<Shader> shader = Shader::Create
     
         return nullptr;
     }

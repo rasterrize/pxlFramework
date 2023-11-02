@@ -3,8 +3,6 @@
 #include "Window/WindowGLFW.h"
 #include "../Renderer/Renderer.h"
 
-#include <glad/glad.h>
-
 namespace pxl
 {
     uint8_t Window::s_WindowCount = 0;

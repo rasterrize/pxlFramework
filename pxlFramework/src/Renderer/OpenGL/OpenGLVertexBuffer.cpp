@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include "../Renderer.h"
-
 namespace pxl
 {
     // Static Buffer

@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include "../../Core/Platform.h"
-
 namespace pxl
 {
     OpenGLRenderer::OpenGLRenderer()

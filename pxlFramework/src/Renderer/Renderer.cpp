@@ -124,7 +124,7 @@ namespace pxl
 
         {
             // Prepare Quad VAO, VBO, IBO
-            s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
+            s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // TODO: create functions to create these objects based on renderer api type
             auto quadVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
             auto quadIBO = std::make_shared<OpenGLIndexBuffer>((uint32_t)s_MaxQuadIndexCount, &s_QuadIndices);
 

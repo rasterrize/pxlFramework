@@ -5,8 +5,6 @@
 
 #include "ImGuiBase.h"
 
-#include <GLFW/glfw3.h>
-
 namespace pxl
 {
     class pxl_ImGui

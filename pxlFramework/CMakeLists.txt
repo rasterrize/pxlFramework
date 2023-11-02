@@ -12,7 +12,6 @@ src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
 src/Core/MouseCodes.h
-src/Core/Math.h
 src/Core/Platform.h
 src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
 src/Core/Stopwatch.h
@@ -57,7 +56,7 @@ src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 
 #target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
 
-target_compile_features(pxlFramework PUBLIC cxx_std_20)
+target_compile_features(pxlFramework PUBLIC cxx_std_23)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

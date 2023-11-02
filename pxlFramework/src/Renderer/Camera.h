@@ -13,7 +13,6 @@ namespace pxl
 
     struct CameraSettings
     {
-        //CameraType CameraType;
         float AspectRatio;
         float NearClip;
         float FarClip;

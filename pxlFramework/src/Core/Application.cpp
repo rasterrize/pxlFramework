@@ -1,11 +1,11 @@
 #include "Application.h"
+
 #include "Window.h"
 #include "Input.h"
 #include "Platform.h"
+#include "Stopwatch.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
-
-#include "Stopwatch.h"
 
 namespace pxl
 {

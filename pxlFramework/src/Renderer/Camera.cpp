@@ -1,8 +1,10 @@
 #include "Camera.h"
 
 #include "Renderer.h"
+
 #include "OpenGL/OpenGLOrthographicCamera.h"
 #include "OpenGL/OpenGLPerspectiveCamera.h"
+
 
 namespace pxl
 {

@@ -17,7 +17,7 @@ namespace pxl
 
         int channelType;
 
-        if (channels == 3)          // All this is very temporary
+        if (channels == 3)          // All this is kinda temporary
         {   
             channelType = GL_RGB;
         }

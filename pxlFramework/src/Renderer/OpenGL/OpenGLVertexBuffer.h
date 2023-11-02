@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../VertexBuffer.h"
-#include "../BufferLayout.h"
 
 namespace pxl
 {

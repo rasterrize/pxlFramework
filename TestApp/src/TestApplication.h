@@ -26,14 +26,14 @@ namespace TestApp
         
         glm::vec3 m_CameraPosition = glm::vec3(0.0f);
         glm::vec3 m_CameraRotation = glm::vec3(0.0f);
-        pxl::vec4 m_ClearColour = pxl::vec4(0.0f);
+        glm::vec4 m_ClearColour = glm::vec4(0.0f);
 
         glm::vec2 m_LastCursorPosition = glm::vec2(0.0f);
         glm::vec2 m_MouseDelta = glm::vec2(0.0f);
 
         bool controllingCamera = true;
 
-        pxl::vec4 m_QuadColour = { 0.180f, 0.293f, 0.819f, 1.0f };
+        glm::vec4 m_QuadColour = { 0.180f, 0.293f, 0.819f, 1.0f };
 
         glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 0.0f };
 
@@ -41,7 +41,7 @@ namespace TestApp
 
         uint32_t m_TexIndex[2] = { 3, 2 };
 
-        std::vector<std::shared_ptr<pxl::Texture>> m_TextureLibrary;
+        std::vector<std::shared_ptr<pxl::Texture2D>> m_TextureLibrary;
         std::vector<std::string> m_AudioLibrary;
     };
 }

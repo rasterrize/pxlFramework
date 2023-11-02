@@ -84,9 +84,9 @@ namespace TestApp
 
         pxl::AudioManager::Init(m_Window);
 
-        auto clearColour = pxl::vec4(0.078f, 0.094f, 0.109f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
+        auto clearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
         pxl::Renderer::SetClearColour(clearColour);
-        m_ClearColour = pxl::vec4(clearColour);
+        m_ClearColour = glm::vec4(clearColour);
 
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
@@ -94,30 +94,6 @@ namespace TestApp
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
         m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
         m_NextCameraFOV = m_Camera->GetFOV();
-
-        // Load Assets
-        pxl::ShaderLibrary::Add("camera.glsl", pxl::FileLoader::LoadShader("assets/shaders/camera.glsl"));
-
-        //auto stoneTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
-        //auto atlasTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/atlas.png");
-        //auto cursorTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/cursor@2x.png");
-
-        //m_TextureLibrary.push_back(stoneTexture);
-        //m_TextureLibrary.push_back(atlasTexture);
-        //m_TextureLibrary.push_back(cursorTexture);
-
-        //cursorTexture->Bind();
-        //m_Shader->SetUniformInt1("u_Texture", 0);
-
-        //pxl::AudioManager::Add("wings", pxl::FileLoader::LoadAudioTrack("assets/audio/wings.mp3"));
-        //pxl::AudioManager::Add("stone_dig", pxl::FileLoader::LoadAudioTrack("assets/audio/stone_dig.mp3"));
-
-        m_AudioLibrary = pxl::AudioManager::GetLibrary();
-
-        // Prepare cursor for camera control
-        //pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
-        //pxl::Input::SetRawInput(true);
-        //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
         m_LastCursorPosition = pxl::Input::GetCursorPosition();
 
         #ifndef TA_RELEASE
@@ -157,16 +133,12 @@ namespace TestApp
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
-            //pxl::Input::SetCursorPosition(m_Window->GetWidth() / 2, m_Window->GetHeight() / 2);
-
             if (controllingCamera)
             {
-                //pxl::Input::SetCursorMode(pxl::CursorMode::Normal);
                 controllingCamera = false;
             }
             else
             {
-                //pxl::Input::SetCursorMode(pxl::CursorMode::Disabled);
                 m_LastCursorPosition = pxl::Input::GetCursorPosition();
                 m_MouseDelta = glm::vec2(0.0f);
                 controllingCamera = true;
@@ -224,8 +196,6 @@ namespace TestApp
             cameraZoom += 1.0f;
         }
 
-        //std::clamp(cameraZoom, 1.0f, 100.0f);
-
         m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
         m_Camera->SetZoom(cameraZoom);
     }
@@ -270,10 +240,10 @@ namespace TestApp
 
             ImGui::Text("FPS: %.2f (%.3fms)", pxl::Renderer::GetFPS(), pxl::Renderer::GetFrameTimeMS());
             ImGui::Text("Clear Colour:");
-            ImGui::ColorEdit3("Clear Colour", &m_ClearColour.x);
+            if (ImGui::ColorEdit3("Clear Colour", &m_ClearColour.x))
+                pxl::Renderer::SetClearColour(m_ClearColour);
             ImGui::Text("Quad Colour:");
             ImGui::ColorEdit3("Quad Colour", &m_QuadColour.x);
-            pxl::Renderer::SetClearColour(m_ClearColour);
             if (ImGui::Button("Reload Shader"))
             {
                 m_Shader->Reload();
@@ -295,27 +265,6 @@ namespace TestApp
 
             ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
             ImGui::Text("Mouse Delta: %f, %f", m_MouseDelta.x, m_MouseDelta.y);
-
-            //static int selectedTextureInput = 0;
-            //static int lastSelectedTexture = 0;
-            //const char* textures[] = { "Stone", "Atlas" };
-
-            //ImGui::Combo("Texture", &selectedTextureInput, textures, IM_ARRAYSIZE(textures));
-
-            // if (selectedTextureInput != lastSelectedTexture)
-            // {
-            //     switch(selectedTextureInput)
-            //     {
-            //         case 0:
-            //             m_TextureLibrary.at(0)->Bind();
-            //             break;
-            //         case 1:
-            //             m_TextureLibrary.at(1)->Bind();
-            //             break;
-            //     }
-
-            //     lastSelectedTexture = selectedTextureInput;
-            // }
 
             ImGui::End();
 

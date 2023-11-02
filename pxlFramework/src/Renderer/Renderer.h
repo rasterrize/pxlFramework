@@ -10,8 +10,6 @@
 #include "Camera.h"
 
 #include "VertexArray.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

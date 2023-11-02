@@ -1,8 +1,7 @@
 #include "WindowGLFW.h"
 
-#include <glad/glad.h>
+#include <glad/glad.h> // TEMP: for glViewport
 
-#include "../../Renderer/Renderer.h"
 #include "../../Renderer/GraphicsContext.h"
 #include "../Application.h"
 #include "../Input.h"

@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
+#include "Window.h"
 #include "KeyCodes.h"
 #include "MouseCodes.h"
-#include "Window.h"
 
 namespace pxl
 {

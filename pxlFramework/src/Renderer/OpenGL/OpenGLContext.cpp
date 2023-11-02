@@ -16,8 +16,7 @@ namespace pxl
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             Logger::LogError("Failed to initialize Glad");
         else
-            Logger::LogInfo("Glad Initialized");
-            Logger::LogInfo("- OpenGL Version: " + std::string((const char*)glGetString(GL_VERSION)));
+            Logger::LogInfo("Glad Initialized : " + std::string("OpenGL Version: ") + std::string((const char*)glGetString(GL_VERSION)));
 
         glfwSwapInterval(m_VSync);
     }

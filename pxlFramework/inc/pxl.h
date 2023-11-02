@@ -6,7 +6,6 @@
 #include "../src/Core/Input.h"
 #include "../src/Core/KeyCodes.h"
 #include "../src/Core/MouseCodes.h"
-#include "../src/Core/Math.h"
 #include "../src/Core/Platform.h"
 #include "../src/Core/Stopwatch.h"
 
@@ -14,9 +13,6 @@
 #include "../src/Renderer/Camera.h"
 #include "../src/Renderer/ShaderLibrary.h"
 
-#include "../src/Renderer/OpenGL/OpenGLVertexBuffer.h"
-#include "../src/Renderer/OpenGL/OpenGLVertexArray.h"
-#include "../src/Renderer/OpenGL/OpenGLIndexBuffer.h"
 #include "../src/Renderer/OpenGL/OpenGLShader.h"
 
 #include "../src/Audio/AudioManager.h"

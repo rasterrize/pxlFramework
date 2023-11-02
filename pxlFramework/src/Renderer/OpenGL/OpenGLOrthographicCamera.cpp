@@ -2,9 +2,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Renderer.h"
-#include "../../Core/Window.h"
-
 namespace pxl
 {
     OpenGLOrthographicCamera::OpenGLOrthographicCamera() 
