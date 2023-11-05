@@ -47,6 +47,10 @@ src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 # src/Audio/AudioManager.h src/Audio/AudioManager.cpp
 # src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
 
+# VULKAN
+src/Renderer/Vulkan/VulkanRenderer.h src/Renderer/Vulkan/VulkanRenderer.cpp
+src/Renderer/Vulkan/VulkanContext.h src/Renderer/Vulkan/VulkanContext.cpp
+
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 
@@ -80,12 +84,16 @@ add_subdirectory(deps/yaml-cpp)
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 #target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp)
+target_include_directories(pxlFramework PUBLIC C:/VulkanSDK/1.3.246.1/Include)
+target_link_directories(pxlFramework PUBLIC C:/VulkanSDK/1.3.246.1/Lib)
+
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp vulkan-1)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE
-GLFW_EXPOSE_NATIVE_WIN32) #IMGUI_IMPL_OPENGL_LOADER_GLAD
+GLFW_EXPOSE_NATIVE_WIN32
+GLFW_INCLUDE_VULKAN) #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)

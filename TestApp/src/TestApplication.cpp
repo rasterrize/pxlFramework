@@ -97,6 +97,8 @@ namespace TestApp
         #ifndef TA_RELEASE
             pxl::pxl_ImGui::Init(m_Window);
         #endif
+
+        m_TestWindow = pxl::Window::Create({ 640, 480, "Vulkan Test Window", pxl::RendererAPIType::Vulkan });
     }
 
     TestApplication::~TestApplication()

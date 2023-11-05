@@ -1,6 +1,7 @@
 #include "GraphicsContext.h"
 
 #include "OpenGL/OpenGLContext.h"
+#include "Vulkan/VulkanContext.h"
 
 #include "../Core/Window.h"
 
@@ -16,8 +17,7 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLContext>(window);
             case RendererAPIType::Vulkan:
-                Logger::LogError("Can't create Graphics Context for Vulkan renderer api.");
-                break;
+                return std::make_shared<VulkanContext>(windowHandle);
         }
 
         return nullptr;
