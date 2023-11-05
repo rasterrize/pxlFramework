@@ -81,17 +81,14 @@ namespace TestApp
         pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
 
-        auto clearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
-        pxl::Renderer::SetClearColour(clearColour);
-        m_ClearColour = glm::vec4(clearColour);
+        m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
+        pxl::Renderer::SetClearColour(m_ClearColour);
 
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
         m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic);
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
         m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
-        m_NextCameraFOV = m_Camera->GetFOV();
-        m_LastCursorPosition = pxl::Input::GetCursorPosition();
 
         #ifndef TA_RELEASE
             pxl::pxl_ImGui::Init(m_Window);
@@ -107,8 +104,7 @@ namespace TestApp
     {
         m_CameraPosition = m_Camera->GetPosition();
         m_CameraRotation = m_Camera->GetRotation();
-        auto cameraFOV = m_Camera->GetFOV();
-        float cameraSpeed = 2.0f;
+        auto cameraSpeed = 2.0f;
         auto cameraZoom = m_Camera->GetZoom();
         auto cursorPos = pxl::Input::GetCursorPosition();
 
@@ -125,15 +121,9 @@ namespace TestApp
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
             if (controllingCamera)
-            {
                 controllingCamera = false;
-            }
             else
-            {
-                m_LastCursorPosition = pxl::Input::GetCursorPosition();
-                m_MouseDelta = glm::vec2(0.0f);
                 controllingCamera = true;
-            }
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
