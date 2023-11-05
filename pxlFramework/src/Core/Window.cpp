@@ -17,7 +17,7 @@ namespace pxl
 
     void Window::UpdateAll()
     {
-        for (auto window : s_Windows)
+        for (const auto& window : s_Windows)
         {
             window->Update();
         }
@@ -30,9 +30,11 @@ namespace pxl
 
     void Window::Shutdown()
     {
-        for (auto window : s_Windows)
+        uint32_t windowCount = s_WindowCount;
+
+        for (uint32_t i = 0; i < windowCount; i++)
         {
-            window->Close();
+            s_Windows[0]->Close();
         }
     }
 

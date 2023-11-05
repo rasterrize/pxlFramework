@@ -5,9 +5,9 @@ namespace pxl
 {
     bool AudioManager::s_Enabled = false;
 
-    int AudioManager::s_CurrentDeviceIndex = 1;
-    int AudioManager::s_Frequency = 44100;
-    float AudioManager::s_Volume = 10; // should always be 0-1
+    int AudioManager::s_CurrentDeviceIndex = 1; // TODO: should automatically set to the default speaker device.
+    int AudioManager::s_Frequency = 44100; // TODO: should get the frequency of the set audio device
+    float AudioManager::s_Volume = 10;
 
     std::shared_ptr<Window> AudioManager::s_WindowHandle = nullptr;
 
@@ -49,7 +49,7 @@ namespace pxl
 
     void AudioManager::Play(const std::string& trackName)
     {
-        s_Tracks.at(trackName)->Play();
+        s_Tracks.at(trackName)->Play(); // TODO: this and the 2 functions below should check if the track exists
     }
 
     void AudioManager::Pause(const std::string &trackName)

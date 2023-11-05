@@ -22,15 +22,15 @@ namespace pxl
     uint32_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
-    constexpr size_t s_MaxQuadCount = 1000;
+    constexpr size_t s_MaxQuadCount = 10000;
     constexpr size_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
     constexpr size_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
 
-    constexpr size_t s_MaxCubeCount = 1000;
+    constexpr size_t s_MaxCubeCount = 10000;
     constexpr size_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
     constexpr size_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
 
-    constexpr size_t s_MaxLineCount = 1000;
+    constexpr size_t s_MaxLineCount = 10000;
     constexpr size_t s_MaxLineVertexCount = s_MaxLineCount * 2; // textures break on 8 vertex cubes, need to look into how this can be solved
 
     std::array<TriangleVertex, s_MaxQuadVertexCount> s_QuadVertices = {};
@@ -86,7 +86,7 @@ namespace pxl
             // Prepare Quad Index Buffer
 
             uint32_t offset = 0;
-            for (size_t i = 0; i < s_MaxQuadCount; i += 6) // all this assumes the cube is made of 6 quads
+            for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
             {
                 s_QuadIndices[i + 0] = 0 + offset;
                 s_QuadIndices[i + 1] = 1 + offset;
@@ -125,8 +125,8 @@ namespace pxl
         {
             // Prepare Quad VAO, VBO, IBO
             s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // TODO: create functions to create these objects based on renderer api type
-            auto quadVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
-            auto quadIBO = std::make_shared<OpenGLIndexBuffer>((uint32_t)s_MaxQuadIndexCount, &s_QuadIndices);
+            auto quadVBO = std::make_shared<OpenGLVertexBuffer>(static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
+            auto quadIBO = std::make_shared<OpenGLIndexBuffer>(static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
 
             BufferLayout layout;
             layout.Add(3, BufferDataType::Float, false); // vertex position
@@ -249,7 +249,7 @@ namespace pxl
         s_Stats.DrawCalls++;
     }
 
-    void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
         if (s_QuadVertexCount >= s_MaxQuadVertexCount)
         {

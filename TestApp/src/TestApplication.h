@@ -13,6 +13,7 @@ namespace TestApp
         virtual void OnImGuiRender() override;
     private:
         std::shared_ptr<pxl::Window> m_Window;
+        std::shared_ptr<pxl::Window> m_TestWindow;
         std::shared_ptr<pxl::Camera> m_Camera;
 
         float m_NextCameraFOV = 0.0f;
@@ -35,7 +36,7 @@ namespace TestApp
 
         glm::vec4 m_QuadColour = { 0.180f, 0.293f, 0.819f, 1.0f };
 
-        glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 0.0f };
+        glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 0.2f };
 
         pxl::WindowMode m_WindowMode;
 

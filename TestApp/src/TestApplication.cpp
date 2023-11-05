@@ -79,10 +79,7 @@ namespace TestApp
         m_Window->SetVSync(true);
 
         pxl::Renderer::Init(m_Window);
-
         pxl::Input::Init(m_Window);
-
-        pxl::AudioManager::Init(m_Window);
 
         auto clearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f); // pxl::vec4(0.2f, 0.5f, 0.4f, 1.0f);
         pxl::Renderer::SetClearColour(clearColour);
@@ -117,19 +114,13 @@ namespace TestApp
 
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
-        {
             Application::Close();
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
-        {
             m_Window->NextWindowMode();
-        }
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-        {
             m_Window->ToggleVSync();
-        }
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
@@ -212,16 +203,25 @@ namespace TestApp
         // Draw Grid
         for (int v = 0; v < 101; v++)
         {
-            pxl::Renderer::AddLine({v - 50.0f, -50.0f, -0.1f }, {v - 50.0f, 50.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+            pxl::Renderer::AddLine({v - 50.0f, -50.0f, -0.1f }, {v - 50.0f, 50.0f, -0.1f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
         }
 
         for (int h = 0; h < 101; h++)
         {
-            pxl::Renderer::AddLine({ -50.0f, h - 50.0f, -0.1f }, {50.0f, h - 50.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+            pxl::Renderer::AddLine({ -50.0f, h - 50.0f, -0.1f }, {50.0f, h - 50.0f, -0.1f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+        }
+
+        // Draw Background
+        for (int x = 0; x < 50; x += 2)
+        {
+            for (int y = 0; y < 50; y += 2)
+            {
+                pxl::Renderer::AddQuad({ x - 25.0f, y - 25.0f, 0.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
+            }
         }
 
         // Draw Level
-        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 10.0f, 1.0f, 1.0f }, m_QuadColour);
+        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 0.1f }, glm::vec3(0.0f), { 10.0f, 1.0f }, m_QuadColour);
         pxl::Renderer::AddQuad(m_PlayerPosition, glm::vec3(0.0f), glm::vec3(0.5f), glm::vec4(1.0f));
 
         pxl::Renderer::End();

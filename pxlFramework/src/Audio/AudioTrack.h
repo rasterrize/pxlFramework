@@ -15,12 +15,14 @@ namespace pxl
         void Pause();
         void Stop();
 
+        bool IsPlaying() const { return m_Playing; }
+
         const HSTREAM GetStream() const { return m_Stream; }
     private:
         void Free();
     private:
         HSTREAM m_Stream;
 
-        bool m_IsPlaying = false;
+        bool m_Playing = false;
     };
 }
