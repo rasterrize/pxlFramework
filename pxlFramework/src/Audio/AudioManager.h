@@ -1,9 +1,7 @@
 #pragma once
 
-#include "../Core/Window.h"
 #include "AudioTrack.h"
-
-#include <bass.h>
+#include "../Core/Window.h"
 
 namespace pxl
 {

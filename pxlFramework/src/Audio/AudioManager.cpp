@@ -1,4 +1,5 @@
 #include "AudioManager.h"
+
 #include "../Core/Window/WindowGLFW.h"
 
 namespace pxl
@@ -17,9 +18,9 @@ namespace pxl
     {
         s_WindowHandle = windowHandle;
 
-        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, windowHandle->GetHWND(), NULL))
+        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, ), NULL) // need to fix
         {
-            Logger::LogInfo("BASS Initalized");
+            Logger::LogInfo("BASS Initialized");
         }
         else
         {
@@ -28,7 +29,7 @@ namespace pxl
         }
 
         // Configure BASS
-        BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, s_Volume * 100);
+        BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, s_Volume * 100); // Stream Volume in BASS is from 0 - 10000
 
         s_Enabled = true;
     }

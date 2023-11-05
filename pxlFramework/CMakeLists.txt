@@ -43,8 +43,9 @@ src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspect
 src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 
 # AUDIO
-src/Audio/AudioManager.h src/Audio/AudioManager.cpp
-src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
+# src/Audio/AudioManager.h src/Audio/AudioManager.cpp
+# src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
+
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 
@@ -74,11 +75,10 @@ add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
 add_subdirectory(deps/assimp)
 
-target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+#target_include_directories(pxlFramework PUBLIC deps/BASS/include)
+#target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb bass)
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb bass assimp)
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
