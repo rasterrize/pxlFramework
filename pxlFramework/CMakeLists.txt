@@ -62,6 +62,8 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE) 
 
 # Add Dependencies (CMake projects)
 add_subdirectory(deps/GLFW)
@@ -70,11 +72,13 @@ add_subdirectory(deps/spdlog)
 add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
+add_subdirectory(deps/assimp)
 
 target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb bass)
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb bass assimp)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
