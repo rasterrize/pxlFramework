@@ -83,11 +83,11 @@ namespace pxl
         if (!RetrieveQueueHandles())
             return;
 
-        auto presentModes = GetSurfacePresentModes(m_GPU, m_Surface);
+        // Create swap chain with specified surface
+        if (!CreateSwapchain(m_Surface))
+            return;
 
-
-        CreateSwapchain(m_Surface);
-
+        // TODO: Render passes / Graphics Pipeline / Shaders
 
     }
 
@@ -338,15 +338,24 @@ namespace pxl
         }
 
         // Select most suitable number of images for swapchain
-        uint32_t suitableImageCount = 2;
+        if (surfaceCapabilities.minImageCount >= 2)
+        {
+            if (surfaceCapabilities.maxImageCount >= 3)
+            {
+                m_SwapchainData.ImageCount = 3; // Triple buffering
+            }
+            else
+            {
+                m_SwapchainData.ImageCount = 2; // Double buffering
+            }
+        }
+        else
+        {
+            Logger::LogError("Selected surface for swapchain must support more than 2 images");
+            return false;
+        }
 
-        // TODO: check for min and max image count values of the surface for swapchain
-
-        // if (suitableImageCount == 0)
-        // {
-        //     Logger::LogError("Failed to find suitable surface present mode for swap chain");
-        //     return false;
-        // }
+        m_SwapchainData.ImageCount = 2; // TEMP: This is just so I can get Vulkan working
 
         m_SwapchainData.Images.resize(m_SwapchainData.ImageCount);
         m_SwapchainData.ImageViews.resize(m_SwapchainData.ImageCount);
@@ -359,7 +368,7 @@ namespace pxl
         swapchainInfo.minImageCount = m_SwapchainData.ImageCount;
         swapchainInfo.imageFormat = m_SurfaceFormat.format;
         swapchainInfo.imageColorSpace = m_SurfaceFormat.colorSpace;
-        swapchainInfo.imageExtent = { 1280, 720 }; // TEMP: should be set to the window size or maxExtent or something idk yet.
+        swapchainInfo.imageExtent = surfaceCapabilities.currentExtent;
         swapchainInfo.imageArrayLayers = 1;
         swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         swapchainInfo.presentMode = m_SwapchainData.PresentMode;
@@ -380,7 +389,8 @@ namespace pxl
             return false;
         }
 
-        vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, m_SwapchainData.Images.data());
+        result = vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, m_SwapchainData.Images.data());
+        CheckVkResult(result);
 
         // Create Image Views for swapchain images
         for (uint32_t i = 0; i < swapchainImageCount; i++)
