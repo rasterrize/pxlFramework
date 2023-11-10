@@ -27,6 +27,8 @@ src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
 src/Renderer/Shader.h src/Renderer/Shader.cpp
 src/Renderer/Camera.h src/Renderer/Camera.cpp
+src/Renderer/OrthographicCamera.h src/Renderer/OrthographicCamera.cpp
+src/Renderer/PerspectiveCamera.h src/Renderer/PerspectiveCamera.cpp
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 src/Renderer/RendererData.h
@@ -38,8 +40,6 @@ src/Renderer/OpenGL/OpenGLVertexBuffer.h src/Renderer/OpenGL/OpenGLVertexBuffer.
 src/Renderer/OpenGL/OpenGLIndexBuffer.h src/Renderer/OpenGL/OpenGLIndexBuffer.cpp
 src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
 src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
-src/Renderer/OpenGL/OpenGLOrthographicCamera.h src/Renderer/OpenGL/OpenGLOrthographicCamera.cpp
-src/Renderer/OpenGL/OpenGLPerspectiveCamera.h src/Renderer/OpenGL/OpenGLPerspectiveCamera.cpp
 src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 
 # AUDIO

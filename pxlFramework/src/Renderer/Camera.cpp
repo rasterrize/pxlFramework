@@ -1,48 +1,32 @@
 #include "Camera.h"
 
-#include "Renderer.h"
+#include "OrthographicCamera.h"
+#include "PerspectiveCamera.h"
 
-#include "OpenGL/OpenGLOrthographicCamera.h"
-#include "OpenGL/OpenGLPerspectiveCamera.h"
-
+#include <glm/trigonometric.hpp>
 
 namespace pxl
 {
     std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
 
-    std::shared_ptr<Camera> Camera::Create(CameraType type)
+    std::shared_ptr<Camera> Camera::Create(CameraType cameraType, const CameraSettings& settings)
     {
         std::shared_ptr<Camera> camera;
-
-        switch (Renderer::GetAPIType())
+        
+        switch (cameraType)
         {
-            case RendererAPIType::None:
-                Logger::LogError("Can't create camera for no renderer api");
-                return nullptr;
-            case RendererAPIType::OpenGL:
-                switch (type)
-                {
-                    case CameraType::Orthographic:
-                        camera = std::make_shared<OpenGLOrthographicCamera>();
-                        if (camera)
-                            Logger::LogInfo("OpenGL orthographic camera created");
-                        break;
-                    case CameraType::Perspective:
-                        camera = std::make_shared<OpenGLPerspectiveCamera>();
-                        if (camera)
-                            Logger::LogInfo("OpenGL perspective camera created");
-                        break;
-                }
+            case CameraType::Orthographic:
+                camera = std::make_shared<OrthographicCamera>(settings);
                 break;
-            case RendererAPIType::Vulkan:
-                Logger::LogWarn("Vulkan Cameras not implemented");
-                return nullptr;
+            case CameraType::Perspective:
+                camera = std::make_shared<PerspectiveCamera>(settings);
+                break;
         }
 
         if (camera) // technically this check is unnecessary but im gonna leave it here for now
         {
-            s_Cameras.push_back(camera);
             camera->m_Handle = camera;
+            s_Cameras.push_back(camera);
             return camera;
         }
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Camera.h"
+#include "Camera.h"
 
 namespace pxl
 {
-    class OpenGLOrthographicCamera : public Camera
+    class OrthographicCamera : public Camera
     {
     public:
-        OpenGLOrthographicCamera();
+        OrthographicCamera(const CameraSettings& settings);
 
         virtual void Update() override;
 

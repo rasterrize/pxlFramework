@@ -86,7 +86,7 @@ namespace TestApp
 
         m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
 
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic);
+        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
         m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
 

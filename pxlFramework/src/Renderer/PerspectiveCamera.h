@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Camera.h"
+#include "Camera.h"
 
 namespace pxl
 {
-    class OpenGLPerspectiveCamera : public Camera
+    class PerspectiveCamera : public Camera
     {
     public:
-        OpenGLPerspectiveCamera();
+        PerspectiveCamera(const CameraSettings& settings);
 
         virtual void SetFOV(float fov) override { m_FOV = fov; RecalculateProjection(); }
         virtual float GetFOV() override { return m_FOV; }
