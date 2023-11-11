@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 
 namespace pxl
@@ -28,7 +30,7 @@ namespace pxl
         void Restart()
         {
             m_StartTime = std::chrono::high_resolution_clock::now();
-            m_EndTime = std::chrono::time_point<std::chrono::steady_clock>::min(); // TODO: Make this equal to a time point of 0 nanoseconds
+            m_EndTime = std::chrono::high_resolution_clock::now();
             m_Elapsed = std::chrono::duration<float>::zero();
         }
 
@@ -54,7 +56,7 @@ namespace pxl
     private:
         bool m_Stopped = false;
 
-        std::chrono::steady_clock::time_point m_StartTime, m_EndTime;
+        std::chrono::high_resolution_clock::time_point m_StartTime, m_EndTime;
         std::chrono::duration<float> m_Elapsed;
     }; 
 }
