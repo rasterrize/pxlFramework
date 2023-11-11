@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Platform.h"
 #include "Stopwatch.h"
+#include "Config.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
 
@@ -19,6 +20,8 @@ namespace pxl
             throw;
         }
         s_Instance = this;
+
+        FrameworkConfig::LoadFromFile();
     }
 
     void Application::Run()

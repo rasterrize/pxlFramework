@@ -46,10 +46,13 @@ namespace TestApp
             }
         )";
 
+        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+
         std::string windowTitle = "pxlFramework Test App";
         std::string buildType = "Unknown Build Type";
         std::string rendererAPIType = "Unknown Renderer API";
         pxl::RendererAPIType windowRendererAPI = pxl::RendererAPIType::OpenGL;
+        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
         #ifdef TA_DEBUG
             buildType = "Debug x64";
@@ -77,6 +80,7 @@ namespace TestApp
         m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
         m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
         m_Window->SetVSync(true);
+        m_Window->SetWindowMode(windowMode);
 
         pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
@@ -97,7 +101,13 @@ namespace TestApp
 
     TestApplication::~TestApplication()
     {
+        // Save framework settings // TODO: this should be semi-automatic and handled by the application class
+        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
+        frameworkSettings.WindowMode = m_Window->GetWindowMode();
+
+        pxl::FrameworkConfig::SetSettings(frameworkSettings);
+        //frameworkSettings.RendererAPI // TODO
     }
 
     void TestApplication::OnUpdate(float dt)

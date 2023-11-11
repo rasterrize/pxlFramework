@@ -15,3 +15,6 @@
 [submodule "pxlFramework/deps/assimp"]
 	path = pxlFramework/deps/assimp
 	url = https://github.com/assimp/assimp
+[submodule "pxlFramework/deps/yaml-cpp"]
+	path = pxlFramework/deps/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

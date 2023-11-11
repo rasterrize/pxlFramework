@@ -15,6 +15,7 @@ src/Core/MouseCodes.h
 src/Core/Platform.h
 src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
 src/Core/Stopwatch.h
+src/Core/Config.h src/Core/Config.cpp
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -74,11 +75,12 @@ add_subdirectory(deps/GLM)
 add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
 add_subdirectory(deps/assimp)
+add_subdirectory(deps/yaml-cpp)
 
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 #target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp)
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
 
