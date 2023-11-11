@@ -118,9 +118,11 @@ namespace TestApp
         auto cameraZoom = m_Camera->GetZoom();
         auto cursorPos = pxl::Input::GetCursorPosition();
 
-
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
-            Application::Close();
+        {
+            Application::Get().Close();
+            return;
+        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
             m_Window->NextWindowMode();

@@ -5,6 +5,7 @@
 #include "Platform.h"
 #include "Stopwatch.h"
 #include "Config.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
 
@@ -36,6 +37,8 @@ namespace pxl
             if (!m_Minimized)
             {
                 OnUpdate(deltaTime);
+                if (!m_Running)
+                    break;
                 Camera::UpdateAll();
                 OnRender();
                 pxl_ImGui::Update();
@@ -53,6 +56,7 @@ namespace pxl
         {
             m_Running = false; // this must be set first so window or input don't call the close function as well
             Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
+            Renderer::Shutdown();
             Input::Shutdown();  
             pxl_ImGui::Shutdown();
             s_Instance = nullptr;
