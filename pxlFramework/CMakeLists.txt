@@ -58,7 +58,7 @@ src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 
 #target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
 
-target_compile_features(pxlFramework PUBLIC cxx_std_23)
+target_compile_features(pxlFramework PUBLIC cxx_std_20)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
