@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Core/Window.h"
-#include "../Core/Window/WindowGLFW.h"
 #include "RendererAPIType.h"
 #include "RendererAPI.h"
 #include "RendererData.h"
@@ -11,7 +10,7 @@
 
 #include "VertexArray.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/matrix.hpp>
 
 namespace pxl
 {
@@ -70,6 +69,7 @@ namespace pxl
         static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
         static const Statistics& GetStats() { return s_Stats; }
     private:
+        friend class Window;
         static void CalculateFPS();
 
         static void StartQuadBatch();
@@ -85,9 +85,6 @@ namespace pxl
         static void DrawLines();
 
     private:
-        friend class Window;
-        friend class WindowGLFW;
-
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;
         static std::unique_ptr<RendererAPI> s_RendererAPI;

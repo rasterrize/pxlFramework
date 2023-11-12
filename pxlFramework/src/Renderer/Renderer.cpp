@@ -1,16 +1,13 @@
 #include "Renderer.h"
 
-#include <glad/glad.h>
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include "RendererAPI.h"
 #include "OpenGL/OpenGLRenderer.h"
-#include "../Core/Application.h"
-#include "../Core/Platform.h"
-
 #include "OpenGL/OpenGLVertexArray.h"
 #include "OpenGL/OpenGLVertexBuffer.h"
 #include "OpenGL/OpenGLIndexBuffer.h"
+
+#include "../Core/Platform.h"
 
 namespace pxl
 {
@@ -258,10 +255,10 @@ namespace pxl
             StartQuadBatch();
         }
         
-        s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, colour, { 0.0f, 0.0f }};
-        s_QuadVertices[s_QuadVertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, colour, { 1.0f, 0.0f }};
-        s_QuadVertices[s_QuadVertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, colour, { 1.0f, 1.0f }};
-        s_QuadVertices[s_QuadVertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, colour, { 0.0f, 1.0f }};
+        s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }};
+        s_QuadVertices[s_QuadVertexCount + 1] = {{ position.x, position.y + scale.y, position.z }, colour, { 1.0f, 0.0f }};
+        s_QuadVertices[s_QuadVertexCount + 2] = {{ position.x + scale.x, position.y + scale.y, position.z }, colour, { 1.0f, 1.0f }};
+        s_QuadVertices[s_QuadVertexCount + 3] = {{ position.x + scale.x, position.y, position.z }, colour, { 0.0f, 1.0f }};
 
         s_QuadVertexCount += 4;
         
