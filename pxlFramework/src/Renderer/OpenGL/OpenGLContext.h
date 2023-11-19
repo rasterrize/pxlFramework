@@ -11,12 +11,12 @@ namespace pxl
     public:
         OpenGLContext(GLFWwindow* windowHandle);
 
-        virtual void SwapBuffers() override;
+        virtual void Present() override;
         virtual void SetVSync(bool value) override;
         virtual bool GetVSync() override { return m_VSync; }
         
     private:
-        virtual void Init() override;
+        void Init();
     private:
         GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;

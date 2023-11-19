@@ -1,7 +1,5 @@
 #include "AudioManager.h"
 
-#include "../Core/Window/WindowGLFW.h"
-
 namespace pxl
 {
     bool AudioManager::s_Enabled = false;

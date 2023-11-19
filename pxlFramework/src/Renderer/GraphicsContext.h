@@ -2,18 +2,17 @@
 
 #include "RendererAPIType.h"
 
-#include <GLFW/glfw3.h>
-
 namespace pxl
 {
+    class Window;
+
     class GraphicsContext
     {
     public:
-        virtual void Init() = 0;
-        virtual void SwapBuffers() = 0;
+        virtual void Present() = 0;
         virtual void SetVSync(bool value) = 0;
         virtual bool GetVSync() = 0;
 
-        static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, GLFWwindow* windowHandle);
+        static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, const std::shared_ptr<Window>& window);
     };
 }

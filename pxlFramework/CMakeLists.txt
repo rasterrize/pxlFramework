@@ -13,7 +13,6 @@ src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
 src/Core/MouseCodes.h
 src/Core/Platform.h
-src/Core/Window/WindowGLFW.h src/Core/Window/WindowGLFW.cpp
 src/Core/Stopwatch.h
 src/Core/Config.h src/Core/Config.cpp
 

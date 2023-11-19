@@ -17,7 +17,7 @@ namespace pxl
     class Input
     {
     public:
-        static void Init(const std::shared_ptr<Window> window);
+        static void Init(const std::shared_ptr<Window>& window);
         static void Shutdown();
 
         static const bool IsInitialized() { return s_Enabled; }
@@ -44,7 +44,7 @@ namespace pxl
         static void GLFWCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
         static void GLFWScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     private:
-        friend class WindowGLFW; // for callbacks
+        friend class Window; // for callbacks
 
         static bool s_Enabled;
         static GLFWwindow* s_WindowHandle;

@@ -21,7 +21,7 @@ namespace pxl
         glfwSwapInterval(m_VSync);
     }
 
-    void OpenGLContext::SwapBuffers()
+    void OpenGLContext::Present()
     {
         glfwSwapBuffers(m_WindowHandle);
     }

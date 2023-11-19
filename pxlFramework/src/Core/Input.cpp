@@ -15,7 +15,7 @@ namespace pxl
     double Input::s_HorizontalScrollOffset = 0.0f;
     glm::vec2 Input::s_CursorPosition = glm::vec2(0.0f);
 
-    void Input::Init(const std::shared_ptr<Window> window)
+    void Input::Init(const std::shared_ptr<Window>& window)
     {
         if (s_Enabled)
         {
@@ -30,7 +30,7 @@ namespace pxl
             return;
         }
 
-        s_WindowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
+        s_WindowHandle = window->GetNativeWindow();
         s_Enabled = true;
         Logger::Log(LogLevel::Info, "Input Initialized");
     }
