@@ -33,6 +33,7 @@ src/Renderer/PerspectiveCamera.h src/Renderer/PerspectiveCamera.cpp
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 src/Renderer/RendererData.h
+src/Renderer/Pipeline.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
@@ -48,9 +49,11 @@ src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 # src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
 
 # VULKAN
+src/Renderer/Vulkan/VulkanErrorCheck.h src/Renderer/Vulkan/VulkanErrorCheck.cpp
 src/Renderer/Vulkan/VulkanRenderer.h src/Renderer/Vulkan/VulkanRenderer.cpp
 src/Renderer/Vulkan/VulkanContext.h src/Renderer/Vulkan/VulkanContext.cpp
 src/Renderer/Vulkan/VulkanShader.h src/Renderer/Vulkan/VulkanShader.cpp
+src/Renderer/Vulkan/VulkanPipeline.h src/Renderer/Vulkan/VulkanPipeline.cpp
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
@@ -90,7 +93,7 @@ target_link_directories(pxlFramework PUBLIC C:/VulkanSDK/1.3.246.1/Lib)
 
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp vulkan-1)
 
-target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm>)
+target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE

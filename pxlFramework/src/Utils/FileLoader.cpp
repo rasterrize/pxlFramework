@@ -36,7 +36,7 @@ namespace pxl
         return texture;
     }
 
-    std::shared_ptr<Shader> FileLoader::LoadShader(const std::filesystem::path& path)
+    std::shared_ptr<Shader> FileLoader::LoadGLSLShader(const std::filesystem::path& path)
     {    
         if (!std::filesystem::exists(path))
         {
@@ -45,6 +45,24 @@ namespace pxl
         }
     
         return nullptr;
+    }
+
+    std::vector<char> FileLoader::LoadSPIRV(const std::filesystem::path& path)
+    {
+        std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
+
+        if (!file.is_open())
+            throw std::runtime_error("Failed to open shader file");
+        
+        size_t fileSize = (size_t)file.tellg(); // because we are reading the file from the end, we can tell what size our buffer should be
+        std::vector<char> buffer(fileSize);
+
+        file.seekg(0); // return back to the start of the file
+        file.read(buffer.data(), fileSize);
+
+        file.close();
+
+        return buffer;
     }
 
     std::shared_ptr<Mesh> FileLoader::LoadOBJ(const std::string& filePath)

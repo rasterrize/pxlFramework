@@ -2,10 +2,11 @@
 #include "Renderer.h"
 
 #include "OpenGL/OpenGLShader.h"
+#include "Vulkan/VulkanShader.h"
 
 namespace pxl
 {
-    std::shared_ptr<Shader> Shader::Create(const std::string vertSrc, const std::string fragSrc)
+    std::shared_ptr<Shader> Shader::Create(const std::string& vertSrc, const std::string& fragSrc)
     {
         switch (Renderer::GetAPIType())
         {
@@ -15,8 +16,42 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLShader>(vertSrc, fragSrc);
             case RendererAPIType::Vulkan:
-                Logger::LogError("Can't create Shader for Vulkan renderer api.");
+                Logger::LogError("Vulkan implementation doesn't support shaders from strings");
                 break;
+        }
+        
+        return nullptr;
+    }
+
+    std::shared_ptr<Shader> Shader::Create(const std::shared_ptr<GraphicsContext>& graphicsContext, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    {
+        switch (Renderer::GetAPIType())
+        {
+            case RendererAPIType::None:
+                Logger::LogError("Can't create Shader for no renderer api.");
+                break;
+            case RendererAPIType::OpenGL:
+                Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
+                break;
+            case RendererAPIType::Vulkan:
+                return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
+        }
+        
+        return nullptr;
+    }
+
+    std::shared_ptr<Shader> Shader::Create(RendererAPIType api, const std::shared_ptr<GraphicsContext>& graphicsContext, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    {
+        switch (api)
+        {
+            case RendererAPIType::None:
+                Logger::LogError("Can't create Shader for no renderer api.");
+                break;
+            case RendererAPIType::OpenGL:
+                Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
+                break;
+            case RendererAPIType::Vulkan:
+                return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
         }
         
         return nullptr;

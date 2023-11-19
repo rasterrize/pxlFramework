@@ -98,7 +98,15 @@ namespace TestApp
             pxl::pxl_ImGui::Init(m_Window);
         #endif
 
+        // Vulkan Testing
+
         m_TestWindow = pxl::Window::Create({ 640, 480, "Vulkan Test Window", pxl::RendererAPIType::Vulkan });
+        auto context = m_TestWindow->GetGraphicsContext();
+
+        auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
+        auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
+        m_VulkanTestShader = pxl::Shader::Create(pxl::RendererAPIType::Vulkan, context, vertBin, fragBin);
+        //m_VulkanTestPipeline = std::make_shared<pxl::VulkanGraphicsPipeline>(context, m_VulkanTestShader);
     }
 
     TestApplication::~TestApplication()

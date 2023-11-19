@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include "../../Core/Window/WindowGLFW.h"
+
 namespace pxl
 {
     OpenGLContext::OpenGLContext(const std::shared_ptr<Window>& window)
@@ -12,7 +14,7 @@ namespace pxl
 
     void OpenGLContext::Init()
     {
-        glfwMakeContextCurrent(m_WindowHandle);
+        glfwMakeContextCurrent(m_GLFWWindowHandle);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             Logger::LogError("Failed to initialize Glad");
         else
@@ -23,7 +25,7 @@ namespace pxl
 
     void OpenGLContext::Present()
     {
-        glfwSwapBuffers(m_WindowHandle);
+        glfwSwapBuffers(m_GLFWWindowHandle);
     }
 
     void OpenGLContext::SetVSync(bool value)

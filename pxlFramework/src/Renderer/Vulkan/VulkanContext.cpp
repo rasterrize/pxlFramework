@@ -1,24 +1,23 @@
 #include "VulkanContext.h"
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vk_enum_string_helper.h> // should only be included in Debug builds
+
+#include "VulkanErrorCheck.h"
+
+#include <vulkan/vk_enum_string_helper.h>
 
 namespace pxl
 {
-    void CheckVkResult(VkResult error) // this function shouldnt be here (we need it for every vulkan class)
+    VulkanContext::VulkanContext(const std::shared_ptr<Window>& window)
     {
-        if (error == VK_SUCCESS)
-		    return;
+        auto windowGLFW = dynamic_pointer_cast<WindowGLFW>(window);
+        if (!windowGLFW)
+        {
+            Logger::LogError("Vulkan Contexts only support GLFW windows currently");
+            return;
+        }
 
-        Logger::LogError("VkResult wasn't VK_SUCCESS, error code is " + std::to_string(error));
-
-	    if (error < 0)
-		    abort(); // probably shouldn't abort immediately
-    }
-
-    VulkanContext::VulkanContext(GLFWwindow* windowHandle)
-        : m_WindowHandle(windowHandle)
-    {
+        m_WindowHandle = windowGLFW;
         Init();
     }
 
@@ -33,9 +32,7 @@ namespace pxl
 
         // Create Vulkan Instance
         // Get the extensions required for Vulkan to work with GLFW (should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE))
-        uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount); // GLFW shouldn't be here
+        auto glfwExtensions = m_WindowHandle->GetVKRequiredInstanceExtensions();
 
         // Select from available layers
         auto availableLayers = GetAvailableLayers();
@@ -48,17 +45,16 @@ namespace pxl
         #endif
 
         // Create Vulkan Instance with specified extensions and layers
-        if (!CreateInstance(glfwExtensionCount, glfwExtensions, selectedLayers))
+        if (!CreateInstance(glfwExtensions, selectedLayers))
             return;
 
-        // Create window surface (using m_WindowHandle)
-        if (!CreateWindowSurface())
-            return;
+        // Get the window surface from the window
+        m_Surface = m_WindowHandle->CreateVKWindowSurface(m_Instance);
 
         // Get available physical devices
         auto physicalDevices = GetAvailablePhysicalDevices();
 
-        if (physicalDevices.size() == 0)
+        if (physicalDevices.size() < 1)
             return;
         
         // Select GPU (assigns m_GPU respectively)
@@ -94,13 +90,20 @@ namespace pxl
     void VulkanContext::Shutdown()
     {
         // Destroy VK objects
-        vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
-        vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-        vkDestroyDevice(m_Device, nullptr); // should these go in the opposite order they were created
-        vkDestroyInstance(m_Instance, nullptr);
+        if (m_Swapchain != VK_NULL_HANDLE)
+            vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
+
+        if (m_Surface != VK_NULL_HANDLE)
+            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+
+        if (m_Device != VK_NULL_HANDLE)
+            vkDestroyDevice(m_Device, nullptr);
+
+        if (m_Instance != VK_NULL_HANDLE)
+            vkDestroyInstance(m_Instance, nullptr);
     }
 
-    void VulkanContext::SwapBuffers()
+    void VulkanContext::Present()
     {
         // Acquire the next available image in the swapchain so we can d
         uint32_t imageIndex;
@@ -128,7 +131,7 @@ namespace pxl
         // RecreateSwapchain(); // or maybe CreateSwapchain() again but it checks if the swapchain already exists or not.
     }
 
-    bool VulkanContext::CreateInstance(uint32_t extensionCount, const char** extensions, const std::vector<const char*>& layers)
+    bool VulkanContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
     {
         VkResult result;
 
@@ -139,8 +142,8 @@ namespace pxl
         VkInstanceCreateInfo instanceInfo = {};
         instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         instanceInfo.pApplicationInfo = &appInfo;
-        instanceInfo.enabledExtensionCount = extensionCount;
-        instanceInfo.ppEnabledExtensionNames = extensions;
+        instanceInfo.enabledExtensionCount = extensions.size();
+        instanceInfo.ppEnabledExtensionNames = extensions.data();
         instanceInfo.enabledLayerCount = layers.size();
         instanceInfo.ppEnabledLayerNames = layers.data();
 
@@ -174,16 +177,16 @@ namespace pxl
 
         Logger::LogInfo("VK Instance Info:");
         Logger::LogInfo("   Vulkan API Version: " + apiVersion);
-        Logger::LogInfo("   " + std::to_string(extensionCount) + " enabled extensions: ");
+        Logger::LogInfo("   " + std::to_string(extensions.size()) + " enabled extensions: ");
         
-        for (uint32_t i = 0; i < extensionCount; i++)
+        for (auto& extension : extensions)
         {
-            Logger::LogInfo("   - " + std::string(extensions[i]));
+            Logger::LogInfo("   - " + std::string(extension));
         }
 
         Logger::LogInfo("   " + std::to_string(layers.size()) + " enabled layers:");
 
-        for (auto layer : layers)
+        for (auto& layer : layers)
         {
             Logger::LogInfo("   - " + std::string(layer));
         }
@@ -208,7 +211,7 @@ namespace pxl
             float queuePriority = 1.0f;
             VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {};
             graphicsQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
+            graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
             graphicsQueueCreateInfo.queueCount = 1;
             graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
             queueInfos.push_back(graphicsQueueCreateInfo);
@@ -277,10 +280,9 @@ namespace pxl
     {
         if (m_GraphicsQueueFamilyIndex != -1)
         {
-            vkGetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
-            vkGetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_PresentQueue); // need to look into how present queues work
+            vkGetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex.value(), 0, &m_GraphicsQueue);
 
-            if (!m_GraphicsQueue || !m_PresentQueue)
+            if (!m_GraphicsQueue)
             {
                 Logger::LogError("Failed to retrieve queue handles");
                 return false;
@@ -379,6 +381,13 @@ namespace pxl
         result = vkCreateSwapchainKHR(m_Device, &swapchainInfo, nullptr, &m_Swapchain);
         CheckVkResult(result);
 
+        if (m_Swapchain)
+        {
+            Logger::LogInfo("VkSwapchain info:");
+            Logger::LogInfo("- Image count: " + std::to_string(m_SwapchainData.ImageCount));
+            Logger::LogInfo("- Present mode: " + std::string(string_VkPresentModeKHR(m_SwapchainData.PresentMode)));
+        }
+
         // Get the images from the swapchain
         uint32_t swapchainImageCount = 0;
         vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, nullptr);
@@ -417,21 +426,6 @@ namespace pxl
         return true;
     }
 
-    bool VulkanContext::CreateWindowSurface()
-    {
-        // Create VkSurfaceKHR for glfw window
-        VkResult result = glfwCreateWindowSurface(m_Instance, m_WindowHandle, nullptr, &m_Surface); // should learn to do this myself https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
-        CheckVkResult(result);
-
-        if (!m_Surface)
-        {
-            Logger::LogError("Failed to create window surface");
-            return false;
-        }
-        
-        return true;
-    }
-
     const std::vector<VkLayerProperties> VulkanContext::GetAvailableLayers()
     {
         // Get layer count
@@ -448,7 +442,7 @@ namespace pxl
     const std::vector<const char*> VulkanContext::GetValidationLayers(const std::vector<VkLayerProperties>& availableLayers)
     {
         const char* validationLayers[] = {
-            "VK_LAYER_KHRONOS_validation" // There are more than just this one, we are just using the main one for now
+            "VK_LAYER_KHRONOS_validation" // TODO: implement a system that selects the correct validation layers in a priority
         };
         uint32_t enabledLayerCount = 1;
 
@@ -499,25 +493,23 @@ namespace pxl
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
-        if (queueFamilyCount > 0)
+        if (queueFamilyCount < 1)
         {
-            Logger::LogInfo("Found " + std::to_string(queueFamilyCount) + " queue families on physical device");
-        }
-        else
-        {
-            Logger::LogError("Found " + std::to_string(queueFamilyCount) + " queue families on physical device");
+            Logger::LogError("Physical device has no queue families :(");
             return std::vector<VkQueueFamilyProperties>();
         }
+
+        Logger::LogInfo("Found " + std::to_string(queueFamilyCount) + " queue families on physical device");
 
         // Retrieve queue families
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        for (uint32_t i = 0; i < queueFamilyCount; i++)
-        {
-            Logger::LogInfo("Queue Family " + std::to_string(i + 1) + ":");
-            Logger::LogInfo(" - " + string_VkQueueFlags(queueFamilies[i].queueFlags));
-        }
+        // for (uint32_t i = 0; i < queueFamilyCount; i++)
+        // {
+        //     Logger::LogInfo("Queue Family " + std::to_string(i + 1) + ":");
+        //     Logger::LogInfo(" - " + string_VkQueueFlags(queueFamilies[i].queueFlags));
+        // }
 
         return queueFamilies;
     }
