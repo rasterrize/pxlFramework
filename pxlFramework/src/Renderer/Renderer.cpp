@@ -412,6 +412,7 @@ namespace pxl
     void Renderer::EndQuadBatch()
     {
         s_QuadVAO->GetVertexBuffer()->SetData(s_QuadVertexCount * sizeof(TriangleVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
+        s_QuadVertices.fill({});
     }
 
     void Renderer::EndCubeBatch()

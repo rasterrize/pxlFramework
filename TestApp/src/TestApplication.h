@@ -16,8 +16,6 @@ namespace TestApp
         std::shared_ptr<pxl::Window> m_TestWindow;
         std::shared_ptr<pxl::Camera> m_Camera;
 
-        float m_NextCameraFOV = 0.0f;
-
         std::shared_ptr<pxl::Shader> m_Shader;
 
         std::shared_ptr<pxl::Shader> m_MeshShader;
@@ -29,20 +27,14 @@ namespace TestApp
         glm::vec3 m_CameraRotation = glm::vec3(0.0f);
         glm::vec4 m_ClearColour = glm::vec4(0.0f);
 
-        glm::vec2 m_LastCursorPosition = glm::vec2(0.0f);
-        glm::vec2 m_MouseDelta = glm::vec2(0.0f);
-
         bool controllingCamera = true;
 
         glm::vec4 m_QuadColour = { 0.180f, 0.293f, 0.819f, 1.0f };
 
-        glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 0.2f };
+        glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 2.0f };
 
-        pxl::WindowMode m_WindowMode;
 
-        uint32_t m_TexIndex[2] = { 3, 2 };
-
-        std::vector<std::shared_ptr<pxl::Texture2D>> m_TextureLibrary;
-        std::vector<std::string> m_AudioLibrary;
+        int m_BlueQuadAmount = 100;
+        int m_OrangeQuadAmount = 100;
     };
 }

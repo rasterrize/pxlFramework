@@ -6,7 +6,7 @@ namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        std::string vertexShaderCamera = R"(
+        std::string vertexShader = R"(
             #version 460 core
 
             layout (location = 0) in vec3 a_Position;
@@ -28,7 +28,7 @@ namespace TestApp
             }
         )";
 
-        std::string fragmentShaderSource = R"(
+        std::string fragmentShader = R"(
             #version 460 core
             
             layout (location = 0) out vec4 color;
@@ -88,7 +88,7 @@ namespace TestApp
         m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
         pxl::Renderer::SetClearColour(m_ClearColour);
 
-        m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShaderCamera, fragmentShaderSource);
+        m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
 
         m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
@@ -182,11 +182,11 @@ namespace TestApp
 
         if (pxl::Input::IsMouseScrolledUp())
         {
-            cameraZoom -= 1.0f;
+            cameraZoom -= cameraSpeed * 0.5f;
         }
         if (pxl::Input::IsMouseScrolledDown())
         {
-            cameraZoom += 1.0f;
+            cameraZoom += cameraSpeed * 0.5f;
         }
 
         m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
@@ -203,27 +203,35 @@ namespace TestApp
         pxl::Renderer::Begin();
 
         // Draw Grid
-        for (int v = 0; v < 101; v++)
+        for (int v = 0; v < 501; v++)
         {
-            pxl::Renderer::AddLine({v - 50.0f, -50.0f, -0.1f }, {v - 50.0f, 50.0f, -0.1f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+            pxl::Renderer::AddLine({v - 250.0f, -250.0f, 0.0f }, {v - 250.0f, 250.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
         }
 
-        for (int h = 0; h < 101; h++)
+        for (int h = 0; h < 501; h++)
         {
-            pxl::Renderer::AddLine({ -50.0f, h - 50.0f, -0.1f }, {50.0f, h - 50.0f, -0.1f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
+            pxl::Renderer::AddLine({ -250.0f, h - 250.0f, 0.0f }, {250.0f, h - 250.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
         }
 
         // Draw Background
-        for (int x = 0; x < 50; x += 2)
+        for (int x = 0; x < m_BlueQuadAmount; x += 2)
         {
-            for (int y = 0; y < 50; y += 2)
+            for (int y = 0; y < m_BlueQuadAmount; y += 2)
             {
-                pxl::Renderer::AddQuad({ x - 25.0f, y - 25.0f, 0.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
+                pxl::Renderer::AddQuad({ x - (m_BlueQuadAmount / 2), y - (m_BlueQuadAmount / 2), 1.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
+            }
+        }
+
+        for (int x = 1; x < m_OrangeQuadAmount; x += 2)
+        {
+            for (int y = 1; y < m_OrangeQuadAmount; y += 2)
+            {
+                pxl::Renderer::AddQuad({ x - (m_OrangeQuadAmount / 2), y - (m_OrangeQuadAmount / 2), 1.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.9f, 0.5f, 0.3f, 1.0f });
             }
         }
 
         // Draw Level
-        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 0.1f }, glm::vec3(0.0f), { 10.0f, 1.0f }, m_QuadColour);
+        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 2.0f }, glm::vec3(0.0f), { 10.0f, 1.0f }, m_QuadColour);
         pxl::Renderer::AddQuad(m_PlayerPosition, glm::vec3(0.0f), glm::vec3(0.5f), glm::vec4(1.0f));
 
         pxl::Renderer::End();
@@ -266,7 +274,14 @@ namespace TestApp
             auto cursorPos = pxl::Input::GetCursorPosition(); 
 
             ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
-            ImGui::Text("Mouse Delta: %f, %f", m_MouseDelta.x, m_MouseDelta.y);
+
+            static int i0 = 100;
+            ImGui::InputInt("Blue Quad Amount", &i0);
+            m_BlueQuadAmount = i0;
+
+            static int i1 = 100;
+            ImGui::InputInt("Orange Quad Amount", &i1);
+            m_OrangeQuadAmount = i1;
 
             ImGui::End();
 
@@ -333,12 +348,6 @@ namespace TestApp
             static float cameraFOVInput = m_Camera->GetFOV(); // should retrieve cameras FOV
             static float cameraFOV = m_Camera->GetFOV();
 
-            if (cameraFOV != m_NextCameraFOV)
-            {
-                cameraFOVInput = m_NextCameraFOV;
-                cameraFOV = m_NextCameraFOV;
-            }
-
             ImGui::SliderFloat("Camera FOV", &cameraFOVInput, 30.0f, 120.0f);
 
             // Apply Button
@@ -348,7 +357,7 @@ namespace TestApp
                 m_Window->SetMonitor(monitorIndex);
                 m_Window->SetWindowMode(windowModeToSet);
 
-                m_NextCameraFOV = cameraFOVInput;
+                cameraFOV = cameraFOVInput;
             }
 
             ImGui::End();
