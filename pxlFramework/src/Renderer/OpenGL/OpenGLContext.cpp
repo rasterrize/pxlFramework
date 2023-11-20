@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    OpenGLContext::OpenGLContext(const std::shared_ptr<Window> window)
+    OpenGLContext::OpenGLContext(const std::shared_ptr<Window>& window)
     {
         m_WindowHandle = window->GetNativeWindow();
         Init();
