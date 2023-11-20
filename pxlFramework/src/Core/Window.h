@@ -45,6 +45,9 @@ namespace pxl
 
         float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
 
+        VkSurfaceKHR CreateVKWindowSurface(VkInstance instance);
+        std::vector<const char*> GetVKRequiredInstanceExtensions();
+
         void NextWindowMode();
         void ToggleFullscreen();
 

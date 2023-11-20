@@ -5,6 +5,9 @@
 #include "Input.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
 
+#include <vulkan/vulkan.h>
+#include "../Renderer/Vulkan/VulkanErrorCheck.h"
+
 namespace pxl
 {
     uint8_t Window::s_WindowCount = 0;
@@ -259,6 +262,29 @@ namespace pxl
             SetVSync(true);
         else
             SetVSync(false);
+    }
+
+    std::vector<const char*> Window::GetVKRequiredInstanceExtensions()
+    {
+        uint32_t glfwExtensionCount = 0;
+	    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+	    return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
+    }
+
+    VkSurfaceKHR Window::CreateVKWindowSurface(VkInstance instance)
+    {
+        // Create VkSurfaceKHR for glfw window
+        VkSurfaceKHR surface;
+        VkResult result = glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface); // could learn to do this myself https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
+        CheckVkResult(result);
+
+        if (!surface)
+        {
+            Logger::LogError("Failed to create window surface");
+            return VK_NULL_HANDLE;
+        }
+
+        return surface;
     }
 
     void Window::WindowCloseCallback(GLFWwindow* window)

@@ -9,15 +9,8 @@
 namespace pxl
 {
     VulkanContext::VulkanContext(const std::shared_ptr<Window>& window)
+        : m_WindowHandle(window)
     {
-        auto windowGLFW = dynamic_pointer_cast<WindowGLFW>(window);
-        if (!windowGLFW)
-        {
-            Logger::LogError("Vulkan Contexts only support GLFW windows currently");
-            return;
-        }
-
-        m_WindowHandle = windowGLFW;
         Init();
     }
 

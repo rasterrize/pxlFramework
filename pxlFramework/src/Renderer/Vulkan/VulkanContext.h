@@ -2,7 +2,6 @@
 
 #include "../GraphicsContext.h"
 #include "../../Core/Window.h"
-#include "../../Core/Window/WindowGLFW.h"
 
 #include <vulkan/vulkan.h>
 
@@ -59,7 +58,7 @@ namespace pxl
         };
     private:
         bool m_VSync = true;
-        std::shared_ptr<WindowGLFW> m_WindowHandle = nullptr;
+        std::shared_ptr<Window> m_WindowHandle = nullptr;
 
         // Vulkan Handles
         VkInstance m_Instance = VK_NULL_HANDLE;

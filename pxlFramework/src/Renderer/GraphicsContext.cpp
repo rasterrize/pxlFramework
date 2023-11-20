@@ -17,7 +17,7 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLContext>(window);
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanContext>(windowHandle);
+                return std::make_shared<VulkanContext>(window);
         }
 
         return nullptr;
