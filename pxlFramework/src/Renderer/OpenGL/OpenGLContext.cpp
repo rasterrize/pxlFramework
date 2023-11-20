@@ -4,9 +4,9 @@
 
 namespace pxl
 {
-    OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-        : m_WindowHandle(windowHandle)
+    OpenGLContext::OpenGLContext(const std::shared_ptr<Window> window)
     {
+        m_WindowHandle = window->GetNativeWindow();
         Init();
     }
 

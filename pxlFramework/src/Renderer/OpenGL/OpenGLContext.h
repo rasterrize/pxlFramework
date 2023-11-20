@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GraphicsContext.h"
+#include "../../Core/Window.h"
 
 #include <GLFW/glfw3.h>
 
@@ -9,7 +10,7 @@ namespace pxl
     class OpenGLContext : public GraphicsContext
     {
     public:
-        OpenGLContext(GLFWwindow* windowHandle);
+        OpenGLContext(const std::shared_ptr<Window> window);
 
         virtual void Present() override;
         virtual void SetVSync(bool value) override;

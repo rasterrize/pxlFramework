@@ -14,7 +14,7 @@ namespace pxl
                 Logger::LogError("Can't create Graphics Context for no renderer api.");
                 return nullptr;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLContext>(window->GetNativeWindow());
+                return std::make_shared<OpenGLContext>(window);
             case RendererAPIType::Vulkan:
                 Logger::LogError("Can't create Graphics Context for Vulkan renderer api.");
                 break;
