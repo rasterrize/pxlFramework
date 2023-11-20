@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include "../../Core/Window/WindowGLFW.h"
-
 namespace pxl
 {
     OpenGLContext::OpenGLContext(const std::shared_ptr<Window>& window)
