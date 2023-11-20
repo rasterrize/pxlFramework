@@ -19,7 +19,7 @@ namespace pxl
     private:
         void Init();
     private:
-        GLFWwindow* m_GLFWWindowHandle = nullptr;
+        GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;
     };
 }

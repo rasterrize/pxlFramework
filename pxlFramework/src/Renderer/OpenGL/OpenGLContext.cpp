@@ -12,7 +12,7 @@ namespace pxl
 
     void OpenGLContext::Init()
     {
-        glfwMakeContextCurrent(m_GLFWWindowHandle);
+        glfwMakeContextCurrent(m_WindowHandle);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             Logger::LogError("Failed to initialize Glad");
         else
@@ -23,7 +23,7 @@ namespace pxl
 
     void OpenGLContext::Present()
     {
-        glfwSwapBuffers(m_GLFWWindowHandle);
+        glfwSwapBuffers(m_WindowHandle);
     }
 
     void OpenGLContext::SetVSync(bool value)
