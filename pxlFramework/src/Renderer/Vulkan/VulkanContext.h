@@ -1,7 +1,11 @@
 #pragma once
 
 #include "../GraphicsContext.h"
+
 #include "../../Core/Window.h"
+#include "VulkanPipeline.h"
+#include "VulkanRenderPass.h"
+#include "VulkanShader.h"
 
 #include <vulkan/vulkan.h>
 
@@ -19,6 +23,8 @@ namespace pxl
 
         VkInstance GetInstance() const { return m_Instance; }
         VkDevice GetDevice() const { return m_Device; }
+
+        VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
         
     private:
         void Init();
@@ -27,6 +33,10 @@ namespace pxl
         bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers);
         bool CreateLogicalDevice(const VkPhysicalDevice& physicalDevice);
         bool CreateSwapchain(const VkSurfaceKHR& surface);
+        bool CreateFramebuffers(const VkRenderPass& renderPass);
+        bool CreateSyncObjects();
+
+        void RecordCommands(uint32_t imageIndex);
 
         bool SelectFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
         bool SelectFirstVKCapableGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
@@ -50,7 +60,8 @@ namespace pxl
     private:
         struct SwapchainData
         {
-            uint32_t ImageCount = 2;
+            uint32_t ImageCount = 0;
+            VkExtent2D Extent = {};
             VkPresentModeKHR PresentMode = VK_PRESENT_MODE_FIFO_KHR; // This is guaranteed to be supported
             std::vector<VkImage> Images;
             std::vector<VkImageView> ImageViews;
@@ -73,5 +84,18 @@ namespace pxl
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         SwapchainData m_SwapchainData = {};
+
+        // Commands and Synchorization
+        VkCommandPool m_CommandPool;
+        VkCommandBuffer m_CommandBuffer;
+        VkSemaphore m_ImageAvailableSemaphore;
+        VkSemaphore m_RenderFinishedSemaphore;
+        VkFence m_InFlightFence;
+
+        // Initial testing
+        std::shared_ptr<VulkanShader> m_Shader;
+        std::shared_ptr<VulkanGraphicsPipeline> m_Pipeline;
+        std::shared_ptr<VulkanRenderPass> m_Renderpass;
+        VkClearValue m_ClearColour = { { { 20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f } } };
     };
 }

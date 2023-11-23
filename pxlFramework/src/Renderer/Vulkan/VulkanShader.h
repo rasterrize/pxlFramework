@@ -9,7 +9,7 @@ namespace pxl
     class VulkanShader : public Shader
     {
     public:
-        VulkanShader(const std::shared_ptr<GraphicsContext>& context, const std::vector<char>& vertBin, const std::vector<char>& fragBin);
+        VulkanShader(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin);
         ~VulkanShader();
 
         virtual void Bind() override;

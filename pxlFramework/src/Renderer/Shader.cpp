@@ -3,6 +3,7 @@
 
 #include "OpenGL/OpenGLShader.h"
 #include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanContext.h"
 
 namespace pxl
 {
@@ -34,7 +35,8 @@ namespace pxl
                 Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
+                //return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
+                break;
         }
         
         return nullptr;
@@ -51,9 +53,14 @@ namespace pxl
                 Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
+                return std::make_shared<VulkanShader>(dynamic_pointer_cast<VulkanContext>(graphicsContext)->GetDevice(), vertBin, fragBin);
         }
         
         return nullptr;
+    }
+
+    std::shared_ptr<VulkanShader> Shader::Create(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    {
+        return std::make_shared<VulkanShader>(device, vertBin, fragBin);
     }
 }

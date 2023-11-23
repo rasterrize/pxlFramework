@@ -3,6 +3,10 @@
 #include <GLFW/glfw3.h>
 
 #include "VulkanErrorCheck.h"
+#include "../Shader.h"
+
+// TEMP
+#include "../../Utils/FileLoader.h"
 
 #include <vulkan/vk_enum_string_helper.h>
 
@@ -77,6 +81,19 @@ namespace pxl
             return;
 
         // TODO: Render passes / Graphics Pipeline / Shaders
+        auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
+        auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
+        m_Shader = pxl::Shader::Create(m_Device, vertBin, fragBin);
+
+        m_Renderpass = std::make_shared<VulkanRenderPass>(m_Device, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
+
+        m_Pipeline = std::make_shared<VulkanGraphicsPipeline>(m_Device, m_Shader, m_Renderpass);
+
+        if (!CreateFramebuffers(m_Renderpass->GetVKRenderPass()))
+            return;
+
+        if (!CreateSyncObjects())
+            return;
 
     }
 
@@ -99,8 +116,59 @@ namespace pxl
     void VulkanContext::Present()
     {
         // Acquire the next available image in the swapchain so we can d
-        uint32_t imageIndex;
+        //uint32_t imageIndex;
         //vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, imageAvailableSemaphore, imageAvailableFence, &imageIndex);
+
+        VkResult result;
+
+        uint32_t imageIndex;
+
+        // Synchronization
+        vkWaitForFences(m_Device, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        vkResetFences(m_Device, 1, &m_InFlightFence); // reset the fence to unsignalled state
+
+        // Acquire image from the swapchain
+        vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+        // Record commands
+        vkResetCommandBuffer(m_CommandBuffer, 0);
+        RecordCommands(imageIndex);
+
+        // Submit the command buffer
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        
+        VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore }; // The semaphores to wait before execution
+        VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }; // which stages of the pipeline to wait on
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores; // semaphores to wait on before execution
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_CommandBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores; // semaphores to signal when finished
+
+        // Submit the command buffer to the graphics queue (the command buffers in question are located in the submit info)
+        // if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFence) != VK_SUCCESS) {
+        //     throw std::runtime_error("failed to submit draw command buffer!");
+        // }
+
+        vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFence);
+
+        VkSwapchainKHR swapChains[] = { m_Swapchain };
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores; // wait for the command buffers to finish executing (rendering) to finish before presenting
+        presentInfo.pResults = nullptr; // useful for error checking when using multiple swap chains
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &imageIndex;
+
+        // Queue presentation
+        vkQueuePresentKHR(m_GraphicsQueue, &presentInfo);
+
     }
     
     void VulkanContext::SetVSync(bool value)
@@ -350,7 +418,9 @@ namespace pxl
             return false;
         }
 
-        m_SwapchainData.ImageCount = 2; // TEMP: This is just so I can get Vulkan working
+        // TODO: TEMP - This is just so I can get Vulkan working
+        m_SwapchainData.ImageCount = 2;
+        m_SwapchainData.PresentMode = VK_PRESENT_MODE_FIFO_KHR;
 
         m_SwapchainData.Images.resize(m_SwapchainData.ImageCount);
         m_SwapchainData.ImageViews.resize(m_SwapchainData.ImageCount);
@@ -417,6 +487,145 @@ namespace pxl
         }
 
         return true;
+    }
+
+    bool VulkanContext::CreateFramebuffers(const VkRenderPass& renderPass)
+    {
+        for (uint32_t i = 0; i < m_SwapchainData.ImageCount; i++)
+        {
+            VkImageView attachments[] = {
+                m_SwapchainData.ImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo = {};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = 640; // TODO: width and height should be swapchain extent
+            framebufferInfo.height = 480;
+            framebufferInfo.layers = 1;
+
+            auto result = vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_SwapchainData.Framebuffers[i]);
+            CheckVkResult(result);
+
+            if (result != VK_SUCCESS)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool VulkanContext::CreateSyncObjects()
+    {
+        VkResult result;
+
+        // ---------------------
+        // Create command pool
+        // ---------------------
+
+        VkCommandPoolCreateInfo commandPoolInfo = {};
+        commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        commandPoolInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
+
+        result = vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool);
+        CheckVkResult(result);
+
+        // ---------------------
+        // Create command buffers
+        // ---------------------
+
+        VkCommandBufferAllocateInfo commandBufferAllocInfo = {};
+        commandBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandBufferAllocInfo.commandPool = m_CommandPool;
+        commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        commandBufferAllocInfo.commandBufferCount = 1;
+
+        result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, &m_CommandBuffer);
+        CheckVkResult(result);
+
+        // ---------------------
+        // Create synchronization objects
+        // ---------------------
+
+        VkSemaphoreCreateInfo semaphoreInfo = {};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fenceInfo = {};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // We create it signalled so the first frame doesn't wait for an unsignallable fence
+
+        result = vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore);
+        CheckVkResult(result);
+
+        result = vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore);
+        CheckVkResult(result);
+
+        result = vkCreateFence(m_Device, &fenceInfo, nullptr, &m_InFlightFence);
+        CheckVkResult(result);
+
+        return true;
+    }
+
+    void VulkanContext::RecordCommands(uint32_t imageIndex)
+    {
+        VkResult result;
+
+        // ---------------------
+        // Record commands into buffer
+        // ---------------------
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = 0; // Optional
+        commandBufferBeginInfo.pInheritanceInfo = nullptr; // Optional // Used in secondary command buffers
+
+        //result = vkBeginCommandBuffer(m_CommandBuffer, &commandBufferBeginInfo);
+        //CheckVkResult(result);
+        vkBeginCommandBuffer(m_CommandBuffer, &commandBufferBeginInfo);
+
+        // ---------------------
+        // Begin Render Pass
+        // ---------------------
+        VkRenderPassBeginInfo renderPassBeginInfo = {};
+        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass = m_Renderpass->GetVKRenderPass();
+        renderPassBeginInfo.framebuffer = m_SwapchainData.Framebuffers[imageIndex];
+        renderPassBeginInfo.renderArea.offset = { 0, 0 };
+        renderPassBeginInfo.renderArea.extent = { 640, 480 }; // TODO: THIS SHOULD BE SWAPCHAIN EXTENT
+        renderPassBeginInfo.clearValueCount = 1;
+        renderPassBeginInfo.pClearValues = &m_ClearColour;
+
+        vkCmdBeginRenderPass(m_CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE); // can't do error checking
+
+        // ---------------------
+        // Drawing
+        // ---------------------
+
+        // Bind the graphics pipeline
+        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVKPipeline());
+        
+
+        auto viewport = m_Pipeline->GetViewport();
+        auto scissor = m_Pipeline->GetScissor();
+
+        // Set dynamic state objects
+        vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+        vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+
+        // Draw
+        vkCmdDraw(m_CommandBuffer, 0, 1, 0, 0); // instance count must be 1 if we aren't doing any instancing
+
+        // End render pass
+        vkCmdEndRenderPass(m_CommandBuffer);
+
+        // Finish recording the command buffer
+        //result = vkEndCommandBuffer(m_CommandBuffer);
+        //CheckVkResult(result);
+        vkEndCommandBuffer(m_CommandBuffer);
     }
 
     const std::vector<VkLayerProperties> VulkanContext::GetAvailableLayers()

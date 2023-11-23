@@ -6,14 +6,9 @@
 
 namespace pxl
 {
-    VulkanShader::VulkanShader(const std::shared_ptr<GraphicsContext>& context, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    VulkanShader::VulkanShader(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+        : m_Device(device)
     {
-        m_Device = dynamic_pointer_cast<VulkanContext>(context)->GetDevice();
-        if (!m_Device)
-        {
-            Logger::LogError("Failed to retrieve device from graphics context");
-            return;
-        }
 
         auto vertModule = CreateShaderModule(m_Device, vertBin);
         auto fragModule = CreateShaderModule(m_Device, fragBin);

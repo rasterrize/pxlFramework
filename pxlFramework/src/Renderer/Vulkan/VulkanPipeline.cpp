@@ -1,40 +1,35 @@
 #include "VulkanPipeline.h"
+
 #include "VulkanErrorCheck.h"
 #include "VulkanShader.h"
 #include "VulkanContext.h"
+
 
 #include "../Shader.h"
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<GraphicsContext>& context, std::shared_ptr<Shader>& shader)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass)
+        : m_Device(device)
     {
-        m_Device = dynamic_pointer_cast<VulkanContext>(context)->GetDevice();
-        if (!m_Device)
-        {
-            Logger::LogError("Failed to retrieve VkDevice from graphics context");
-        }
-
-        auto vulkanShader = static_pointer_cast<VulkanShader>(shader);
-
         VkResult result;
 
         // Create Shader Stages
         VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
-        vertShaderStageInfo.module = vulkanShader->GetShaderModule(VK_SHADER_STAGE_VERTEX_BIT);
+        vertShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_VERTEX_BIT);
         vertShaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
         vertShaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
 
         VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
         fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = vulkanShader->GetShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT);
+        fragShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShaderStageInfo.pName = "main";
         fragShaderStageInfo.pSpecializationInfo = nullptr;
 
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo}; // Store these for graphics pipeline creation
+        VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo }; // Store these for graphics pipeline creation
 
         // Dynamic state
         std::vector<VkDynamicState> dynamicStates = {
@@ -143,8 +138,8 @@ namespace pxl
         // Specify graphics pipeline create info
         VkGraphicsPipelineCreateInfo graphicsPipelineInfo = {};
         graphicsPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        graphicsPipelineInfo.stageCount = 0;
-        graphicsPipelineInfo.pStages = nullptr;
+        graphicsPipelineInfo.stageCount = 2;
+        graphicsPipelineInfo.pStages = shaderStages;
         graphicsPipelineInfo.pVertexInputState = &vertexInputInfo;
         graphicsPipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
         graphicsPipelineInfo.pViewportState = &viewportState;
@@ -154,7 +149,7 @@ namespace pxl
         graphicsPipelineInfo.pColorBlendState = &colorBlending;
         graphicsPipelineInfo.pDynamicState = &dynamicStateInfo;
         graphicsPipelineInfo.layout = m_Layout;
-        graphicsPipelineInfo.renderPass = nullptr;
+        graphicsPipelineInfo.renderPass = renderPass->GetVKRenderPass();
         graphicsPipelineInfo.subpass = 0; // index of sub pass
         graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // } Used for deriving off previous graphics pipelines, which is less expensive.
         graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
@@ -164,6 +159,11 @@ namespace pxl
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
+    {
+        Destroy();
+    }
+
+    void VulkanGraphicsPipeline::Destroy()
     {
         if (m_Pipeline != VK_NULL_HANDLE)
             vkDestroyPipeline(m_Device, m_Pipeline, nullptr);
