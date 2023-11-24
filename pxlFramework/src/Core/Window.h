@@ -1,25 +1,18 @@
 #pragma once
 
+#include "WindowMode.h"
 #include "../Renderer/GraphicsContext.h"
 #include "../Renderer/RendererAPIType.h"
 
 #include <GLFW/glfw3.h>
-//#include <glm/glm.
 
 namespace pxl
 {
-    enum class WindowMode
-    {
-        Windowed,
-        Borderless,
-        Fullscreen
-    };
-
     struct WindowSpecs
     {
-        uint32_t Width = 0;
-        uint32_t Height = 0;
-        std::string Title;
+        uint32_t Width = 640;
+        uint32_t Height = 480;
+        std::string Title = "";
         RendererAPIType RendererAPI = RendererAPIType::None;
         WindowMode WindowMode = WindowMode::Windowed;
         bool Minimized = false;
@@ -40,18 +33,17 @@ namespace pxl
         void SetWindowMode(WindowMode winMode);
         void SetMonitor(uint8_t monitorIndex);
 
-        GLFWwindow* GetNativeWindow() { return m_GLFWWindow; }
+        GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
-        std::shared_ptr<GraphicsContext> GetGraphicsContext() { return m_GraphicsContext; }
+        std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
 
-        const WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
+        WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
 
-        const uint32_t GetWidth() const { return m_WindowSpecs.Width; }
-        const uint32_t GetHeight() const { return m_WindowSpecs.Height; }
-        //const glm::vec2 GetSize() const { return { m_WindowSpecs.Width, m_WindowSpecs.Height }; }
-        const WindowMode GetWindowMode() const { return m_WindowSpecs.WindowMode; }
+        uint32_t GetWidth() const { return m_WindowSpecs.Width; }
+        uint32_t GetHeight() const { return m_WindowSpecs.Height; }
+        WindowMode GetWindowMode() const { return m_WindowSpecs.WindowMode; }
 
-        const float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
+        float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
 
         void NextWindowMode();
         void ToggleFullscreen();
@@ -73,6 +65,13 @@ namespace pxl
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
     private:
+        friend class Application; // for UpdateAll()
+        static void UpdateAll();
+
+        static void ProcessEvents();
+
+        static void GetGLFWMonitors();
+    private:
         GLFWwindow* m_GLFWWindow;
         std::shared_ptr<GraphicsContext> m_GraphicsContext;
         std::shared_ptr<Window> m_Handle;
@@ -89,10 +88,5 @@ namespace pxl
 
         static uint8_t s_GLFWWindowCount;
         static GLFWmonitor** s_Monitors;
-    private:
-        friend class Application;
-
-        static void UpdateAll();
-        static void ProcessEvents();
     };
 }

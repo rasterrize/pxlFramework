@@ -8,6 +8,7 @@ inc/pxl.h
 # CORE
 src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
+src/Core/WindowMode.h
 src/Core/Logger.h src/Core/Logger.cpp
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h

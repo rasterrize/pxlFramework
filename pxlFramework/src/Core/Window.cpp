@@ -28,7 +28,7 @@ namespace pxl
         {
             if (glfwInit())
             {
-                Logger::Log(LogLevel::Info, "GLFW Initialized");
+                Logger::Log(LogLevel::Info, "GLFW initialized");
             }
             else
             {
@@ -37,14 +37,14 @@ namespace pxl
             }
         }
 
-        // reset window hints for stability reasons
+        // reset window hints so we don't get undefined behaviour
         glfwDefaultWindowHints();
 
         // Set window hints based on renderer api
         switch (windowSpecs.RendererAPI)
         {
             case RendererAPIType::None:
-                Logger::LogInfo("RendererAPI type 'none' specified! Creating a GLFW window with no renderer api...");
+                Logger::LogWarn("RendererAPI type 'none' specified! Creating a GLFW window with no renderer api...");
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
             case RendererAPIType::OpenGL:
@@ -55,28 +55,27 @@ namespace pxl
                 break;
             case RendererAPIType::Vulkan:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // temporary until resizing is added
                 break;
         }
 
         // Create GLFW window and set it up
         m_GLFWWindow = glfwCreateWindow((int)windowSpecs.Width, (int)windowSpecs.Height, windowSpecs.Title.c_str(), NULL, NULL);
-        int monitorCount;
-        s_Monitors = glfwGetMonitors(&monitorCount);
-        s_MonitorCount = (uint32_t)monitorCount;
         glfwSetWindowUserPointer(m_GLFWWindow, (Window*)this);
+
+        GetGLFWMonitors();
         SetGLFWCallbacks();
 
         // Check to see if the window object was created successfully
         if (m_GLFWWindow)
         {
-            Logger::Log(LogLevel::Info, "Created window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
+            Logger::Log(LogLevel::Info, "Created GLFW window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
             s_GLFWWindowCount++;
         }
         else
         {
-            Logger::Log(LogLevel::Error, "Failed to create window '" + windowSpecs.Title + "'");
-            if (s_WindowCount == 0)
+            Logger::Log(LogLevel::Error, "Failed to create GLFW window '" + windowSpecs.Title + "'");
+            if (s_WindowCount == 0) // TODO: should this be s_GLFWWindowCount?
                 glfwTerminate();
         }
     }
@@ -115,47 +114,6 @@ namespace pxl
         glfwSetMouseButtonCallback(m_GLFWWindow, Input::GLFWMouseButtonCallback);
         glfwSetScrollCallback(m_GLFWWindow, Input::GLFWScrollCallback);
         glfwSetCursorPosCallback(m_GLFWWindow, Input::GLFWCursorPosCallback);
-    }
-
-    void Window::WindowCloseCallback(GLFWwindow* window)
-    {
-        auto windowHandle = (Window*)glfwGetWindowUserPointer(window);
-        windowHandle->Close();
-    }
-
-    void Window::WindowResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        int fbWidth, fbHeight;
-        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-        glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
-        // ^ this should be in the renderer somewhere.
-
-        auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
-        windowInstance->m_WindowSpecs.Width = width;
-        windowInstance->m_WindowSpecs.Height = height;
-    }
-
-    void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
-    {
-        // probably won't work for windows. Should look into what iconification really is
-        if (iconified)
-        {
-            Application::Get().SetMinimization(true);
-        }
-        else
-        {
-            Application::Get().SetMinimization(false);
-        }
-    }
-
-    void Window::MonitorCallback(GLFWmonitor* monitor, int event)
-    {
-        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
-        {
-            int monitorCount;
-            s_Monitors = glfwGetMonitors(&monitorCount);
-            s_MonitorCount = (uint8_t)monitorCount;
-        }
     }
 
     GLFWmonitor* Window::GetCurrentMonitor()
@@ -303,29 +261,51 @@ namespace pxl
             SetVSync(false);
     }
 
-    std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
+    void Window::WindowCloseCallback(GLFWwindow* window)
     {
-        std::shared_ptr<Window> window;
-        window = std::make_shared<Window>(windowSpecs);
+        auto windowHandle = (Window*)glfwGetWindowUserPointer(window);
+        windowHandle->Close();
+    }
 
-        if (window)
+    void Window::WindowResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        int fbWidth, fbHeight;
+        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+        glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
+        // ^ this should probably be in the OpenGL Context or OpenGL Renderer
+
+        auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
+        windowInstance->m_WindowSpecs.Width = width;
+        windowInstance->m_WindowSpecs.Height = height;
+    }
+
+    void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
+    {
+        // probably won't work for windows. Should look into what iconification really is
+        if (iconified)
         {
-            window->m_Handle = window;
-            if (windowSpecs.RendererAPI != RendererAPIType::None)
-            {
-                window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window); // Automatically create a graphics context for the window
-
-                if (!window->m_GraphicsContext)
-                {
-                    Logger::LogError("Failed to create graphics context for window " + windowSpecs.Title);
-                }
-            }
-
-            s_Windows.push_back(window);
-            return window;
+            Application::Get().SetMinimization(true);
         }
+        else
+        {
+            Application::Get().SetMinimization(false);
+        }
+    }
 
-        return nullptr;
+    void Window::MonitorCallback(GLFWmonitor* monitor, int event)
+    {
+        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
+        {
+            GetGLFWMonitors();
+            // TODO: handle windows on disconnected monitors?
+        }
+    }
+
+    void Window::GetGLFWMonitors()
+    {
+        int monitorCount;
+        s_Monitors = glfwGetMonitors(&monitorCount);
+        s_MonitorCount = (uint8_t)monitorCount;
     }
 
     void Window::UpdateAll()
@@ -348,11 +328,35 @@ namespace pxl
 
     void Window::Shutdown()
     {
-        uint32_t windowCount = s_WindowCount;
+        uint8_t windowCount = s_WindowCount; // s_WindowCount changes each time a window is closed
 
-        for (uint32_t i = 0; i < windowCount; i++)
+        for (uint8_t i = 0; i < s_WindowCount; i++)
         {
             s_Windows[0]->Close();
         }
+    }
+
+    std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
+    {
+        auto window = std::make_shared<Window>(windowSpecs);
+
+        if (window)
+        {
+            window->m_Handle = window;
+            if (windowSpecs.RendererAPI != RendererAPIType::None)
+            {
+                window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window); // Automatically create a graphics context for the window
+
+                if (!window->m_GraphicsContext)
+                {
+                    Logger::LogError("Failed to create graphics context for window " + windowSpecs.Title);
+                }
+            }
+
+            s_Windows.push_back(window);
+            return window;
+        }
+
+        return nullptr;
     }
 }
