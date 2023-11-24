@@ -1,12 +1,20 @@
 #include "Config.h"
 
+#include "../Renderer/RendererAPIType.h"
+
 #include <yaml-cpp/yaml.h>
 
 namespace pxl
 {
     FrameworkSettings FrameworkConfig::m_FrameworkSettings;
 
-    void FrameworkConfig::LoadFromFile()
+    void FrameworkConfig::Init()
+    {
+        // TODO: Check if FrameworkConfig.yaml exists, if not, create it (Then implement a way to turn this feature off)
+        LoadFromYAMLFile();
+    }
+
+    void FrameworkConfig::LoadFromYAMLFile()
     {
         YAML::Node config = YAML::LoadFile("FrameworkConfig.yaml"); // crashes if the file isn't loaded, need to find a way around this
 

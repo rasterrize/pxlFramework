@@ -16,15 +16,15 @@ namespace pxl
     class FrameworkConfig
     {
     public:
+        static void Init();
+
         static void LoadDefaults() { m_FrameworkSettings = {}; }
 
-        static void LoadFromFile();
+        static void LoadFromYAMLFile();
         static void SaveToFile();
 
         static const FrameworkSettings GetSettings() { return m_FrameworkSettings; } // return const ref?
         static void SetSettings(const FrameworkSettings& settings) { m_FrameworkSettings = settings; } // the settings could be dynamic, but that might too much effort for too little reward
-    private:
-
     private:
         static FrameworkSettings m_FrameworkSettings;
     };

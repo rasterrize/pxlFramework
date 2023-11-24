@@ -22,7 +22,7 @@ namespace pxl
         }
         s_Instance = this;
 
-        FrameworkConfig::LoadFromFile();
+        FrameworkConfig::Init();
     }
 
     void Application::Run()
