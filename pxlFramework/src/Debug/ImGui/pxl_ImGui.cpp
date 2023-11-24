@@ -10,12 +10,15 @@
 
 namespace pxl
 {
-    std::unique_ptr<ImGuiBase> pxl_ImGui::m_ImGuiRenderer = nullptr;
-    RendererAPIType pxl_ImGui::m_RendererAPI = RendererAPIType::None;
+    std::unique_ptr<ImGuiBase> pxl_ImGui::s_ImGuiRenderer = nullptr;
+    std::shared_ptr<Window> pxl_ImGui::s_WindowHandle;
+    RendererAPIType pxl_ImGui::s_RendererAPI = RendererAPIType::None;
     bool pxl_ImGui::s_Enabled = false;
 
     void pxl_ImGui::Init(std::shared_ptr<Window> window)
     {
+        s_WindowHandle = window;
+        
         const char* fontFilename = "assets/fonts/Roboto-Medium.ttf";
 
         // Setup Dear ImGui context
@@ -46,17 +49,17 @@ namespace pxl
                 return;
             case RendererAPIType::OpenGL:
                 ImGui_ImplGlfw_InitForOpenGL(windowHandle, true);
-                m_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
+                s_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
                 break;
             case RendererAPIType::Vulkan:
                 Logger::LogError("Can't initialize ImGui for Vulkan");
                 return;
         }
 
-        m_RendererAPI = window->GetWindowSpecs().RendererAPI;
+        s_RendererAPI = window->GetWindowSpecs().RendererAPI;
         s_Enabled = true;
 
-        Logger::LogInfo("ImGui Initialized");
+        Logger::LogInfo("ImGui initialized");
     }
 
     void pxl_ImGui::Update()
@@ -65,7 +68,7 @@ namespace pxl
             return;
 
         // Start the Dear ImGui frame
-        m_ImGuiRenderer->NewFrame();
+        s_ImGuiRenderer->NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
@@ -73,7 +76,7 @@ namespace pxl
             
         // Rendering
         ImGui::Render();
-        m_ImGuiRenderer->Render();
+        s_ImGuiRenderer->Render();
     }
 
     void pxl_ImGui::Shutdown()
@@ -82,9 +85,11 @@ namespace pxl
         if (!s_Enabled)
             return;
 
-        m_ImGuiRenderer->Shutdown();
+        s_ImGuiRenderer->Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
         s_Enabled = false;
+
+        Logger::LogInfo("ImGui shutdown");
     }
 }

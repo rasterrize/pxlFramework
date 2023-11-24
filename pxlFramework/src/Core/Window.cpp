@@ -3,6 +3,7 @@
 #include "../Renderer/Renderer.h"
 
 #include "Input.h"
+#include "../Debug/ImGui/pxl_ImGui.h"
 
 namespace pxl
 {
@@ -91,6 +92,9 @@ namespace pxl
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle));
         --s_WindowCount;
+
+        if (pxl_ImGui::GetWindowHandle() == m_Handle)
+            pxl_ImGui::Shutdown();
 
         if (s_WindowCount == 0)
         {
