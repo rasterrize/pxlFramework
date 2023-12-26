@@ -6,7 +6,7 @@
 #include "../Debug/ImGui/pxl_ImGui.h"
 
 #include <vulkan/vulkan.h>
-#include "../Renderer/Vulkan/VulkanErrorCheck.h"
+#include "../Renderer/Vulkan/VulkanHelpers.h"
 
 namespace pxl
 {
@@ -276,7 +276,7 @@ namespace pxl
         // Create VkSurfaceKHR for glfw window
         VkSurfaceKHR surface;
         VkResult result = glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface); // could learn to do this myself https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
-        CheckVkResult(result);
+        VulkanHelpers::CheckVkResult(result);
 
         if (!surface)
         {

@@ -1,9 +1,5 @@
 #include "VulkanShader.h"
 
-#include <vulkan/vulkan.h>
-
-#include "VulkanContext.h"
-
 namespace pxl
 {
     VulkanShader::VulkanShader(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
@@ -21,7 +17,6 @@ namespace pxl
     {
         for (const auto& pair : m_ShaderModules)
             vkDestroyShaderModule(m_Device, pair.second, nullptr);
-
     }
 
     void VulkanShader::Bind()
@@ -46,8 +41,7 @@ namespace pxl
 
     VkShaderModule VulkanShader::CreateShaderModule(VkDevice device, const std::vector<char>& code)
     {
-        VkShaderModuleCreateInfo vertShaderModuleCreateInfo = {};
-        vertShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        VkShaderModuleCreateInfo vertShaderModuleCreateInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
         vertShaderModuleCreateInfo.codeSize = code.size();
         vertShaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // because pCode takes in a uint32_t pointer // need to learn about reinterpret_casts
 

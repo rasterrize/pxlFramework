@@ -100,8 +100,10 @@ namespace TestApp
 
         // Vulkan Testing
 
-        m_TestWindow = pxl::Window::Create({ 640, 480, "Vulkan Test Window", pxl::RendererAPIType::Vulkan });
-        auto context = m_TestWindow->GetGraphicsContext();
+        m_TestWindow = pxl::Window::Create({ 1920, 1080, "Vulkan Test Window", pxl::RendererAPIType::Vulkan });
+        //auto context = m_TestWindow->GetGraphicsContext();
+
+        pxl::Renderer::Init(m_TestWindow);
     }
 
     TestApplication::~TestApplication()
@@ -200,48 +202,14 @@ namespace TestApp
 
     void TestApplication::OnRender()
     {
-        pxl::Renderer::ResetStats();
-        pxl::Renderer::Clear();
-
-        pxl::Renderer::Submit(m_Shader, m_Camera);
-
         pxl::Renderer::Begin();
 
-        // Draw Grid
-        for (int v = 0; v < 501; v++)
-        {
-            pxl::Renderer::AddLine({v - 250.0f, -250.0f, 0.0f }, {v - 250.0f, 250.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
-        }
-
-        for (int h = 0; h < 501; h++)
-        {
-            pxl::Renderer::AddLine({ -250.0f, h - 250.0f, 0.0f }, {250.0f, h - 250.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.2f, 0.2f, 0.2f, 1.0f });
-        }
-
-        // Draw Background
-        for (int x = 0; x < m_BlueQuadAmount; x += 2)
-        {
-            for (int y = 0; y < m_BlueQuadAmount; y += 2)
-            {
-                pxl::Renderer::AddQuad({ x - (m_BlueQuadAmount / 2), y - (m_BlueQuadAmount / 2), 1.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
-            }
-        }
-
-        for (int x = 1; x < m_OrangeQuadAmount; x += 2)
-        {
-            for (int y = 1; y < m_OrangeQuadAmount; y += 2)
-            {
-                pxl::Renderer::AddQuad({ x - (m_OrangeQuadAmount / 2), y - (m_OrangeQuadAmount / 2), 1.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.9f, 0.5f, 0.3f, 1.0f });
-            }
-        }
-
-        // Draw Level
-        pxl::Renderer::AddQuad({ 0.0f, -0.5f, 2.0f }, glm::vec3(0.0f), { 10.0f, 1.0f }, m_QuadColour);
-        pxl::Renderer::AddQuad(m_PlayerPosition, glm::vec3(0.0f), glm::vec3(0.5f), glm::vec4(1.0f));
+        pxl::Renderer::Clear();
+        
+        pxl::Renderer::Draw();
 
         pxl::Renderer::End();
 
-        pxl::Renderer::Draw();
     }
 
     void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized

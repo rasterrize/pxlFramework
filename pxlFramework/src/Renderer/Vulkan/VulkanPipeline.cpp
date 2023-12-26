@@ -1,11 +1,9 @@
 #include "VulkanPipeline.h"
 
-#include "VulkanErrorCheck.h"
 #include "VulkanShader.h"
 #include "VulkanContext.h"
 
-
-#include "../Shader.h"
+#include "VulkanHelpers.h"
 
 namespace pxl
 {
@@ -15,15 +13,13 @@ namespace pxl
         VkResult result;
 
         // Create Shader Stages
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        VkPipelineShaderStageCreateInfo vertShaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
         vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
         vertShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_VERTEX_BIT);
         vertShaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
         vertShaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
 
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        VkPipelineShaderStageCreateInfo fragShaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
         fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
         fragShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShaderStageInfo.pName = "main";
@@ -37,46 +33,41 @@ namespace pxl
             VK_DYNAMIC_STATE_SCISSOR,
         };
 
-        VkPipelineDynamicStateCreateInfo dynamicStateInfo = {};
-        dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        VkPipelineDynamicStateCreateInfo dynamicStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
         dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicStateInfo.pDynamicStates = dynamicStates.data();
 
         // Vertex Input // NOTE: this currently doesn't take any vertex input because its specified in the vertex shader, will be changed once using vertex buffers
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
         // vertexInputInfo.vertexBindingDescriptionCount = 0;
         // vertexInputInfo.pVertexBindingDescriptions = nullptr;
         // vertexInputInfo.vertexAttributeDescriptionCount = 0;
         // vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
         // Input Assembly
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
-        inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
         inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         //inputAssemblyInfo.primitiveRestartEnable = VK_FALSE; // useful for strip topology modes
 
         // Setup Viewport
         m_Viewport.x = 0.0f;
         m_Viewport.y = 0.0f;
-        m_Viewport.width = 640; // TODO: width and height should be size of the window
+        m_Viewport.width = 640; // TODO: should width and height default to 0?
         m_Viewport.height = 480;
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 
         // Specify viewport state
-        VkPipelineViewportStateCreateInfo viewportState = {};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        VkPipelineViewportStateCreateInfo viewportState = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
 
         // Setup Scissor
         m_Scissor.offset = { 0, 0 };
-        m_Scissor.extent = { 640, 480 }; // TODO: Should be window size
+        m_Scissor.extent = { 640, 480 };
 
         // Rasterization
-        VkPipelineRasterizationStateCreateInfo rasterizationInfo = {};
-        rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
         //rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
         //rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
         //rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL; // Can be lines and points, but requires enabling a gpu feature
@@ -89,8 +80,7 @@ namespace pxl
         // rasterizationInfo.depthBiasSlopeFactor = 0.0f; // Optional
 
         // Multisampling // REQUIRES ENABLING A GPU FEATURE
-        VkPipelineMultisampleStateCreateInfo multisamplingInfo = {};
-        multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        VkPipelineMultisampleStateCreateInfo multisamplingInfo = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
         //multisamplingInfo.sampleShadingEnable = VK_FALSE; // enable or disable multisampling // NOTE: requires enabling a gpu feature
         multisamplingInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         // multisamplingInfo.minSampleShading = 1.0f; // Optional
@@ -102,7 +92,7 @@ namespace pxl
         // TODO LATER
 
         // Colour Blending
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // ColorBlendAttachment is per framebuffer, and ColorBlendState is global
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // ColorBlendAttachment is per framebuffer, and ColorBlendState is global // no sType for this struct
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
         colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
@@ -112,8 +102,7 @@ namespace pxl
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
 
-        VkPipelineColorBlendStateCreateInfo colorBlending = {};
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        VkPipelineColorBlendStateCreateInfo colorBlending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         colorBlending.logicOpEnable = VK_FALSE;
         colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
         colorBlending.attachmentCount = 1;
@@ -124,8 +113,7 @@ namespace pxl
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
         // Pipeline layout (uniforms, etc)
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
         pipelineLayoutInfo.setLayoutCount = 0; // Optional
         pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
@@ -133,11 +121,10 @@ namespace pxl
 
         // Create pipeline layout
         result = vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout);
-        CheckVkResult(result);
+        VulkanHelpers::CheckVkResult(result);
 
         // Specify graphics pipeline create info
-        VkGraphicsPipelineCreateInfo graphicsPipelineInfo = {};
-        graphicsPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        VkGraphicsPipelineCreateInfo graphicsPipelineInfo = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
         graphicsPipelineInfo.stageCount = 2;
         graphicsPipelineInfo.pStages = shaderStages;
         graphicsPipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -155,12 +142,17 @@ namespace pxl
         graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
 
         result = vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
-        CheckVkResult(result);
+        VulkanHelpers::CheckVkResult(result);
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
     {
         Destroy();
+    }
+
+    void VulkanGraphicsPipeline::Bind(VkCommandBuffer commandBuffer)
+    {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
     void VulkanGraphicsPipeline::Destroy()

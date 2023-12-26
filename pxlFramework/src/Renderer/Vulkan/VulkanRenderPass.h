@@ -2,8 +2,6 @@
 
 #include <vulkan/vulkan.h>
 
-//#include "VulkanContext.h"
-
 namespace pxl
 {
     class VulkanContext;
@@ -16,9 +14,9 @@ namespace pxl
 
         void Destroy();
 
-        VkRenderPass GetVKRenderPass() { return m_Renderpass; }
+        VkRenderPass GetVKRenderPass() { return m_RenderPass; }
     private:
-        VkRenderPass m_Renderpass = VK_NULL_HANDLE;
+        VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 
         std::vector<VkSubpassDescription> m_Subpasses;
         std::vector<VkSubpassDependency> m_SubpassDependencies;

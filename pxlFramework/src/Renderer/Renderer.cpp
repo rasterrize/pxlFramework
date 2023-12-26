@@ -75,8 +75,20 @@ namespace pxl
 
                 break;
             case RendererAPIType::Vulkan:
-                Logger::LogError("Vulkan isn't currently supported");
-                return;
+                auto vulkanContext = dynamic_pointer_cast<VulkanContext>(window->GetGraphicsContext());
+
+                if (!vulkanContext)
+                {
+                    Logger::LogError("Failed to retrieve graphics context from window for VulkanRenderer object");
+                    return;
+                }
+
+                s_RendererAPI = std::make_unique<VulkanRenderer>(vulkanContext);
+
+                if (!s_RendererAPI)
+                    Logger::LogError("Failed to create Vulkan renderer api object"); // need assertions
+                    
+                break;
         }
 
         {

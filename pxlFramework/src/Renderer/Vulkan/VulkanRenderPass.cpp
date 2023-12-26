@@ -1,14 +1,12 @@
 #include "VulkanRenderPass.h"
 
-#include "VulkanErrorCheck.h"
-#include "VulkanContext.h"
+#include "VulkanHelpers.h"
 
 namespace pxl
 {
     VulkanRenderPass::VulkanRenderPass(VkDevice device, VkFormat format)
+        : m_Device(device)
     {
-        m_Device = device;
-
         // Specify colour attachment/ref
         VkAttachmentDescription colourAttachment = {};
         colourAttachment.format = format;
@@ -40,8 +38,7 @@ namespace pxl
         subPassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; // involves writing of the color attachment, this prevents the image transition from happening until it's actually necessary. so we wait on the color attachment output stage.
 
         // Specify render pass
-        VkRenderPassCreateInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        VkRenderPassCreateInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
         renderPassInfo.attachmentCount = 1;
         renderPassInfo.pAttachments = &colourAttachment;
         renderPassInfo.subpassCount = 1;
@@ -50,8 +47,8 @@ namespace pxl
         renderPassInfo.pDependencies = &subPassDependency;
 
         // Create render pass
-        auto result = vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_Renderpass);
-        CheckVkResult(result);
+        auto result = vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass);
+        VulkanHelpers::CheckVkResult(result);
     }
 
     VulkanRenderPass::~VulkanRenderPass()
@@ -61,7 +58,7 @@ namespace pxl
 
     void VulkanRenderPass::Destroy()
     {
-        if (m_Renderpass != VK_NULL_HANDLE)
-            vkDestroyRenderPass(m_Device, m_Renderpass, nullptr);
+        if (m_RenderPass != VK_NULL_HANDLE)
+            vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
     }
 }

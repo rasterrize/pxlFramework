@@ -34,6 +34,7 @@ src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 src/Renderer/RendererData.h
 src/Renderer/Pipeline.h
+src/Renderer/Framebuffer.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
@@ -49,12 +50,15 @@ src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
 # src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
 
 # VULKAN
-src/Renderer/Vulkan/VulkanErrorCheck.h src/Renderer/Vulkan/VulkanErrorCheck.cpp
 src/Renderer/Vulkan/VulkanRenderer.h src/Renderer/Vulkan/VulkanRenderer.cpp
 src/Renderer/Vulkan/VulkanContext.h src/Renderer/Vulkan/VulkanContext.cpp
 src/Renderer/Vulkan/VulkanShader.h src/Renderer/Vulkan/VulkanShader.cpp
 src/Renderer/Vulkan/VulkanPipeline.h src/Renderer/Vulkan/VulkanPipeline.cpp
 src/Renderer/Vulkan/VulkanRenderPass.h src/Renderer/Vulkan/VulkanRenderPass.cpp
+src/Renderer/Vulkan/VulkanFramebuffer.h src/Renderer/Vulkan/VulkanFramebuffer.cpp
+src/Renderer/Vulkan/VulkanSwapchain.h src/Renderer/Vulkan/VulkanSwapchain.cpp
+src/Renderer/Vulkan/VulkanHelpers.h src/Renderer/Vulkan/VulkanHelpers.cpp
+src/Renderer/Vulkan/VulkanImage.h src/Renderer/Vulkan/VulkanImage.cpp
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
@@ -89,10 +93,13 @@ add_subdirectory(deps/yaml-cpp)
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 #target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
-target_include_directories(pxlFramework PUBLIC C:/VulkanSDK/1.3.246.1/Include)
-target_link_directories(pxlFramework PUBLIC C:/VulkanSDK/1.3.246.1/Lib)
+set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
+find_package(Vulkan REQUIRED)
 
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp vulkan-1)
+target_include_directories(pxlFramework PUBLIC ${Vulkan_INCLUDE_DIRS})
+
+# Link Libraries
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp ${Vulkan_LIBRARY})
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
 

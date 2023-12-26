@@ -2,8 +2,7 @@
 
 #include "../Pipeline.h"
 
-#include "../Shader.h"
-
+#include "VulkanShader.h"
 #include "VulkanRenderPass.h"
 
 #include <vulkan/vulkan.h>
@@ -16,17 +15,22 @@ namespace pxl
         VulkanGraphicsPipeline(VkDevice device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass);
         ~VulkanGraphicsPipeline();
 
+        void Bind(VkCommandBuffer commandBuffer);
+
         virtual void* GetPipelineLayout() override { return m_Layout; }
 
         virtual void Destroy() override;
 
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
 
-        VkViewport GetViewport() const { return m_Viewport; }  /*RecreateGraphicsPipeline() idk*/
+        VkViewport GetViewport() const { return m_Viewport; }
         VkRect2D GetScissor() const { return m_Scissor; }
 
-        void SetViewport(VkViewport viewport) { m_Viewport = viewport;  /*RecreateGraphicsPipeline() idk*/}
+        void SetViewport(VkViewport viewport) { m_Viewport = viewport; }
         void SetScissor(VkRect2D scissor) { m_Scissor = scissor; }
+
+        void ResizeViewport(VkExtent2D extent) { m_Viewport.width = extent.width; m_Viewport.height = extent.height; } // probably shouldnt be taking Extent since thats not what the viewport has
+        void ResizeScissor(VkExtent2D extent) { m_Scissor.extent = extent; }
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
