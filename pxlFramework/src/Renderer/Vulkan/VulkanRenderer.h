@@ -7,6 +7,7 @@
 #include "VulkanRenderPass.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanContext.h"
+#include "VulkanBuffer.h"
 
 #include <vulkan/vulkan.h>
 
@@ -44,13 +45,12 @@ namespace pxl
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
-        // Data to begin rendering
+        // TODO: these should be moved outside of this class and passed in through function parameters, especially pipelines, since thats how switching of shaders works
         std::shared_ptr<VulkanGraphicsPipeline> m_GraphicsPipeline;
         std::shared_ptr<VulkanRenderPass> m_RenderPass;
         std::shared_ptr<VulkanShader> m_Shader;
-        VkExtent2D m_Extent;
 
-
-        
+        std::shared_ptr<VulkanBuffer> m_TestVertexBuffer;
+        std::shared_ptr<VulkanBuffer> m_TestIndexBuffer;
     };
 }

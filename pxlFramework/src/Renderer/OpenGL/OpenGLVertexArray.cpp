@@ -33,9 +33,26 @@ namespace pxl
         for (const BufferElement& element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index, element.Count, element.GetOpenGLType(), element.Normalized, layout.GetStride(), (const void*)offset);
-            offset += element.Count * element.GetSizeOfType();
+            glVertexAttribPointer(index, element.Count, GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), (const void*)offset);
+            offset += element.Count * GetSizeOfType(element.Type);
             index++;
         }
+    }
+
+    GLenum OpenGLVertexArray::GetOpenGLTypeOfBufferDataType(BufferDataType type)
+    {
+        switch (type)
+        {
+            case BufferDataType::Float:  return GL_FLOAT;
+            case BufferDataType::Float2: return GL_FLOAT;
+            case BufferDataType::Float3: return GL_FLOAT;
+            case BufferDataType::Float4: return GL_FLOAT;
+            case BufferDataType::Int:    return GL_INT;
+            case BufferDataType::Int2:   return GL_INT;
+            case BufferDataType::Int3:   return GL_INT;
+            case BufferDataType::Int4:   return GL_INT;
+            case BufferDataType::Bool:   return GL_BOOL;
+        }
+        return 0;
     }
 }

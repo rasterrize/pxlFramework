@@ -17,15 +17,16 @@ namespace pxl
     class Renderer
     {
     public:
-        static void Init(std::shared_ptr<Window> window);
+        static void Init(const std::shared_ptr<Window>& window);
         static void Shutdown();
 
-        static const bool IsInitialized() { return s_Enabled; }
+        static bool IsInitialized() { return s_Enabled; }
 
-        static const RendererAPIType GetAPIType() { return s_RendererAPIType; }
+        static RendererAPIType GetAPIType() { return s_RendererAPIType; }
+        static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
 
-        static const float GetFPS() { return s_FPS; }
-        static const float GetFrameTimeMS() { return 1 / s_FPS * 1000.0f; }
+        static float GetFPS() { return s_FPS; }
+        static float GetFrameTimeMS() { return 1 / s_FPS * 1000.0f; }
 
         static void Clear();
         static void SetClearColour(const glm::vec4& colour);
@@ -58,12 +59,6 @@ namespace pxl
             uint32_t LineVertexCount = 0;
             
             uint32_t GetTriangleCount() { return QuadIndexCount / 3; }
-            uint32_t GetEstimatedVRAMUsage() { return 
-            (QuadVertexCount * (uint32_t)sizeof(TriangleVertex)) +
-            (QuadIndexCount * 4) +
-            (LineVertexCount * (uint32_t)sizeof(LineVertex)); // In Bytes
-            
-            }
         };
 
         static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
@@ -88,6 +83,7 @@ namespace pxl
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;
         static std::unique_ptr<RendererAPI> s_RendererAPI;
+        static std::shared_ptr<Window> s_WindowHandle;
 
         static std::shared_ptr<VertexArray> s_QuadVAO;
         static std::shared_ptr<VertexArray> s_CubeVAO;

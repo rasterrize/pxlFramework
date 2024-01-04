@@ -59,6 +59,8 @@ namespace pxl
             case RendererAPIType::Vulkan:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // temporary until resizing is added
+
+                glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
                 break;
         }
 
@@ -262,6 +264,16 @@ namespace pxl
             SetVSync(true);
         else
             SetVSync(false);
+    }
+
+    void Window::ToggleVisibility()
+    {
+        int visibility = glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE);
+        
+        if (visibility == GLFW_TRUE)
+            glfwHideWindow(m_GLFWWindow);
+        else if (visibility == GLFW_FALSE)
+            glfwShowWindow(m_GLFWWindow);
     }
 
     std::vector<const char*> Window::GetVKRequiredInstanceExtensions()

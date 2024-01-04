@@ -54,6 +54,8 @@ namespace pxl
         void SetVSync(bool vsync) { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync();
 
+        void ToggleVisibility();
+
         void SetGLFWCallbacks();
         GLFWmonitor* GetCurrentMonitor();
     public:

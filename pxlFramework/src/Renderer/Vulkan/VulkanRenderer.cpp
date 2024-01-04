@@ -4,6 +4,9 @@
 
 #include "../../Utils/FileLoader.h"
 
+//temp
+#include "../BufferLayout.h"
+
 namespace pxl
 {
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanContext>& context)
@@ -40,9 +43,37 @@ namespace pxl
 
         m_Shader = pxl::Shader::Create(m_Device, vertBin, fragBin);
         m_RenderPass = m_ContextHandle->GetDefaultRenderPass();
-        m_GraphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(m_Device, m_Shader, m_RenderPass);
+
+        BufferLayout layout;
+        layout.Add(1, BufferDataType::Float2, false);
+
+        m_GraphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(m_Device, m_Shader, m_RenderPass, layout);
+
+        float vertices[] = {
+            -0.5f, -0.5f,
+             0.5f, -0.5f,
+             0.5f,  0.5f,
+            -0.5f,  0.5f 
+        };
+
+        uint32_t indices[] = {
+            0, 1, 2, 2, 3, 0
+        };
+
+        m_TestVertexBuffer = std::make_shared<VulkanBuffer>(m_ContextHandle->GetPhysicalDevice(), m_Device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, (uint32_t)sizeof(vertices), vertices);
+        m_TestIndexBuffer = std::make_shared<VulkanBuffer>(m_ContextHandle->GetPhysicalDevice(), m_Device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (uint32_t)sizeof(indices), indices);
 
         // Set Dynamic State
+        auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent;
+
+        // VkViewport viewport = {};
+        // viewport.x = 0.0f;
+        // viewport.y = 540.0f;
+        // viewport.width = 1920.0f;
+        // viewport.height = 1080.0f;
+        // viewport.minDepth = 0.0f;
+        // viewport.maxDepth = 1.0f;
+
         m_GraphicsPipeline->ResizeViewport(m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent);
         m_GraphicsPipeline->ResizeScissor(m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent);
     }
@@ -55,7 +86,7 @@ namespace pxl
     void VulkanRenderer::Destroy()
     {
         // Wait until device isnt using these objects before deleting them
-        m_ContextHandle->DeviceWaitIdle();
+        vkDeviceWaitIdle(m_Device);
 
         if (m_InFlightFence != VK_NULL_HANDLE)
             vkDestroyFence(m_Device, m_InFlightFence, nullptr);
@@ -104,7 +135,7 @@ namespace pxl
         // ---------------------
         VkRenderPassBeginInfo renderPassBeginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         renderPassBeginInfo.renderPass = m_RenderPass->GetVKRenderPass();
-        renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchainFramebuffer(imageIndex)->GetVKFramebuffer();
+        renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchain()->GetFramebuffer(imageIndex)->GetVKFramebuffer();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
         renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent;
         renderPassBeginInfo.clearValueCount = 1;
@@ -122,6 +153,10 @@ namespace pxl
 
         // Bind Pipeline
         m_GraphicsPipeline->Bind(m_CommandBuffer);
+
+        // Temp
+        m_TestVertexBuffer->Bind(m_CommandBuffer);
+        m_TestIndexBuffer->Bind(m_CommandBuffer);
     }
 
     void VulkanRenderer::End()
@@ -137,7 +172,5 @@ namespace pxl
 
         // Submit the command buffer
         m_ContextHandle->SubmitCommandBuffer(m_CommandBuffer, m_GraphicsQueue, m_InFlightFence);
-
-        m_ContextHandle->PresentReady();
     }
 }

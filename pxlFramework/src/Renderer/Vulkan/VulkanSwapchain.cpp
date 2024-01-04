@@ -1,14 +1,25 @@
 #include "VulkanSwapchain.h"
 
 #include "VulkanHelpers.h"
+#include "vulkan/vk_enum_string_helper.h"
 
 namespace pxl
 {
-    VulkanSwapchain::VulkanSwapchain(VkDevice device, VkSurfaceKHR surface, const VulkanSwapchainData& swapchainData)
+    VulkanSwapchain::VulkanSwapchain(VkDevice device, VkSurfaceKHR surface, const VulkanSwapchainData& swapchainData, const std::shared_ptr<VulkanRenderPass>& renderPass)
         : m_Device(device), m_Surface(surface), m_Data(swapchainData)
     {
-        m_Images.resize(m_Data.ImageCount);
+        Create();
+        PrepareImages();
+        PrepareFramebuffers(renderPass);
+    }
 
+    VulkanSwapchain::~VulkanSwapchain()
+    {
+        Destroy();
+    }
+
+    void VulkanSwapchain::Create()
+    {
         // Create Swapchain
         VkSwapchainCreateInfoKHR swapchainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
         swapchainInfo.surface = m_Surface;
@@ -26,16 +37,34 @@ namespace pxl
         VkResult result = vkCreateSwapchainKHR(m_Device, &swapchainInfo, nullptr, &m_Swapchain);
         VulkanHelpers::CheckVkResult(result);
 
-        PrepareImages();
+        if (m_Swapchain)
+        {
+            Logger::LogInfo("Swapchain created:");
+            Logger::LogInfo("- Present mode: " + std::string(string_VkPresentModeKHR(m_Data.PresentMode)));
+            Logger::LogInfo("- Image count: " + std::to_string(m_Data.ImageCount));
+            Logger::LogInfo("- Image format: " + std::string(string_VkFormat(m_Data.Format)));
+            Logger::LogInfo("- Image color space: " + std::string(string_VkColorSpaceKHR(m_Data.ColorSpace)));
+            Logger::LogInfo("- Image extent: " + std::to_string(m_Data.Extent.width) + "x" + std::to_string(m_Data.Extent.height));
+
+
+        }
     }
 
-    VulkanSwapchain::~VulkanSwapchain()
+    void VulkanSwapchain::Recreate()
     {
-        Destroy();
+        vkDeviceWaitIdle(m_Device);
+
+
     }
 
     void VulkanSwapchain::Destroy()
     {
+        for (auto& framebuffer : m_Framebuffers)
+            framebuffer->Destroy();
+
+        for (auto& image : m_Images)
+            image->Destroy();
+
         if (m_Swapchain != VK_NULL_HANDLE)
             vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
     }
@@ -75,6 +104,8 @@ namespace pxl
 
     void VulkanSwapchain::PrepareImages()
     {
+        m_Images.resize(m_Data.ImageCount);
+        
         // Get swapchain image count
         uint32_t swapchainImageCount = 0;
         vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, nullptr);
@@ -97,6 +128,21 @@ namespace pxl
             std::shared_ptr<VulkanImage> image;
             image = std::make_shared<VulkanImage>(m_Device, m_Data.Extent.width, m_Data.Extent.height, m_Data.Format, images[i]);
             m_Images[i] = image;
+        }
+    }
+
+    void VulkanSwapchain::PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass)
+    {
+        m_Framebuffers.resize(m_Data.ImageCount);
+
+        // Create swapchain framebuffers
+        for (uint32_t i = 0; i < m_Data.ImageCount; i++)
+        {
+            std::shared_ptr<VulkanFramebuffer> framebuffer;
+            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device, renderPass, m_Data.Extent);
+            framebuffer->AddAttachment(m_Images[i]->GetImageView(), m_Data.Format);
+            framebuffer->Recreate();
+            m_Framebuffers[i] = framebuffer;
         }
     }
 }

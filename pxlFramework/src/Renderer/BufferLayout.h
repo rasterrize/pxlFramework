@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <vulkan/vulkan.h>
 
 namespace pxl
 {
@@ -9,29 +10,29 @@ namespace pxl
         None = 0, Float, Float2, Float3, Float4, Int, Int2, Int3, Int4, Mat3, Mat4, Bool
     };
 
+    static uint32_t GetSizeOfType(BufferDataType type) // gets the size in bytes
+    {
+        switch (type)
+        {
+            case BufferDataType::Float:  return 4; // these are currently hardcoded but an optimal way in the future would be to use API data types, such as sizeof(Glfloat)
+            case BufferDataType::Float2: return 4 * 2;
+            case BufferDataType::Float3: return 4 * 3;
+            case BufferDataType::Float4: return 4 * 4;
+            case BufferDataType::Int:    return 4;
+            case BufferDataType::Int2:   return 4 * 2;
+            case BufferDataType::Int3:   return 4 * 3;
+            case BufferDataType::Int4:   return 4 * 4;
+            case BufferDataType::Mat3:   return 4 * 3 * 3;
+            case BufferDataType::Mat4:   return 4 * 4 * 4;
+        }
+        return 0;
+    }
+
     struct BufferElement // is this really a struct if it has member functions?
     {
         uint32_t Count; // How many variables/data of the specified data type (eg. the amount/count of floats in the element)
         BufferDataType Type; // The type of data (float, int, etc)
         bool Normalized;
-
-        uint32_t GetSizeOfType() const
-        {
-            switch (Type)
-            {
-                case BufferDataType::Float: return 4;
-            }
-            return 0;
-        }
-
-        GLenum GetOpenGLType() const // opengl code shouldnt be here
-        {
-            switch (Type)
-            {
-                case BufferDataType::Float: return GL_FLOAT;
-            }
-            return 0;
-        }
     };
 
     class BufferLayout
@@ -44,17 +45,17 @@ namespace pxl
         {
             BufferElement element = { count, type, normalized };
             m_Elements.push_back(element);
-            m_Stride += element.Count * element.GetSizeOfType();
+            m_Stride += element.Count * GetSizeOfType(element.Type);
         }
 
         void Add(BufferElement& element)
         {
             m_Elements.push_back(element);
-            m_Stride += element.Count * element.GetSizeOfType();
+            m_Stride += element.Count * GetSizeOfType(element.Type);
         }
 
     private:
         std::vector<BufferElement> m_Elements;
-        uint32_t m_Stride = 0; // Stride is the size of the entire buffer (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
+        uint32_t m_Stride = 0; // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
     };
 }

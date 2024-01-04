@@ -2,12 +2,13 @@
 
 #include "VulkanShader.h"
 #include "VulkanContext.h"
+#include "VulkanBuffer.h"
 
 #include "VulkanHelpers.h"
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
         : m_Device(device)
     {
         VkResult result;
@@ -37,12 +38,15 @@ namespace pxl
         dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicStateInfo.pDynamicStates = dynamicStates.data();
 
+        auto bindingDescription = VulkanBuffer::GetBindingDescription(bufferLayout);
+        auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(bufferLayout);
+
         // Vertex Input // NOTE: this currently doesn't take any vertex input because its specified in the vertex shader, will be changed once using vertex buffers
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-        // vertexInputInfo.vertexBindingDescriptionCount = 0;
-        // vertexInputInfo.pVertexBindingDescriptions = nullptr;
-        // vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        // vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         // Input Assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -52,8 +56,8 @@ namespace pxl
         // Setup Viewport
         m_Viewport.x = 0.0f;
         m_Viewport.y = 0.0f;
-        m_Viewport.width = 640; // TODO: should width and height default to 0?
-        m_Viewport.height = 480;
+        m_Viewport.width = 0.0f; // TODO: should width and height default to 0?
+        m_Viewport.height = 0.0f;
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 

@@ -23,23 +23,19 @@ namespace pxl
 
         VkInstance GetInstance() const { return m_Instance; }
         VkDevice GetDevice() const { return m_Device; }
+        VkPhysicalDevice GetPhysicalDevice() { return m_GPU; }
         uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
         VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
 
         std::shared_ptr<VulkanSwapchain> GetSwapchain() const { return m_Swapchain; }
-        std::shared_ptr<VulkanFramebuffer> GetSwapchainFramebuffer(uint32_t index) const { return m_SwapchainFramebuffers[index]; }
 
         void PrepareNextFrame() { m_CurrentImageIndex = m_Swapchain->AcquireNextAvailableImageIndex(m_ImageAvailableSemaphore); }
         uint32_t GetCurrentFrameIndex() const { return m_CurrentImageIndex; }
 
         void SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence);
 
-        void DeviceWaitIdle() { vkDeviceWaitIdle(m_Device); }
-
         // TEMP (I think)
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; }
-
-        void PresentReady() { m_PresentReady = true; }
         
     private:
         void Init();
@@ -66,7 +62,6 @@ namespace pxl
 
         std::shared_ptr<VulkanSwapchain> m_Swapchain;
         VulkanSwapchainData m_SwapchainData = {};
-        std::vector<std::shared_ptr<VulkanFramebuffer>> m_SwapchainFramebuffers;
         
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 

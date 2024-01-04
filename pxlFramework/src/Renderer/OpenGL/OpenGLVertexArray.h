@@ -5,6 +5,8 @@
 #include "../VertexBuffer.h"
 #include "../IndexBuffer.h"
 
+#include "../BufferLayout.h"
+
 namespace pxl
 {
     class OpenGLVertexArray : public VertexArray
@@ -23,6 +25,8 @@ namespace pxl
 
         virtual std::shared_ptr<VertexBuffer> GetVertexBuffer() override { return m_VertexBuffer; }
         virtual std::shared_ptr<IndexBuffer> GetIndexBuffer() override { return m_IndexBuffer; }
+    private:
+        static GLenum GetOpenGLTypeOfBufferDataType(BufferDataType type);
     private:
         uint32_t m_RendererID;
         

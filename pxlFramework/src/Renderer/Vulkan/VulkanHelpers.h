@@ -24,6 +24,7 @@ namespace pxl
         static VkSurfaceCapabilitiesKHR GetSurfaceCapabilities(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 
         static std::optional<uint32_t> GetSuitableGraphicsQueueFamily(const std::vector<VkQueueFamilyProperties>& queueFamilies, const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
+        static VkSurfaceFormatKHR GetSuitableSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
         static VkQueue GetQueueHandle(VkDevice device, const std::optional<uint32_t>& queueIndex);
 
         static VkSemaphore CreateSemaphore(VkDevice device);

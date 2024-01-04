@@ -181,7 +181,20 @@ namespace pxl
 
         return graphicsQueueIndex;
     }
-    
+
+    VkSurfaceFormatKHR VulkanHelpers::GetSuitableSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &surfaceFormats)
+    {
+        // Select most suitable surface format
+        for (const auto& surfaceFormat : surfaceFormats)
+        {
+            if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                return surfaceFormat;
+        }
+
+        Logger::LogError("Failed to find suitable surface format for swap chain");
+        return { VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR };
+    }
+
     VkQueue VulkanHelpers::GetQueueHandle(VkDevice device, const std::optional<uint32_t>& queueIndex)
     {
         VkQueue queue = VK_NULL_HANDLE;

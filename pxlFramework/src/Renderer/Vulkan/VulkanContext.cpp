@@ -2,6 +2,9 @@
 
 #include "VulkanHelpers.h"
 
+// temp
+#include "VulkanBuffer.h"
+
 namespace pxl
 {
     VulkanContext::VulkanContext(const std::shared_ptr<Window>& window)
@@ -67,23 +70,21 @@ namespace pxl
         // Get present queue (graphics queue) from device
         m_PresentQueue = VulkanHelpers::GetQueueHandle(m_Device, m_GraphicsQueueFamilyIndex);
 
-        // Create swap chain with specified surface
-        if (!CreateSwapchain(m_Surface, m_WindowHandle->GetWidth(), m_WindowHandle->GetHeight()))
-            return;
+        // Get swapchain suitable surface format (for renderpass)
+        auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(m_GPU, m_Surface);
+        auto m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);
+        m_SwapchainData.Format = m_SurfaceFormat.format;
+        m_SwapchainData.ColorSpace = m_SurfaceFormat.colorSpace;
+
+        // TODO: Determine all required swapchain data (surface format, present mode, etc) before creating render pass and swapchain
 
         // Create default render pass for swapchain framebuffers
         m_DefaultRenderPass = std::make_shared<VulkanRenderPass>(m_Device, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
 
-        // Create swapchain framebuffers
-        for (uint32_t i = 0; i < m_SwapchainData.ImageCount; i++)
-        {
-            std::shared_ptr<VulkanFramebuffer> framebuffer;
-            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device, m_DefaultRenderPass, m_SwapchainData.Extent);
-            framebuffer->AddAttachment(m_Swapchain->GetImageView(i), m_SwapchainData.Format);
-            framebuffer->Recreate();
-            m_SwapchainFramebuffers.push_back(framebuffer); // TODO: the vector should be preallocated and the images should be added into each index
-        }
-
+        // Create swap chain with specified surface
+        if (!CreateSwapchain(m_Surface, m_WindowHandle->GetWidth(), m_WindowHandle->GetHeight()))
+            return;
+        
         m_ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
         m_RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
     }
@@ -91,7 +92,7 @@ namespace pxl
     void VulkanContext::Shutdown()
     {
         // Wait until device isnt using these objects before deleting them
-        DeviceWaitIdle();
+        vkDeviceWaitIdle(m_Device);
         
         // Destroy VK objects
          if (m_ImageAvailableSemaphore != VK_NULL_HANDLE)
@@ -99,9 +100,6 @@ namespace pxl
 
         if (m_RenderFinishedSemaphore != VK_NULL_HANDLE)
             vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
-
-        for (auto& framebuffer : m_SwapchainFramebuffers)
-            framebuffer->Destroy();
 
         m_Swapchain->Destroy();
 
@@ -311,28 +309,8 @@ namespace pxl
         VkResult result;
 
         // Check surface compatiblity
-        auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(m_GPU, surface);
         auto surfacePresentModes = VulkanHelpers::GetSurfacePresentModes(m_GPU, surface);
         auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_GPU, surface);
-
-        // Select most suitable surface format
-        bool foundSuitableSurfaceFormat = false;
-        for (const auto& surfaceFormat : surfaceFormats)
-        {
-            if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-            {
-                m_SurfaceFormat = surfaceFormat;
-                m_SwapchainData.Format = surfaceFormat.format;
-                m_SwapchainData.ColorSpace = surfaceFormat.colorSpace;
-                foundSuitableSurfaceFormat = true;
-            }
-        }
-
-        if (!foundSuitableSurfaceFormat)
-        {
-            Logger::LogError("Failed to find suitable surface format for swap chain");
-            return false;
-        }
 
         // Select most suitable surface present mode
         bool foundSuitablePresentMode = false;
@@ -398,14 +376,7 @@ namespace pxl
         }
 
         // Create swapchain
-        m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SwapchainData);
-
-        if (m_Swapchain)
-        {
-            Logger::LogInfo("VkSwapchain info:");
-            Logger::LogInfo("- Image count: " + std::to_string(m_SwapchainData.ImageCount));
-            Logger::LogInfo("- Present mode: " + std::string(string_VkPresentModeKHR(m_SwapchainData.PresentMode)));
-        }
+        m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SwapchainData, m_DefaultRenderPass);
 
         return true;
     }

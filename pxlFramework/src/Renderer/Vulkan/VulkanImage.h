@@ -11,6 +11,8 @@ namespace pxl
         VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage);
         ~VulkanImage();
 
+        void Destroy();
+
         VkImageView GetImageView() const { return m_ImageView; }
     private:
         void CreateImage(uint32_t width, uint32_t height, VkFormat format);

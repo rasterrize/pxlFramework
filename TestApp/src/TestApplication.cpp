@@ -6,97 +6,137 @@ namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        std::string vertexShader = R"(
-            #version 460 core
+        // std::string vertexShader = R"(
+        //     #version 460 core
 
-            layout (location = 0) in vec3 a_Position;
-            layout (location = 1) in vec4 a_Colour;
-            layout (location = 2) in vec2 a_TexCoords;
+        //     layout (location = 0) in vec3 a_Position;
+        //     layout (location = 1) in vec4 a_Colour;
+        //     layout (location = 2) in vec2 a_TexCoords;
 
-            out vec3 v_Position;
-            out vec4 v_Colour;
-            out vec2 v_TexCoords;
+        //     out vec3 v_Position;
+        //     out vec4 v_Colour;
+        //     out vec2 v_TexCoords;
 
-            uniform mat4 u_VP;
+        //     uniform mat4 u_VP;
 
-            void main()
-            {
-                v_Position = a_Position;
-                v_Colour = a_Colour;
-                v_TexCoords = a_TexCoords;
-                gl_Position = u_VP * vec4(a_Position, 1.0);
-            }
-        )";
+        //     void main()
+        //     {
+        //         v_Position = a_Position;
+        //         v_Colour = a_Colour;
+        //         v_TexCoords = a_TexCoords;
+        //         gl_Position = u_VP * vec4(a_Position, 1.0);
+        //     }
+        // )";
 
-        std::string fragmentShader = R"(
-            #version 460 core
+        // std::string fragmentShader = R"(
+        //     #version 460 core
             
-            layout (location = 0) out vec4 color;
+        //     layout (location = 0) out vec4 color;
 
-            in vec3 v_Position;
-            in vec4 v_Colour;
-            in vec2 v_TexCoords;
+        //     in vec3 v_Position;
+        //     in vec4 v_Colour;
+        //     in vec2 v_TexCoords;
 
-            uniform sampler2D u_Texture;
+        //     uniform sampler2D u_Texture;
 
-            void main()
-            {
-                color = v_Colour;
-                //color = texture(u_Texture, v_TexCoords) * v_Colour;
-            }
-        )";
+        //     void main()
+        //     {
+        //         color = v_Colour;
+        //         //color = texture(u_Texture, v_TexCoords) * v_Colour;
+        //     }
+        // )";
 
-        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+        // std::string modelVertexShader = R"(
+        //     #version 460 core
 
-        std::string windowTitle = "pxlFramework Test App";
-        std::string buildType = "Unknown Build Type";
-        std::string rendererAPIType = "Unknown Renderer API";
-        pxl::RendererAPIType windowRendererAPI = pxl::RendererAPIType::OpenGL;
-        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
+        //     layout (location = 0) in vec3 a_Position;
+        //     layout (location = 1) in vec4 a_Colour;
+        //     //layout (location = 2) in vec2 a_TexCoords;
 
-        #ifdef TA_DEBUG
-            buildType = "Debug x64";
-        #elif TA_RELEASE
-            buildType = "Release x64";
-        #elif TA_DIST
-            buildType = "Distribute x64";
-        #endif
+        //     out vec3 v_Position;
+        //     out vec4 v_Colour;
+        //     out vec2 v_TexCoords;
 
-        switch (windowRendererAPI)
-        {
-            case pxl::RendererAPIType::None:
-                rendererAPIType = "No Renderer API";
-                break;
-            case pxl::RendererAPIType::OpenGL:
-                rendererAPIType = "OpenGL";
-                break;
-            case pxl::RendererAPIType::Vulkan:
-                rendererAPIType = "Vulkan";
-                break;
-        }
+        //     uniform mat4 u_VP;
 
-        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
+        //     void main()
+        //     {
+        //         v_Position = a_Position;
+        //         v_Colour = a_Colour;
+        //         v_TexCoords = a_TexCoords;
+        //         gl_Position = u_VP * vec4(a_Position, 1.0);
+        //     }
+        // )";
+
+        // std::string modelFragmentShader = R"(
+        //     #version 460 core
+            
+        //     layout (location = 0) out vec4 color;
+
+        //     in vec3 v_Position;
+        //     in vec4 v_Colour;
+        //     in vec2 v_TexCoords;
+
+        //     uniform sampler2D u_Texture;
+
+        //     void main()
+        //     {
+        //         color = v_Colour;
+        //         //color = texture(u_Texture, v_TexCoords) * v_Colour;
+        //     }
+        // )";
+
+        // auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+
+        // std::string windowTitle = "pxlFramework Test App";
+        // std::string buildType = "Unknown Build Type";
+        // std::string rendererAPIType = "Unknown Renderer API";
+        // pxl::RendererAPIType windowRendererAPI = pxl::RendererAPIType::OpenGL;
+        // pxl::WindowMode windowMode = frameworkSettings.WindowMode;
+
+        // #ifdef TA_DEBUG
+        //     buildType = "Debug x64";
+        // #elif TA_RELEASE
+        //     buildType = "Release x64";
+        // #elif TA_DIST
+        //     buildType = "Distribute x64";
+        // #endif
+
+        // switch (windowRendererAPI)
+        // {
+        //     case pxl::RendererAPIType::None:
+        //         rendererAPIType = "No Renderer API";
+        //         break;
+        //     case pxl::RendererAPIType::OpenGL:
+        //         rendererAPIType = "OpenGL";
+        //         break;
+        //     case pxl::RendererAPIType::Vulkan:
+        //         rendererAPIType = "Vulkan";
+        //         break;
+        // }
+
+        // windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
         
-        m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
-        m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
-        m_Window->SetVSync(true);
-        m_Window->SetWindowMode(windowMode);
+        // m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
+        // m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
+        // m_Window->SetVSync(true);
+        // m_Window->SetWindowMode(windowMode);
 
-        pxl::Renderer::Init(m_Window);
-        pxl::Input::Init(m_Window);
+        // pxl::Renderer::Init(m_Window);
+        // pxl::Input::Init(m_Window);
 
-        m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
-        pxl::Renderer::SetClearColour(m_ClearColour);
+        // m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
+        // pxl::Renderer::SetClearColour(m_ClearColour);
 
-        m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
+        // m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
 
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
-        m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
-        m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
+        // m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
+        // m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        // m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
 
-        #ifndef TA_RELEASE
-            pxl::pxl_ImGui::Init(m_Window);
-        #endif
+        // #ifndef TA_RELEASE
+        //     pxl::pxl_ImGui::Init(m_Window);
+        // #endif
 
         // Vulkan Testing
 
@@ -104,6 +144,8 @@ namespace TestApp
         //auto context = m_TestWindow->GetGraphicsContext();
 
         pxl::Renderer::Init(m_TestWindow);
+
+        m_TestWindow->ToggleVisibility();
     }
 
     TestApplication::~TestApplication()
@@ -119,85 +161,93 @@ namespace TestApp
 
     void TestApplication::OnUpdate(float dt)
     {
-        m_CameraPosition = m_Camera->GetPosition();
-        m_CameraRotation = m_Camera->GetRotation();
-        auto cameraSpeed = 2.0f;
-        auto cameraZoom = m_Camera->GetZoom();
-        auto cursorPos = pxl::Input::GetCursorPosition();
+        // m_CameraPosition = m_Camera->GetPosition();
+        // m_CameraRotation = m_Camera->GetRotation();
+        // auto cameraSpeed = 2.0f;
+        // auto cameraZoom = m_Camera->GetZoom();
+        // auto cursorPos = pxl::Input::GetCursorPosition();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
-        {
-            Application::Get().Close();
-            return;
-        }
+        // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        // {
+        //     Application::Get().Close();
+        //     return;
+        // }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
-            m_Window->NextWindowMode();
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        //     m_Window->NextWindowMode();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            m_Window->ToggleVSync();
+        // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
+        //     m_Window->ToggleVSync();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
-        {
-            if (controllingCamera)
-                controllingCamera = false;
-            else
-                controllingCamera = true;
-        }
+        // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
+        // {
+        //     if (controllingCamera)
+        //         controllingCamera = false;
+        //     else
+        //         controllingCamera = true;
+        // }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
-        {
-            cameraSpeed *= 5.0f;
-        }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
+        // {
+        //     cameraSpeed *= 5.0f;
+        // }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
-        {
-            if (controllingCamera)
-            {
-                m_CameraPosition.y += cameraSpeed * dt;
-            }
-        }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
-        {
-            if (controllingCamera)
-            {
-                m_CameraPosition.x -= cameraSpeed * dt;
-            }
-            else
-            {
-                m_PlayerPosition.x -= 1.0f * dt;
-            }
-        }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
-        {
-            if (controllingCamera)
-            {
-                m_CameraPosition.y -= cameraSpeed * dt;
-            }
-        }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
-        {
-            if (controllingCamera)
-            {
-                m_CameraPosition.x += cameraSpeed * dt;
-            }
-            else
-            {
-                m_PlayerPosition.x += 1.0f * dt;
-            }
-        }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
+        // {
+        //     if (controllingCamera)
+        //     {
+        //         m_CameraPosition.y += cameraSpeed * dt;
+        //     }
+        // }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
+        // {
+        //     if (controllingCamera)
+        //     {
+        //         m_CameraPosition.x -= cameraSpeed * dt;
+        //     }
+        //     else
+        //     {
+        //         m_PlayerPosition.x -= 1.0f * dt;
+        //     }
+        // }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
+        // {
+        //     if (controllingCamera)
+        //     {
+        //         m_CameraPosition.y -= cameraSpeed * dt;
+        //     }
+        // }
+        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
+        // {
+        //     if (controllingCamera)
+        //     {
+        //         m_CameraPosition.x += cameraSpeed * dt;
+        //     }
+        //     else
+        //     {
+        //         m_PlayerPosition.x += 1.0f * dt;
+        //     }
+        // }
 
-        if (pxl::Input::IsMouseScrolledUp())
-        {
-            cameraZoom -= cameraSpeed * 0.5f;
-        }
-        if (pxl::Input::IsMouseScrolledDown())
-        {
-            cameraZoom += cameraSpeed * 0.5f;
-        }
+        // if (pxl::Input::IsMouseScrolledUp())
+        // {
+        //     cameraZoom -= cameraSpeed * 0.5f;
+        // }
+        // if (pxl::Input::IsMouseScrolledDown())
+        // {
+        //     cameraZoom += cameraSpeed * 0.5f;
+        // }
 
-        m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
-        m_Camera->SetZoom(cameraZoom);
+        // m_Camera->SetPosition({m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z});
+        // m_Camera->SetZoom(cameraZoom);
+
+        // // Ray casting
+        // // convert to normalized device coords (-1 to 1 range on all 3 axis)
+        // auto windowWidth = m_Window->GetWidth();
+        // auto windowHeight = m_Window->GetHeight();
+        // float x = (2.0f * cursorPos.x) / windowWidth - 1.0f;
+        // float y = 1.0f - (2.0f * cursorPos.y) / windowHeight;
+        // float z = 1.0f;
     }
 
     void TestApplication::OnRender()
@@ -238,11 +288,10 @@ namespace TestApp
             auto stats = pxl::Renderer::GetStats();
 
             ImGui::Text("Renderer Stats:");
-            ImGui::Text("  Draw Calls: %u", stats.DrawCalls);
-            ImGui::Text("  Vertices: %u", stats.QuadVertexCount + stats.LineVertexCount);
-            ImGui::Text("  Indices: %u", stats.QuadIndexCount);
-            ImGui::Text("  Triangles: %u", stats.GetTriangleCount());
-            ImGui::Text("  Estimated VRAM Usage: %u bytes", stats.GetEstimatedVRAMUsage());
+            ImGui::Text("- Draw Calls: %u", stats.DrawCalls);
+            ImGui::Text("- Vertices: %u", stats.QuadVertexCount + stats.LineVertexCount);
+            ImGui::Text("- Indices: %u", stats.QuadIndexCount);
+            ImGui::Text("- Triangles: %u", stats.GetTriangleCount());
 
             auto cursorPos = pxl::Input::GetCursorPosition(); 
 

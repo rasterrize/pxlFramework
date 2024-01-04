@@ -21,6 +21,11 @@ namespace pxl
 
     VulkanImage::~VulkanImage()
     {
+        Destroy();
+    }
+
+    void VulkanImage::Destroy()
+    {
         if (m_Image != VK_NULL_HANDLE)
             vkDestroyImage(m_Device, m_Image, nullptr);
 
