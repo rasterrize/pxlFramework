@@ -84,9 +84,29 @@ namespace pxl
         // Create swap chain with specified surface
         if (!CreateSwapchain(m_Surface, m_WindowHandle->GetWidth(), m_WindowHandle->GetHeight()))
             return;
-        
-        m_ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
-        m_RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
+
+        // Create command pool
+        VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        commandPoolInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
+
+        result = vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool);
+        VulkanHelpers::CheckVkResult(result);
+
+        // Prepare Frames // TODO: This needs to be adjustable at runtime
+        m_Frames.resize(m_MaxFramesInFlight);
+
+        for (auto& frame : m_Frames)
+        {
+            frame.CommandBuffer = CreateCommandBuffer();
+            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
+            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
+            frame.InFlightFence = VulkanHelpers::CreateFence(m_Device, true);
+        }
+
+        // m_ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
+        // m_RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
+
     }
 
     void VulkanContext::Shutdown()
@@ -95,11 +115,17 @@ namespace pxl
         vkDeviceWaitIdle(m_Device);
         
         // Destroy VK objects
-         if (m_ImageAvailableSemaphore != VK_NULL_HANDLE)
-            vkDestroySemaphore(m_Device, m_ImageAvailableSemaphore, nullptr);
+        for (auto& frame : m_Frames)
+        {
+            if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
+                vkDestroySemaphore(m_Device, frame.ImageAvailableSemaphore, nullptr);
 
-        if (m_RenderFinishedSemaphore != VK_NULL_HANDLE)
-            vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
+            if (frame.RenderFinishedSemaphore != VK_NULL_HANDLE)
+                vkDestroySemaphore(m_Device, frame.RenderFinishedSemaphore, nullptr);
+        }
+
+        if (m_CommandPool != VK_NULL_HANDLE)
+            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
         m_Swapchain->Destroy();
 
@@ -113,13 +139,35 @@ namespace pxl
             vkDestroyInstance(m_Instance, nullptr);
     }
 
+    VkCommandBuffer VulkanContext::CreateCommandBuffer()
+    {
+        // Create command buffer
+        VkCommandBuffer commandBuffer;
+
+        VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        commandBufferAllocInfo.commandPool = m_CommandPool;
+        commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        commandBufferAllocInfo.commandBufferCount = 1;
+
+        auto result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, &commandBuffer);
+        VulkanHelpers::CheckVkResult(result);
+
+        if (result != VK_SUCCESS)
+        {
+            Logger::LogError("Failed to allocate command buffer objects");
+            return VK_NULL_HANDLE;
+        }
+
+        return commandBuffer;
+    }
+
     void VulkanContext::SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence)
     {
         // Submit the command buffer
         VkSubmitInfo commandBufferSubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
         
-        VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore }; // The semaphores to wait before execution
-        VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };
+        VkSemaphore waitSemaphores[] = { m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore }; // The semaphores to wait before execution
+        VkSemaphore signalSemaphores[] = { m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore };
 
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }; // which stages of the pipeline to wait on
         commandBufferSubmitInfo.waitSemaphoreCount = 1;
@@ -135,7 +183,8 @@ namespace pxl
 
     void VulkanContext::Present()
     {
-        m_Swapchain->QueuePresent(m_PresentQueue, m_CurrentImageIndex, m_RenderFinishedSemaphore);
+        m_Swapchain->QueuePresent(m_PresentQueue, m_CurrentImageIndex, m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore);
+        m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
     }
     
     void VulkanContext::SetVSync(bool value)
@@ -362,7 +411,8 @@ namespace pxl
         }
 
         // TODO: TEMP
-        m_SwapchainData.ImageCount = 2;
+        m_SwapchainData.ImageCount = 3;
+        m_SwapchainData.PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 
         // Check if the surface supports the desired swap chain extent
         if (surfaceCapabilities.currentExtent.width == width && surfaceCapabilities.currentExtent.height == height)

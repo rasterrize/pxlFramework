@@ -16,26 +16,6 @@ namespace pxl
 
         // Get the graphics queue from the given queue family index
         m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_Device, m_GraphicsQueueFamilyIndex);
-        
-        // Create command pool
-        VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-        commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        commandPoolInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
-
-        result = vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool);
-        VulkanHelpers::CheckVkResult(result);
-
-        // Create command buffer
-        VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-        commandBufferAllocInfo.commandPool = m_CommandPool;
-        commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandBufferAllocInfo.commandBufferCount = 1;
-
-        result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, &m_CommandBuffer);
-        VulkanHelpers::CheckVkResult(result);
-
-        // Create sync objects
-        m_InFlightFence = VulkanHelpers::CreateFence(m_Device, true); // We create it signalled so the first frame doesn't wait for an unsignallable fence
 
         // Create initial objects to get this bloody thing working
         auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
@@ -85,19 +65,11 @@ namespace pxl
 
     void VulkanRenderer::Destroy()
     {
-        // Wait until device isnt using these objects before deleting them
-        vkDeviceWaitIdle(m_Device);
-
-        if (m_InFlightFence != VK_NULL_HANDLE)
-            vkDestroyFence(m_Device, m_InFlightFence, nullptr);
-        
-        if (m_CommandPool != VK_NULL_HANDLE)
-            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
     }
 
     void VulkanRenderer::DrawArrays(uint32_t vertexCount)
     {
-        vkCmdDraw(m_CommandBuffer, vertexCount, 1, 0, 0);
+        vkCmdDraw(m_CurrentFrame.CommandBuffer, vertexCount, 1, 0, 0);
     }
 
     void VulkanRenderer::DrawLines(uint32_t vertexCount)
@@ -107,19 +79,22 @@ namespace pxl
 
     void VulkanRenderer::DrawIndexed(uint32_t indexCount)
     {
-        vkCmdDrawIndexed(m_CommandBuffer, indexCount, 1, 0, 0, 0);
+        vkCmdDrawIndexed(m_CurrentFrame.CommandBuffer, indexCount, 1, 0, 0, 0);
     }
 
     void VulkanRenderer::Begin()
     {  
         VkResult result;
+
+        // Get the next frame to render to
+        m_CurrentFrame = m_ContextHandle->GetCurrentFrame();
         
         // Wait until the command buffers and semaphores are ready again
-        vkWaitForFences(m_Device, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
-        vkResetFences(m_Device, 1, &m_InFlightFence); // reset the fence to unsignalled state
+        vkWaitForFences(m_Device, 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        vkResetFences(m_Device, 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
 
         // Get next available image index
-        m_ContextHandle->PrepareNextFrame();
+        m_ContextHandle->AcquireNextImage();
         uint32_t imageIndex = m_ContextHandle->GetCurrentFrameIndex();
         
         // Begin command buffer recording
@@ -127,7 +102,7 @@ namespace pxl
         commandBufferBeginInfo.flags = 0; // Optional
         commandBufferBeginInfo.pInheritanceInfo = nullptr; // Optional - Used in secondary command buffers
 
-        result = vkBeginCommandBuffer(m_CommandBuffer, &commandBufferBeginInfo);
+        result = vkBeginCommandBuffer(m_CurrentFrame.CommandBuffer, &commandBufferBeginInfo);
         VulkanHelpers::CheckVkResult(result);
 
         // ---------------------
@@ -141,22 +116,22 @@ namespace pxl
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &m_ClearValue;
 
-        vkCmdBeginRenderPass(m_CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(m_CurrentFrame.CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         // Set dynamic state
         auto viewport = m_GraphicsPipeline->GetViewport();
         auto scissor = m_GraphicsPipeline->GetScissor();
 
         // Set dynamic state objects
-        vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
-        vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+        vkCmdSetViewport(m_CurrentFrame.CommandBuffer, 0, 1, &viewport);
+        vkCmdSetScissor(m_CurrentFrame.CommandBuffer, 0, 1, &scissor);
 
         // Bind Pipeline
-        m_GraphicsPipeline->Bind(m_CommandBuffer);
+        m_GraphicsPipeline->Bind(m_CurrentFrame.CommandBuffer);
 
         // Temp
-        m_TestVertexBuffer->Bind(m_CommandBuffer);
-        m_TestIndexBuffer->Bind(m_CommandBuffer);
+        m_TestVertexBuffer->Bind(m_CurrentFrame.CommandBuffer);
+        m_TestIndexBuffer->Bind(m_CurrentFrame.CommandBuffer);
     }
 
     void VulkanRenderer::End()
@@ -164,13 +139,13 @@ namespace pxl
         VkResult result;
 
         // End render pass
-        vkCmdEndRenderPass(m_CommandBuffer);
+        vkCmdEndRenderPass(m_CurrentFrame.CommandBuffer);
 
         // Finish recording the command buffer
-        result = vkEndCommandBuffer(m_CommandBuffer);
+        result = vkEndCommandBuffer(m_CurrentFrame.CommandBuffer);
         VulkanHelpers::CheckVkResult(result);
 
         // Submit the command buffer
-        m_ContextHandle->SubmitCommandBuffer(m_CommandBuffer, m_GraphicsQueue, m_InFlightFence);
+        m_ContextHandle->SubmitCommandBuffer(m_CurrentFrame.CommandBuffer, m_GraphicsQueue, m_CurrentFrame.InFlightFence);
     }
 }

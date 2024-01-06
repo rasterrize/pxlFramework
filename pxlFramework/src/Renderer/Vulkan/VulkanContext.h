@@ -11,6 +11,14 @@
 
 namespace pxl
 {
+    struct VulkanFrame
+    {
+        VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
+        VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
+        VkSemaphore ImageAvailableSemaphore = VK_NULL_HANDLE;
+        VkFence InFlightFence = VK_NULL_HANDLE;
+    };
+    
     class VulkanContext : public GraphicsContext
     {
     public:
@@ -29,9 +37,11 @@ namespace pxl
 
         std::shared_ptr<VulkanSwapchain> GetSwapchain() const { return m_Swapchain; }
 
-        void PrepareNextFrame() { m_CurrentImageIndex = m_Swapchain->AcquireNextAvailableImageIndex(m_ImageAvailableSemaphore); }
+        void AcquireNextImage() { m_CurrentImageIndex = m_Swapchain->AcquireNextAvailableImageIndex(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore); }
         uint32_t GetCurrentFrameIndex() const { return m_CurrentImageIndex; }
+        VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; } // GetNextFrame()?
 
+        VkCommandBuffer CreateCommandBuffer(); // could be a vulkan helper
         void SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence);
 
         // TEMP (I think)
@@ -66,17 +76,16 @@ namespace pxl
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
-        uint32_t m_CurrentImageIndex;
+        uint32_t m_CurrentImageIndex = 0;
 
-        //std::vector<VkCommandBuffer> m_CommandBuffers;
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
 
         // Synchronization
-        VkSemaphore m_RenderFinishedSemaphore = VK_NULL_HANDLE;
-        VkSemaphore m_ImageAvailableSemaphore = VK_NULL_HANDLE;
+        int m_MaxFramesInFlight = 3; // should used as a queue limit or something idk
+        std::vector<VulkanFrame> m_Frames;
+        uint32_t m_CurrentFrameIndex = 0;
 
         // IDK
         std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass;
-
-        bool m_PresentReady = false;
     };
 }
