@@ -24,7 +24,10 @@ namespace pxl
 		}
         
         if (m_Framebuffer != VK_NULL_HANDLE)
+        {
             vkDestroyFramebuffer(m_Device, m_Framebuffer, nullptr);
+            m_Framebuffer = VK_NULL_HANDLE;
+        }
     }
 
     void VulkanFramebuffer::AddAttachment(const VulkanFramebufferAttachment& attachment)

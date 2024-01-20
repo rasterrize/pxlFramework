@@ -44,7 +44,7 @@ namespace pxl
         m_TestIndexBuffer = std::make_shared<VulkanBuffer>(m_ContextHandle->GetPhysicalDevice(), m_Device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (uint32_t)sizeof(indices), indices);
 
         // Set Dynamic State
-        auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent;
+        auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
 
         // VkViewport viewport = {};
         // viewport.x = 0.0f;
@@ -54,8 +54,8 @@ namespace pxl
         // viewport.minDepth = 0.0f;
         // viewport.maxDepth = 1.0f;
 
-        m_GraphicsPipeline->ResizeViewport(m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent);
-        m_GraphicsPipeline->ResizeScissor(m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent);
+        m_GraphicsPipeline->ResizeViewport(m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent);
+        m_GraphicsPipeline->ResizeScissor(m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent);
     }
 
     VulkanRenderer::~VulkanRenderer()
@@ -91,11 +91,12 @@ namespace pxl
         
         // Wait until the command buffers and semaphores are ready again
         vkWaitForFences(m_Device, 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
-        vkResetFences(m_Device, 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
 
         // Get next available image index
         m_ContextHandle->AcquireNextImage();
         uint32_t imageIndex = m_ContextHandle->GetCurrentFrameIndex();
+        
+        vkResetFences(m_Device, 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
         
         // Begin command buffer recording
         VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
@@ -112,7 +113,7 @@ namespace pxl
         renderPassBeginInfo.renderPass = m_RenderPass->GetVKRenderPass();
         renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchain()->GetFramebuffer(imageIndex)->GetVKFramebuffer();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainData().Extent;
+        renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &m_ClearValue;
 

@@ -30,7 +30,6 @@ namespace pxl
         auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
         auto selectedLayers = std::vector<const char*>();
 
-        #define PXL_DEBUG // TODO: Define this in the build system
         #ifdef PXL_DEBUG
             auto validationLayers = VulkanHelpers::GetValidationLayers(availableLayers);
             selectedLayers = validationLayers;
@@ -73,17 +72,15 @@ namespace pxl
         // Get swapchain suitable surface format (for renderpass)
         auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(m_GPU, m_Surface);
         auto m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);
-        m_SwapchainData.Format = m_SurfaceFormat.format;
-        m_SwapchainData.ColorSpace = m_SurfaceFormat.colorSpace;
 
         // TODO: Determine all required swapchain data (surface format, present mode, etc) before creating render pass and swapchain
+        
 
         // Create default render pass for swapchain framebuffers
         m_DefaultRenderPass = std::make_shared<VulkanRenderPass>(m_Device, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
 
         // Create swap chain with specified surface
-        if (!CreateSwapchain(m_Surface, m_WindowHandle->GetWidth(), m_WindowHandle->GetHeight()))
-            return;
+        m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_GPU, m_Surface, m_SurfaceFormat, m_WindowHandle, m_DefaultRenderPass);
 
         // Create command pool
         VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -103,10 +100,6 @@ namespace pxl
             frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
             frame.InFlightFence = VulkanHelpers::CreateFence(m_Device, true);
         }
-
-        // m_ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
-        // m_RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
-
     }
 
     void VulkanContext::Shutdown()
@@ -185,27 +178,6 @@ namespace pxl
     {
         m_Swapchain->QueuePresent(m_PresentQueue, m_CurrentImageIndex, m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore);
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
-    }
-    
-    void VulkanContext::SetVSync(bool value)
-    {
-        // Don't update VSync if it already is the specified value. This is important for vulkan since the entire swapchain needs to be recreated.
-        if (m_VSync != value) // lambda possible here I think
-        {
-            if (value)
-                m_SwapchainData.PresentMode = VK_PRESENT_MODE_FIFO_KHR;
-            else
-                m_SwapchainData.PresentMode = VK_PRESENT_MODE_MAILBOX_KHR; // should be checked under 'available present modes' first
-
-            m_VSync = value;
-        }
-        else
-        {
-            return;
-        }
-
-        // TODO: recreate swap chain
-        // RecreateSwapchain(); // or maybe CreateSwapchain() again but it checks if the swapchain already exists or not.
     }
 
     bool VulkanContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
@@ -349,84 +321,6 @@ namespace pxl
         }
         
         // TODO: expand this
-
-        return true;
-    }
-
-    bool VulkanContext::CreateSwapchain(VkSurfaceKHR surface, uint32_t width, uint32_t height)
-    {
-        VkResult result;
-
-        // Check surface compatiblity
-        auto surfacePresentModes = VulkanHelpers::GetSurfacePresentModes(m_GPU, surface);
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_GPU, surface);
-
-        // Select most suitable surface present mode
-        bool foundSuitablePresentMode = false;
-
-        for (const auto& presentMode : surfacePresentModes)
-        {
-            if (m_VSync)
-            {
-                if (presentMode == VK_PRESENT_MODE_FIFO_KHR)
-                {
-                    m_SwapchainData.PresentMode = presentMode;
-                    foundSuitablePresentMode = true;
-                    break; 
-                }
-            }
-            else
-            {
-                if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-                {
-                    m_SwapchainData.PresentMode = presentMode;
-                    foundSuitablePresentMode = true;
-                    break;
-                }
-            }
-        }
-
-        if (!foundSuitablePresentMode)
-        {
-            Logger::LogError("Failed to find suitable swap chain present mode");
-            return false;
-        }
-
-        // Select most suitable number of images for swapchain
-        if (surfaceCapabilities.minImageCount >= 2)
-        {
-            if (surfaceCapabilities.maxImageCount >= 3)
-            {
-                m_SwapchainData.ImageCount = 3; // Triple buffering
-            }
-            else
-            {
-                m_SwapchainData.ImageCount = 2; // Double buffering
-            }
-        }
-        else
-        {
-            Logger::LogError("Selected surface for swapchain must support more than 2 images");
-            return false;
-        }
-
-        // TODO: TEMP
-        m_SwapchainData.ImageCount = 3;
-        m_SwapchainData.PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-
-        // Check if the surface supports the desired swap chain extent
-        if (surfaceCapabilities.currentExtent.width == width && surfaceCapabilities.currentExtent.height == height)
-        {
-            m_SwapchainData.Extent = { width, height };
-        }
-        else
-        {
-            Logger::LogError("Selected swap chain size is incompatible with window surface");
-            return false;
-        }
-
-        // Create swapchain
-        m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SwapchainData, m_DefaultRenderPass);
 
         return true;
     }

@@ -107,6 +107,7 @@ target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <stri
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE
 GLFW_EXPOSE_NATIVE_WIN32
-GLFW_INCLUDE_VULKAN) #IMGUI_IMPL_OPENGL_LOADER_GLAD
+GLFW_INCLUDE_VULKAN
+$<$<CONFIG:Debug>:PXL_DEBUG>) #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)

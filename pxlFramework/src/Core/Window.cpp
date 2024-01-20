@@ -111,6 +111,7 @@ namespace pxl
     {
         glfwSetWindowCloseCallback(m_GLFWWindow, WindowCloseCallback);
         glfwSetWindowSizeCallback(m_GLFWWindow, WindowResizeCallback);
+        glfwSetFramebufferSizeCallback(m_GLFWWindow, FramebufferResizeCallback);
         glfwSetWindowIconifyCallback(m_GLFWWindow, WindowIconifyCallback);
 
         glfwSetMonitorCallback(MonitorCallback);
@@ -283,6 +284,18 @@ namespace pxl
 	    return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
     }
 
+    glm::u32vec2 Window::GetFramebufferSize()
+    {
+        int width, height;
+        glfwGetFramebufferSize(m_GLFWWindow, &width, &height);
+
+        glm::u32vec2 fb;
+        fb.x = (uint32_t)width;
+        fb.y = (uint32_t)height;
+        
+        return fb;
+    }
+
     VkSurfaceKHR Window::CreateVKWindowSurface(VkInstance instance)
     {
         // Create VkSurfaceKHR for glfw window
@@ -308,13 +321,17 @@ namespace pxl
     void Window::WindowResizeCallback(GLFWwindow* window, int width, int height)
     {
         int fbWidth, fbHeight;
-        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-        glViewport(0, 0, fbWidth, height); // GLFW NOTE: Do not pass the window size to glViewport or other pixel-based OpenGL calls. (will fix later)
-        // ^ this should probably be in the OpenGL Context or OpenGL Renderer
+        glfwGetFramebufferSize(window, &fbWidth, &fbHeight); // should be GetFramebufferSize();
 
         auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
-        windowInstance->m_WindowSpecs.Width = width;
-        windowInstance->m_WindowSpecs.Height = height;
+        windowInstance->m_Specs.Width = width;
+        windowInstance->m_Specs.Height = height;
+        windowInstance->m_GraphicsContext->ResizeViewport(fbWidth, fbHeight); // idk if GraphicsContext should be doing this but this is currently necessary for opengl
+    }
+
+    void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)

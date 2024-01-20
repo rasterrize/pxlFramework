@@ -26,8 +26,9 @@ namespace pxl
         ~VulkanContext();
 
         virtual void Present() override;
-        virtual void SetVSync(bool value) override; // not sure whether to call the parameter 'vsync' or 'value'
-        virtual bool GetVSync() override { return m_VSync; }
+        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); };
+        virtual bool GetVSync() override { return m_Swapchain->GetVSync(); }
+        virtual void ResizeViewport(uint32_t width, uint32_t height) override {};
 
         VkInstance GetInstance() const { return m_Instance; }
         VkDevice GetDevice() const { return m_Device; }
@@ -45,7 +46,7 @@ namespace pxl
         void SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence);
 
         // TEMP (I think)
-        std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; }
+        std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
         
     private:
         void Init();
@@ -53,13 +54,11 @@ namespace pxl
 
         bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers);
         bool CreateLogicalDevice(VkPhysicalDevice physicalDevice);
-        bool CreateSwapchain(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 
         bool SelectFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
         bool SelectFirstVKCapableGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
 
     private:
-        bool m_VSync = true;
         std::shared_ptr<Window> m_WindowHandle = nullptr;
 
         // Vulkan Handles
@@ -67,11 +66,10 @@ namespace pxl
         VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
 
-        VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Surfaces and surface creation should be in the window class
+        VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
         VkSurfaceFormatKHR m_SurfaceFormat;
 
         std::shared_ptr<VulkanSwapchain> m_Swapchain;
-        VulkanSwapchainData m_SwapchainData = {};
         
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
@@ -86,6 +84,6 @@ namespace pxl
         uint32_t m_CurrentFrameIndex = 0;
 
         // IDK
-        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass;
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // should a default renderpass exist? could this be a geometry renderpass instead?
     };
 }

@@ -5,6 +5,7 @@
 #include "../Renderer/RendererAPIType.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
 
 namespace pxl
 {
@@ -67,6 +68,7 @@ namespace pxl
         // GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
     private:

@@ -5,21 +5,23 @@
 #include "VulkanImage.h"
 #include "VulkanFramebuffer.h"
 
+#include "../../Core/Window.h"
+
 namespace pxl
 {
-    struct VulkanSwapchainData
+    struct VulkanSwapchainSpecs
     {
-        uint32_t ImageCount = 0;
-        VkExtent2D Extent = {};
+        VkExtent2D Extent = { UINT32_MAX, UINT32_MAX };
         VkFormat Format = VK_FORMAT_UNDEFINED;
         VkColorSpaceKHR ColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         VkPresentModeKHR PresentMode = VK_PRESENT_MODE_FIFO_KHR; // This is guaranteed to be supported
+        uint32_t ImageCount = 0;
     };
 
     class VulkanSwapchain
     {
     public:
-        VulkanSwapchain(VkDevice device, VkSurfaceKHR surface, const VulkanSwapchainData& swapchainData, const std::shared_ptr<VulkanRenderPass>& renderPass);
+        VulkanSwapchain(VkDevice device, VkPhysicalDevice gpu, VkSurfaceKHR surface, VkSurfaceFormatKHR surfaceFormat, const std::shared_ptr<Window> windowHandle, const std::shared_ptr<VulkanRenderPass>& renderPass);
         ~VulkanSwapchain();
 
         void Recreate();
@@ -30,16 +32,26 @@ namespace pxl
         void QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore/* = VK_NULL_HANDLE*/);
 
         VkSwapchainKHR GetVKSwapchain() const { return m_Swapchain; }
-        VulkanSwapchainData GetSwapchainData() const { return m_Data; }
+        VulkanSwapchainSpecs GetSwapchainSpecs() const { return m_SwapchainSpecs; }
         VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); }
         std::shared_ptr<VulkanFramebuffer> GetFramebuffer(uint32_t index) const { return m_Framebuffers[index]; }
+
+        void SetVSync(bool value) { m_VSync = value; }
+        bool GetVSync() const { return m_VSync; }
     private:
         void Create();
         void PrepareImages();
         void PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass);
+
+        VkPresentModeKHR GetSuitablePresentMode();
+        uint32_t GetSuitableImageCount();
+        bool CheckExtentSupport(VkExtent2D extent);
     
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
+        VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
+
+        std::shared_ptr<Window> m_WindowHandle;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
@@ -47,6 +59,9 @@ namespace pxl
         std::vector<std::shared_ptr<VulkanImage>> m_Images; // holds the image views
         std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
 
-        VulkanSwapchainData m_Data = {};
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // to create framebuffers
+
+        VulkanSwapchainSpecs m_SwapchainSpecs = {};
+        bool m_VSync = true;
     };
 }

@@ -25,12 +25,18 @@ namespace pxl
     }
 
     void VulkanImage::Destroy()
-    {
+    {    
         if (m_Image != VK_NULL_HANDLE)
+        {
             vkDestroyImage(m_Device, m_Image, nullptr);
+            m_Image = VK_NULL_HANDLE;
+        }
 
         if (m_ImageView != VK_NULL_HANDLE)
+        {
             vkDestroyImageView(m_Device, m_ImageView, nullptr);
+            m_ImageView = VK_NULL_HANDLE;
+        }
     }
 
     void VulkanImage::CreateImage(uint32_t width, uint32_t height, VkFormat format)

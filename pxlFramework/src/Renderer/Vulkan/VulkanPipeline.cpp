@@ -56,8 +56,8 @@ namespace pxl
         // Setup Viewport
         m_Viewport.x = 0.0f;
         m_Viewport.y = 0.0f;
-        m_Viewport.width = 0.0f; // TODO: should width and height default to 0?
-        m_Viewport.height = 0.0f;
+        m_Viewport.width = 640.0f; // TODO: should width and height default to 0?
+        m_Viewport.height = 480.0f;
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 
@@ -77,7 +77,7 @@ namespace pxl
         //rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL; // Can be lines and points, but requires enabling a gpu feature
         rasterizationInfo.lineWidth = 1.0f; // 1.0f is good default, any higher requires enabling a gpu feature
         rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT; // specify different types of culling here
-        rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; // TODO: is this clockwise in OpenGL?
         //rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
