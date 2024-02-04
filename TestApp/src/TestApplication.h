@@ -13,7 +13,6 @@ namespace TestApp
         virtual void OnImGuiRender() override;
     private:
         std::shared_ptr<pxl::Window> m_Window;
-        std::shared_ptr<pxl::Window> m_TestWindow;
         std::shared_ptr<pxl::Camera> m_Camera;
 
         std::shared_ptr<pxl::Shader> m_Shader;

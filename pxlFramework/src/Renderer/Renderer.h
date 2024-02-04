@@ -9,6 +9,7 @@
 #include "Camera.h"
 
 #include "VertexArray.h"
+#include "Device.h"
 
 #include <glm/matrix.hpp>
 
@@ -36,7 +37,7 @@ namespace pxl
         static void Begin();
         static void End();
 
-        static void Draw();
+        static void Draw(); // TODO: TEMP FOR VULKAN TESTING
 
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
@@ -67,17 +68,7 @@ namespace pxl
         friend class Window;
         static void CalculateFPS();
 
-        static void StartQuadBatch();
-        static void StartCubeBatch();
-        static void StartLineBatch();
-
-        static void EndQuadBatch();
-        static void EndCubeBatch();
-        static void EndLineBatch();
-
-        static void DrawQuads();
-        static void DrawCubes();
-        static void DrawLines();
+        static void Flush();
 
     private:
         static bool s_Enabled;
@@ -86,9 +77,16 @@ namespace pxl
         static std::shared_ptr<Window> s_WindowHandle;
 
         static std::shared_ptr<VertexArray> s_QuadVAO;
+        static std::shared_ptr<VertexBuffer> s_QuadVBO;
+        static std::shared_ptr<IndexBuffer> s_QuadIBO;
+
+        // For OpenGL
         static std::shared_ptr<VertexArray> s_CubeVAO;
         static std::shared_ptr<VertexArray> s_LineVAO;
         static std::shared_ptr<VertexArray> s_MeshVAO;
+
+        // For Vulkan
+        static std::shared_ptr<Device> s_Device;
 
         static float s_FPS;
         static uint32_t s_FrameCount;

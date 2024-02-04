@@ -5,15 +5,18 @@
 
 namespace pxl
 {
-    VulkanBuffer::VulkanBuffer(VkPhysicalDevice gpu, VkDevice device, VkBufferUsageFlagBits usage, uint32_t size, const void* data)
-        : m_Device(device), m_GPU(gpu), m_Usage(usage)
+    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data)
+        : m_Device(device)
     {
+        // Generic buffer usage to vulkan buffer usage
+        m_Usage = GetVkBufferUsageOfBufferUsage(usage);
+
         // Create the vulkan buffer
-        CreateBuffer(usage, size);
+        CreateBuffer(m_Usage, size);
 
         // Allocate memory and bind it to the buffer
         AllocateMemory();
-        vkBindBufferMemory(m_Device, m_Buffer, m_Memory, 0);
+        vkBindBufferMemory(static_cast<VkDevice>(m_Device->GetLogicalDevice()), m_Buffer, m_Memory, 0);
 
         // Set the data inside the memory of the buffer
         SetData(size, data);
@@ -37,22 +40,25 @@ namespace pxl
 
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
+        auto device = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+
         // Fill the vertex buffer with the data
         void* data2;
-        vkMapMemory(m_Device, m_Memory, 0, size, 0, &data2);
+        vkMapMemory(device, m_Memory, 0, size, 0, &data2);
         memcpy(data2, data, (size_t)size);
-        vkUnmapMemory(m_Device, m_Memory);
+        vkUnmapMemory(device, m_Memory);
     }
 
     void VulkanBuffer::Destroy()
     {
-        vkDeviceWaitIdle(m_Device);
+        auto device = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        vkDeviceWaitIdle(device);
         
         if (m_Buffer != VK_NULL_HANDLE)
-            vkDestroyBuffer(m_Device, m_Buffer, nullptr);
+            vkDestroyBuffer(device, m_Buffer, nullptr);
 
         if (m_Memory != VK_NULL_HANDLE)
-            vkFreeMemory(m_Device, m_Memory, nullptr);
+            vkFreeMemory(device, m_Memory, nullptr);
 
     }
 
@@ -64,7 +70,7 @@ namespace pxl
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        auto result = vkCreateBuffer(m_Device, &bufferInfo, nullptr, &m_Buffer);
+        auto result = vkCreateBuffer(static_cast<VkDevice>(m_Device->GetLogicalDevice()), &bufferInfo, nullptr, &m_Buffer);
         VulkanHelpers::CheckVkResult(result);
     }
 
@@ -117,32 +123,33 @@ namespace pxl
         return VK_FORMAT_UNDEFINED;
     }
 
+    VkBufferUsageFlagBits VulkanBuffer::GetVkBufferUsageOfBufferUsage(BufferUsage usage)
+    {
+        switch (usage)
+        {
+            case BufferUsage::None:
+                PXL_LOG_WARN(LogArea::Vulkan, "Buffer usage was none, can't convert to VkBufferUsage");
+                break;
+            case BufferUsage::Vertex:
+                return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            case BufferUsage::Index:
+                return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        }
+        
+        return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
+    }
+
     void VulkanBuffer::AllocateMemory()
     {
+        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
         VkMemoryRequirements memReqs;
-        vkGetBufferMemoryRequirements(m_Device, m_Buffer, &memReqs);
+        vkGetBufferMemoryRequirements(logicalDevice, m_Buffer, &memReqs);
 
         VkMemoryAllocateInfo allocInfo = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
         allocInfo.allocationSize = memReqs.size;
-        allocInfo.memoryTypeIndex = FindMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        allocInfo.memoryTypeIndex = m_Device->FindMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        auto result = vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_Memory);
+        auto result = vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &m_Memory);
         VulkanHelpers::CheckVkResult(result);
-    }
-
-    uint32_t VulkanBuffer::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-    {
-        // Find correct memory type
-        VkPhysicalDeviceMemoryProperties memProps;
-        vkGetPhysicalDeviceMemoryProperties(m_GPU, &memProps);
-
-        // Loop through each type of memory and check if the specified type matches as well as the properties
-        for (uint32_t i = 0; i < memProps.memoryTypeCount; i++)
-        {
-            if ((typeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
-                return i;
-        }
-
-        return -1;
     }
 }

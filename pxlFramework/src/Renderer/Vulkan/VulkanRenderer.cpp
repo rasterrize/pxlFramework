@@ -10,24 +10,26 @@
 namespace pxl
 {
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanContext>& context)
-        : m_ContextHandle(context), m_Device(context->GetDevice()), m_GraphicsQueueFamilyIndex(context->GetGraphicsQueueIndex())
+        : m_ContextHandle(context), m_Device(context->GetDevice()), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
     {
         VkResult result;
 
+        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+
         // Get the graphics queue from the given queue family index
-        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_Device, m_GraphicsQueueFamilyIndex);
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(logicalDevice, m_GraphicsQueueFamilyIndex);
 
         // Create initial objects to get this bloody thing working
         auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
         auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
 
-        m_Shader = pxl::Shader::Create(m_Device, vertBin, fragBin);
+        m_Shader = pxl::Shader::Create(logicalDevice, vertBin, fragBin);
         m_RenderPass = m_ContextHandle->GetDefaultRenderPass();
 
         BufferLayout layout;
         layout.Add(1, BufferDataType::Float2, false);
 
-        m_GraphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(m_Device, m_Shader, m_RenderPass, layout);
+        m_GraphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(logicalDevice, m_Shader, m_RenderPass, layout);
 
         float vertices[] = {
             -0.5f, -0.5f,
@@ -40,8 +42,8 @@ namespace pxl
             0, 1, 2, 2, 3, 0
         };
 
-        m_TestVertexBuffer = std::make_shared<VulkanBuffer>(m_ContextHandle->GetPhysicalDevice(), m_Device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, (uint32_t)sizeof(vertices), vertices);
-        m_TestIndexBuffer = std::make_shared<VulkanBuffer>(m_ContextHandle->GetPhysicalDevice(), m_Device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (uint32_t)sizeof(indices), indices);
+        m_TestVertexBuffer = std::make_shared<VulkanBuffer>(m_Device, BufferUsage::Vertex, (uint32_t)sizeof(vertices), vertices);
+        m_TestIndexBuffer = std::make_shared<VulkanBuffer>(m_Device, BufferUsage::Index, (uint32_t)sizeof(indices), indices);
 
         // Set Dynamic State
         auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
@@ -90,13 +92,13 @@ namespace pxl
         m_CurrentFrame = m_ContextHandle->GetCurrentFrame();
         
         // Wait until the command buffers and semaphores are ready again
-        vkWaitForFences(m_Device, 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        vkWaitForFences(static_cast<VkDevice>(m_Device->GetLogicalDevice()), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
 
         // Get next available image index
         m_ContextHandle->AcquireNextImage();
         uint32_t imageIndex = m_ContextHandle->GetCurrentFrameIndex();
         
-        vkResetFences(m_Device, 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
+        vkResetFences(static_cast<VkDevice>(m_Device->GetLogicalDevice()), 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
         
         // Begin command buffer recording
         VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };

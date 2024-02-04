@@ -6,6 +6,7 @@
 #include "VulkanRenderPass.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanSwapchain.h"
+#include "VulkanDevice.h"
 
 #include <vulkan/vulkan.h>
 
@@ -31,9 +32,7 @@ namespace pxl
         virtual void ResizeViewport(uint32_t width, uint32_t height) override {};
 
         VkInstance GetInstance() const { return m_Instance; }
-        VkDevice GetDevice() const { return m_Device; }
-        VkPhysicalDevice GetPhysicalDevice() { return m_GPU; }
-        uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
+        std::shared_ptr<VulkanDevice> GetDevice() const { return m_Device; }
         VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
 
         std::shared_ptr<VulkanSwapchain> GetSwapchain() const { return m_Swapchain; }
@@ -53,25 +52,21 @@ namespace pxl
         void Shutdown();
 
         bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers);
-        bool CreateLogicalDevice(VkPhysicalDevice physicalDevice);
+        //bool CreateLogicalDevice(VkPhysicalDevice physicalDevice);
 
-        bool SelectFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
-        bool SelectFirstVKCapableGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
+        VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
 
     private:
         std::shared_ptr<Window> m_WindowHandle = nullptr;
 
         // Vulkan Handles
         VkInstance m_Instance = VK_NULL_HANDLE;
-        VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device;
 
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
         VkSurfaceFormatKHR m_SurfaceFormat;
 
         std::shared_ptr<VulkanSwapchain> m_Swapchain;
-        
-        std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
         uint32_t m_CurrentImageIndex = 0;

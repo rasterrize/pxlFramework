@@ -24,7 +24,7 @@ src/Renderer/Renderer.h src/Renderer/Renderer.cpp
 src/Renderer/RendererAPI.h
 src/Renderer/RendererAPIType.h
 src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
-src/Renderer/VertexBuffer.h
+src/Renderer/VertexBuffer.h src/Renderer/VertexBuffer.cpp
 src/Renderer/IndexBuffer.h
 src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
@@ -37,6 +37,7 @@ src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 src/Renderer/RendererData.h
 src/Renderer/Pipeline.h
 src/Renderer/Framebuffer.h
+src/Renderer/Device.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
@@ -62,6 +63,7 @@ src/Renderer/Vulkan/VulkanSwapchain.h src/Renderer/Vulkan/VulkanSwapchain.cpp
 src/Renderer/Vulkan/VulkanHelpers.h src/Renderer/Vulkan/VulkanHelpers.cpp
 src/Renderer/Vulkan/VulkanImage.h src/Renderer/Vulkan/VulkanImage.cpp
 src/Renderer/Vulkan/VulkanBuffer.h src/Renderer/Vulkan/VulkanBuffer.cpp
+src/Renderer/Vulkan/VulkanDevice.h src/Renderer/Vulkan/VulkanDevice.cpp
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp

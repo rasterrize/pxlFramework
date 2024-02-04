@@ -52,6 +52,8 @@ namespace pxl
 
     // TODO: an alternative method should be used for VAOs because they are OpenGL specific
     std::shared_ptr<VertexArray> Renderer::s_QuadVAO;
+    std::shared_ptr<VertexBuffer> Renderer::s_QuadVBO;
+    std::shared_ptr<IndexBuffer> Renderer::s_QuadIBO;
     std::shared_ptr<VertexArray> Renderer::s_CubeVAO;
     std::shared_ptr<VertexArray> Renderer::s_LineVAO;
     std::shared_ptr<VertexArray> Renderer::s_MeshVAO;
@@ -69,9 +71,9 @@ namespace pxl
 
         s_WindowHandle = window;
 
-        auto windowSpecs = window->GetWindowSpecs();
+        auto windowRendererAPI = window->GetWindowSpecs().RendererAPI;
 
-        switch (windowSpecs.RendererAPI)
+        switch (windowRendererAPI)
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api");    
@@ -104,25 +106,25 @@ namespace pxl
                 break;
         }
 
-        // {
-        //     // Prepare Quad Index Buffer
+        {
+            // Prepare Quad Index Buffer
 
-        //     uint32_t offset = 0;
-        //     for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
-        //     {
-        //         s_QuadIndices[i + 0] = 0 + offset;
-        //         s_QuadIndices[i + 1] = 1 + offset;
-        //         s_QuadIndices[i + 2] = 2 + offset;
+            uint32_t offset = 0;
+            for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
+            {
+                s_QuadIndices[i + 0] = 0 + offset;
+                s_QuadIndices[i + 1] = 1 + offset;
+                s_QuadIndices[i + 2] = 2 + offset;
 
-        //         s_QuadIndices[i + 3] = 2 + offset;
-        //         s_QuadIndices[i + 4] = 3 + offset;
-        //         s_QuadIndices[i + 5] = 0 + offset;
+                s_QuadIndices[i + 3] = 2 + offset;
+                s_QuadIndices[i + 4] = 3 + offset;
+                s_QuadIndices[i + 5] = 0 + offset;
 
-        //         s_QuadIndexCount += 6;
+                s_QuadIndexCount += 6;
 
-        //         offset += 4;
-        //     }
-        // }
+                offset += 4;
+            }
+        }
 
         // {
         //     // Prepare Cube Index Buffer
@@ -144,21 +146,29 @@ namespace pxl
         //     }
         // }
 
-        // {
-        //     // Prepare Quad VAO, VBO, IBO
-        //     s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // TODO: create functions to create these objects based on renderer api type
-        //     auto quadVBO = std::make_shared<OpenGLVertexBuffer>(static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
-        //     auto quadIBO = std::make_shared<OpenGLIndexBuffer>(static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
+        {
+            BufferLayout layout;
+            layout.Add(3, BufferDataType::Float, false); // vertex position
+            layout.Add(4, BufferDataType::Float, false); // colour
+            layout.Add(2, BufferDataType::Float, false); // texture coords
 
-        //     BufferLayout layout;
-        //     layout.Add(3, BufferDataType::Float, false); // vertex position
-        //     layout.Add(4, BufferDataType::Float, false); // colour
-        //     layout.Add(2, BufferDataType::Float, false); // texture coords
+            // Prepare Quad VAO, VBO, IBO
+            if (windowRendererAPI == RendererAPIType::OpenGL)
+            {
+                s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // TODO: create functions to create these objects based on renderer api type
 
-        //     s_QuadVAO->SetLayout(layout);
-        //     s_QuadVAO->SetVertexBuffer(quadVBO);
-        //     s_QuadVAO->SetIndexBuffer(quadIBO);
-        // }
+                s_QuadVAO->SetLayout(layout);
+                s_QuadVAO->SetVertexBuffer(s_QuadVBO);
+                s_QuadVAO->SetIndexBuffer(s_QuadIBO);
+            }
+            else if (windowRendererAPI == RendererAPIType::Vulkan)
+            {
+
+            }
+
+            //s_QuadVBO = VertexBuffer::Create(static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
+            //s_QuadIBO = std::make_shared<OpenGLIndexBuffer>(static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
+        }
 
         // {
         //     // Prepare Cube VAO, VBO, IBO
@@ -204,8 +214,9 @@ namespace pxl
         //     s_MeshVAO->SetIndexBuffer(meshIBO);
         // }
 
-        s_RendererAPIType = windowSpecs.RendererAPI;
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
+
+        s_RendererAPIType = windowRendererAPI;
         s_Enabled = true;
     }
 
@@ -234,74 +245,31 @@ namespace pxl
 
     void Renderer::Begin()
     {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-
         s_RendererAPI->Begin();
 
-        StartQuadBatch();
-        StartCubeBatch();
-        StartLineBatch();
+        // Ensure these are set before batch rendering
+        s_QuadVertexCount = 0;
+        s_CubeVertexCount = 0;
+        s_LineVertexCount = 0;
     }
 
     void Renderer::End()
     {
-        if (!s_Enabled)
-            return;
-
         s_RendererAPI->End();
 
-        EndQuadBatch();
-        EndCubeBatch();
-        EndLineBatch();
+        Flush();
     }
 
     void Renderer::Draw()
     {
-        //DrawQuads();
-        //DrawCubes(); // should these check if there are e.g. cubes to draw?
-        //DrawLines();
-
         s_RendererAPI->DrawIndexed(6);
-    }
-
-    void Renderer::DrawQuads()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-        
-        s_QuadVAO->Bind();
-        s_RendererAPI->DrawIndexed(s_QuadVAO->GetIndexBuffer()->GetCount());
-        s_Stats.DrawCalls++;
-    }
-
-    void Renderer::DrawCubes()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-        
-        s_CubeVAO->Bind();
-        s_RendererAPI->DrawIndexed(s_CubeVAO->GetIndexBuffer()->GetCount());
-        s_Stats.DrawCalls++;
-    }
-
-    void Renderer::DrawLines()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-
-        s_LineVAO->Bind();
-        s_RendererAPI->DrawLines(s_LineVertexCount);
-        s_Stats.DrawCalls++;
     }
 
     void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
         if (s_QuadVertexCount >= s_MaxQuadVertexCount)
         {
-            EndQuadBatch();
-            DrawQuads();
-            StartQuadBatch();
+            Flush();
         }
         
         s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }};
@@ -339,9 +307,7 @@ namespace pxl
     {
         if (s_CubeVertexCount >= s_MaxCubeVertexCount)
         {
-            EndCubeBatch();
-            DrawCubes();
-            StartCubeBatch();
+            Flush();
         }
 
         // Front
@@ -413,9 +379,7 @@ namespace pxl
     {
         if (s_LineVertexCount >= s_MaxLineVertexCount)
         {
-            EndLineBatch();
-            DrawLines();
-            StartLineBatch();
+            Flush();
         }
         
         s_LineVertices[s_LineVertexCount + 0] = {{ position1.x * scale.x, position1.y * scale.y, position1.z * scale.z }, colour };
@@ -443,44 +407,40 @@ namespace pxl
     //     DrawIndexed();
     // }
 
-    void Renderer::StartQuadBatch()
+    void Renderer::Flush()
     {
-        s_QuadVertexCount = 0;
-    }
+        if (s_QuadVertexCount > 0)
+        {
+            s_QuadVBO->SetData(s_QuadVertexCount * sizeof(TriangleVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
-    void Renderer::StartCubeBatch()
-    {
-        s_CubeVertexCount = 0;
-    }
+            if (s_QuadVAO != nullptr)
+                s_QuadVAO->Bind();
 
-    void Renderer::StartLineBatch()
-    {
-        s_LineVertexCount = 0;
-    }
+            s_RendererAPI->DrawIndexed(s_QuadVAO->GetIndexBuffer()->GetCount());
+            s_Stats.DrawCalls++;
 
-    void Renderer::EndQuadBatch()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
+            s_QuadVertexCount = 0;
+        }
 
-        //s_QuadVAO->GetVertexBuffer()->SetData(s_QuadVertexCount * sizeof(TriangleVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
-        //s_QuadVertices.fill({});
-    }
+        if (s_CubeVertexCount > 0)
+        {
+            s_CubeVAO->GetVertexBuffer()->SetData(s_CubeVertexCount * sizeof(TriangleVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
+            s_CubeVAO->Bind();
+            s_RendererAPI->DrawIndexed(s_CubeVAO->GetIndexBuffer()->GetCount());
+            s_Stats.DrawCalls++;
 
-    void Renderer::EndCubeBatch()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-        
-        //s_CubeVAO->GetVertexBuffer()->SetData(s_CubeVertexCount * sizeof(TriangleVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
-    }
+            s_CubeVertexCount = 0;
+        }
 
-    void Renderer::EndLineBatch()
-    {
-        if (!s_Enabled) // Temporary to avoid memory leak. Renderer should really be a singleton or an actual object
-            return;
-        
-        //s_LineVAO->GetVertexBuffer()->SetData(s_LineVertexCount * sizeof(LineVertex), s_LineVertices.data());
+        if (s_LineVertexCount > 0)
+        {
+            s_LineVAO->GetVertexBuffer()->SetData(s_LineVertexCount * sizeof(LineVertex), s_LineVertices.data());
+            s_LineVAO->Bind();
+            s_RendererAPI->DrawLines(s_LineVertexCount);
+            s_Stats.DrawCalls++;
+
+            s_LineVertexCount = 0;
+        }
     }
 
     void Renderer::CalculateFPS()

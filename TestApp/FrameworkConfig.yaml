@@ -1,2 +1,2 @@
-RendererAPI: OpenGL
+RendererAPI: Vulkan
 WindowMode: Windowed

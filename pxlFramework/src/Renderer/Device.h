@@ -1,3 +1,5 @@
+#pragma once
+
 namespace pxl
 {
     class Device
@@ -5,7 +7,9 @@ namespace pxl
     public:
         virtual ~Device() = default;
 
-        virtual void* GetNativeDevice() = 0;
+        virtual void* GetLogicalDevice() = 0;
+        virtual void* GetPhysicalAdapter() = 0;
+
         virtual void Destroy() = 0;
     };
 }

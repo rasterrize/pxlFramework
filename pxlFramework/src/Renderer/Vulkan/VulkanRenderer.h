@@ -33,7 +33,7 @@ namespace pxl
     private:
         std::shared_ptr<VulkanContext> m_ContextHandle = nullptr;
 
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device = VK_NULL_HANDLE;
         VkClearValue m_ClearValue = { { { 20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f } } };
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;

@@ -3,6 +3,7 @@
 #include "../VertexBuffer.h"
 
 #include "../BufferLayout.h"
+#include "VulkanDevice.h"
 
 #include <vulkan/vulkan.h>
 
@@ -11,7 +12,7 @@ namespace pxl
     class VulkanBuffer : public VertexBuffer
     {
     public:
-        VulkanBuffer(VkPhysicalDevice gpu, VkDevice device, VkBufferUsageFlagBits usage, uint32_t size, const void* data); // physical device is for getting memory properties, it should be in the VulkanContext or VulkanDevice classes respectively
+        VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data); // physical device is for getting memory properties, it should be in the VulkanContext or VulkanDevice classes respectively
         ~VulkanBuffer();
 
         virtual void Bind() override {};
@@ -29,13 +30,11 @@ namespace pxl
     private:
         void CreateBuffer(VkBufferUsageFlags usage, uint32_t size);
         void AllocateMemory();
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     private:
-
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
+        static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(BufferUsage usage);
     private:
-        VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device;
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VkDeviceMemory m_Memory = VK_NULL_HANDLE;

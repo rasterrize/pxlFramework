@@ -86,47 +86,49 @@ namespace TestApp
         //     }
         // )";
 
-        // auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
-        // std::string windowTitle = "pxlFramework Test App";
-        // std::string buildType = "Unknown Build Type";
-        // std::string rendererAPIType = "Unknown Renderer API";
-        // pxl::RendererAPIType windowRendererAPI = pxl::RendererAPIType::OpenGL;
-        // pxl::WindowMode windowMode = frameworkSettings.WindowMode;
+        std::string windowTitle = "pxlFramework Test App";
+        std::string buildType = "Unknown Build Type";
+        std::string rendererAPIType = "Unknown Renderer API";
+        pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
+        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
-        // #ifdef TA_DEBUG
-        //     buildType = "Debug x64";
-        // #elif TA_RELEASE
-        //     buildType = "Release x64";
-        // #elif TA_DIST
-        //     buildType = "Distribute x64";
-        // #endif
+        #ifdef TA_DEBUG
+            buildType = "Debug x64";
+        #elif TA_RELEASE
+            buildType = "Release x64";
+        #elif TA_DIST
+            buildType = "Distribute x64";
+        #endif
 
-        // switch (windowRendererAPI)
-        // {
-        //     case pxl::RendererAPIType::None:
-        //         rendererAPIType = "No Renderer API";
-        //         break;
-        //     case pxl::RendererAPIType::OpenGL:
-        //         rendererAPIType = "OpenGL";
-        //         break;
-        //     case pxl::RendererAPIType::Vulkan:
-        //         rendererAPIType = "Vulkan";
-        //         break;
-        // }
+        switch (windowRendererAPI)
+        {
+            case pxl::RendererAPIType::None:
+                rendererAPIType = "No Renderer API";
+                break;
+            case pxl::RendererAPIType::OpenGL:
+                rendererAPIType = "OpenGL";
+                break;
+            case pxl::RendererAPIType::Vulkan:
+                rendererAPIType = "Vulkan";
+                break;
+        }
 
-        // windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
+        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
         
-        // m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
-        // m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2);
-        // m_Window->SetVSync(true);
-        // m_Window->SetWindowMode(windowMode);
+        m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
+        m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2); // should be part of the window creation
+        //m_Window->SetVSync(true);
+        m_Window->SetWindowMode(windowMode);
 
-        // pxl::Renderer::Init(m_Window);
-        // pxl::Input::Init(m_Window);
+        pxl::Renderer::Init(m_Window);
+        pxl::Input::Init(m_Window);
 
-        // m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
-        // pxl::Renderer::SetClearColour(m_ClearColour);
+        APP_LOG_INFO("Finished creating application");
+
+        //m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
+        //pxl::Renderer::SetClearColour(m_ClearColour);
 
         // m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
 
@@ -137,15 +139,6 @@ namespace TestApp
         // #ifndef TA_RELEASE
         //     pxl::pxl_ImGui::Init(m_Window);
         // #endif
-
-        // Vulkan Testing
-
-        m_TestWindow = pxl::Window::Create({ 1920, 1080, "Vulkan Test Window", pxl::RendererAPIType::Vulkan });
-        //auto context = m_TestWindow->GetGraphicsContext();
-
-        pxl::Renderer::Init(m_TestWindow);
-
-        m_TestWindow->ToggleVisibility();
     }
 
     TestApplication::~TestApplication()
@@ -167,17 +160,17 @@ namespace TestApp
         // auto cameraZoom = m_Camera->GetZoom();
         // auto cursorPos = pxl::Input::GetCursorPosition();
 
-        // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
-        // {
-        //     Application::Get().Close();
-        //     return;
-        // }
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        {
+            Application::Get().Close();
+            return;
+        }
 
-        // if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
-        //     m_Window->NextWindowMode();
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+            m_Window->NextWindowMode();
 
-        // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-        //     m_Window->ToggleVSync();
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
+            m_Window->ToggleVSync();
 
         // if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         // {
@@ -255,8 +248,9 @@ namespace TestApp
         pxl::Renderer::Begin();
 
         pxl::Renderer::Clear();
-        
+
         pxl::Renderer::Draw();
+        //pxl::Renderer::AddQuad({ 0.0f, 0.0f, 0.0f });
 
         pxl::Renderer::End();
 

@@ -15,15 +15,15 @@ namespace pxl
         static std::vector<VkLayerProperties> GetAvailableInstanceLayers();
         static std::vector<const char*> GetValidationLayers(const std::vector<VkLayerProperties>& availableLayers);
 
-        static std::vector<VkPhysicalDevice> GetAvailablePhysicalDevices(const VkInstance& instance);
-        static std::vector<VkQueueFamilyProperties> GetQueueFamilies(const VkPhysicalDevice& physicalDevice);
-        static std::vector<VkExtensionProperties> GetDeviceExtensions(const VkPhysicalDevice& physicalDevice);
+        static std::vector<VkPhysicalDevice> GetAvailablePhysicalDevices(VkInstance instance);
+        static std::vector<VkQueueFamilyProperties> GetQueueFamilies(VkPhysicalDevice physicalDevice);
+        static std::vector<VkExtensionProperties> GetDeviceExtensions(VkPhysicalDevice physicalDevice);
 
-        static std::vector<VkSurfaceFormatKHR> GetSurfaceFormats(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
-        static std::vector<VkPresentModeKHR> GetSurfacePresentModes(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
-        static VkSurfaceCapabilitiesKHR GetSurfaceCapabilities(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
+        static std::vector<VkSurfaceFormatKHR> GetSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+        static std::vector<VkPresentModeKHR> GetSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+        static VkSurfaceCapabilitiesKHR GetSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 
-        static std::optional<uint32_t> GetSuitableGraphicsQueueFamily(const std::vector<VkQueueFamilyProperties>& queueFamilies, const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
+        static std::optional<uint32_t> GetSuitableGraphicsQueueFamily(const std::vector<VkQueueFamilyProperties>& queueFamilies, VkPhysicalDevice gpu, VkSurfaceKHR surface);
         static VkSurfaceFormatKHR GetSuitableSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
         static VkQueue GetQueueHandle(VkDevice device, const std::optional<uint32_t>& queueIndex);
 

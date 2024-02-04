@@ -64,7 +64,7 @@ namespace pxl
         return selectedValidationLayers;
     }
 
-    std::vector<VkPhysicalDevice> VulkanHelpers::GetAvailablePhysicalDevices(const VkInstance& instance)
+    std::vector<VkPhysicalDevice> VulkanHelpers::GetAvailablePhysicalDevices(VkInstance instance)
     {
         // Get available physical device count
         uint32_t deviceCount = 0;
@@ -83,7 +83,7 @@ namespace pxl
         return devices;
     }
 
-    std::vector<VkQueueFamilyProperties> VulkanHelpers::GetQueueFamilies(const VkPhysicalDevice& physicalDevice)
+    std::vector<VkQueueFamilyProperties> VulkanHelpers::GetQueueFamilies(VkPhysicalDevice physicalDevice)
     {
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -109,7 +109,7 @@ namespace pxl
         return queueFamilies;
     }
 
-    std::vector<VkExtensionProperties> VulkanHelpers::GetDeviceExtensions(const VkPhysicalDevice& physicalDevice)
+    std::vector<VkExtensionProperties> VulkanHelpers::GetDeviceExtensions(VkPhysicalDevice physicalDevice)
     {
         uint32_t extensionCount = 0;
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
@@ -120,7 +120,7 @@ namespace pxl
         return extensions;
     }
 
-    std::vector<VkSurfaceFormatKHR> VulkanHelpers::GetSurfaceFormats(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
+    std::vector<VkSurfaceFormatKHR> VulkanHelpers::GetSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
     {
         uint32_t formatCount = 0;
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
@@ -131,7 +131,7 @@ namespace pxl
         return surfaceFormats;
     }
 
-    std::vector<VkPresentModeKHR> VulkanHelpers::GetSurfacePresentModes(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
+    std::vector<VkPresentModeKHR> VulkanHelpers::GetSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
     {   
         uint32_t presentModeCount = 0;
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
@@ -142,7 +142,7 @@ namespace pxl
         return presentModes;
     }
 
-    VkSurfaceCapabilitiesKHR VulkanHelpers::GetSurfaceCapabilities(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
+    VkSurfaceCapabilitiesKHR VulkanHelpers::GetSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
     {   
         VkSurfaceCapabilitiesKHR capabilities = {};
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
@@ -150,7 +150,7 @@ namespace pxl
         return capabilities;
     }
 
-    std::optional<uint32_t> VulkanHelpers::GetSuitableGraphicsQueueFamily(const std::vector<VkQueueFamilyProperties>& queueFamilies, const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
+    std::optional<uint32_t> VulkanHelpers::GetSuitableGraphicsQueueFamily(const std::vector<VkQueueFamilyProperties>& queueFamilies, VkPhysicalDevice gpu, VkSurfaceKHR surface)
     {
         bool foundGraphicsQueue = false;
         std::optional<uint32_t> graphicsQueueIndex;

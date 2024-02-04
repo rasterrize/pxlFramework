@@ -48,46 +48,69 @@ namespace pxl
         if (physicalDevices.size() < 1)
             return;
         
-        // Select GPU (assigns m_GPU respectively)
-        if (!SelectFirstDiscreteGPU(physicalDevices))
+        // Select GPU
+        VkPhysicalDevice selectedGPU = VK_NULL_HANDLE;
+
+        selectedGPU = GetFirstDiscreteGPU(physicalDevices);
+        if (selectedGPU == VK_NULL_HANDLE)
         {
-            if (!SelectFirstVKCapableGPU(physicalDevices))
+            selectedGPU = physicalDevices[0];
+            if (selectedGPU == VK_NULL_HANDLE)
             {
                 PXL_LOG_ERROR(LogArea::Vulkan, "Failed to select any GPU for Vulkan");
                 return;
             }
+            else
+            {
+                VkPhysicalDeviceProperties properties;
+                vkGetPhysicalDeviceProperties(selectedGPU, &properties);
+                PXL_LOG_INFO(LogArea::Vulkan, "Selected first non-discrete VK capable GPU: {}", properties.deviceName);
+            }
+        }
+        else
+        {
+            VkPhysicalDeviceProperties properties;
+            vkGetPhysicalDeviceProperties(selectedGPU, &properties);
+
+            PXL_LOG_INFO(LogArea::Vulkan, "Selected discrete GPU: {}", properties.deviceName);
+            PXL_LOG_INFO(LogArea::Vulkan, "- Driver Version: {}", properties.driverVersion);
+            PXL_LOG_INFO(LogArea::Vulkan, "- Supported Vulkan API Version: {}", properties.apiVersion);
         }
 
         // Select Queue Families
-        auto queueFamilies = VulkanHelpers::GetQueueFamilies(m_GPU);
-        m_GraphicsQueueFamilyIndex = VulkanHelpers::GetSuitableGraphicsQueueFamily(queueFamilies, m_GPU, m_Surface);
+        auto queueFamilies = VulkanHelpers::GetQueueFamilies(selectedGPU);
+        auto graphicsQueueFamily = VulkanHelpers::GetSuitableGraphicsQueueFamily(queueFamilies, selectedGPU, m_Surface);
 
         // Create Logical Device for selected Physical Device
-        if (!CreateLogicalDevice(m_GPU))
+        m_Device = std::make_shared<VulkanDevice>(selectedGPU, graphicsQueueFamily.value());
+
+        if (!m_Device)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "VulkanContext failed to create VulkanDevice object");
             return;
+        }
+
+        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
 
         // Get present queue (graphics queue) from device
-        m_PresentQueue = VulkanHelpers::GetQueueHandle(m_Device, m_GraphicsQueueFamilyIndex);
+        m_PresentQueue = VulkanHelpers::GetQueueHandle(logicalDevice, graphicsQueueFamily);
 
         // Get swapchain suitable surface format (for renderpass)
-        auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(m_GPU, m_Surface);
+        auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(selectedGPU, m_Surface);
         auto m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);
 
-        // TODO: Determine all required swapchain data (surface format, present mode, etc) before creating render pass and swapchain
-        
-
         // Create default render pass for swapchain framebuffers
-        m_DefaultRenderPass = std::make_shared<VulkanRenderPass>(m_Device, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
+        m_DefaultRenderPass = std::make_shared<VulkanRenderPass>(logicalDevice, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
 
         // Create swap chain with specified surface
-        m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_GPU, m_Surface, m_SurfaceFormat, m_WindowHandle, m_DefaultRenderPass);
+        m_Swapchain = std::make_shared<VulkanSwapchain>(logicalDevice, selectedGPU, m_Surface, m_SurfaceFormat, m_WindowHandle, m_DefaultRenderPass);
 
         // Create command pool
         VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
         commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        commandPoolInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
+        commandPoolInfo.queueFamilyIndex = graphicsQueueFamily.value();
 
-        result = vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool);
+        result = vkCreateCommandPool(logicalDevice, &commandPoolInfo, nullptr, &m_CommandPool);
         VulkanHelpers::CheckVkResult(result);
 
         // Prepare Frames // TODO: This needs to be adjustable at runtime
@@ -96,37 +119,37 @@ namespace pxl
         for (auto& frame : m_Frames)
         {
             frame.CommandBuffer = CreateCommandBuffer();
-            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
-            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(m_Device);
-            frame.InFlightFence = VulkanHelpers::CreateFence(m_Device, true);
+            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(logicalDevice);
+            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(logicalDevice);
+            frame.InFlightFence = VulkanHelpers::CreateFence(logicalDevice, true);
         }
     }
 
     void VulkanContext::Shutdown()
     {
         // Wait until device isnt using these objects before deleting them
-        vkDeviceWaitIdle(m_Device);
+        VkDevice logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        vkDeviceWaitIdle(logicalDevice);
         
         // Destroy VK objects
         for (auto& frame : m_Frames)
         {
             if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(m_Device, frame.ImageAvailableSemaphore, nullptr);
+                vkDestroySemaphore(logicalDevice, frame.ImageAvailableSemaphore, nullptr);
 
             if (frame.RenderFinishedSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(m_Device, frame.RenderFinishedSemaphore, nullptr);
+                vkDestroySemaphore(logicalDevice, frame.RenderFinishedSemaphore, nullptr);
         }
 
         if (m_CommandPool != VK_NULL_HANDLE)
-            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+            vkDestroyCommandPool(logicalDevice, m_CommandPool, nullptr);
 
         m_Swapchain->Destroy();
 
         if (m_Surface != VK_NULL_HANDLE)
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 
-        if (m_Device != VK_NULL_HANDLE)
-            vkDestroyDevice(m_Device, nullptr);
+        m_Device->Destroy();
 
         if (m_Instance != VK_NULL_HANDLE)
             vkDestroyInstance(m_Instance, nullptr);
@@ -142,7 +165,7 @@ namespace pxl
         commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         commandBufferAllocInfo.commandBufferCount = 1;
 
-        auto result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, &commandBuffer);
+        auto result = vkAllocateCommandBuffers(static_cast<VkDevice>(m_Device->GetLogicalDevice()), &commandBufferAllocInfo, &commandBuffer);
         VulkanHelpers::CheckVkResult(result);
 
         if (result != VK_SUCCESS)
@@ -244,123 +267,22 @@ namespace pxl
         return true;
     }
 
-    bool VulkanContext::CreateLogicalDevice(VkPhysicalDevice gpu)
-    {
-        if (gpu == VK_NULL_HANDLE)
-        {
-            Logger::LogError("Failed to create logical device, physical device was null pointer");
-            return false;
-        }
-
-        // Specify Device Queue Create Infos
-        std::vector<VkDeviceQueueCreateInfo> queueInfos;
-        uint32_t queueCount = 0;
-
-        if (m_GraphicsQueueFamilyIndex != -1)
-        {
-            float queuePriority = 1.0f;
-            VkDeviceQueueCreateInfo graphicsQueueCreateInfo = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO };
-            graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
-            graphicsQueueCreateInfo.queueCount = 1;
-            graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
-            queueInfos.push_back(graphicsQueueCreateInfo);
-        }
-
-        // TODO: Specify selected device features
-        VkPhysicalDeviceFeatures deviceFeatures = {};
-        // GetGPUFeatures()
-
-        std::vector<const char*> deviceExtensions = { "VK_KHR_swapchain" }; // necessary for games
-
-        auto availableExtensions = VulkanHelpers::GetDeviceExtensions(m_GPU);
-
-        uint32_t enabledExtensionCount = 0;
-
-        // Check support
-
-        for (const auto& extension : deviceExtensions)
-        {
-           for (const auto& availableExtension : availableExtensions)
-            {
-                if (strcmp(extension, availableExtension.extensionName) == 0) 
-                {
-                    enabledExtensionCount++;
-                    break;
-                } 
-            }
-        }
-
-        if (enabledExtensionCount != deviceExtensions.size())
-        {
-            Logger::LogError("Failed to enable all selected device extensions");
-            return false;
-        }
-
-        // Specify Device Create Info
-        VkDeviceCreateInfo deviceInfo = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
-        deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueInfos.size());;
-        deviceInfo.pQueueCreateInfos = queueInfos.data();
-        deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-        deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-        VkResult result = vkCreateDevice(gpu, &deviceInfo, nullptr, &m_Device);
-        VulkanHelpers::CheckVkResult(result);
-
-        if (!m_Device)
-        {
-            Logger::LogError("Failed to create logical device");
-        }
-        
-        Logger::LogInfo("Logical Device successfully created:");
-        Logger::LogInfo("   " + std::to_string(enabledExtensionCount) + " enabled extensions: ");
-        
-        for (uint32_t i = 0; i < enabledExtensionCount; i++)
-        {
-            Logger::LogInfo("   - " + std::string(deviceExtensions[i]));
-        }
-        
-        // TODO: expand this
-
-        return true;
-    }
-
-    bool VulkanContext::SelectFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
+    VkPhysicalDevice VulkanContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
     {
         // Find a suitable discrete gpu physical device
-        bool foundSuitableDevice = false;
+        VkPhysicalDevice discreteGPU = VK_NULL_HANDLE;
+
         for (const auto& device : physicalDevices)
         {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(device, &properties);
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {
-                m_GPU = device;
-                foundSuitableDevice = true;
-                Logger::LogInfo("Selected discrete GPU: " + std::string((const char*)properties.deviceName));
-                Logger::LogInfo("- Driver Version: " + std::to_string(properties.driverVersion));
-                Logger::LogInfo("- Supported Vulkan API Version: " + std::to_string(properties.apiVersion));
+                discreteGPU = device;
                 break;
             }
         }
 
-        if (foundSuitableDevice)
-            return true;
-
-        return false;
-    }
-
-    bool VulkanContext::SelectFirstVKCapableGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
-    {
-        m_GPU = physicalDevices[0];
-
-        if (m_GPU = VK_NULL_HANDLE) // no scenario should ever find this null pointer
-            return false;
-
-        // Log selected GPU
-        VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties(physicalDevices[0], &properties);
-
-        Logger::LogInfo("Selected non-discrete VK capable GPU: " + std::to_string((const char)properties.deviceName));
-        return true;
+        return discreteGPU;
     }
 }
