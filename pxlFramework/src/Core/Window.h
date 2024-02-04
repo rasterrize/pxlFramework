@@ -24,29 +24,34 @@ namespace pxl
     public:
         Window(const WindowSpecs& windowSpecs);
 
-        void Update();
         void Close();
 
         void CreateGLFWWindow(const WindowSpecs& windowSpecs);
 
         void SetSize(uint32_t width, uint32_t height);
+
         void SetPosition(uint32_t x, uint32_t y);
+
         void SetWindowMode(WindowMode winMode);
+
         void SetMonitor(uint8_t monitorIndex);
 
         GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
         std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
 
-        WindowSpecs GetWindowSpecs() const { return m_WindowSpecs; }
+        WindowSpecs GetWindowSpecs() const { return m_Specs; }
 
-        uint32_t GetWidth() const { return m_WindowSpecs.Width; }
-        uint32_t GetHeight() const { return m_WindowSpecs.Height; }
-        WindowMode GetWindowMode() const { return m_WindowSpecs.WindowMode; }
+        uint32_t GetWidth() const { return m_Specs.Width; }
 
-        float GetAspectRatio() const { return ((float)m_WindowSpecs.Width / m_WindowSpecs.Height); } // should be cached in a variable
+        uint32_t GetHeight() const { return m_Specs.Height; }
 
-        VkSurfaceKHR CreateVKWindowSurface(VkInstance instance);
+        WindowMode GetWindowMode() const { return m_Specs.WindowMode; }
+
+        float GetAspectRatio() const { return ((float)m_Specs.Width / static_cast<float>(m_Specs.Height)); } // should this be cached in a variable? | could be updated every window resize callback
+        glm::u32vec2 GetFramebufferSize();
+
+        VkSurfaceKHR CreateVKWindowSurface(VkInstance instance); // Keeping vulkan here for now but obviously not ideal because it shouldnt be tied to window class
         std::vector<const char*> GetVKRequiredInstanceExtensions();
 
         void NextWindowMode();
@@ -55,12 +60,13 @@ namespace pxl
         void SetVSync(bool vsync) { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync();
 
-        void ToggleVisibility();
+        void SetVisibility(bool value);
 
         void SetGLFWCallbacks();
         GLFWmonitor* GetCurrentMonitor();
+    private:
+        void Update();
     public:
-        static void Shutdown(); // I don't think this should be public
         static int GetMonitorCount() { return s_MonitorCount; }
 
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
@@ -75,25 +81,28 @@ namespace pxl
         friend class Application; // for UpdateAll()
         static void UpdateAll();
 
-        static void ProcessEvents();
+        static void Shutdown();
+        static void PollEvents();
+        static void WaitEvents();
 
         static void GetGLFWMonitors();
     private:
-        GLFWwindow* m_GLFWWindow;
-        std::shared_ptr<GraphicsContext> m_GraphicsContext;
-        std::shared_ptr<Window> m_Handle;
+        GLFWwindow* m_GLFWWindow = nullptr;
+        std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
+        std::shared_ptr<Window> m_Handle = nullptr;
 
-        WindowSpecs m_WindowSpecs = {};
+        WindowSpecs m_Specs = {};
 
-        uint32_t m_LastWindowedWidth = m_WindowSpecs.Width; // TODO: make these change when the window size changes via user resize
-        uint32_t m_LastWindowedHeight = m_WindowSpecs.Height;
+        uint32_t m_LastWindowedWidth = 640; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
+        uint32_t m_LastWindowedHeight = 480;
 
         static uint8_t s_WindowCount;
         static uint8_t s_MonitorCount;
 
         static std::vector<std::shared_ptr<Window>> s_Windows;
-
-        static uint8_t s_GLFWWindowCount;
         static GLFWmonitor** s_Monitors;
+
+        // not sure
+        static bool s_AllWindowsMinimized;
     };
 }
