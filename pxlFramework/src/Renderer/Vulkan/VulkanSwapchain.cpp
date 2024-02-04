@@ -32,7 +32,7 @@ namespace pxl
             // Set extent manually
             auto fbSize = m_WindowHandle->GetFramebufferSize();
             m_SwapchainSpecs.Extent = { fbSize.x, fbSize.y };
-            Logger::LogInfo("Manually set swapchain extent to window framebuffer size"); // TODO: temporary
+            PXL_LOG_WARN(LogArea::Vulkan, "Manually set swapchain extent to window framebuffer size"); // TODO: temporary
         }
 
         CheckExtentSupport(m_SwapchainSpecs.Extent);

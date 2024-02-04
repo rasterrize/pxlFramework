@@ -10,12 +10,12 @@ namespace pxl
         switch (Renderer::GetAPIType())
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't create Texture for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLTexture2D>(imageBuffer, imageSize, channels);
             case RendererAPIType::Vulkan:
-                Logger::LogError("Can't create Texture for Vulkan renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
                 break;
         }
 

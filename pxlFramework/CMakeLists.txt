@@ -9,7 +9,9 @@ inc/pxl.h
 src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
 src/Core/WindowMode.h
-src/Core/Logger.h src/Core/Logger.cpp
+src/Core/Logging/Logger.h src/Core/Logging/Logger.cpp
+src/Core/Logging/FrameworkLog.h
+src/Core/Logging/ApplicationLog.h
 src/Core/Input.h src/Core/Input.cpp
 src/Core/KeyCodes.h
 src/Core/MouseCodes.h
@@ -102,7 +104,7 @@ target_include_directories(pxlFramework PUBLIC ${Vulkan_INCLUDE_DIRS})
 # Link Libraries
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp ${Vulkan_LIBRARY})
 
-target_precompile_headers(pxlFramework PUBLIC src/Core/Logger.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
+target_precompile_headers(pxlFramework PUBLIC src/Core/Logging/Logger.h src/Core/Logging/FrameworkLog.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE

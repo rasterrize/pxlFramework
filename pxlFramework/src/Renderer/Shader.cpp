@@ -12,12 +12,12 @@ namespace pxl
         switch (Renderer::GetAPIType())
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't create Shader for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLShader>(vertSrc, fragSrc);
             case RendererAPIType::Vulkan:
-                Logger::LogError("Vulkan implementation doesn't support shaders from strings");
+                PXL_LOG_ERROR(LogArea::Renderer, "Vulkan implementation doesn't support shaders from strings");
                 break;
         }
         
@@ -29,10 +29,10 @@ namespace pxl
         switch (Renderer::GetAPIType())
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't create Shader for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
+                PXL_LOG_ERROR(LogArea::Renderer, "OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
                 //return std::make_shared<VulkanShader>(graphicsContext, vertBin, fragBin);
@@ -47,10 +47,10 @@ namespace pxl
         switch (api)
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't create Shader for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                Logger::LogError("OpenGL implementation doesn't support shaders from binary.");
+                PXL_LOG_ERROR(LogArea::Renderer, "OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
                 return std::make_shared<VulkanShader>(dynamic_pointer_cast<VulkanContext>(graphicsContext)->GetDevice(), vertBin, fragBin);

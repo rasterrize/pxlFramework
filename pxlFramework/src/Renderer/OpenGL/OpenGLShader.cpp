@@ -69,7 +69,7 @@ namespace pxl
         	// We don't need the shader anymore.
         	glDeleteShader(vertexShader);
 
-            Logger::LogError(infoLog.data());
+            PXL_LOG_ERROR(LogArea::OpenGL, infoLog.data());
             
         	return;
         }
@@ -100,7 +100,7 @@ namespace pxl
         	// Either of them. Don't leak shaders.
         	glDeleteShader(vertexShader);
 
-        	Logger::LogError(infoLog.data());
+        	PXL_LOG_ERROR(LogArea::OpenGL, infoLog.data());
 
         	return;
         }
@@ -135,7 +135,7 @@ namespace pxl
         	glDeleteShader(vertexShader);
         	glDeleteShader(fragmentShader);
 
-            Logger::LogError(infoLog.data());
+            PXL_LOG_ERROR(LogArea::OpenGL, infoLog.data());
 
         	// In this simple program, we'll just leave
         	return;

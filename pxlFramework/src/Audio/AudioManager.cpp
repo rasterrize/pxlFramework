@@ -18,11 +18,12 @@ namespace pxl
 
         if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, ), NULL) // need to fix
         {
-            Logger::LogInfo("BASS Initialized");
+            PXL_LOG_INFO("BASS initialized");
         }
         else
         {
-            Logger::LogError("BASS failed to initialize");
+            PXL_LOG_ERROR("BASS failed to initialize");
+            // TODO: bass error callbacks
             return;
         }
 

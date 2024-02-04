@@ -49,7 +49,7 @@ namespace pxl
         auto result = vkCreateShaderModule(device, &vertShaderModuleCreateInfo, nullptr, &shaderModule);
         if (result != VK_SUCCESS)
         {
-            Logger::LogError("Failed to create shader module");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create shader module");
             return VK_NULL_HANDLE;
         }
 

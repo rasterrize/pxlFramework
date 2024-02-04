@@ -17,12 +17,17 @@ namespace pxl
     {
         if (s_Instance)
         {
-            Logger::Log(LogLevel::Error, "Can't create application, one already exists");
+            PXL_LOG_ERROR(LogArea::Core, "Can't create application, one already exists");
             throw;
         }
         s_Instance = this;
 
+        // Not sure if these 'Framework' classes should be in the 'Application' class
         FrameworkConfig::Init();
+
+        #ifndef PXL_DISABLE_LOGGING
+            Logger::Init();
+        #endif
     }
 
     void Application::Run()
@@ -47,7 +52,7 @@ namespace pxl
             Window::UpdateAll();
         }
         stopwatch.Stop();
-        Logger::LogInfo("Application ran for " + std::to_string(stopwatch.GetElapsedSec()) + " seconds");
+        PXL_LOG_INFO(LogArea::Core, "Application ran for {} seconds", stopwatch.GetElapsedSec());
     }
 
     void Application::Close()

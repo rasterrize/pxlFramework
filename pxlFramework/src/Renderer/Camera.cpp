@@ -30,7 +30,7 @@ namespace pxl
             return camera;
         }
 
-        Logger::LogError("Failed to create camera");
+        PXL_LOG_ERROR(LogArea::Renderer, "Failed to create camera");
         return nullptr;
     }
 

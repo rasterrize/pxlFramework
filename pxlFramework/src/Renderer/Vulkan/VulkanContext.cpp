@@ -53,7 +53,7 @@ namespace pxl
         {
             if (!SelectFirstVKCapableGPU(physicalDevices))
             {
-                Logger::LogError("Failed to select any GPU for Vulkan");
+                PXL_LOG_ERROR(LogArea::Vulkan, "Failed to select any GPU for Vulkan");
                 return;
             }
         }
@@ -147,7 +147,7 @@ namespace pxl
 
         if (result != VK_SUCCESS)
         {
-            Logger::LogError("Failed to allocate command buffer objects");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to allocate command buffer objects");
             return VK_NULL_HANDLE;
         }
 
@@ -204,7 +204,7 @@ namespace pxl
 
         if (!m_Instance)
         {
-            Logger::LogError("Failed to create Vulkan instance");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan instance");
             return false;
         }
 
@@ -226,20 +226,19 @@ namespace pxl
                 break;
         }
 
-        Logger::LogInfo("VK Instance Info:");
-        Logger::LogInfo("   Application Vulkan API Version: " + apiVersionString);
-        Logger::LogInfo("   " + std::to_string(extensions.size()) + " enabled extensions: ");
-        
+        PXL_LOG_INFO(LogArea::Vulkan, "VK Instance Info:");
+        PXL_LOG_INFO(LogArea::Vulkan, "   Application Vulkan API Version: {}", apiVersionString);
+
+        PXL_LOG_INFO(LogArea::Vulkan, "   {} enabled extensions: ", extensions.size());
         for (auto& extension : extensions)
         {
-            Logger::LogInfo("   - " + std::string(extension));
+            PXL_LOG_INFO(LogArea::Vulkan, "   - {}", extension);
         }
 
-        Logger::LogInfo("   " + std::to_string(layers.size()) + " enabled layers:");
-
+        PXL_LOG_INFO(LogArea::Vulkan, "   {} enabled layers:", layers.size());
         for (auto& layer : layers)
         {
-            Logger::LogInfo("   - " + std::string(layer));
+            PXL_LOG_INFO(LogArea::Vulkan, "   - {}", layer);
         }
 
         return true;

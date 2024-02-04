@@ -10,9 +10,6 @@
     int main()
 #endif
 {
-    #ifndef TA_RELEASE
-        pxl::Logger::Init();
-    #endif
     auto application = new TestApp::TestApplication();
     application->Run();
     delete application;

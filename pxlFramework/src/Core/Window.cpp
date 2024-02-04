@@ -31,11 +31,14 @@ namespace pxl
         {
             if (glfwInit())
             {
-                Logger::Log(LogLevel::Info, "GLFW initialized");
+                int major = 0, minor = 0, rev = 0;
+                glfwGetVersion(&major, &minor, &rev);
+                PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
             }
             else
             {
-                Logger::Log(LogLevel::Error, "Failed to initialize GLFW");
+                PXL_LOG_ERROR(LogArea::Window, "Failed to initialize GLFW");
+                // TODO: glfw error callback and print those errors
                 return;
             }
         }
@@ -47,7 +50,7 @@ namespace pxl
         switch (windowSpecs.RendererAPI)
         {
             case RendererAPIType::None:
-                Logger::LogWarn("RendererAPI type 'none' specified! Creating a GLFW window with no renderer api...");
+                PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'none' specified! Creating a GLFW window with no renderer api...");
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
             case RendererAPIType::OpenGL:
@@ -74,13 +77,12 @@ namespace pxl
         // Check to see if the window object was created successfully
         if (m_GLFWWindow)
         {
-            Logger::Log(LogLevel::Info, "Created GLFW window '" + windowSpecs.Title + "' of size " + std::to_string(windowSpecs.Width) + "x" + std::to_string(windowSpecs.Height));
-            s_GLFWWindowCount++;
+            PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height);
         }
         else
         {
-            Logger::Log(LogLevel::Error, "Failed to create GLFW window '" + windowSpecs.Title + "'");
-            if (s_WindowCount == 0) // TODO: should this be s_GLFWWindowCount?
+            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
+            if (s_WindowCount == 0)
                 glfwTerminate();
         }
     }
@@ -139,7 +141,7 @@ namespace pxl
             }
         }
 
-        Logger::LogError("Failed to get window current monitor");
+        PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor");
         return nullptr;
     }
 
@@ -150,11 +152,9 @@ namespace pxl
         // Check for successful window size change
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
+        
         if (windowWidth != width | windowHeight != height)
-        {
-            Logger::LogWarn("Failed to change window resolution to " + std::to_string(windowWidth) + "x" + std::to_string(windowHeight));
-            return;
-        }
+            PXL_LOG_WARN(LogArea::Window, "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 
     void Window::SetPosition(uint32_t xpos, uint32_t ypos)
@@ -172,7 +172,7 @@ namespace pxl
         if (!currentMonitor)
         {
             currentMonitor = glfwGetPrimaryMonitor();
-            Logger::LogInfo("Current monitor was null, so the primary monitor was used");
+            PXL_LOG_WARN(LogArea::Window, "Current monitor was null, so the primary monitor was used");
         }
 
         const GLFWvidmode* vidmode = glfwGetVideoMode(currentMonitor);
@@ -188,20 +188,20 @@ namespace pxl
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_TRUE);
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedWidth / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedHeight / 2), m_LastWindowedWidth, m_LastWindowedHeight, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
                 m_WindowSpecs.WindowMode = WindowMode::Windowed;
-                Logger::LogInfo("Switched window mode to Windowed");
+                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Windowed window mode", m_Specs.Title);
                 break;
             case WindowMode::Borderless:
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_FALSE);
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
                 m_WindowSpecs.WindowMode = WindowMode::Borderless;
-                Logger::LogInfo("Switched window mode to Borderless");
+                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Borderless window mode", m_Specs.Title);
                 break;
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_GLFWWindow, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
                 m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync()); // Set VSync because bug idk
                 m_WindowSpecs.WindowMode = WindowMode::Fullscreen;
-                Logger::LogInfo("Switched window mode to Fullscreen");
+                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Fullscreen window mode", m_Specs.Title);
                 break;
         }
     }
@@ -210,7 +210,7 @@ namespace pxl
     {
         if (monitorIndex > s_MonitorCount || monitorIndex <= 0)
         {
-            Logger::LogWarn("Can't set specified monitor for window '" + m_WindowSpecs.Title + "'. Monitor doesn't exist");
+            PXL_LOG_WARN(LogArea::Window, "Can't set specified monitor for window '{}', Monitor doesn't exist", m_Specs.Title);
             return;
         }
 
@@ -305,7 +305,7 @@ namespace pxl
 
         if (!surface)
         {
-            Logger::LogError("Failed to create window surface");
+            PXL_LOG_ERROR(LogArea::Window, "Failed to create window surface");
             return VK_NULL_HANDLE;
         }
 
@@ -404,7 +404,7 @@ namespace pxl
 
                 if (!window->m_GraphicsContext)
                 {
-                    Logger::LogError("Failed to create graphics context for window " + windowSpecs.Title);
+                    PXL_LOG_ERROR(LogArea::Window, "Failed to create graphics context for window {}", windowSpecs.Title);
                 }
             }
 

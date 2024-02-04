@@ -19,20 +19,20 @@ namespace pxl
     {
         if (s_Enabled)
         {
-            Logger::LogWarn("Failed to initalize input, it's already initialized");
+            PXL_LOG_ERROR(LogArea::Input, "Failed to initalize input, it's already initialized");
             return;
         }
 
         
         if (!Application::Get().IsRunning())
         {
-            Logger::LogError("Can't initialize input, no application exists");
+            PXL_LOG_ERROR(LogArea::Input, "Can't initialize input, no application exists");
             return;
         }
 
         s_WindowHandle = window->GetNativeWindow();
         s_Enabled = true;
-        Logger::Log(LogLevel::Info, "Input Initialized");
+        PXL_LOG_INFO(LogArea::Input, "Input initialized");
     }
 
     void Input::Shutdown()
@@ -41,7 +41,7 @@ namespace pxl
         {
             s_Enabled = false;
             s_WindowHandle = nullptr;
-            Logger::Log(LogLevel::Info, "Input shutdown");
+            PXL_LOG_INFO(LogArea::Input, "Input shutdown");
         }
     }
 
@@ -178,11 +178,11 @@ namespace pxl
             if (glfwRawMouseMotionSupported()) // this function really only needs to be called once
             {
                 glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                Logger::LogInfo("Enabled Raw Input");
+                PXL_LOG_INFO(LogArea::Input, "Enabled Raw Input");
             }
             else
             {
-                Logger::LogWarn("Failed to enabled Raw Input");
+                PXL_LOG_WARN(LogArea::Input, "Failed to enabled Raw Input");
             }
         }
     }

@@ -63,7 +63,9 @@ namespace pxl
     void Renderer::Init(const std::shared_ptr<Window>& window)
     {   
         if (s_Enabled)
-            Logger::Log(LogLevel::Warn, "Initializing renderer to new window"); // TODO: get this to work
+        {
+            PXL_LOG_WARN(LogArea::Renderer, "Renderer already initialized");
+        }
 
         s_WindowHandle = window;
 
@@ -72,13 +74,15 @@ namespace pxl
         switch (windowSpecs.RendererAPI)
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't initialize renderer since window specified no renderer api");    
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api");    
                 return;
             case RendererAPIType::OpenGL:
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
 
                 if (!s_RendererAPI)
-                    Logger::LogError("Failed to create OpenGL renderer api object"); // need assertions
+                {
+                    PXL_LOG_ERROR(LogArea::Renderer, "Failed to create OpenGL renderer api object"); // need assertions
+                }
 
                 break;
             case RendererAPIType::Vulkan:
@@ -86,14 +90,16 @@ namespace pxl
 
                 if (!vulkanContext)
                 {
-                    Logger::LogError("Failed to retrieve graphics context from window for VulkanRenderer object");
+                    PXL_LOG_ERROR(LogArea::Renderer, "Failed to retrieve graphics context from window for VulkanRenderer object");
                     return;
                 }
 
                 s_RendererAPI = std::make_unique<VulkanRenderer>(vulkanContext);
 
                 if (!s_RendererAPI)
-                    Logger::LogError("Failed to create Vulkan renderer api object"); // need assertions
+                {
+                    PXL_LOG_ERROR(LogArea::Renderer, "Failed to create Vulkan renderer api object"); // need assertions
+                }
                     
                 break;
         }
@@ -199,6 +205,7 @@ namespace pxl
         // }
 
         s_RendererAPIType = windowSpecs.RendererAPI;
+        PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
         s_Enabled = true;
     }
 

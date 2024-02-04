@@ -7,7 +7,7 @@ namespace pxl
         if (result == VK_SUCCESS)
 		    return;
 
-        Logger::LogError("VkResult wasn't VK_SUCCESS, error code is " + std::string(string_VkResult(result)));
+        PXL_LOG_ERROR(LogArea::Vulkan, "VkResult wasn't VK_SUCCESS, error code is {}", string_VkResult(result));
 
 	    if (result < 0)
 		    abort(); // probably shouldn't abort immediately
@@ -72,7 +72,7 @@ namespace pxl
 
         if (deviceCount == 0)
         {
-            Logger::LogError("Failed to find any vulkan supported GPU");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find any vulkan supported GPU");
             return std::vector<VkPhysicalDevice>();
         }
 
@@ -90,11 +90,11 @@ namespace pxl
 
         if (queueFamilyCount < 1)
         {
-            Logger::LogError("Physical device has no queue families :(");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Physical device has no queue families");
             return std::vector<VkQueueFamilyProperties>();
         }
 
-        Logger::LogInfo("Found " + std::to_string(queueFamilyCount) + " queue families on physical device");
+        PXL_LOG_INFO(LogArea::Vulkan, "Found {} queue families on physical device", queueFamilyCount);
 
         // Retrieve queue families
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -175,9 +175,13 @@ namespace pxl
         }
 
         if (!foundGraphicsQueue)
-            Logger::LogError("Failed to find a suitable graphics queue family from physical device");
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find a suitable graphics queue family from physical device");
+        }
         else
-            Logger::LogInfo("Successfully retrieved graphics queue family from physical device");
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "Successfully retrieved graphics queue family from physical device");
+        }
 
         return graphicsQueueIndex;
     }
@@ -191,7 +195,7 @@ namespace pxl
                 return surfaceFormat;
         }
 
-        Logger::LogError("Failed to find suitable surface format for swap chain");
+        PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find suitable surface format for swap chain");
         return { VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR };
     }
 
@@ -204,7 +208,7 @@ namespace pxl
 
             if (!queue)
             {
-                Logger::LogError("Failed to retrieve queue handles");
+                PXL_LOG_ERROR(LogArea::Vulkan, "Failed to retrieve queue handles");
                 return VK_NULL_HANDLE;
             }
         }
@@ -223,7 +227,7 @@ namespace pxl
         
         if (semaphore == VK_NULL_HANDLE)
         {
-            Logger::LogError("Failed to create Vulkan semaphore");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan semaphore");
             return VK_NULL_HANDLE;
         }
         
@@ -244,7 +248,7 @@ namespace pxl
 
         if (fence == VK_NULL_HANDLE)
         {
-            Logger::LogError("Failed to create Vulkan fence");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan fence");
             return VK_NULL_HANDLE;
         }
 

@@ -45,21 +45,21 @@ namespace pxl
         switch (window->GetWindowSpecs().RendererAPI)
         {
             case RendererAPIType::None:
-                Logger::LogError("Can't initialize ImGui because RendererAPI::None was specified");
+                PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui because RendererAPI::None was specified");
                 return;
             case RendererAPIType::OpenGL:
                 ImGui_ImplGlfw_InitForOpenGL(windowHandle, true);
                 s_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
                 break;
             case RendererAPIType::Vulkan:
-                Logger::LogError("Can't initialize ImGui for Vulkan");
+                PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui for Vulkan");
                 return;
         }
 
         s_RendererAPI = window->GetWindowSpecs().RendererAPI;
         s_Enabled = true;
 
-        Logger::LogInfo("ImGui initialized");
+        PXL_LOG_INFO(LogArea::Other, "ImGui initialized");
     }
 
     void pxl_ImGui::Update()
@@ -90,6 +90,6 @@ namespace pxl
         ImGui::DestroyContext();
         s_Enabled = false;
 
-        Logger::LogInfo("ImGui shutdown");
+        PXL_LOG_ERROR(LogArea::Other, "ImGui shutdown");
     }
 }
