@@ -13,12 +13,12 @@
 
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/Camera.h"
+#include "../src/Renderer/Shader.h"
 #include "../src/Renderer/ShaderLibrary.h"
 
 // TEMP
-#include "../src/Renderer/OpenGL/OpenGLShader.h"
 #include "../src/Renderer/Pipeline.h"
-#include "../src/Renderer/Vulkan/VulkanPipeline.h"
+#include "../src/Renderer/BufferLayout.h"
 
 //#include "../src/Audio/AudioManager.h"
 
