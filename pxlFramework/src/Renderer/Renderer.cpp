@@ -4,8 +4,8 @@
 
 #include "OpenGL/OpenGLRenderer.h"
 #include "OpenGL/OpenGLVertexArray.h"
-#include "OpenGL/OpenGLVertexBuffer.h"
-#include "OpenGL/OpenGLIndexBuffer.h"
+
+#include "Buffer.h"
 
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
@@ -42,6 +42,9 @@ namespace pxl
 
     std::array<LineVertex, s_MaxLineVertexCount> s_LineVertices = {};
 
+    // uint32_t Renderer::s_StaticQuadVertexCount = 0;
+    // uint32_t Renderer::s_StaticQuadIndexCount = 0;
+
     size_t s_QuadVertexCount = 0;
     size_t s_QuadIndexCount = 0;
 
@@ -50,13 +53,20 @@ namespace pxl
 
     size_t s_LineVertexCount = 0;
 
+    // test
+    std::shared_ptr<Buffer> Renderer::s_StaticQuadVBO;
+    std::vector<TriangleVertex> Renderer::s_StaticQuadVertices = {};
+    uint32_t Renderer::s_StaticQuadCount = 0;
+
     // TODO: an alternative method should be used for VAOs because they are OpenGL specific
     std::shared_ptr<VertexArray> Renderer::s_QuadVAO;
-    std::shared_ptr<VertexBuffer> Renderer::s_QuadVBO;
-    std::shared_ptr<IndexBuffer> Renderer::s_QuadIBO;
+    std::shared_ptr<Buffer> Renderer::s_QuadVBO;
+    std::shared_ptr<Buffer> Renderer::s_QuadIBO;
     std::shared_ptr<VertexArray> Renderer::s_CubeVAO;
     std::shared_ptr<VertexArray> Renderer::s_LineVAO;
     std::shared_ptr<VertexArray> Renderer::s_MeshVAO;
+
+    std::shared_ptr<Device> Renderer::s_Device;
     
     std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
 
@@ -67,13 +77,14 @@ namespace pxl
         if (s_Enabled)
         {
             PXL_LOG_WARN(LogArea::Renderer, "Renderer already initialized");
+            // TODO: recreate all resources used for the renderer if the renderer api has changed
         }
 
         s_WindowHandle = window;
 
-        auto windowRendererAPI = window->GetWindowSpecs().RendererAPI;
+        s_RendererAPIType = window->GetWindowSpecs().RendererAPI;
 
-        switch (windowRendererAPI)
+        switch (s_RendererAPIType)
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api");    
@@ -153,21 +164,29 @@ namespace pxl
             layout.Add(2, BufferDataType::Float, false); // texture coords
 
             // Prepare Quad VAO, VBO, IBO
-            if (windowRendererAPI == RendererAPIType::OpenGL)
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
             {
+                s_QuadVBO = Buffer::Create(BufferUsage::Vertex, static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
+                s_QuadIBO = Buffer::Create(BufferUsage::Index, static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
+
                 s_QuadVAO = std::make_shared<OpenGLVertexArray>(); // TODO: create functions to create these objects based on renderer api type
 
                 s_QuadVAO->SetLayout(layout);
                 s_QuadVAO->SetVertexBuffer(s_QuadVBO);
                 s_QuadVAO->SetIndexBuffer(s_QuadIBO);
             }
-            else if (windowRendererAPI == RendererAPIType::Vulkan)
+            else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
+                s_Device = dynamic_pointer_cast<VulkanContext>(s_WindowHandle->GetGraphicsContext())->GetDevice();
 
+                if (!s_Device)
+                {
+                    PXL_LOG_ERROR(LogArea::Renderer, "s_Device was nullptr");
+                }
+
+                //s_QuadVBO = VertexBuffer::Create(s_Device, static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
+                s_QuadIBO = Buffer::Create(BufferUsage::Index, static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
             }
-
-            //s_QuadVBO = VertexBuffer::Create(static_cast<uint32_t>(s_MaxQuadVertexCount * sizeof(TriangleVertex)));
-            //s_QuadIBO = std::make_shared<OpenGLIndexBuffer>(static_cast<uint32_t>(s_MaxQuadIndexCount), &s_QuadIndices);
         }
 
         // {
@@ -216,7 +235,7 @@ namespace pxl
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
 
-        s_RendererAPIType = windowRendererAPI;
+        //s_RendererAPIType = windowRendererAPI;
         s_Enabled = true;
     }
 
@@ -243,6 +262,12 @@ namespace pxl
         shader->SetUniformMat4("u_VP", camera->GetViewProjectionMatrix());
     }
 
+    void Renderer::Submit(const std::shared_ptr<GraphicsPipeline>& pipeline)
+    {
+        if (pipeline)
+            pipeline->Bind();
+    }
+
     void Renderer::Begin()
     {
         s_RendererAPI->Begin();
@@ -260,9 +285,28 @@ namespace pxl
         Flush();
     }
 
-    void Renderer::Draw()
+    void Renderer::AddStaticQuad(const glm::vec3& position)
     {
-        s_RendererAPI->DrawIndexed(6);
+        s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x, position.y, position.z }, glm::vec4(1.0f), { 0.0f, 0.0f }};
+        s_QuadVertices[s_QuadVertexCount + 1] = {{ position.x, position.y + 1.0f, position.z }, glm::vec4(1.0f), { 1.0f, 0.0f }};
+        s_QuadVertices[s_QuadVertexCount + 2] = {{ position.x + 1.0f, position.y + 1.0f, position.z }, glm::vec4(1.0f), { 1.0f, 1.0f }};
+        s_QuadVertices[s_QuadVertexCount + 3] = {{ position.x + 1.0f, position.y, position.z }, glm::vec4(1.0f), { 0.0f, 1.0f }};
+
+        s_StaticQuadCount++;
+
+    }
+
+    void Renderer::StaticQuadsReady()
+    {
+        s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, static_cast<uint32_t>(s_StaticQuadVertices.size() * sizeof(TriangleVertex)), &s_StaticQuadVertices); // is a vector so could be dangerous?
+    }
+
+    void Renderer::DrawStaticQuads()
+    {
+        s_StaticQuadVBO->Bind();
+        s_QuadIBO->Bind();
+
+        s_RendererAPI->DrawIndexed(s_QuadIndices.size());
     }
 
     void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
@@ -413,10 +457,10 @@ namespace pxl
         {
             s_QuadVBO->SetData(s_QuadVertexCount * sizeof(TriangleVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
-            if (s_QuadVAO != nullptr)
+            if (s_QuadVAO != nullptr) // crude way to make both opengl and vulkan to work
                 s_QuadVAO->Bind();
 
-            s_RendererAPI->DrawIndexed(s_QuadVAO->GetIndexBuffer()->GetCount());
+            s_RendererAPI->DrawIndexed(s_QuadIndexCount);
             s_Stats.DrawCalls++;
 
             s_QuadVertexCount = 0;
@@ -426,7 +470,7 @@ namespace pxl
         {
             s_CubeVAO->GetVertexBuffer()->SetData(s_CubeVertexCount * sizeof(TriangleVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
             s_CubeVAO->Bind();
-            s_RendererAPI->DrawIndexed(s_CubeVAO->GetIndexBuffer()->GetCount());
+            s_RendererAPI->DrawIndexed(s_QuadIndexCount);
             s_Stats.DrawCalls++;
 
             s_CubeVertexCount = 0;

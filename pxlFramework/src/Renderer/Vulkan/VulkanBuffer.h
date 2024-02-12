@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../VertexBuffer.h"
+#include "../Buffer.h"
 
 #include "../BufferLayout.h"
 #include "VulkanDevice.h"
@@ -9,7 +9,7 @@
 
 namespace pxl
 {
-    class VulkanBuffer : public VertexBuffer
+    class VulkanBuffer : public Buffer
     {
     public:
         VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data); // physical device is for getting memory properties, it should be in the VulkanContext or VulkanDevice classes respectively
@@ -40,5 +40,7 @@ namespace pxl
         VkDeviceMemory m_Memory = VK_NULL_HANDLE;
 
         VkBufferUsageFlagBits m_Usage;
+        // BindBuffer function pointer
+        //void(*m_VkBindFunc)();
     };
 }

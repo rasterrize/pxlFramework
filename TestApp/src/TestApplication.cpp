@@ -1,50 +1,52 @@
 #include "TestApplication.h"
 
 #include <imgui.h>
+#include <thread>
+#include <chrono>
 
 namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        // std::string vertexShader = R"(
-        //     #version 460 core
+        std::string vertexShader = R"(
+            #version 460 core
 
-        //     layout (location = 0) in vec3 a_Position;
-        //     layout (location = 1) in vec4 a_Colour;
-        //     layout (location = 2) in vec2 a_TexCoords;
+            layout (location = 0) in vec3 a_Position;
+            layout (location = 1) in vec4 a_Colour;
+            layout (location = 2) in vec2 a_TexCoords;
 
-        //     out vec3 v_Position;
-        //     out vec4 v_Colour;
-        //     out vec2 v_TexCoords;
+            out vec3 v_Position;
+            out vec4 v_Colour;
+            out vec2 v_TexCoords;
 
-        //     uniform mat4 u_VP;
+            uniform mat4 u_VP;
 
-        //     void main()
-        //     {
-        //         v_Position = a_Position;
-        //         v_Colour = a_Colour;
-        //         v_TexCoords = a_TexCoords;
-        //         gl_Position = u_VP * vec4(a_Position, 1.0);
-        //     }
-        // )";
+            void main()
+            {
+                v_Position = a_Position;
+                v_Colour = a_Colour;
+                v_TexCoords = a_TexCoords;
+                gl_Position = u_VP * vec4(a_Position, 1.0);
+            }
+        )";
 
-        // std::string fragmentShader = R"(
-        //     #version 460 core
+        std::string fragmentShader = R"(
+            #version 460 core
             
-        //     layout (location = 0) out vec4 color;
+            layout (location = 0) out vec4 color;
 
-        //     in vec3 v_Position;
-        //     in vec4 v_Colour;
-        //     in vec2 v_TexCoords;
+            in vec3 v_Position;
+            in vec4 v_Colour;
+            in vec2 v_TexCoords;
 
-        //     uniform sampler2D u_Texture;
+            uniform sampler2D u_Texture;
 
-        //     void main()
-        //     {
-        //         color = v_Colour;
-        //         //color = texture(u_Texture, v_TexCoords) * v_Colour;
-        //     }
-        // )";
+            void main()
+            {
+                color = v_Colour;
+                //color = texture(u_Texture, v_TexCoords) * v_Colour;
+            }
+        )";
 
         // std::string modelVertexShader = R"(
         //     #version 460 core
@@ -130,15 +132,31 @@ namespace TestApp
         //m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
         //pxl::Renderer::SetClearColour(m_ClearColour);
 
-        // m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
+        //m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
 
-        // m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
-        // m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
+        m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+
+        auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
+        auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
+
+        m_VulkanTestShader = pxl::Shader::Create(vertBin, fragBin);
+
+        pxl::BufferLayout layout;
+        layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
+        layout.Add(4, pxl::BufferDataType::Float, false); // colour
+        layout.Add(2, pxl::BufferDataType::Float, false); // texture coords
+
+        m_VulkanTestPipeline = pxl::GraphicsPipeline::Create(m_VulkanTestShader, layout);
+
         // m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
 
         // #ifndef TA_RELEASE
         //     pxl::pxl_ImGui::Init(m_Window);
         // #endif
+
+        //pxl::Renderer::AddStaticQuad();
+        //pxl::Renderer::StaticQuadsReady();
     }
 
     TestApplication::~TestApplication()
@@ -146,10 +164,10 @@ namespace TestApp
         // Save framework settings // TODO: this should be semi-automatic and handled by the application class
         auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
-        frameworkSettings.WindowMode = m_Window->GetWindowMode();
+        //frameworkSettings.WindowMode = m_Window->GetWindowMode();
+        //frameworkSettings.RendererAPI // TODO
 
         pxl::FrameworkConfig::SetSettings(frameworkSettings);
-        //frameworkSettings.RendererAPI // TODO
     }
 
     void TestApplication::OnUpdate(float dt)
@@ -249,8 +267,11 @@ namespace TestApp
 
         pxl::Renderer::Clear();
 
-        pxl::Renderer::Draw();
-        //pxl::Renderer::AddQuad({ 0.0f, 0.0f, 0.0f });
+        //pxl::Renderer::Submit(m_Shader, m_Camera);
+        pxl::Renderer::Submit(m_VulkanTestPipeline);
+        
+        //pxl::Renderer::AddQuad({ -0.5f, -0.5f, 0.0f });
+        //pxl::Renderer::DrawStaticQuads();
 
         pxl::Renderer::End();
 

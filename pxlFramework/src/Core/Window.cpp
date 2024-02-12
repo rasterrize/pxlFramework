@@ -328,7 +328,7 @@ namespace pxl
         auto windowInstance = (Window*)glfwGetWindowUserPointer(window);
         windowInstance->m_Specs.Width = width;
         windowInstance->m_Specs.Height = height;
-        windowInstance->m_GraphicsContext->ResizeViewport(fbWidth, fbHeight); // idk if GraphicsContext should be doing this but this is currently necessary for opengl
+        Renderer::ResizeViewport(fbWidth, fbHeight); // idk if GraphicsContext should be doing this but this is currently necessary for opengl
     }
 
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)

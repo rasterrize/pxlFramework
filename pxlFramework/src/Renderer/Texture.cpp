@@ -7,7 +7,7 @@ namespace pxl
 {
     std::shared_ptr<Texture2D> Texture2D::Create(unsigned char* imageBuffer, const glm::vec2& imageSize, int channels)
     {
-        switch (Renderer::GetAPIType())
+        switch (Renderer::GetCurrentAPI())
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for no renderer api.");

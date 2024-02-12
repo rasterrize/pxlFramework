@@ -16,8 +16,8 @@ namespace pxl
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
         ~VulkanDevice();
 
-        virtual void* GetLogicalDevice() override { return m_LogicalDevice; }
-        virtual void* GetPhysicalAdapter() override { return m_PhysicalDevice; }
+        VkDevice GetVkDevice() const { return m_LogicalDevice; }
+        VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }
 
         virtual void Destroy() override;
     

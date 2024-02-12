@@ -2,12 +2,13 @@
 
 namespace pxl
 {
-    VulkanShader::VulkanShader(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
         : m_Device(device)
     {
+        auto logicalDevice = m_Device->GetVkDevice();
 
-        auto vertModule = CreateShaderModule(m_Device, vertBin);
-        auto fragModule = CreateShaderModule(m_Device, fragBin);
+        auto vertModule = CreateShaderModule(logicalDevice, vertBin);
+        auto fragModule = CreateShaderModule(logicalDevice, fragBin);
 
         m_ShaderModules[VK_SHADER_STAGE_VERTEX_BIT] = vertModule;
         m_ShaderModules[VK_SHADER_STAGE_FRAGMENT_BIT] = fragModule;
@@ -16,7 +17,7 @@ namespace pxl
     VulkanShader::~VulkanShader()
     {
         for (const auto& pair : m_ShaderModules)
-            vkDestroyShaderModule(m_Device, pair.second, nullptr);
+            vkDestroyShaderModule(m_Device->GetVkDevice(), pair.second, nullptr);
     }
 
     void VulkanShader::Bind()

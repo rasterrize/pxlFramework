@@ -29,12 +29,20 @@ namespace pxl
         virtual void DrawLines(uint32_t vertexCount) override;
         virtual void DrawIndexed(uint32_t indexCount) override;
 
+        virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+        virtual void SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+
+        VkViewport GetViewport() const { return m_Viewport; }
+        VkRect2D GetScissor() const { return m_Scissor; }
+
         void Destroy();
     private:
         std::shared_ptr<VulkanContext> m_ContextHandle = nullptr;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
 
-        std::shared_ptr<VulkanDevice> m_Device = VK_NULL_HANDLE;
-        VkClearValue m_ClearValue = { { { 20.0f / 255.0f, 24.0f / 255.0f, 28.0f / 255.0f, 1.0f } } };
+        VkClearValue m_ClearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
+        VkViewport m_Viewport = {};
+        VkRect2D m_Scissor = {};
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
@@ -42,12 +50,6 @@ namespace pxl
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
-        // TODO: these should be moved outside of this class and passed in through function parameters, especially pipelines, since thats how switching of shaders works
-        std::shared_ptr<VulkanGraphicsPipeline> m_GraphicsPipeline;
-        std::shared_ptr<VulkanRenderPass> m_RenderPass;
-        std::shared_ptr<VulkanShader> m_Shader;
-
-        std::shared_ptr<VulkanBuffer> m_TestVertexBuffer;
-        std::shared_ptr<VulkanBuffer> m_TestIndexBuffer;
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass;
     };
 }

@@ -6,6 +6,7 @@
 
 //temp
 #include "../BufferLayout.h"
+#include "../Renderer.h"
 
 namespace pxl
 {
@@ -14,55 +15,52 @@ namespace pxl
     {
         VkResult result;
 
-        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        auto logicalDevice = m_Device->GetVkDevice();
 
         // Get the graphics queue from the given queue family index
         m_GraphicsQueue = VulkanHelpers::GetQueueHandle(logicalDevice, m_GraphicsQueueFamilyIndex);
 
-        // Create initial objects to get this bloody thing working
-        auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
-        auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
-
-        m_Shader = pxl::Shader::Create(logicalDevice, vertBin, fragBin);
-        m_RenderPass = m_ContextHandle->GetDefaultRenderPass();
+        m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
         BufferLayout layout;
         layout.Add(1, BufferDataType::Float2, false);
 
-        m_GraphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(logicalDevice, m_Shader, m_RenderPass, layout);
-
-        float vertices[] = {
-            -0.5f, -0.5f,
-             0.5f, -0.5f,
-             0.5f,  0.5f,
-            -0.5f,  0.5f 
-        };
-
-        uint32_t indices[] = {
-            0, 1, 2, 2, 3, 0
-        };
-
-        m_TestVertexBuffer = std::make_shared<VulkanBuffer>(m_Device, BufferUsage::Vertex, (uint32_t)sizeof(vertices), vertices);
-        m_TestIndexBuffer = std::make_shared<VulkanBuffer>(m_Device, BufferUsage::Index, (uint32_t)sizeof(indices), indices);
 
         // Set Dynamic State
         auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
 
-        // VkViewport viewport = {};
-        // viewport.x = 0.0f;
-        // viewport.y = 540.0f;
-        // viewport.width = 1920.0f;
-        // viewport.height = 1080.0f;
-        // viewport.minDepth = 0.0f;
-        // viewport.maxDepth = 1.0f;
+        // Setup Viewport
+        m_Viewport.x = 0.0f;
+        m_Viewport.y = 0.0f;
+        m_Viewport.width = 640.0f; // TODO: should width and height default to 0?
+        m_Viewport.height = 480.0f;
+        m_Viewport.minDepth = 0.0f;
+        m_Viewport.maxDepth = 1.0f;
 
-        m_GraphicsPipeline->ResizeViewport(m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent);
-        m_GraphicsPipeline->ResizeScissor(m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent);
+        // Setup Scissor
+        m_Scissor.offset = { 0, 0 };
+        m_Scissor.extent = { 640, 480 };
     }
 
     VulkanRenderer::~VulkanRenderer()
     {
         Destroy();
+    }
+
+    void VulkanRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        m_Viewport.x = x;
+        m_Viewport.y = y;
+        m_Viewport.width = width;
+        m_Viewport.height = height;
+    }
+
+    void VulkanRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        m_Scissor.offset.x = x;
+        m_Scissor.offset.y = y;
+        m_Scissor.extent.width = width;
+        m_Scissor.extent.height = height;
     }
 
     void VulkanRenderer::Destroy()
@@ -92,13 +90,13 @@ namespace pxl
         m_CurrentFrame = m_ContextHandle->GetCurrentFrame();
         
         // Wait until the command buffers and semaphores are ready again
-        vkWaitForFences(static_cast<VkDevice>(m_Device->GetLogicalDevice()), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        vkWaitForFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
 
         // Get next available image index
         m_ContextHandle->AcquireNextImage();
         uint32_t imageIndex = m_ContextHandle->GetCurrentFrameIndex();
         
-        vkResetFences(static_cast<VkDevice>(m_Device->GetLogicalDevice()), 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
+        vkResetFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
         
         // Begin command buffer recording
         VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
@@ -109,10 +107,10 @@ namespace pxl
         VulkanHelpers::CheckVkResult(result);
 
         // ---------------------
-        // Begin Render Pass
+        // Begin Geometry Render Pass
         // ---------------------
         VkRenderPassBeginInfo renderPassBeginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
-        renderPassBeginInfo.renderPass = m_RenderPass->GetVKRenderPass();
+        renderPassBeginInfo.renderPass = m_DefaultRenderPass->GetVKRenderPass(); // shouldnt be here if I want to support different render passes in the future.
         renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchain()->GetFramebuffer(imageIndex)->GetVKFramebuffer();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
         renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
@@ -121,20 +119,11 @@ namespace pxl
 
         vkCmdBeginRenderPass(m_CurrentFrame.CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        // Set dynamic state
-        auto viewport = m_GraphicsPipeline->GetViewport();
-        auto scissor = m_GraphicsPipeline->GetScissor();
-
         // Set dynamic state objects
-        vkCmdSetViewport(m_CurrentFrame.CommandBuffer, 0, 1, &viewport);
-        vkCmdSetScissor(m_CurrentFrame.CommandBuffer, 0, 1, &scissor);
+        vkCmdSetViewport(m_CurrentFrame.CommandBuffer, 0, 1, &m_Viewport);
+        vkCmdSetScissor(m_CurrentFrame.CommandBuffer, 0, 1, &m_Scissor);
 
-        // Bind Pipeline
-        m_GraphicsPipeline->Bind(m_CurrentFrame.CommandBuffer);
-
-        // Temp
-        m_TestVertexBuffer->Bind(m_CurrentFrame.CommandBuffer);
-        m_TestIndexBuffer->Bind(m_CurrentFrame.CommandBuffer);
+        // Bind Pipeline (from application)
     }
 
     void VulkanRenderer::End()

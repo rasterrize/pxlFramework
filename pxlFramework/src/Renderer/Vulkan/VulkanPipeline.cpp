@@ -8,8 +8,8 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(VkDevice device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
-        : m_Device(device)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanContext>& context, const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
+        : m_ContextHandle(context), m_Device(device->GetVkDevice())
     {
         VkResult result;
 
@@ -41,7 +41,7 @@ namespace pxl
         auto bindingDescription = VulkanBuffer::GetBindingDescription(bufferLayout);
         auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(bufferLayout);
 
-        // Vertex Input // NOTE: this currently doesn't take any vertex input because its specified in the vertex shader, will be changed once using vertex buffers
+        // Vertex Input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
         vertexInputInfo.vertexBindingDescriptionCount = 1;
         vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -53,22 +53,10 @@ namespace pxl
         inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         //inputAssemblyInfo.primitiveRestartEnable = VK_FALSE; // useful for strip topology modes
 
-        // Setup Viewport
-        m_Viewport.x = 0.0f;
-        m_Viewport.y = 0.0f;
-        m_Viewport.width = 640.0f; // TODO: should width and height default to 0?
-        m_Viewport.height = 480.0f;
-        m_Viewport.minDepth = 0.0f;
-        m_Viewport.maxDepth = 1.0f;
-
         // Specify viewport state
         VkPipelineViewportStateCreateInfo viewportState = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
-
-        // Setup Scissor
-        m_Scissor.offset = { 0, 0 };
-        m_Scissor.extent = { 640, 480 };
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
@@ -154,13 +142,15 @@ namespace pxl
         Destroy();
     }
 
-    void VulkanGraphicsPipeline::Bind(VkCommandBuffer commandBuffer)
+    void VulkanGraphicsPipeline::Bind()
     {
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+        vkCmdBindPipeline(m_ContextHandle->GetCurrentFrame().CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
     void VulkanGraphicsPipeline::Destroy()
     {
+        vkDeviceWaitIdle(m_Device);
+
         if (m_Pipeline != VK_NULL_HANDLE)
             vkDestroyPipeline(m_Device, m_Pipeline, nullptr);
 

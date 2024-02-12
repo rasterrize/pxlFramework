@@ -18,6 +18,9 @@ namespace pxl
     void OpenGLVertexArray::Bind()
     {
         glBindVertexArray(m_RendererID);
+
+        m_VertexBuffer->Bind();
+        m_IndexBuffer->Bind();
     }
 
     void OpenGLVertexArray::Unbind()

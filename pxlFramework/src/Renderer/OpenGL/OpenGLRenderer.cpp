@@ -36,4 +36,14 @@ namespace pxl
     {
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     }
+
+    void OpenGLRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        glViewport(0, 0, width, height);
+    }
+
+    void OpenGLRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        glScissor(0, 0, width, height);
+    }
 }

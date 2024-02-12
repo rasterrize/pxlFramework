@@ -2,6 +2,8 @@
 
 #include "../Shader.h"
 
+#include "VulkanDevice.h"
+
 #include <vulkan/vulkan.h>
 
 namespace pxl
@@ -9,7 +11,7 @@ namespace pxl
     class VulkanShader : public Shader
     {
     public:
-        VulkanShader(VkDevice device, const std::vector<char>& vertBin, const std::vector<char>& fragBin);
+        VulkanShader(const std::shared_ptr<VulkanDevice>& device, const std::vector<char>& vertBin, const std::vector<char>& fragBin);
         ~VulkanShader();
 
         virtual void Bind() override;
@@ -24,7 +26,7 @@ namespace pxl
     private:
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
     private:
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device;
         std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderModules;
     };
 }

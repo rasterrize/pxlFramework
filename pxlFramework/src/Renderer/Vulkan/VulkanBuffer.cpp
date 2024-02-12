@@ -16,7 +16,7 @@ namespace pxl
 
         // Allocate memory and bind it to the buffer
         AllocateMemory();
-        vkBindBufferMemory(static_cast<VkDevice>(m_Device->GetLogicalDevice()), m_Buffer, m_Memory, 0);
+        vkBindBufferMemory(m_Device->GetVkDevice(), m_Buffer, m_Memory, 0);
 
         // Set the data inside the memory of the buffer
         SetData(size, data);
@@ -32,7 +32,7 @@ namespace pxl
         VkBuffer buffers[] = { m_Buffer };
         VkDeviceSize offsets[] = { 0 };
         
-        if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // definitely shouldnt be doing this
+        if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // going to do this for now as it simplifies things a little // also could this be a AND (&&) bit operation, would that be faster?
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
         else if (m_Usage == VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
             vkCmdBindIndexBuffer(commandBuffer, m_Buffer, 0, VK_INDEX_TYPE_UINT32);
@@ -40,7 +40,7 @@ namespace pxl
 
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
-        auto device = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        auto device = m_Device->GetVkDevice();
 
         // Fill the vertex buffer with the data
         void* data2;
@@ -51,7 +51,7 @@ namespace pxl
 
     void VulkanBuffer::Destroy()
     {
-        auto device = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        auto device = m_Device->GetVkDevice();
         vkDeviceWaitIdle(device);
         
         if (m_Buffer != VK_NULL_HANDLE)
@@ -70,7 +70,7 @@ namespace pxl
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        auto result = vkCreateBuffer(static_cast<VkDevice>(m_Device->GetLogicalDevice()), &bufferInfo, nullptr, &m_Buffer);
+        auto result = vkCreateBuffer(m_Device->GetVkDevice(), &bufferInfo, nullptr, &m_Buffer);
         VulkanHelpers::CheckVkResult(result);
     }
 
@@ -141,7 +141,7 @@ namespace pxl
 
     void VulkanBuffer::AllocateMemory()
     {
-        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        auto logicalDevice = m_Device->GetVkDevice();
         VkMemoryRequirements memReqs;
         vkGetBufferMemoryRequirements(logicalDevice, m_Buffer, &memReqs);
 

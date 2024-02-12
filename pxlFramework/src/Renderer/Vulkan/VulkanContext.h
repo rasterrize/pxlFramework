@@ -29,7 +29,6 @@ namespace pxl
         virtual void Present() override;
         virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); };
         virtual bool GetVSync() override { return m_Swapchain->GetVSync(); }
-        virtual void ResizeViewport(uint32_t width, uint32_t height) override {};
 
         VkInstance GetInstance() const { return m_Instance; }
         std::shared_ptr<VulkanDevice> GetDevice() const { return m_Device; }
@@ -41,7 +40,7 @@ namespace pxl
         uint32_t GetCurrentFrameIndex() const { return m_CurrentImageIndex; }
         VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; } // GetNextFrame()?
 
-        VkCommandBuffer CreateCommandBuffer(); // could be a vulkan helper
+        VkCommandBuffer CreateCommandBuffer(); // could be a vulkan helper or in the VulkanDevice class
         void SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence);
 
         // TEMP (I think)

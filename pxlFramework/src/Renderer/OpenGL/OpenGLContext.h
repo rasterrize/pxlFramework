@@ -15,7 +15,6 @@ namespace pxl
         virtual void Present() override;
         virtual void SetVSync(bool value) override;
         virtual bool GetVSync() override { return m_VSync; }
-        virtual void ResizeViewport(uint32_t width, uint32_t height) override;
         
     private:
         void Init();

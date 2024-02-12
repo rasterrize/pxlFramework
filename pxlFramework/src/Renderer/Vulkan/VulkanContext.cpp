@@ -90,7 +90,7 @@ namespace pxl
             return;
         }
 
-        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
+        auto logicalDevice = m_Device->GetVkDevice();
 
         // Get present queue (graphics queue) from device
         m_PresentQueue = VulkanHelpers::GetQueueHandle(logicalDevice, graphicsQueueFamily);
@@ -128,21 +128,21 @@ namespace pxl
     void VulkanContext::Shutdown()
     {
         // Wait until device isnt using these objects before deleting them
-        VkDevice logicalDevice = static_cast<VkDevice>(m_Device->GetLogicalDevice());
-        vkDeviceWaitIdle(logicalDevice);
+        auto device = m_Device->GetVkDevice();
+        vkDeviceWaitIdle(device);
         
         // Destroy VK objects
         for (auto& frame : m_Frames)
         {
             if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(logicalDevice, frame.ImageAvailableSemaphore, nullptr);
+                vkDestroySemaphore(device, frame.ImageAvailableSemaphore, nullptr);
 
             if (frame.RenderFinishedSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(logicalDevice, frame.RenderFinishedSemaphore, nullptr);
+                vkDestroySemaphore(device, frame.RenderFinishedSemaphore, nullptr);
         }
 
         if (m_CommandPool != VK_NULL_HANDLE)
-            vkDestroyCommandPool(logicalDevice, m_CommandPool, nullptr);
+            vkDestroyCommandPool(device, m_CommandPool, nullptr);
 
         m_Swapchain->Destroy();
 
@@ -165,7 +165,7 @@ namespace pxl
         commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         commandBufferAllocInfo.commandBufferCount = 1;
 
-        auto result = vkAllocateCommandBuffers(static_cast<VkDevice>(m_Device->GetLogicalDevice()), &commandBufferAllocInfo, &commandBuffer);
+        auto result = vkAllocateCommandBuffers(m_Device->GetVkDevice(), &commandBufferAllocInfo, &commandBuffer);
         VulkanHelpers::CheckVkResult(result);
 
         if (result != VK_SUCCESS)

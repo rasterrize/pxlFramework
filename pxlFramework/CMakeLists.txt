@@ -24,8 +24,7 @@ src/Renderer/Renderer.h src/Renderer/Renderer.cpp
 src/Renderer/RendererAPI.h
 src/Renderer/RendererAPIType.h
 src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
-src/Renderer/VertexBuffer.h src/Renderer/VertexBuffer.cpp
-src/Renderer/IndexBuffer.h
+src/Renderer/Buffer.h src/Renderer/Buffer.cpp
 src/Renderer/VertexArray.h
 src/Renderer/BufferLayout.h
 src/Renderer/Shader.h src/Renderer/Shader.cpp
@@ -35,15 +34,14 @@ src/Renderer/PerspectiveCamera.h src/Renderer/PerspectiveCamera.cpp
 src/Renderer/Texture.h src/Renderer/Texture.cpp
 src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
 src/Renderer/RendererData.h
-src/Renderer/Pipeline.h
+src/Renderer/Pipeline.h src/Renderer/Pipeline.cpp
 src/Renderer/Framebuffer.h
 src/Renderer/Device.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
 src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp
-src/Renderer/OpenGL/OpenGLVertexBuffer.h src/Renderer/OpenGL/OpenGLVertexBuffer.cpp
-src/Renderer/OpenGL/OpenGLIndexBuffer.h src/Renderer/OpenGL/OpenGLIndexBuffer.cpp
+src/Renderer/OpenGL/OpenGLBuffer.h src/Renderer/OpenGL/OpenGLBuffer.cpp
 src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
 src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
 src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
@@ -112,6 +110,9 @@ target_compile_definitions(pxlFramework PUBLIC
 GLFW_INCLUDE_NONE
 GLFW_EXPOSE_NATIVE_WIN32
 GLFW_INCLUDE_VULKAN
-$<$<CONFIG:Debug>:PXL_DEBUG>) #IMGUI_IMPL_OPENGL_LOADER_GLAD
+$<$<CONFIG:Release>:PXL_DISABLE_LOGGING>
+$<$<CONFIG:Debug>:PXL_DEBUG>
+_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING) # temporary, I think this is due to spdlog
+#IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)

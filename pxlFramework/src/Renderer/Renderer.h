@@ -10,6 +10,8 @@
 
 #include "VertexArray.h"
 #include "Device.h"
+#include "Pipeline.h"
+#include "Vulkan/VulkanRenderPass.h"
 
 #include <glm/matrix.hpp>
 
@@ -23,8 +25,9 @@ namespace pxl
 
         static bool IsInitialized() { return s_Enabled; }
 
-        static RendererAPIType GetAPIType() { return s_RendererAPIType; }
+        static RendererAPIType GetCurrentAPI() { return s_RendererAPIType; }
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
+        static std::shared_ptr<Device> GetCurrentDevice() { return s_Device; }
 
         static float GetFPS() { return s_FPS; }
         static float GetFrameTimeMS() { return 1 / s_FPS * 1000.0f; }
@@ -32,14 +35,20 @@ namespace pxl
         static void Clear();
         static void SetClearColour(const glm::vec4& colour);
 
+        static void ResizeViewport(uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(0, 0, width, height); }
+
         static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera);
+        static void Submit(const std::shared_ptr<GraphicsPipeline>& pipeline);
 
         static void Begin();
         static void End();
 
-        static void Draw(); // TODO: TEMP FOR VULKAN TESTING
-
-        static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
+        // temp
+        static void AddStaticQuad(const glm::vec3& position = glm::vec3(0.0f));
+        static void StaticQuadsReady(); // StaticGeometryReady
+        static void DrawStaticQuads();
+        
+        static void AddQuad(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& rotation = glm::vec3(0.0f), const glm::vec2& scale = glm::vec2(1.0f), const glm::vec4& colour = glm::vec4(1.0f));
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& tint);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec2& textureIndex);
@@ -76,9 +85,16 @@ namespace pxl
         static std::unique_ptr<RendererAPI> s_RendererAPI;
         static std::shared_ptr<Window> s_WindowHandle;
 
+        // test
+        static std::shared_ptr<Buffer> s_StaticQuadVBO;
+        static std::vector<TriangleVertex> s_StaticQuadVertices;
+        static uint32_t s_StaticQuadCount;
+        // static uint32_t s_StaticQuadVertexCount;
+        // static uint32_t s_StaticQuadIndexCount;
+
         static std::shared_ptr<VertexArray> s_QuadVAO;
-        static std::shared_ptr<VertexBuffer> s_QuadVBO;
-        static std::shared_ptr<IndexBuffer> s_QuadIBO;
+        static std::shared_ptr<Buffer> s_QuadVBO;
+        static std::shared_ptr<Buffer> s_QuadIBO;
 
         // For OpenGL
         static std::shared_ptr<VertexArray> s_CubeVAO;
@@ -87,8 +103,9 @@ namespace pxl
 
         // For Vulkan
         static std::shared_ptr<Device> s_Device;
+        static std::shared_ptr<VulkanRenderPass> s_GeometryPass;
 
-        static float s_FPS;
+        static float s_FPS; // shouldn't store this
         static uint32_t s_FrameCount;
         static float s_TimeAtLastFrame;
 
