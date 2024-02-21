@@ -5,7 +5,6 @@
 #include "../../Utils/FileLoader.h"
 
 //temp
-#include "../BufferLayout.h"
 #include "../Renderer.h"
 
 namespace pxl
@@ -22,24 +21,20 @@ namespace pxl
 
         m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
-        BufferLayout layout;
-        layout.Add(1, BufferDataType::Float2, false);
-
-
         // Set Dynamic State
         auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
 
         // Setup Viewport
         m_Viewport.x = 0.0f;
         m_Viewport.y = 0.0f;
-        m_Viewport.width = 640.0f; // TODO: should width and height default to 0?
-        m_Viewport.height = 480.0f;
+        m_Viewport.width = swapchainExtent.width; // TODO: should width and height default to 0?
+        m_Viewport.height = swapchainExtent.height;
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 
         // Setup Scissor
         m_Scissor.offset = { 0, 0 };
-        m_Scissor.extent = { 640, 480 };
+        m_Scissor.extent = { swapchainExtent.width, swapchainExtent.height };
     }
 
     VulkanRenderer::~VulkanRenderer()

@@ -9,8 +9,8 @@ namespace pxl
         // could maybe check for an opengl context ???
         glEnable(GL_DEPTH_TEST);
         //glEnable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void OpenGLRenderer::Clear()
@@ -22,6 +22,7 @@ namespace pxl
     {
         glClearColor(colour.r, colour.g, colour.b, colour.a);
     }
+
     void OpenGLRenderer::DrawArrays(uint32_t vertexCount)
     {
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -44,6 +45,6 @@ namespace pxl
 
     void OpenGLRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        glScissor(0, 0, width, height);
+        //glScissor(0, 0, width, height);
     }
 }

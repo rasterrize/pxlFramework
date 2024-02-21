@@ -25,7 +25,7 @@ src/Renderer/RendererAPI.h
 src/Renderer/RendererAPIType.h
 src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
 src/Renderer/Buffer.h src/Renderer/Buffer.cpp
-src/Renderer/VertexArray.h
+src/Renderer/VertexArray.h src/Renderer/VertexArray.cpp
 src/Renderer/BufferLayout.h
 src/Renderer/Shader.h src/Renderer/Shader.cpp
 src/Renderer/Camera.h src/Renderer/Camera.cpp
@@ -45,6 +45,7 @@ src/Renderer/OpenGL/OpenGLBuffer.h src/Renderer/OpenGL/OpenGLBuffer.cpp
 src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
 src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
 src/Renderer/OpenGL/OpenGLTexture2D.h src/Renderer/OpenGL/OpenGLTexture2D.cpp
+src/Renderer/OpenGL/OpenGLPipeline.h src/Renderer/OpenGL/OpenGLPipeline.cpp
 
 # AUDIO
 # src/Audio/AudioManager.h src/Audio/AudioManager.cpp
@@ -62,6 +63,7 @@ src/Renderer/Vulkan/VulkanHelpers.h src/Renderer/Vulkan/VulkanHelpers.cpp
 src/Renderer/Vulkan/VulkanImage.h src/Renderer/Vulkan/VulkanImage.cpp
 src/Renderer/Vulkan/VulkanBuffer.h src/Renderer/Vulkan/VulkanBuffer.cpp
 src/Renderer/Vulkan/VulkanDevice.h src/Renderer/Vulkan/VulkanDevice.cpp
+src/Renderer/Vulkan/VulkanVertexArray.h
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
@@ -81,7 +83,9 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE) 
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 
 # Add Dependencies (CMake projects)
 add_subdirectory(deps/GLFW)
@@ -94,7 +98,7 @@ add_subdirectory(deps/assimp)
 add_subdirectory(deps/yaml-cpp)
 
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-#target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
 find_package(Vulkan REQUIRED)
@@ -112,7 +116,8 @@ GLFW_EXPOSE_NATIVE_WIN32
 GLFW_INCLUDE_VULKAN
 $<$<CONFIG:Release>:PXL_DISABLE_LOGGING>
 $<$<CONFIG:Debug>:PXL_DEBUG>
-_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING) # temporary, I think this is due to spdlog
+_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
+IMGUI_IMPL_VULKAN_NO_PROTOTYPES) # temporary, I think this is due to spdlog
 #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC inc)

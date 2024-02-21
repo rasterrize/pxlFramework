@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "../Renderer/Renderer.h"
+#include "Application.h"
 
 #include "Input.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
@@ -62,6 +63,11 @@ namespace pxl
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
                 break;
             case RendererAPIType::Vulkan:
+                if (!glfwVulkanSupported())
+                {
+                    PXL_LOG_WARN(LogArea::Window, "Vulkan loader wasn't found by GLFW");
+                }
+
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
         }
@@ -329,6 +335,7 @@ namespace pxl
         windowInstance->m_Specs.Width = width;
         windowInstance->m_Specs.Height = height;
         Renderer::ResizeViewport(fbWidth, fbHeight); // idk if GraphicsContext should be doing this but this is currently necessary for opengl
+        Renderer::ResizeScissor(fbWidth, fbHeight);
     }
 
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)

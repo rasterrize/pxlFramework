@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 
 #include "Vulkan/VulkanPipeline.h"
+#include "OpenGL/OpenGLPipeline.h"
 #include "Renderer.h"
 
 namespace pxl
@@ -13,8 +14,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for OpenGL.");
-                break;
+                return std::make_shared<OpenGLGraphicsPipeline>(shader);
             case RendererAPIType::Vulkan:
                 auto device = dynamic_pointer_cast<VulkanDevice>(Renderer::GetCurrentDevice());
                 if (!device)

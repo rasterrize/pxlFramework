@@ -36,15 +36,54 @@ namespace pxl
         return texture;
     }
 
-    std::shared_ptr<Shader> FileLoader::LoadGLSLShader(const std::filesystem::path& path)
+    std::shared_ptr<Shader> FileLoader::LoadGLSLShader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
     {    
-        if (!std::filesystem::exists(path))
+        if (!std::filesystem::exists(vertPath))
         {
-            Logger::LogError("Failed to load shader from path because the file doesn't exist '" + path.string() + "'");
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the vertex shader path doesn't exist '{}'", vertPath.string());
             return nullptr;
         }
-    
-        return nullptr;
+
+        if (!std::filesystem::exists(fragPath))
+        {
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the fragment shader path doesn't exist '{}'", fragPath.string());
+            return nullptr;
+        }
+
+        std::ifstream file(vertPath, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
+
+        if (!file.is_open())
+            throw std::runtime_error("Failed to open shader file");
+        
+        std::string vertSrc;
+		std::ifstream in(vertPath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
+		if (in)
+		{
+			in.seekg(0, std::ios::end);
+			size_t size = in.tellg();
+			if (size != -1)
+			{
+				vertSrc.resize(size);
+				in.seekg(0, std::ios::beg);
+				in.read(&vertSrc[0], size);
+			}
+		}
+
+        std::string fragSrc;
+		std::ifstream in2(fragPath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
+		if (in2)
+		{
+			in2.seekg(0, std::ios::end);
+			size_t size = in2.tellg();
+			if (size != -1)
+			{
+				fragSrc.resize(size);
+				in2.seekg(0, std::ios::beg);
+				in2.read(&fragSrc[0], size);
+			}
+		}
+
+        return Shader::Create(vertSrc, fragSrc);
     }
 
     std::vector<char> FileLoader::LoadSPIRV(const std::filesystem::path& path)
@@ -60,7 +99,7 @@ namespace pxl
         file.seekg(0); // return back to the start of the file
         file.read(buffer.data(), fileSize);
 
-        file.close();
+        //file.close(); // RAII closes it
 
         return buffer;
     }

@@ -60,12 +60,12 @@ namespace pxl
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-        //rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
-        //rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
-        //rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL; // Can be lines and points, but requires enabling a gpu feature
+        rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
+        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
+        rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL; // Can be lines and points, but requires enabling a gpu feature
         rasterizationInfo.lineWidth = 1.0f; // 1.0f is good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT; // specify different types of culling here
-        rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; // TODO: is this clockwise in OpenGL?
+        rasterizationInfo.cullMode = VK_CULL_MODE_NONE; // specify different types of culling here
+        rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // (I think) This is counter clockwise in OpenGL
         //rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional

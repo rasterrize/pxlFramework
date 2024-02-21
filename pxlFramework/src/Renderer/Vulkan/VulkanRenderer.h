@@ -23,7 +23,7 @@ namespace pxl
         virtual void End() override;
         
         virtual void Clear() override {};
-        virtual void SetClearColour(const glm::vec4& colour) override { m_ClearValue.color = { colour.r, colour.b, colour.g, colour.a }; }
+        virtual void SetClearColour(const glm::vec4& colour) override { m_ClearValue.color = { colour.r, colour.g, colour.b, colour.a }; }
 
         virtual void DrawArrays(uint32_t vertexCount) override;
         virtual void DrawLines(uint32_t vertexCount) override;

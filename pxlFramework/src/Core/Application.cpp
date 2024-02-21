@@ -45,8 +45,10 @@ namespace pxl
                 if (!m_Running)
                     break;
                 Camera::UpdateAll();
+                Renderer::Begin(); // should Begin and End be called if the renderer isn't enabled?
                 OnRender();
                 pxl_ImGui::Update();
+                Renderer::End();
             }
 
             Window::UpdateAll();

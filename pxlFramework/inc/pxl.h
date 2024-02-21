@@ -16,12 +16,13 @@
 #include "../src/Renderer/Shader.h"
 #include "../src/Renderer/ShaderLibrary.h"
 
-// TEMP
+// TEMP (kinda)
 #include "../src/Renderer/Pipeline.h"
 #include "../src/Renderer/BufferLayout.h"
 
 //#include "../src/Audio/AudioManager.h"
 
 #include "../src/Debug/ImGui/pxl_ImGui.h"
+#include <imgui.h> // so applications can use ImGui functions
 
 #include "../src/Utils/FileLoader.h"

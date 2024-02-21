@@ -15,7 +15,7 @@ namespace pxl
         VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data); // physical device is for getting memory properties, it should be in the VulkanContext or VulkanDevice classes respectively
         ~VulkanBuffer();
 
-        virtual void Bind() override {};
+        virtual void Bind() override;
         virtual void Unbind() override {};
 
         void Bind(VkCommandBuffer commandBuffer);

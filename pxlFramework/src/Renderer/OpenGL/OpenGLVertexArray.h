@@ -7,7 +7,7 @@
 
 namespace pxl
 {
-    class OpenGLVertexArray : public VertexArray
+    class  OpenGLVertexArray : public VertexArray
     {
     public:
         OpenGLVertexArray();
@@ -16,19 +16,17 @@ namespace pxl
         virtual void Bind() override;
         virtual void Unbind() override;
 
-        virtual void SetLayout(const BufferLayout& layout) override;
+        virtual void AddVertexBuffer(const std::shared_ptr<Buffer>& vertexBuffer, const BufferLayout& layout) override;
+        virtual void SetIndexBuffer(const std::shared_ptr<Buffer>& indexBuffer) override;
 
-        virtual void SetVertexBuffer(std::shared_ptr<Buffer> vertexBuffer) override { m_VertexBuffer.swap(vertexBuffer); }
-        virtual void SetIndexBuffer(std::shared_ptr<Buffer> indexBuffer) override { m_IndexBuffer.swap(indexBuffer); }
-
-        virtual std::shared_ptr<Buffer> GetVertexBuffer() override { return m_VertexBuffer; }
+        virtual std::shared_ptr<Buffer> GetVertexBuffer() override { return nullptr; } // TODO
         virtual std::shared_ptr<Buffer> GetIndexBuffer() override { return m_IndexBuffer; }
     private:
         static GLenum GetOpenGLTypeOfBufferDataType(BufferDataType type);
     private:
         uint32_t m_RendererID;
         
-        std::shared_ptr<Buffer> m_VertexBuffer;
+        std::vector<std::shared_ptr<Buffer>> m_VertexBuffers; // Vertex arrays can control more than 1 vertex buffer
         std::shared_ptr<Buffer> m_IndexBuffer;
     };
 }

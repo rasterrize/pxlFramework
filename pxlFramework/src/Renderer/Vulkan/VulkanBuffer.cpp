@@ -3,6 +3,10 @@
 #include "../BufferLayout.h"
 #include "VulkanHelpers.h"
 
+#include "../Renderer.h"
+
+#include "VulkanContext.h"
+
 namespace pxl
 {
     VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data)
@@ -25,6 +29,19 @@ namespace pxl
     VulkanBuffer::~VulkanBuffer()
     {
         Destroy();
+    }
+
+    void VulkanBuffer::Bind()
+    {
+        VkBuffer buffers[] = { m_Buffer };
+        VkDeviceSize offsets[] = { 0 };
+
+        auto commandBuffer = std::dynamic_pointer_cast<VulkanContext>(Renderer::GetGraphicsContext())->GetCurrentFrame().CommandBuffer;
+        
+        if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // going to do this for now as it simplifies things a little // also could this be a AND (&&) bit operation, would that be faster?
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+        else if (m_Usage == VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+            vkCmdBindIndexBuffer(commandBuffer, m_Buffer, 0, VK_INDEX_TYPE_UINT32);
     }
 
     void VulkanBuffer::Bind(VkCommandBuffer commandBuffer)
@@ -91,7 +108,6 @@ namespace pxl
         std::vector<VkVertexInputAttributeDescription> vertexAttributes(elements.size());
 
         uint32_t offset = 0;
-        
         for (int i = 0; i < elements.size(); i++)
         {
             auto element = elements[i];
@@ -100,7 +116,7 @@ namespace pxl
             vertexAttributes[i].format = GetVkFormatOfBufferDataType(element.Type);
             vertexAttributes[i].location = i;
             vertexAttributes[i].offset = offset;
-            offset += element.Count * GetSizeOfType(element.Type);
+            offset += GetSizeOfType(element.Type);
         }
 
         return vertexAttributes;

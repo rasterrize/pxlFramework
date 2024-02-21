@@ -16,9 +16,8 @@ namespace TestApp
         std::shared_ptr<pxl::Camera> m_Camera;
 
         std::shared_ptr<pxl::Shader> m_Shader;
-        std::shared_ptr<pxl::Shader> m_VulkanTestShader;
 
-        std::shared_ptr<pxl::GraphicsPipeline> m_VulkanTestPipeline;
+        std::shared_ptr<pxl::GraphicsPipeline> m_Pipeline;
 
         std::shared_ptr<pxl::Shader> m_MeshShader;
         std::shared_ptr<pxl::Shader> m_LineShader;

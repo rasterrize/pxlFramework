@@ -56,16 +56,16 @@ namespace pxl
 
         if (m_Swapchain)
         {
-            Logger::LogInfo("Swapchain created:");
-            Logger::LogInfo("- Present mode: " + std::string(string_VkPresentModeKHR(m_SwapchainSpecs.PresentMode)));
-            Logger::LogInfo("- Image count: " + std::to_string(m_SwapchainSpecs.ImageCount));
-            Logger::LogInfo("- Image format: " + std::string(string_VkFormat(m_SwapchainSpecs.Format)));
-            Logger::LogInfo("- Image color space: " + std::string(string_VkColorSpaceKHR(m_SwapchainSpecs.ColorSpace)));
-            Logger::LogInfo("- Image extent: " + std::to_string(m_SwapchainSpecs.Extent.width) + "x" + std::to_string(m_SwapchainSpecs.Extent.height));
+            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created:");
+            PXL_LOG_INFO(LogArea::Vulkan, "- Present mode: {}", string_VkPresentModeKHR(m_SwapchainSpecs.PresentMode));
+            PXL_LOG_INFO(LogArea::Vulkan, "- Image count: {}", m_SwapchainSpecs.ImageCount);
+            PXL_LOG_INFO(LogArea::Vulkan, "- Image format: {}", string_VkFormat(m_SwapchainSpecs.Format));
+            PXL_LOG_INFO(LogArea::Vulkan, "- Image color space: {}", string_VkColorSpaceKHR(m_SwapchainSpecs.ColorSpace));
+            PXL_LOG_INFO(LogArea::Vulkan, "- Image extent: {}x{}", m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height);
         }
         else
         {
-            Logger::LogError("Failed to create swapchain");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create swapchain");
         }
     }
 

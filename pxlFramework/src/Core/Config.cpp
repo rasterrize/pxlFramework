@@ -3,10 +3,11 @@
 #include "../Renderer/RendererAPIType.h"
 
 #include <yaml-cpp/yaml.h>
+#include <filesystem>
 
 namespace pxl
 {
-    FrameworkSettings FrameworkConfig::m_FrameworkSettings;
+    FrameworkSettings FrameworkConfig::m_FrameworkSettings = {};
 
     void FrameworkConfig::Init()
     {
@@ -16,7 +17,17 @@ namespace pxl
 
     void FrameworkConfig::LoadFromYAMLFile()
     {
-        YAML::Node config = YAML::LoadFile("FrameworkConfig.yaml"); // crashes if the file isn't loaded, need to find a way around this
+        YAML::Node config;
+        
+        if (std::filesystem::exists("FrameworkConfig.yaml"))
+        {
+            config = YAML::LoadFile("FrameworkConfig.yaml");
+        }
+        else
+        {
+            PXL_LOG_ERROR(LogArea::Core, "Failed to find FrameworkConfig.yaml in working directory");
+            return;
+        }
 
         // Renderer API
         std::string rendererAPI = config["RendererAPI"].as<std::string>();

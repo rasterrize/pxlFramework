@@ -1,6 +1,5 @@
 #include "TestApplication.h"
 
-#include <imgui.h>
 #include <thread>
 #include <chrono>
 
@@ -8,45 +7,46 @@ namespace TestApp
 {
     TestApplication::TestApplication()
     {
-        std::string vertexShader = R"(
-            #version 460 core
+        // std::string vertexShader = R"(
+        //     #version 460 core
 
-            layout (location = 0) in vec3 a_Position;
-            layout (location = 1) in vec4 a_Colour;
-            layout (location = 2) in vec2 a_TexCoords;
+        //     layout (location = 0) in vec3 a_Position;
+        //     layout (location = 1) in vec4 a_Colour;
+        //     layout (location = 2) in vec2 a_TexCoords;
 
-            out vec3 v_Position;
-            out vec4 v_Colour;
-            out vec2 v_TexCoords;
+        //     out vec3 v_Position;
+        //     out vec4 v_Colour;
+        //     out vec2 v_TexCoords;
 
-            uniform mat4 u_VP;
+        //     //uniform mat4 u_VP;
 
-            void main()
-            {
-                v_Position = a_Position;
-                v_Colour = a_Colour;
-                v_TexCoords = a_TexCoords;
-                gl_Position = u_VP * vec4(a_Position, 1.0);
-            }
-        )";
+        //     void main()
+        //     {
+        //         v_Position = a_Position;
+        //         v_Colour = a_Colour;
+        //         v_TexCoords = a_TexCoords;
+        //         //gl_Position = u_VP * vec4(a_Position, 1.0);
+        //         gl_Position = vec4(a_Position, 1.0);
+        //     }
+        // )";
 
-        std::string fragmentShader = R"(
-            #version 460 core
+        // std::string fragmentShader = R"(
+        //     #version 460 core
             
-            layout (location = 0) out vec4 color;
+        //     layout (location = 0) out vec4 color;
 
-            in vec3 v_Position;
-            in vec4 v_Colour;
-            in vec2 v_TexCoords;
+        //     in vec3 v_Position;
+        //     in vec4 v_Colour;
+        //     in vec2 v_TexCoords;
 
-            uniform sampler2D u_Texture;
+        //     //uniform sampler2D u_Texture;
 
-            void main()
-            {
-                color = v_Colour;
-                //color = texture(u_Texture, v_TexCoords) * v_Colour;
-            }
-        )";
+        //     void main()
+        //     {
+        //         color = v_Colour;
+        //         //color = texture(u_Texture, v_TexCoords) * v_Colour;
+        //     }
+        // )";
 
         // std::string modelVertexShader = R"(
         //     #version 460 core
@@ -120,34 +120,42 @@ namespace TestApp
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
         
         m_Window = pxl::Window::Create({ 1280, 720, windowTitle, windowRendererAPI });
-        m_Window->SetPosition(1920 / 2 - 1280 / 2, 1080 / 2 - 720 / 2); // should be part of the window creation
+        m_Window->SetPosition(2560 / 2 - 1280 / 2, 1440 / 2 - 720 / 2); // should be part of the window creation
         //m_Window->SetVSync(true);
         m_Window->SetWindowMode(windowMode);
 
         pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
 
-        APP_LOG_INFO("Finished creating application");
+        m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
+        pxl::Renderer::SetClearColour(m_ClearColour);
 
-        //m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
-        //pxl::Renderer::SetClearColour(m_ClearColour);
+        //m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
+        //m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
 
-        //m_Shader = std::make_shared<pxl::OpenGLShader>(vertexShader, fragmentShader);
+        APP_LOG_INFO("Compiling shaders... (0/1)");
 
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
-        m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        // temp, both should be loaded from files
+        if (windowRendererAPI == pxl::RendererAPIType::OpenGL)
+        {
+            // m_Shader = pxl::Shader::Create(vertexShader, fragmentShader);
+            m_Shader = pxl::FileLoader::LoadGLSLShader("assets/shaders/first.vert", "assets/shaders/first.frag");
+        }
+        else if (windowRendererAPI == pxl::RendererAPIType::Vulkan)
+        {
+            auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
+            auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
+            m_Shader = pxl::Shader::Create(vertBin, fragBin);
+        }
 
-        auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
-        auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
-
-        m_VulkanTestShader = pxl::Shader::Create(vertBin, fragBin);
+        APP_LOG_INFO("Compiling shaders... (1/1)");
 
         pxl::BufferLayout layout;
-        layout.Add(3, pxl::BufferDataType::Float, false); // vertex position
-        layout.Add(4, pxl::BufferDataType::Float, false); // colour
-        layout.Add(2, pxl::BufferDataType::Float, false); // texture coords
+        layout.Add(pxl::BufferDataType::Float3, false); // vertex position
+        layout.Add(pxl::BufferDataType::Float4, false); // colour
+        layout.Add(pxl::BufferDataType::Float2, false); // texture coords
 
-        m_VulkanTestPipeline = pxl::GraphicsPipeline::Create(m_VulkanTestShader, layout);
+        m_Pipeline = pxl::GraphicsPipeline::Create(m_Shader, layout);
 
         // m_Camera->SetRotation({0.0f, 0.0f, 0.0f});
 
@@ -155,8 +163,8 @@ namespace TestApp
         //     pxl::pxl_ImGui::Init(m_Window);
         // #endif
 
-        //pxl::Renderer::AddStaticQuad();
-        //pxl::Renderer::StaticQuadsReady();
+        pxl::Renderer::AddStaticQuad({-0.5f, -0.5f, 0.0f});
+        pxl::Renderer::StaticGeometryReady();
     }
 
     TestApplication::~TestApplication()
@@ -263,17 +271,13 @@ namespace TestApp
 
     void TestApplication::OnRender()
     {
-        pxl::Renderer::Begin();
-
         pxl::Renderer::Clear();
 
         //pxl::Renderer::Submit(m_Shader, m_Camera);
-        pxl::Renderer::Submit(m_VulkanTestPipeline);
+        pxl::Renderer::Submit(m_Pipeline);
         
         //pxl::Renderer::AddQuad({ -0.5f, -0.5f, 0.0f });
-        //pxl::Renderer::DrawStaticQuads();
-
-        pxl::Renderer::End();
+        pxl::Renderer::DrawStaticQuads();
 
     }
 

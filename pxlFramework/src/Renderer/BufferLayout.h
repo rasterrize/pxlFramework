@@ -28,10 +28,27 @@ namespace pxl
         return 0;
     }
 
-    struct BufferElement // is this really a struct if it has member functions?
+    static uint32_t GetCountOfType(BufferDataType type)
     {
-        uint32_t Count; // How many variables/data of the specified data type (eg. the amount/count of floats in the element)
-        BufferDataType Type; // The type of data (float, int, etc)
+        switch (type)
+        {
+            case BufferDataType::Float:  return 1;
+            case BufferDataType::Float2: return 2;
+            case BufferDataType::Float3: return 3;
+            case BufferDataType::Float4: return 4;
+            case BufferDataType::Int:    return 1;
+            case BufferDataType::Int2:   return 2;
+            case BufferDataType::Int3:   return 3;
+            case BufferDataType::Int4:   return 4;
+            case BufferDataType::Mat3:   return 3; // } unsure about these ones
+            case BufferDataType::Mat4:   return 4; // }
+        }
+        return 0;
+    }
+
+    struct BufferElement
+    {
+        BufferDataType Type; // The type of data (float, int2, etc)
         bool Normalized;
     };
 
@@ -41,17 +58,17 @@ namespace pxl
         std::vector<BufferElement> GetElements() const { return m_Elements; }
         const uint32_t GetStride() const { return m_Stride; }
 
-        void Add(uint32_t count, BufferDataType type, bool normalized)
+        void Add(BufferDataType type, bool normalized)
         {
-            BufferElement element = { count, type, normalized };
+            BufferElement element = { type, normalized };
             m_Elements.push_back(element);
-            m_Stride += element.Count * GetSizeOfType(element.Type);
+            m_Stride += GetSizeOfType(element.Type);
         }
 
-        void Add(BufferElement& element)
+        void Add(const BufferElement& element)
         {
             m_Elements.push_back(element);
-            m_Stride += element.Count * GetSizeOfType(element.Type);
+            m_Stride += GetSizeOfType(element.Type);
         }
 
     private:
