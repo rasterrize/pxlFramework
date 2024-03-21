@@ -4,13 +4,15 @@
 [submodule "pxlFramework/deps/GLM"]
 	path = pxlFramework/deps/GLM
 	url = https://github.com/g-truc/glm
-[submodule "pxlFramework/deps/GLFW"]
-	path = pxlFramework/deps/GLFW
-	url = https://github.com/glfw/glfw
-	branch = 3.3-stable
 [submodule "pxlFramework/deps/assimp"]
 	path = pxlFramework/deps/assimp
 	url = https://github.com/assimp/assimp
 [submodule "pxlFramework/deps/yaml-cpp"]
 	path = pxlFramework/deps/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "pxlFramework/deps/GLFW"]
+	path = pxlFramework/deps/GLFW
+	url = https://github.com/glfw/glfw
+[submodule "pxlFramework/deps/ImGui"]
+	path = pxlFramework/deps/ImGui
+	url = https://github.com/rasterrize/imgui
