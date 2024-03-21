@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Logger.h"
 
 #ifndef PXL_DISABLE_LOGGING

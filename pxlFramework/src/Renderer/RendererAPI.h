@@ -2,6 +2,8 @@
 
 #include <glm/vec4.hpp>
 
+#include "Buffer.h"
+
 namespace pxl
 {
     class RendererAPI

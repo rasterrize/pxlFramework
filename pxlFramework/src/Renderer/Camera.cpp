@@ -1,9 +1,10 @@
 #include "Camera.h"
 
+#include <glm/trigonometric.hpp>
+
 #include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
 
-#include <glm/trigonometric.hpp>
 
 namespace pxl
 {

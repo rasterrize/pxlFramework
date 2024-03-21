@@ -2,12 +2,12 @@
 
 #include "../Pipeline.h"
 
+#include <vulkan/vulkan.h>
+
 #include "VulkanShader.h"
 #include "VulkanRenderPass.h"
 #include "VulkanContext.h"
 #include "../BufferLayout.h"
-
-#include <vulkan/vulkan.h>
 
 namespace pxl
 {

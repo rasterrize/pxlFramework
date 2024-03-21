@@ -1,13 +1,10 @@
-// inherits from Device.h
-// Holds Physical and Logical devices
-// Can be used to query information such as the supported capabilities from a physical device and surface
-// May or may not be used to allocate memory on the device
-
 #pragma once
+
 #include "../Device.h"
 
 #include <vulkan/vulkan.h>
 
+#include "VulkanHelpers.h"
 namespace pxl
 {
     class VulkanDevice : public Device

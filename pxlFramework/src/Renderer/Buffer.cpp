@@ -1,7 +1,6 @@
 #include "Buffer.h"
 
 #include "Renderer.h"
-
 #include "OpenGL/OpenGLBuffer.h"
 #include "Vulkan/VulkanBuffer.h"
 

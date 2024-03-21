@@ -20,6 +20,7 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::Core, "Can't create application, one already exists");
             throw;
         }
+
         s_Instance = this;
 
         // Not sure if these 'Framework' classes should be in the 'Application' class
@@ -42,8 +43,10 @@ namespace pxl
             if (!m_Minimized)
             {
                 OnUpdate(deltaTime);
+                
                 if (!m_Running)
                     break;
+
                 Camera::UpdateAll();
                 Renderer::Begin(); // should Begin and End be called if the renderer isn't enabled?
                 OnRender();

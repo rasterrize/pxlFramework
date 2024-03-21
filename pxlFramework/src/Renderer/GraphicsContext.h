@@ -10,6 +10,7 @@ namespace pxl
     {
     public:
         virtual void Present() = 0;
+        
         virtual void SetVSync(bool value) = 0;
         virtual bool GetVSync() = 0;
 

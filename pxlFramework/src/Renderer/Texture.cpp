@@ -1,6 +1,6 @@
 #include "Texture.h"
-#include "Renderer.h"
 
+#include "Renderer.h"
 #include "OpenGL/OpenGLTexture2D.h"
 
 namespace pxl

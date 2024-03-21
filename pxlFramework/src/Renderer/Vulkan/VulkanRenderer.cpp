@@ -2,11 +2,6 @@
 
 #include "VulkanHelpers.h"
 
-#include "../../Utils/FileLoader.h"
-
-//temp
-#include "../Renderer.h"
-
 namespace pxl
 {
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanContext>& context)

@@ -15,8 +15,6 @@
 #include "../src/Renderer/Camera.h"
 #include "../src/Renderer/Shader.h"
 #include "../src/Renderer/ShaderLibrary.h"
-
-// TEMP (kinda)
 #include "../src/Renderer/Pipeline.h"
 #include "../src/Renderer/BufferLayout.h"
 

@@ -2,9 +2,9 @@
 
 #include "../Shader.h"
 
-#include "VulkanDevice.h"
-
 #include <vulkan/vulkan.h>
+
+#include "VulkanDevice.h"
 
 namespace pxl
 {

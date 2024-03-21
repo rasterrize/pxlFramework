@@ -4,8 +4,7 @@
 
 #include "VulkanImage.h"
 #include "VulkanFramebuffer.h"
-
-#include "../../Core/Window.h"
+#include "VulkanDevice.h"
 
 namespace pxl
 {

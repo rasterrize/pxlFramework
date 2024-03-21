@@ -2,10 +2,10 @@
 
 #include "../Buffer.h"
 
+#include <vulkan/vulkan.h>
+
 #include "../BufferLayout.h"
 #include "VulkanDevice.h"
-
-#include <vulkan/vulkan.h>
 
 namespace pxl
 {

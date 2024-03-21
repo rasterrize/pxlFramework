@@ -3,8 +3,6 @@
 #include "OpenGL/OpenGLContext.h"
 #include "Vulkan/VulkanContext.h"
 
-#include "../Core/Window.h"
-
 namespace pxl
 {
     std::shared_ptr<GraphicsContext> GraphicsContext::Create(RendererAPIType api, const std::shared_ptr<Window>& window)

@@ -1,9 +1,8 @@
 #include "Config.h"
 
-#include "../Renderer/RendererAPIType.h"
+#include <filesystem>
 
 #include <yaml-cpp/yaml.h>
-#include <filesystem>
 
 namespace pxl
 {

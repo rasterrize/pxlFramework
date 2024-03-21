@@ -2,15 +2,11 @@
 
 //#include <glm/gtx/matrix_decompose.hpp>
 
-#include "OpenGL/OpenGLRenderer.h"
-
 #include "Buffer.h"
-#include "VertexArray.h"
-
+#include "../Core/Platform.h"
+#include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
-
-#include "../Core/Platform.h"
 
 namespace pxl
 {

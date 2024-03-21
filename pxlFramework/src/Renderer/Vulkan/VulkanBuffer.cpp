@@ -1,10 +1,8 @@
 #include "VulkanBuffer.h"
 
 #include "../BufferLayout.h"
-#include "VulkanHelpers.h"
-
 #include "../Renderer.h"
-
+#include "VulkanHelpers.h"
 #include "VulkanContext.h"
 
 namespace pxl

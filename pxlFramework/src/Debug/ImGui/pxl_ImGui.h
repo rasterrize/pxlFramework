@@ -1,9 +1,8 @@
 #pragma once
 
+#include "ImGuiBase.h"
 #include "../../Core/Window.h"
 #include "../../Renderer/RendererAPIType.h"
-
-#include "ImGuiBase.h"
 
 namespace pxl
 {

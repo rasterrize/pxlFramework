@@ -2,9 +2,6 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "RendererAPIType.h"
-#include "GraphicsContext.h"
-
 namespace pxl
 {
     class Shader

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
+#include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
+#include <vulkan/vulkan.h>
+
 #include "WindowMode.h"
 #include "../Renderer/GraphicsContext.h"
 #include "../Renderer/RendererAPIType.h"
-
-#include <GLFW/glfw3.h>
-#include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
 
 namespace pxl
 {

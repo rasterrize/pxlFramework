@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <vulkan/vulkan.h>
-
 namespace pxl
 {
     enum class BufferDataType

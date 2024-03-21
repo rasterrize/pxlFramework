@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Logger.h"
 
 // A current side affect of these macros is they take up 2 lines, causing issues with one line if statemtents

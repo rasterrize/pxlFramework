@@ -1,7 +1,7 @@
 #include "VulkanSwapchain.h"
 
 #include "VulkanHelpers.h"
-#include "vulkan/vk_enum_string_helper.h"
+#include "VulkanContext.h"
 
 namespace pxl
 {
