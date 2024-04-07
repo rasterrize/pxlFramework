@@ -23,7 +23,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/TestApp",
             "environment": [],
-            "console": "internalConsole"
+            "console": "integratedTerminal"
         }
     ]
 }
