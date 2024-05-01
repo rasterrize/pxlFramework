@@ -17,6 +17,8 @@ namespace pxl
 
     void Input::Init(const std::shared_ptr<Window>& window)
     {
+        PXL_ASSERT(window);
+        
         if (s_Enabled)
         {
             PXL_LOG_ERROR(LogArea::Input, "Failed to initalize input, it's already initialized");
@@ -182,7 +184,7 @@ namespace pxl
             }
             else
             {
-                PXL_LOG_WARN(LogArea::Input, "Failed to enabled Raw Input");
+                PXL_LOG_WARN(LogArea::Input, "Failed to enabled Raw Input because it isn't supported");
             }
         }
     }

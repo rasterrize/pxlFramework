@@ -19,7 +19,7 @@ namespace pxl
         }
         else
         {
-            PXL_LOG_INFO(LogArea::OpenGL, "Glad initialized - OpenGL Version: {}", glGetString(GL_VERSION));
+            PXL_LOG_INFO(LogArea::OpenGL, "Glad initialized - OpenGL Version: {}", (const char*)glGetString(GL_VERSION));
         }
 
         glfwSwapInterval(m_VSync);

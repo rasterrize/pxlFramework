@@ -115,13 +115,14 @@ target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 # Link Libraries
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan)
 
-target_precompile_headers(pxlFramework PUBLIC src/Core/Logging/Logger.h src/Core/Logging/FrameworkLog.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
+target_precompile_headers(pxlFramework PUBLIC src/Core/Logging/Logger.h src/Core/Logging/FrameworkLog.h src/Core/Assert.h src/Core/Stopwatch.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional> <functional>)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE
 GLFW_EXPOSE_NATIVE_WIN32
 GLFW_INCLUDE_VULKAN
-$<$<CONFIG:Release>:PXL_DISABLE_LOGGING>
+$<$<CONFIG:Release>:PXL_DISABLE_LOGGING> # TODO: switch this to distribution builds
+$<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS>
 $<$<CONFIG:Debug>:PXL_DEBUG>
 _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
 IMGUI_IMPL_VULKAN_NO_PROTOTYPES) 

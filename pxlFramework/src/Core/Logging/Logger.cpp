@@ -24,55 +24,6 @@ namespace pxl
         s_FrameworkLogger->set_formatter(std::move(formatter));
     }
 
-    // LEGACY
-    void Logger::Log(LogLevel level, const std::string& text)
-    {   
-        if (s_FrameworkLogger == nullptr)
-            return;
-
-        s_CurrentArea = LogArea::None;
-        
-        switch(level)
-        {
-            case LogLevel::Info:
-                s_FrameworkLogger->info(text);
-                break;
-            case LogLevel::Warn:
-                s_FrameworkLogger->warn(text);
-                break;
-            case LogLevel::Error:
-                s_FrameworkLogger->error(text);
-                break;
-            case LogLevel::Critical:
-                s_FrameworkLogger->critical(text);
-                break;
-        }
-    }
-
-    // LEGACY
-    void Logger::LogInfo(const std::string& text)
-    {
-        Logger::Log(LogLevel::Info, text);
-    }
-
-    // LEGACY
-    void Logger::LogWarn(const std::string& text)
-    {
-        Logger::Log(LogLevel::Warn, text);
-    }
-
-    // LEGACY
-    void Logger::LogError(const std::string& text)
-    {
-        Logger::Log(LogLevel::Error, text);
-    }
-
-    // LEGACY
-    void Logger::LogCritical(const std::string& text)
-    {
-        Logger::Log(LogLevel::Critical, text);
-    }
-
     std::string Logger::LogAreaToString(LogArea area)
     {
         switch (area)

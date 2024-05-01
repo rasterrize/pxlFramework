@@ -20,11 +20,11 @@ namespace pxl
 
         if (bytes)
         {
-            Logger::LogInfo("Loaded texture: '" + filePath + "'");
+            PXL_LOG_INFO(LogArea::Other, "Loaded texture: '" + filePath + "'");
         }
         else
         {
-            Logger::LogError("Failed to load texture: '" + filePath + "'");
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load texture: '" + filePath + "'");
             return nullptr;
         }
 

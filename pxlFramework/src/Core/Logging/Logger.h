@@ -20,28 +20,18 @@ namespace pxl
     {
     public:
         static void Init();
-        //static void SetSingleThreaded();
 
         static std::shared_ptr<spdlog::logger>& GetFrameworkLogger() { return s_FrameworkLogger; }
         static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
 
-        static void Log(LogLevel level, const std::string& text);
-
-        // Legacy logging (use macros)
-        static void LogInfo(const std::string& text);
-        static void LogWarn(const std::string& text);
-        static void LogError(const std::string& text);
-        static void LogCritical(const std::string& text);
-
         static void SetCurrentArea(LogArea area) { s_CurrentArea = area; }
-        //static LogArea GetCurrentArea() { return s_CurrentArea; }
     private:
         static std::string LogAreaToString(LogArea area);
     private:
         class SystemAreaFlag : public spdlog::custom_flag_formatter
         {
         public:
-            void format(const spdlog::details::log_msg &, const std::tm &, spdlog::memory_buf_t &dest) override
+            void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override
             {
                 std::string area = LogAreaToString(s_CurrentArea); // TODO: not use strings here if possible
                 dest.append(area.data(), area.data() + area.size());

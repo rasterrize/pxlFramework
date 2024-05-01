@@ -78,16 +78,11 @@ namespace pxl
         SetGLFWCallbacks();
 
         // Check to see if the window object was created successfully
+        PXL_ASSERT(m_GLFWWindow);
         if (m_GLFWWindow)
-        {
-            PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height);
-        }
+            PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
         else
-        {
-            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
-            if (s_WindowCount == 0)
-                glfwTerminate();
-        }
+            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title)
     }
 
     void Window::Update()
@@ -309,11 +304,7 @@ namespace pxl
         VkResult result = glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface); // could learn to do this myself https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
         VulkanHelpers::CheckVkResult(result);
 
-        if (!surface)
-        {
-            PXL_LOG_ERROR(LogArea::Window, "Failed to create window surface");
-            return VK_NULL_HANDLE;
-        }
+        PXL_ASSERT(surface)
 
         return surface;
     }
@@ -431,6 +422,8 @@ namespace pxl
     {
         auto window = std::make_shared<Window>(windowSpecs);
 
+        PXL_ASSERT(window);
+
         if (window)
         {
             window->m_Handle = window;
@@ -438,10 +431,7 @@ namespace pxl
             {
                 window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window); // Automatically create a graphics context for the window
 
-                if (!window->m_GraphicsContext)
-                {
-                    PXL_LOG_ERROR(LogArea::Window, "Failed to create graphics context for window {}", windowSpecs.Title);
-                }
+                PXL_ASSERT(window->m_GraphicsContext != nullptr);
             }
 
             s_Windows.push_back(window);
