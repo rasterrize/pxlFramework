@@ -11,7 +11,7 @@ namespace pxl
     {
     public:
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
-        ~VulkanDevice();
+        virtual ~VulkanDevice() override;
 
         VkDevice GetVkDevice() const { return m_LogicalDevice; }
         VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }

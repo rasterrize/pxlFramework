@@ -25,7 +25,7 @@ namespace pxl
 
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
     private:
-        std::shared_ptr<VulkanContext> m_ContextHandle;
+        std::shared_ptr<VulkanGraphicsContext> m_ContextHandle;
 
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;

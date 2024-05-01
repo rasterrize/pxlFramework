@@ -10,7 +10,7 @@ namespace pxl
     {
     public:
         OpenGLTexture2D(unsigned char* imageBuffer, glm::vec2 imageSize, int channels);
-        ~OpenGLTexture2D();
+        virtual ~OpenGLTexture2D() override;
 
         virtual void Bind() override;
         virtual void Unbind() override;

@@ -9,6 +9,8 @@ namespace pxl
     class GraphicsContext
     {
     public:
+        virtual ~GraphicsContext() = default;
+
         virtual void Present() = 0;
         
         virtual void SetVSync(bool value) = 0;

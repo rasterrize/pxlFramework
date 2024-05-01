@@ -20,11 +20,11 @@ namespace pxl
         VkFence InFlightFence = VK_NULL_HANDLE;
     };
     
-    class VulkanContext : public GraphicsContext
+    class VulkanGraphicsContext : public GraphicsContext
     {
     public:
-        VulkanContext(const std::shared_ptr<Window>& window);
-        ~VulkanContext();
+        VulkanGraphicsContext(const std::shared_ptr<Window>& window);
+        virtual ~VulkanGraphicsContext() override;
 
         virtual void Present() override;
         virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); };

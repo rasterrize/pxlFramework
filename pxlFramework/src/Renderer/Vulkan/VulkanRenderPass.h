@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    class VulkanContext;
+    class VulkanGraphicsContext;
 
     class VulkanRenderPass
     {

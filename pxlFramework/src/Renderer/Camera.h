@@ -22,6 +22,8 @@ namespace pxl
     class Camera
     {
     public:
+        virtual ~Camera() = default;
+
         virtual void Update() = 0;
 
         const glm::vec3 GetPosition() const { return m_Position; }

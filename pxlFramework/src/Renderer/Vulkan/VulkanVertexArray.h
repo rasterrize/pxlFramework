@@ -10,7 +10,7 @@ namespace pxl
     class VulkanVertexArray : public VertexArray
     {
     public:
-        virtual ~VulkanVertexArray() = default;
+        //virtual ~VulkanVertexArray() override;
 
         virtual void Bind() override { m_VertexBuffer->Bind(), m_IndexBuffer->Bind(); }
         virtual void Unbind() override {} // could technically call the unbind functions but they do nothing anyway for vulkan

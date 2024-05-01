@@ -4,13 +4,13 @@
 
 namespace pxl
 {
-    OpenGLContext::OpenGLContext(const std::shared_ptr<Window>& window)
+    OpenGLGraphicsContext::OpenGLGraphicsContext(const std::shared_ptr<Window>& window)
     {
         m_WindowHandle = window->GetNativeWindow();
         Init();
     }
 
-    void OpenGLContext::Init()
+    void OpenGLGraphicsContext::Init()
     {
         glfwMakeContextCurrent(m_WindowHandle);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -25,12 +25,12 @@ namespace pxl
         glfwSwapInterval(m_VSync);
     }
 
-    void OpenGLContext::Present()
+    void OpenGLGraphicsContext::Present()
     {
         glfwSwapBuffers(m_WindowHandle);
     }
 
-    void OpenGLContext::SetVSync(bool value)
+    void OpenGLGraphicsContext::SetVSync(bool value)
     {
         if (value)
         {

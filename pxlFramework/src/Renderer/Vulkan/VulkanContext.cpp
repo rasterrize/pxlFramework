@@ -3,22 +3,20 @@
 #include "VulkanHelpers.h"
 
 // temp
-#include "VulkanBuffer.h"
 
 namespace pxl
 {
-    VulkanContext::VulkanContext(const std::shared_ptr<Window>& window)
-        : m_WindowHandle(window)
+    VulkanGraphicsContext::VulkanGraphicsContext(const std::shared_ptr<Window>& window)
     {
-        Init();
+        Init(window);
     }
 
-    VulkanContext::~VulkanContext()
+    VulkanGraphicsContext::~VulkanGraphicsContext()
     {
         Shutdown();
     }
 
-    void VulkanContext::Init()
+    void VulkanGraphicsContext::Init(const std::shared_ptr<Window>& window)
     {
         VkResult result;
 
@@ -86,7 +84,7 @@ namespace pxl
 
         if (!m_Device)
         {
-            PXL_LOG_ERROR(LogArea::Vulkan, "VulkanContext failed to create VulkanDevice object");
+            PXL_LOG_ERROR(LogArea::Vulkan, "VulkanGraphicsContext failed to create VulkanDevice object");
             return;
         }
 
@@ -125,7 +123,7 @@ namespace pxl
         }
     }
 
-    void VulkanContext::Shutdown()
+    void VulkanGraphicsContext::Shutdown()
     {
         // Wait until device isnt using these objects before deleting them
         auto device = m_Device->GetVkDevice();
@@ -177,7 +175,7 @@ namespace pxl
         return commandBuffer;
     }
 
-    void VulkanContext::SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence)
+    void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)
     {
         // Submit the command buffer
         VkSubmitInfo commandBufferSubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
@@ -197,13 +195,13 @@ namespace pxl
         vkQueueSubmit(queue, 1, &commandBufferSubmitInfo, signalFence);
     }
 
-    void VulkanContext::Present()
+    void VulkanGraphicsContext::Present()
     {
         m_Swapchain->QueuePresent(m_PresentQueue, m_CurrentImageIndex, m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore);
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
     }
 
-    bool VulkanContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
+    bool VulkanGraphicsContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
     {
         VkResult result;
 
@@ -267,7 +265,7 @@ namespace pxl
         return true;
     }
 
-    VkPhysicalDevice VulkanContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
+    VkPhysicalDevice VulkanGraphicsContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
     {
         // Find a suitable discrete gpu physical device
         VkPhysicalDevice discreteGPU = VK_NULL_HANDLE;

@@ -8,12 +8,14 @@
 
 namespace pxl
 {
-    class OpenGLContext : public GraphicsContext
+    class OpenGLGraphicsContext : public GraphicsContext
     {
     public:
-        OpenGLContext(const std::shared_ptr<Window>& window);
+        OpenGLGraphicsContext(const std::shared_ptr<Window>& window);
+        virtual ~OpenGLGraphicsContext() override {};
 
         virtual void Present() override;
+
         virtual void SetVSync(bool value) override;
         virtual bool GetVSync() override { return m_VSync; }
         
