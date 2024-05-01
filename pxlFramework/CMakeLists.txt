@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.23)
 project(pxlFramework)
 
 add_library(pxlFramework STATIC 
-# INCLUDE
-inc/pxl.h
-
 # CORE
 src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
@@ -100,13 +97,23 @@ add_subdirectory(deps/yaml-cpp)
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
+# Find Vulkan SDK using its environment variable
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
 find_package(Vulkan REQUIRED)
 
-target_include_directories(pxlFramework PUBLIC ${Vulkan_INCLUDE_DIRS})
+if (${Vulkan_FOUND})
+        message("Found Vulkan SDK")
+        message("-- Vulkan SDK Path: $ENV{VULKAN_SDK}")
+        message("-- Vulkan Include: ${Vulkan_INCLUDE_DIR}")
+        message("-- Vulkan Library: ${Vulkan_LIBRARY}")
+else()
+        message("Failed to find Vulkan SDK")
+endif()
+
+target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 
 # Link Libraries
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp ${Vulkan_LIBRARY})
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan)
 
 target_precompile_headers(pxlFramework PUBLIC src/Core/Logging/Logger.h src/Core/Logging/FrameworkLog.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional>)
 
@@ -120,4 +127,4 @@ _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
 IMGUI_IMPL_VULKAN_NO_PROTOTYPES) 
 #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
-target_include_directories(pxlFramework PUBLIC inc)
+target_include_directories(pxlFramework PUBLIC include)
