@@ -1,16 +1,19 @@
-#ifdef TA_RELEASE
-    #include <Windows.h>
-#endif
-
 #include "TestApplication.h"
 
-#ifdef TA_RELEASE
-    int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#ifdef TA_DIST
+    #include <Windows.h>
+    #define MAIN_FUNC int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
-    int main()
+    #define MAIN_FUNC int main()
 #endif
+
+MAIN_FUNC
 {
-    auto application = new TestApp::TestApplication();
-    application->Run();
-    delete application;
+    // Init log before creating application
+    #ifndef PXL_DISABLE_LOGGING
+        pxl::Logger::Init();
+    #endif
+
+    TestApp::TestApplication application; // whether this should be on the heap or stack depends on big this class might get.
+    application.Run();
 }

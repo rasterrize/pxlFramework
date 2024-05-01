@@ -6,7 +6,7 @@ namespace TestApp
     {
     public:
         TestApplication();
-        ~TestApplication();
+        virtual ~TestApplication() override;
 
         virtual void OnUpdate(float dt) override;
         virtual void OnRender() override;
@@ -14,28 +14,18 @@ namespace TestApp
     private:
         std::shared_ptr<pxl::Window> m_Window;
         std::shared_ptr<pxl::Camera> m_Camera;
-
         std::shared_ptr<pxl::Shader> m_Shader;
-
         std::shared_ptr<pxl::GraphicsPipeline> m_Pipeline;
 
-        std::shared_ptr<pxl::Shader> m_MeshShader;
-        std::shared_ptr<pxl::Shader> m_LineShader;
-
-        std::shared_ptr<pxl::Mesh> m_Mesh;
-        
-        glm::vec3 m_CameraPosition = glm::vec3(0.0f);
-        glm::vec3 m_CameraRotation = glm::vec3(0.0f);
         glm::vec4 m_ClearColour = glm::vec4(0.0f);
 
-        bool controllingCamera = true;
+        std::function<void(pxl::WindowSpecs&)> m_OnStartFunc;
+        std::function<void(float dt)> m_OnUpdateFunc;
+        std::function<void()> m_OnRenderFunc;
+        std::function<void()> m_OnImGuiRender;
 
-        glm::vec4 m_QuadColour = { 0.180f, 0.293f, 0.819f, 1.0f };
-
-        glm::vec3 m_PlayerPosition = { 0.0f, 0.75f, 2.0f };
-
-
-        int m_BlueQuadAmount = 100;
-        int m_OrangeQuadAmount = 100;
+        //std::shared_ptr<pxl::Shader> m_MeshShader; // bad name lol
+        //std::shared_ptr<pxl::Shader> m_LineShader;
+        
     };
 }
