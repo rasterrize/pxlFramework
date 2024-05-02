@@ -13,8 +13,8 @@ namespace pxl
     class VulkanRenderer : public RendererAPI
     {
     public:
-        VulkanRenderer(const std::shared_ptr<VulkanContext>& context);
-        ~VulkanRenderer();
+        VulkanRenderer(const std::shared_ptr<VulkanGraphicsContext>& context);
+        virtual ~VulkanRenderer() override;
 
         virtual void Begin() override;
         virtual void End() override;
@@ -34,8 +34,8 @@ namespace pxl
 
         void Destroy();
     private:
-        std::shared_ptr<VulkanContext> m_ContextHandle = nullptr;
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
+        std::shared_ptr<VulkanGraphicsContext> m_ContextHandle = nullptr;
 
         VkClearValue m_ClearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
         VkViewport m_Viewport = {};

@@ -98,7 +98,7 @@ namespace pxl
 
                 break;
             case RendererAPIType::Vulkan:
-                auto vulkanContext = dynamic_pointer_cast<VulkanContext>(window->GetGraphicsContext());
+                auto vulkanContext = dynamic_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
 
                 if (!vulkanContext)
                 {

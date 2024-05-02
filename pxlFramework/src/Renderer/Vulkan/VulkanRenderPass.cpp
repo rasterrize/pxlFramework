@@ -47,8 +47,7 @@ namespace pxl
         renderPassInfo.pDependencies = &subPassDependency;
 
         // Create render pass
-        auto result = vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
     }
 
     VulkanRenderPass::~VulkanRenderPass()

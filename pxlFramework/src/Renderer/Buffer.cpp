@@ -4,6 +4,8 @@
 #include "OpenGL/OpenGLBuffer.h"
 #include "Vulkan/VulkanBuffer.h"
 
+#include "GraphicsContext.h"
+
 namespace pxl
 {
     // Static Buffer
@@ -17,13 +19,7 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLBuffer>(usage, size, data);
             case RendererAPIType::Vulkan:
-                auto vulkanDevice = dynamic_pointer_cast<VulkanDevice>(Renderer::GetCurrentDevice());
-                if (!vulkanDevice)
-                {
-                    PXL_LOG_ERROR(LogArea::Renderer, "Can't create VulkanBuffer, failed to retrieve VulkanDevice from renderer");
-                    break;
-                }
-
+                auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
                 return std::make_shared<VulkanBuffer>(vulkanDevice, usage, size, data);
         }
 

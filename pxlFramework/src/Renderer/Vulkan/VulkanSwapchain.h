@@ -17,26 +17,42 @@ namespace pxl
         uint32_t ImageCount = 0;
     };
 
+    struct VulkanFrame
+    {
+        VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
+        VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
+        VkSemaphore ImageAvailableSemaphore = VK_NULL_HANDLE;
+        VkFence InFlightFence = VK_NULL_HANDLE;
+    };
+
     class VulkanSwapchain
     {
     public:
-        VulkanSwapchain(VkDevice device, VkPhysicalDevice gpu, VkSurfaceKHR surface, VkSurfaceFormatKHR surfaceFormat, const std::shared_ptr<Window> windowHandle, const std::shared_ptr<VulkanRenderPass>& renderPass);
+        VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass, VkCommandPool commandPool);
         ~VulkanSwapchain();
 
         void Recreate();
+        // void Recreate(uint32_t width, uint32_t height);
+
         void Destroy();
+        void DestroyFrameData();
 
-        uint32_t AcquireNextAvailableImageIndex(VkSemaphore signalSemaphore);
+        void AcquireNextAvailableImageIndex();
+        uint32_t GetCurrentImageIndex() const { return m_CurrentImageIndex; }
 
-        void QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore/* = VK_NULL_HANDLE*/);
+        void QueuePresent(VkQueue queue);
 
         VkSwapchainKHR GetVKSwapchain() const { return m_Swapchain; }
         VulkanSwapchainSpecs GetSwapchainSpecs() const { return m_SwapchainSpecs; }
-        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); }
-        std::shared_ptr<VulkanFramebuffer> GetFramebuffer(uint32_t index) const { return m_Framebuffers[index]; }
+        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); } // Get Current Frame Image?
+        std::shared_ptr<VulkanFramebuffer> GetFramebuffer(uint32_t index) const { return m_Framebuffers[index]; } // Get Current Frame Framebuffer?
+        VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; }
 
         void SetVSync(bool value) { m_VSync = value; }
         bool GetVSync() const { return m_VSync; }
+
+        // TEMPORARY
+        void SetExtent(VkExtent2D extent) { m_SwapchainSpecs.Extent = extent; }
     private:
         void Create();
         void PrepareImages();
@@ -47,20 +63,24 @@ namespace pxl
         bool CheckExtentSupport(VkExtent2D extent);
     
     private:
-        VkDevice m_Device = VK_NULL_HANDLE;
-        VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
-
-        std::shared_ptr<Window> m_WindowHandle;
+        const std::shared_ptr<VulkanDevice> m_Device;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 
+        uint32_t m_CurrentImageIndex = 0; // for VkSwapchain images
         std::vector<std::shared_ptr<VulkanImage>> m_Images; // holds the image views
         std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
+
+        // Synchronization
+        int m_MaxFramesInFlight = 3; // should this always match swapchain image count?
+        uint32_t m_CurrentFrameIndex = 0; // for CPU side frame data
+        std::vector<VulkanFrame> m_Frames;
 
         std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // to create framebuffers
 
         VulkanSwapchainSpecs m_SwapchainSpecs = {};
+
         bool m_VSync = true;
     };
 }

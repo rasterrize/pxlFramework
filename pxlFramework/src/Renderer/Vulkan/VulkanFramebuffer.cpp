@@ -44,9 +44,7 @@ namespace pxl
     {
         std::vector<VkImageView> attachments;
         for (auto attachment : m_Attachments)
-        {
             attachments.push_back(attachment.ImageView);
-        }
         
         VkFramebufferCreateInfo framebufferInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         framebufferInfo.renderPass = m_RenderPass;
@@ -56,7 +54,6 @@ namespace pxl
         framebufferInfo.height = m_Extent.height;
         framebufferInfo.layers = 1;
 
-        auto result = vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_Framebuffer);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_Framebuffer));
     }
 }

@@ -5,54 +5,84 @@
 
 namespace pxl
 {
-    VulkanSwapchain::VulkanSwapchain(VkDevice device, VkPhysicalDevice gpu, VkSurfaceKHR surface, VkSurfaceFormatKHR surfaceFormat, const std::shared_ptr<Window> windowHandle, const std::shared_ptr<VulkanRenderPass>& renderPass)
-        : m_Device(device), m_GPU(gpu), m_Surface(surface), m_WindowHandle(windowHandle), m_DefaultRenderPass(renderPass)
+    VulkanSwapchain::VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass, VkCommandPool commandPool)
+        : m_Device(device), m_Surface(surface), m_DefaultRenderPass(renderPass)
     {
+        m_SwapchainSpecs.Extent = imageExtent;
         m_SwapchainSpecs.Format = surfaceFormat.format;
         m_SwapchainSpecs.ColorSpace = surfaceFormat.colorSpace;
+        m_SwapchainSpecs.PresentMode = GetSuitablePresentMode();
+        m_SwapchainSpecs.ImageCount = GetSuitableImageCount();
 
         Create();
+
+        // Prepare swapchain frames
+        m_Frames.resize(m_MaxFramesInFlight);
+
+        // Get command pool from graphics context
+        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(device->GetVkDevice(), commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, m_Frames.size());
+        uint32_t index = 0;
+
+        for (auto& frame : m_Frames)
+        {
+            frame.CommandBuffer = commandBuffers[index];
+            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(device->GetVkDevice());
+            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(device->GetVkDevice());
+            frame.InFlightFence = VulkanHelpers::CreateFence(device->GetVkDevice(), true);
+
+            index++;
+        }
+
         PrepareImages();
         PrepareFramebuffers(renderPass);
     }
 
     VulkanSwapchain::~VulkanSwapchain()
     {
+        DestroyFrameData();
         Destroy();
     }
 
     void VulkanSwapchain::Create()
     {
-        m_SwapchainSpecs.PresentMode = GetSuitablePresentMode();
-        m_SwapchainSpecs.ImageCount = GetSuitableImageCount();
+        // m_SwapchainSpecs.PresentMode = GetSuitablePresentMode();
+        // m_SwapchainSpecs.ImageCount = GetSuitableImageCount();
 
-        // Check if extent wasnt custom set
-        if (m_SwapchainSpecs.Extent.width == UINT32_MAX)
-        {
-            // Set extent manually
-            auto fbSize = m_WindowHandle->GetFramebufferSize();
-            m_SwapchainSpecs.Extent = { fbSize.x, fbSize.y };
-            PXL_LOG_WARN(LogArea::Vulkan, "Manually set swapchain extent to window framebuffer size"); // TODO: temporary
-        }
+        // Check extent support
+        // if (m_SwapchainSpecs.Extent.width == 0 || m_SwapchainSpecs.Extent.height == 0)
+        //     return;
 
         CheckExtentSupport(m_SwapchainSpecs.Extent);
         
         // Create Swapchain
         VkSwapchainCreateInfoKHR swapchainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
         swapchainInfo.surface = m_Surface;
-        swapchainInfo.minImageCount = m_SwapchainSpecs.ImageCount;
+        swapchainInfo.minImageCount = m_SwapchainSpecs.ImageCount; // creates an amount of images higher than this specified number, we should probably check to make sure the vkCreateSwapchainKHR doesn't create any extra images
         swapchainInfo.imageFormat = m_SwapchainSpecs.Format;
         swapchainInfo.imageColorSpace = m_SwapchainSpecs.ColorSpace;
         swapchainInfo.imageExtent = m_SwapchainSpecs.Extent;
-        swapchainInfo.imageArrayLayers = 1;
-        swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // The image will be used as a colour attachment
+        swapchainInfo.imageArrayLayers = 1; // NOTE (from vk spec): For non-stereoscopic-3D applications, this value is 1.
+        swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // The image will be used as a colour attachment. It wouldnt make sense to use anything else here really
         swapchainInfo.presentMode = m_SwapchainSpecs.PresentMode;
         swapchainInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // TODO: look into this variable
+        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // Specifies how the operating system will use the surfaces alpha value
+        swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Exclusive = 1 queue family will access the images, Concurrent = multiple queue families will access the images
         // TODO: other settings
 
-        VkResult result = vkCreateSwapchainKHR(m_Device, &swapchainInfo, nullptr, &m_Swapchain);
-        VulkanHelpers::CheckVkResult(result);
+        // bool usingOldSwapchain = false;
+        // if (m_Swapchain != VK_NULL_HANDLE)
+        // {
+        //     swapchainInfo.oldSwapchain = m_Swapchain;
+        //     usingOldSwapchain = true;
+        // }
+
+        //VkSwapchainKHR newSwapchain;
+        VK_CHECK(vkCreateSwapchainKHR(m_Device->GetVkDevice(), &swapchainInfo, nullptr, &m_Swapchain));
+
+        // if (usingOldSwapchain)
+        //     vkDestroySwapchainKHR(m_Device->GetVkDevice(), m_Swapchain, nullptr); // destroy the old swapchain if it was used for recreation
+
+        //m_Swapchain = newSwapchain;
 
         if (m_Swapchain)
         {
@@ -71,13 +101,12 @@ namespace pxl
 
     void VulkanSwapchain::Recreate()
     {
-        vkDeviceWaitIdle(m_Device);
+        m_Device->WaitIdle();
 
-        Destroy(); // cleanup swapchain
+        Destroy();
 
-        // Get framebuffer size for new swapchain
-        auto fbSize = m_WindowHandle->GetFramebufferSize();
-        m_SwapchainSpecs.Extent = { fbSize.x, fbSize.y };
+        // Swapchain image extent doesn't change, but other variables such as vertical sync may have been set so we recreate anyway
+        
 
         // Create new swapchain
         Create();
@@ -85,9 +114,27 @@ namespace pxl
         PrepareFramebuffers(m_DefaultRenderPass);
     }
 
+    // void VulkanSwapchain::Recreate(uint32_t width, uint32_t height)
+    // {
+    //     // if (width == 0 || height == 0)
+    //     //     return;
+
+    //     m_Device->WaitIdle();
+
+    //     Destroy();
+
+    //     // Set new swapchain image extent
+    //     m_SwapchainSpecs.Extent = { width, height };
+
+    //     // Create new swapchain
+    //     Create();
+    //     PrepareImages();
+    //     PrepareFramebuffers(m_DefaultRenderPass);
+    // }
+
     void VulkanSwapchain::Destroy()
     {
-        vkDeviceWaitIdle(m_Device);
+        m_Device->WaitIdle();
 
         for (auto& framebuffer : m_Framebuffers)
             framebuffer->Destroy();
@@ -96,14 +143,26 @@ namespace pxl
             image->Destroy();
 
         if (m_Swapchain != VK_NULL_HANDLE)
-            vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
+            vkDestroySwapchainKHR(m_Device->GetVkDevice(), m_Swapchain, nullptr);
     }
 
-    uint32_t VulkanSwapchain::AcquireNextAvailableImageIndex(VkSemaphore signalSemaphore)
+    void VulkanSwapchain::DestroyFrameData()
+    {
+        m_Device->WaitIdle();
+
+        for (auto& frame : m_Frames)
+        {
+            if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
+                vkDestroySemaphore(m_Device->GetVkDevice(), frame.ImageAvailableSemaphore, nullptr);
+
+            if (frame.RenderFinishedSemaphore != VK_NULL_HANDLE)
+                vkDestroySemaphore(m_Device->GetVkDevice(), frame.RenderFinishedSemaphore, nullptr);
+        }
+    }
+
+    void VulkanSwapchain::AcquireNextAvailableImageIndex()
     { 
-        uint32_t imageIndex;
-        
-        auto result = vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, signalSemaphore, VK_NULL_HANDLE, &imageIndex);
+        auto result = vkAcquireNextImageKHR(m_Device->GetVkDevice(), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -111,18 +170,18 @@ namespace pxl
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            Logger::LogError("Failed to retrieve next available image in the swapchain");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to retrieve next available image in the swapchain");
         }
-
-        return imageIndex;
     }
 
-    void VulkanSwapchain::QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore)
+    void VulkanSwapchain::QueuePresent(VkQueue queue)
     {
-        VkResult result;
+        // Dont queue frames if the framebuffer is 0, 0 (aka the window is minimized)
+        // if (m_SwapchainSpecs.Extent.width == 0 || m_SwapchainSpecs.Extent.height == 0)
+        //     return;
 
         VkSwapchainKHR swapChains[] = { m_Swapchain };
-        VkSemaphore waitSemaphores[] = { waitSemaphore }; // wait for the command buffers to finish executing (rendering) to finish before presenting
+        VkSemaphore waitSemaphores[] = { m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore }; // wait for the command buffers to finish executing (rendering) to finish before presenting
         
         VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
         presentInfo.waitSemaphoreCount = 1;
@@ -130,10 +189,13 @@ namespace pxl
         presentInfo.pResults = nullptr; // useful for error checking when using multiple swap chains
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &m_CurrentImageIndex;
 
         // Queue presentation
-        result = vkQueuePresentKHR(queue, &presentInfo);
+        VkResult result = vkQueuePresentKHR(queue, &presentInfo);
+        
+        // Update current frame index to the next frame
+        m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
         {
@@ -141,7 +203,7 @@ namespace pxl
         } 
         else if (result != VK_SUCCESS) 
         {
-            Logger::LogError("Failed to queue image presentation");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
         }
     }
 
@@ -151,27 +213,22 @@ namespace pxl
         
         // Get swapchain image count
         uint32_t swapchainImageCount = 0;
-        vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, nullptr);
+        vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &swapchainImageCount, nullptr);
 
         if (swapchainImageCount != m_SwapchainSpecs.ImageCount)
         {
-            Logger::LogError("Swapchain created a different number of images than the number specified");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Swapchain created a different number of images than the number specified");
             return;
         }
 
         std::vector<VkImage> images(swapchainImageCount);
 
         // Get swapchain images
-        auto result = vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, images.data());
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &swapchainImageCount, images.data()));
 
-        // Create image view for each swapchain image
+        // Create an imageless image object containing an image view for each swapchain image
         for (uint32_t i = 0; i < swapchainImageCount; i++)
-        {
-            std::shared_ptr<VulkanImage> image;
-            image = std::make_shared<VulkanImage>(m_Device, m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
-            m_Images[i] = image;
-        }
+            m_Images[i] = std::make_shared<VulkanImage>(m_Device->GetVkDevice(), m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
     }
 
     void VulkanSwapchain::PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass)
@@ -182,7 +239,7 @@ namespace pxl
         for (uint32_t i = 0; i < m_SwapchainSpecs.ImageCount; i++)
         {
             std::shared_ptr<VulkanFramebuffer> framebuffer;
-            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device, renderPass, m_SwapchainSpecs.Extent);
+            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device->GetVkDevice(), renderPass, m_SwapchainSpecs.Extent);
             framebuffer->AddAttachment(m_Images[i]->GetImageView(), m_SwapchainSpecs.Format);
             framebuffer->Recreate();
             m_Framebuffers[i] = framebuffer;
@@ -191,7 +248,7 @@ namespace pxl
 
     VkPresentModeKHR VulkanSwapchain::GetSuitablePresentMode()
     {
-        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(m_GPU, m_Surface);
+        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(m_Device->GetVkPhysicalDevice(), m_Surface);
 
         VkPresentModeKHR suitablePresentMode;
         bool foundSuitablePresentMode = false;
@@ -225,7 +282,7 @@ namespace pxl
         
         if (!foundSuitablePresentMode)
         {
-            Logger::LogError("Failed to find suitable swap chain present mode, defaulting to VK_PRESENT_MODE_FIFO_KHR");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find suitable swap chain present mode, defaulting to VK_PRESENT_MODE_FIFO_KHR");
             suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         }
 
@@ -234,7 +291,7 @@ namespace pxl
 
     uint32_t VulkanSwapchain::GetSuitableImageCount()
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_GPU, m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_Device->GetVkPhysicalDevice(), m_Surface);
 
         uint32_t suitableImageCount = 0;
 
@@ -252,7 +309,7 @@ namespace pxl
         }
         else
         {
-            Logger::LogError("Selected surface for swapchain must support more than 2 images"); // technically its guaranteed to support 1 image but a game will always need 2 I think.
+            PXL_LOG_ERROR(LogArea::Vulkan, "Selected surface for swapchain must support more than 2 images"); // technically its guaranteed to support 1 image but a game will always need 2 I think.
         }
 
         return suitableImageCount;
@@ -260,7 +317,7 @@ namespace pxl
 
     bool VulkanSwapchain::CheckExtentSupport(VkExtent2D extent)
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_GPU, m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_Device->GetVkPhysicalDevice(), m_Surface);
 
         if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height)
             && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))
@@ -269,7 +326,7 @@ namespace pxl
         }
         else
         {
-            Logger::LogError("Specified swapchain extent isnt supported by the surface");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Specified swapchain extent isnt supported by the surface");
         }
 
         return false;

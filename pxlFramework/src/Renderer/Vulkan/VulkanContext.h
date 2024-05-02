@@ -12,14 +12,6 @@
 
 namespace pxl
 {
-    struct VulkanFrame
-    {
-        VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
-        VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
-        VkSemaphore ImageAvailableSemaphore = VK_NULL_HANDLE;
-        VkFence InFlightFence = VK_NULL_HANDLE;
-    };
-    
     class VulkanGraphicsContext : public GraphicsContext
     {
     public:
@@ -27,57 +19,46 @@ namespace pxl
         virtual ~VulkanGraphicsContext() override;
 
         virtual void Present() override;
-        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); };
+
+        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); }
         virtual bool GetVSync() override { return m_Swapchain->GetVSync(); }
 
-        VkInstance GetInstance() const { return m_Instance; }
-        std::shared_ptr<VulkanDevice> GetDevice() const { return m_Device; }
-        VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
+        virtual std::shared_ptr<Device> GetDevice() override { return m_Device; }
 
+        VkInstance GetInstance() const { return m_Instance; }
+        //std::shared_ptr<VulkanDevice> GetDevice() const { return m_Device; }
+        VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
         std::shared_ptr<VulkanSwapchain> GetSwapchain() const { return m_Swapchain; }
 
-        void AcquireNextImage() { m_CurrentImageIndex = m_Swapchain->AcquireNextAvailableImageIndex(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore); }
-        uint32_t GetCurrentFrameIndex() const { return m_CurrentImageIndex; }
-        VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; } // GetNextFrame()?
+        VkCommandPool GetCommandPool() const { return m_CommandPool; }
 
-        VkCommandBuffer CreateCommandBuffer(); // could be a vulkan helper or in the VulkanDevice class
-        void SubmitCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkFence signalFence);
+        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence); // TODO: move this elsewhere or possibly nuke it
 
         // TEMP (I think)
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
         
     private:
-        void Init();
+        void Init(const std::shared_ptr<Window>& window);
         void Shutdown();
 
-        bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers);
-        //bool CreateLogicalDevice(VkPhysicalDevice physicalDevice);
+        bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers); // Should this class be creating an instance if that instance should be used by a compute context as well
 
-        VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices);
-
+        VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices); // TODO: put this in vulkan helpers
     private:
-        std::shared_ptr<Window> m_WindowHandle = nullptr;
-
         // Vulkan Handles
         VkInstance m_Instance = VK_NULL_HANDLE;
         std::shared_ptr<VulkanDevice> m_Device;
-
-        VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
-        VkSurfaceFormatKHR m_SurfaceFormat;
-
         std::shared_ptr<VulkanSwapchain> m_Swapchain;
 
-        VkQueue m_PresentQueue = VK_NULL_HANDLE;
-        uint32_t m_CurrentImageIndex = 0;
+        VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
+        VkSurfaceFormatKHR m_SurfaceFormat = {};
+
+        //VkQueue m_GraphicsQueue // it is a graphics context after all
+        VkQueue m_PresentQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
 
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
 
-        // Synchronization
-        int m_MaxFramesInFlight = 3; // should used as a queue limit or something idk
-        std::vector<VulkanFrame> m_Frames;
-        uint32_t m_CurrentFrameIndex = 0;
-
         // IDK
-        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // should a default renderpass exist? could this be a geometry renderpass instead?
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // should a default renderpass exist? could this be a geometry renderpass instead? // also, this should probably be apart of the renderer?
     };
 }
