@@ -9,6 +9,8 @@ namespace pxl
     class RendererAPI
     {
     public:
+        virtual ~RendererAPI() = default;
+
         virtual void Begin() = 0;
         virtual void End() = 0;
 
