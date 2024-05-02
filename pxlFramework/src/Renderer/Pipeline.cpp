@@ -12,18 +12,10 @@ namespace pxl
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for no renderer api.");
-                break;
-            case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLGraphicsPipeline>(shader);
+                return nullptr;
+            case RendererAPIType::OpenGL: return std::make_shared<OpenGLGraphicsPipeline>(shader);
             case RendererAPIType::Vulkan:
-                auto device = dynamic_pointer_cast<VulkanDevice>(Renderer::GetCurrentDevice());
-                if (!device)
-                {
-                    PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline, failed to retrieve VulkanDevice from renderer");
-                    break;
-                }
-
-                auto context = std::dynamic_pointer_cast<VulkanContext>(Renderer::GetWindowHandle()->GetGraphicsContext());
+                auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
                 if (!context)
                 {
                     PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline, failed to retrieve Vulkan GraphicsContext from renderer");
@@ -37,7 +29,7 @@ namespace pxl
                     break;
                 }
 
-                return std::make_shared<VulkanGraphicsPipeline>(context, device, vulkanShader, context->GetDefaultRenderPass(), vertexLayout);
+                return std::make_shared<VulkanGraphicsPipeline>(vulkanShader, context->GetDefaultRenderPass(), vertexLayout);
         }
 
         return nullptr;

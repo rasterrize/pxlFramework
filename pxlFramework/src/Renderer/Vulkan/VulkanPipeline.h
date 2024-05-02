@@ -14,8 +14,8 @@ namespace pxl
     class VulkanGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        VulkanGraphicsPipeline(const std::shared_ptr<VulkanContext>& context, const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout);
-        ~VulkanGraphicsPipeline();
+        VulkanGraphicsPipeline(const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout);
+        virtual ~VulkanGraphicsPipeline() override;
 
         virtual void Bind() override;
 

@@ -40,7 +40,6 @@ namespace pxl
         static RendererAPIType GetCurrentAPI() { return s_RendererAPIType; }
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
         static std::shared_ptr<GraphicsContext> GetGraphicsContext() { return s_ContextHandle; }
-        static std::shared_ptr<Device> GetCurrentDevice() { return s_Device; }
 
         static float GetFPS() { return s_FPS; }
         static float GetFrameTimeMS() { return 1 / s_FPS * 1000.0f; }
@@ -113,10 +112,6 @@ namespace pxl
         static std::shared_ptr<VertexArray> s_CubeVAO;
         static std::shared_ptr<VertexArray> s_LineVAO;
         static std::shared_ptr<VertexArray> s_MeshVAO;
-
-        // For Vulkan
-        static std::shared_ptr<Device> s_Device; // should I be using this? or should I just make vulkan grab the graphics context and then the device?
-        //static std::shared_ptr<VulkanRenderPass> s_GeometryPass;
 
         static float s_FPS; // shouldn't store this
         static uint32_t s_FrameCount;

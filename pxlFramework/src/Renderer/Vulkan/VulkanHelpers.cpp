@@ -2,22 +2,21 @@
 
 namespace pxl
 {
-    void VulkanHelpers::CheckVkResult(VkResult result)
-    {
-        if (result == VK_SUCCESS)
-		    return;
+    // void VulkanHelpers::CheckVkResult(VkResult result)
+    // {
+    //     if (result == VK_SUCCESS)
+	// 	    return;
 
-        PXL_LOG_ERROR(LogArea::Vulkan, "VkResult wasn't VK_SUCCESS, error code is {}", string_VkResult(result));
+    //     PXL_LOG_ERROR(LogArea::Vulkan, "VkResult wasn't VK_SUCCESS, error code is {}", string_VkResult(result));
 
-	    if (result < 0)
-		    abort(); // probably shouldn't abort immediately
-    }
+	//     if (result < 0)
+	// 	    abort(); // probably shouldn't abort immediately
+    // }
 
     uint32_t VulkanHelpers::GetVulkanAPIVersion()
     {
         uint32_t apiVersion;
-        VkResult result = vkEnumerateInstanceVersion(&apiVersion);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkEnumerateInstanceVersion(&apiVersion));
         return apiVersion;
     }
 
@@ -25,11 +24,11 @@ namespace pxl
     {
         // Get layer count
         uint32_t availableLayerCount = 0;
-        vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr);
+        VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
 
         // Get layers
         std::vector<VkLayerProperties> availableLayers(availableLayerCount);
-        vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data());
+        VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data()));
 
         return availableLayers;
     }
@@ -68,7 +67,7 @@ namespace pxl
     {
         // Get available physical device count
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+        VK_CHECK(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr));
 
         if (deviceCount == 0)
         {
@@ -78,7 +77,7 @@ namespace pxl
 
         // Get Vulkan supported physical devices (GPUs)
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+        VK_CHECK(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()));
 
         return devices;
     }
@@ -236,15 +235,13 @@ namespace pxl
 
     VkFence VulkanHelpers::CreateFence(VkDevice device, bool signaled)
     {
-        VkFence fence;
-
         VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 
         if (signaled)
             fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        auto result = vkCreateFence(device, &fenceInfo, nullptr, &fence);
-        CheckVkResult(result);
+        VkFence fence;
+        VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &fence));
 
         if (fence == VK_NULL_HANDLE)
         {
@@ -253,5 +250,22 @@ namespace pxl
         }
 
         return fence;
+    }
+
+    std::vector<VkCommandBuffer> VulkanHelpers::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count)
+    {
+        // Create command buffer
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+
+        std::vector<VkCommandBuffer> commandBuffers(count);
+
+        VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        commandBufferAllocInfo.commandPool = commandPool;
+        commandBufferAllocInfo.level = level;
+        commandBufferAllocInfo.commandBufferCount = count;
+
+        VK_CHECK(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()));
+
+        return commandBuffers;
     }
 }

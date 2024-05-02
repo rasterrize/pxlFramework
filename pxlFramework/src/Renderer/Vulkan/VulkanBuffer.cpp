@@ -4,14 +4,14 @@
 #include "../Renderer.h"
 #include "VulkanHelpers.h"
 #include "VulkanContext.h"
+#include "VulkanDevice.h"
 
 namespace pxl
 {
-    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice> device, BufferUsage usage, uint32_t size, const void* data)
-        : m_Device(device)
+    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data)
+        : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
         // Generic buffer usage to vulkan buffer usage
-        m_Usage = GetVkBufferUsageOfBufferUsage(usage);
 
         // Create the vulkan buffer
         CreateBuffer(m_Usage, size);
@@ -74,8 +74,9 @@ namespace pxl
 
     void VulkanBuffer::Destroy()
     {
+        m_Device->WaitIdle();
+        
         auto device = m_Device->GetVkDevice();
-        vkDeviceWaitIdle(device);
         
         if (m_Buffer != VK_NULL_HANDLE)
             vkDestroyBuffer(device, m_Buffer, nullptr);
@@ -93,8 +94,7 @@ namespace pxl
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        auto result = vkCreateBuffer(m_Device->GetVkDevice(), &bufferInfo, nullptr, &m_Buffer);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateBuffer(m_Device->GetVkDevice(), &bufferInfo, nullptr, &m_Buffer));
     }
 
     VkVertexInputBindingDescription VulkanBuffer::GetBindingDescription(const BufferLayout& layout)
@@ -171,7 +171,6 @@ namespace pxl
         allocInfo.allocationSize = memReqs.size;
         allocInfo.memoryTypeIndex = m_Device->FindMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        auto result = vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &m_Memory);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &m_Memory));
     }
 }

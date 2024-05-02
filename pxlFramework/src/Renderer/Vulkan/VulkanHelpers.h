@@ -8,8 +8,6 @@ namespace pxl
     class VulkanHelpers
     {
     public:
-        static void CheckVkResult(VkResult result); // THIS SHOULD BE A PREPROCESSOR MACRO SO IT CAN BE REMOVED IN RELEASE BUILDS
-
         static uint32_t GetVulkanAPIVersion();
 
         static std::vector<VkLayerProperties> GetAvailableInstanceLayers();
@@ -29,5 +27,23 @@ namespace pxl
 
         static VkSemaphore CreateSemaphore(VkDevice device);
         static VkFence CreateFence(VkDevice device, bool signaled = false);
+
+        static std::vector<VkCommandBuffer> AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count);
     };
+
+    static void CheckVkResult(VkResult result)
+    {
+        if (result != VK_SUCCESS)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
+            //__debugbreak();
+        }
+    };
+
+    #ifdef PXL_DEBUG // PXL_DEBUG_VULKAN
+        #define VK_CHECK(result) CheckVkResult(result)
+    #else
+        #define VK_CHECK(x) x
+    #endif
+
 }

@@ -4,6 +4,14 @@
 
 namespace pxl
 {
+    // struct ImageSpec
+    // {
+    //     uint32_t Width = 0;
+    //     uint32_t Height = 0;
+    //     ImageFormat Format = ImageFormat::Undefined;
+    // };
+
+    // TODO: abstracted
     class VulkanImage
     {
     public:
@@ -24,7 +32,7 @@ namespace pxl
         VkImage m_Image = VK_NULL_HANDLE;
         VkImageView m_ImageView = VK_NULL_HANDLE;
 
-        bool m_IsSwapchainImage = false; // might be useful in future
+        bool m_IsSwapchainImage = false; // Currently unused
 
         // for destruction
         VkDevice m_Device = VK_NULL_HANDLE;

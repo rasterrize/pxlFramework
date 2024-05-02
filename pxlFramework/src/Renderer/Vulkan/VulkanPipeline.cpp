@@ -5,11 +5,15 @@
 #include "VulkanBuffer.h"
 #include "VulkanHelpers.h"
 
+#include "../Renderer.h"
+
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanContext>& context, const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
-        : m_ContextHandle(context), m_Device(device->GetVkDevice())
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
+        : m_ContextHandle(std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())), m_Device(static_cast<VkDevice>(m_ContextHandle->GetDevice()->GetLogicalDevice())) // WARNING: is m_Context valid at this point?
     {
+        //m_Device = static_cast<VkDevice>(context->GetDevice()->GetLogicalDevice());
+        
         VkResult result;
 
         // Create Shader Stages
@@ -111,8 +115,7 @@ namespace pxl
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
         // Create pipeline layout
-        result = vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout));
 
         // Specify graphics pipeline create info
         VkGraphicsPipelineCreateInfo graphicsPipelineInfo = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
@@ -132,8 +135,7 @@ namespace pxl
         graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // } Used for deriving off previous graphics pipelines, which is less expensive.
         graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
 
-        result = vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline)); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
@@ -143,7 +145,7 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Bind()
     {
-        vkCmdBindPipeline(m_ContextHandle->GetCurrentFrame().CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+        vkCmdBindPipeline(m_ContextHandle->GetSwapchain()->GetCurrentFrame().CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
     void VulkanGraphicsPipeline::Destroy()

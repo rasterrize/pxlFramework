@@ -57,7 +57,6 @@ namespace pxl
         uint32_t enabledExtensionCount = 0;
 
         // Check support
-
         for (const auto& extension : deviceExtensions)
         {
            for (const auto& availableExtension : availableExtensions)
@@ -66,7 +65,7 @@ namespace pxl
                 {
                     enabledExtensionCount++;
                     break;
-                } 
+                }
             }
         }
 
@@ -78,13 +77,12 @@ namespace pxl
 
         // Specify Device Create Info
         VkDeviceCreateInfo deviceInfo = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
-        deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueInfos.size());;
+        deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueInfos.size());
         deviceInfo.pQueueCreateInfos = queueInfos.data();
         deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-        VkResult result = vkCreateDevice(gpu, &deviceInfo, nullptr, &m_LogicalDevice);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateDevice(gpu, &deviceInfo, nullptr, &m_LogicalDevice));
 
         if (!m_LogicalDevice)
         {
@@ -116,5 +114,22 @@ namespace pxl
         }
 
         return -1;
+    }
+
+    void VulkanDevice::LogDeviceLimits()
+    {
+        VkPhysicalDeviceProperties properties;
+        vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Selected discrete GPU: {}", properties.deviceName);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Vendor: {}", properties.vendorID);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Driver Version: {}", properties.driverVersion);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Supported Vulkan API Version: {}", properties.apiVersion);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Limits");
+        PXL_LOG_INFO(LogArea::Vulkan, " - Max Push Constant Size: {}kb", properties.limits.maxPushConstantsSize);
+        PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indexed Index Value: {}", properties.limits.maxDrawIndexedIndexValue);
+        // PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indirect Count: {}", properties.limits.maxDrawIndirectCount);
+        // PXL_LOG_INFO(LogArea::Vulkan, " - Max Framebuffer Width and Height: {}, {}", properties.limits.maxFramebufferWidth, properties.limits.maxFramebufferHeight);
+
     }
 }

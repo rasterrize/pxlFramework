@@ -61,7 +61,6 @@ namespace pxl
         imageViewInfo.subresourceRange.baseArrayLayer = 0;
         imageViewInfo.subresourceRange.layerCount = 1;
 
-        auto result = vkCreateImageView(m_Device, &imageViewInfo, nullptr, &m_ImageView);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkCreateImageView(m_Device, &imageViewInfo, nullptr, &m_ImageView));
     }
 }

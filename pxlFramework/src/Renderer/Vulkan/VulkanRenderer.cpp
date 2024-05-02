@@ -4,15 +4,13 @@
 
 namespace pxl
 {
-    VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanContext>& context)
-        : m_ContextHandle(context), m_Device(context->GetDevice()), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
+    VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanGraphicsContext>& context)
+        : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice())), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
     {
         VkResult result;
 
-        auto logicalDevice = m_Device->GetVkDevice();
-
         // Get the graphics queue from the given queue family index
-        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(logicalDevice, m_GraphicsQueueFamilyIndex);
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_Device->GetVkDevice(), m_GraphicsQueueFamilyIndex);
 
         m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
@@ -77,28 +75,28 @@ namespace pxl
         VkResult result;
 
         // Get the next frame to render to
-        m_CurrentFrame = m_ContextHandle->GetCurrentFrame();
+        m_CurrentFrame = m_ContextHandle->GetSwapchain()->GetCurrentFrame();
         
         // Wait until the command buffers and semaphores are ready again
-        vkWaitForFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        VK_CHECK(vkWaitForFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX)); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
 
         // Get next available image index
-        m_ContextHandle->AcquireNextImage();
-        uint32_t imageIndex = m_ContextHandle->GetCurrentFrameIndex();
+        m_ContextHandle->GetSwapchain()->AcquireNextAvailableImageIndex();
+        uint32_t imageIndex = m_ContextHandle->GetSwapchain()->GetCurrentImageIndex();
         
-        vkResetFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence); // reset the fence to unsignalled state
+        VK_CHECK(vkResetFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence));
         
         // Begin command buffer recording
         VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
         commandBufferBeginInfo.flags = 0; // Optional
         commandBufferBeginInfo.pInheritanceInfo = nullptr; // Optional - Used in secondary command buffers
 
-        result = vkBeginCommandBuffer(m_CurrentFrame.CommandBuffer, &commandBufferBeginInfo);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkBeginCommandBuffer(m_CurrentFrame.CommandBuffer, &commandBufferBeginInfo));
 
-        // ---------------------
+        // --------------------------
         // Begin Geometry Render Pass
-        // ---------------------
+        // --------------------------
+
         VkRenderPassBeginInfo renderPassBeginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         renderPassBeginInfo.renderPass = m_DefaultRenderPass->GetVKRenderPass(); // shouldnt be here if I want to support different render passes in the future.
         renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchain()->GetFramebuffer(imageIndex)->GetVKFramebuffer();
@@ -106,7 +104,7 @@ namespace pxl
         renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &m_ClearValue;
-
+        
         vkCmdBeginRenderPass(m_CurrentFrame.CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         // Set dynamic state objects
@@ -124,10 +122,23 @@ namespace pxl
         vkCmdEndRenderPass(m_CurrentFrame.CommandBuffer);
 
         // Finish recording the command buffer
-        result = vkEndCommandBuffer(m_CurrentFrame.CommandBuffer);
-        VulkanHelpers::CheckVkResult(result);
+        VK_CHECK(vkEndCommandBuffer(m_CurrentFrame.CommandBuffer));
 
         // Submit the command buffer
-        m_ContextHandle->SubmitCommandBuffer(m_CurrentFrame.CommandBuffer, m_GraphicsQueue, m_CurrentFrame.InFlightFence);
+        VkSubmitInfo commandBufferSubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        
+        VkSemaphore waitSemaphores[] = { m_CurrentFrame.ImageAvailableSemaphore }; // The semaphores to wait before execution
+        VkSemaphore signalSemaphores[] = { m_CurrentFrame.RenderFinishedSemaphore };
+
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }; // which stages of the pipeline to wait on
+        commandBufferSubmitInfo.waitSemaphoreCount = 1;
+        commandBufferSubmitInfo.pWaitSemaphores = waitSemaphores; // semaphores to wait on before execution
+        commandBufferSubmitInfo.pWaitDstStageMask = waitStages; // TODO: Understand this a little bit more
+        commandBufferSubmitInfo.commandBufferCount = 1;
+        commandBufferSubmitInfo.pCommandBuffers = &m_CurrentFrame.CommandBuffer;
+        commandBufferSubmitInfo.signalSemaphoreCount = 1;
+        commandBufferSubmitInfo.pSignalSemaphores = signalSemaphores; // semaphores to signal when finished
+
+        m_ContextHandle->SubmitCommandBuffer(commandBufferSubmitInfo, m_GraphicsQueue, m_CurrentFrame.InFlightFence);
     }
 }
