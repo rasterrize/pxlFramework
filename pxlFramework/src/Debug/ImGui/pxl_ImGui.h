@@ -9,7 +9,7 @@ namespace pxl
     class pxl_ImGui
     {
     public:
-        static void Init(std::shared_ptr<Window> window);
+        static void Init(const std::shared_ptr<Window>& window);
         static void Update();
         static void Shutdown();
 

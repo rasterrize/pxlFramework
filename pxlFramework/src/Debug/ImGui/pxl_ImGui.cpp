@@ -15,7 +15,7 @@ namespace pxl
     RendererAPIType pxl_ImGui::s_RendererAPI = RendererAPIType::None;
     bool pxl_ImGui::s_Enabled = false;
 
-    void pxl_ImGui::Init(std::shared_ptr<Window> window)
+    void pxl_ImGui::Init(const std::shared_ptr<Window>& window)
     {
         s_WindowHandle = window;
         
@@ -39,7 +39,7 @@ namespace pxl
 
         ImGui::StyleColorsDark();
 
-        GLFWwindow* windowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
+        auto glfwWindow = window->GetNativeWindow();
 
         // Create ImGui instance based on renderer API of the window
         switch (window->GetWindowSpecs().RendererAPI)
@@ -48,7 +48,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui because RendererAPI::None was specified");
                 return;
             case RendererAPIType::OpenGL:
-                ImGui_ImplGlfw_InitForOpenGL(windowHandle, true);
+                ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
                 s_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
                 break;
             case RendererAPIType::Vulkan:
