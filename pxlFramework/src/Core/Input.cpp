@@ -187,6 +187,8 @@ namespace pxl
                 PXL_LOG_WARN(LogArea::Input, "Failed to enabled Raw Input because it isn't supported");
             }
         }
+        else
+            glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
     }
 
     void Input::SetCursorVisibility(bool visible)
