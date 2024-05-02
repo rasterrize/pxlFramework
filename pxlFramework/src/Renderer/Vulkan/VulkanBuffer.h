@@ -16,7 +16,7 @@ namespace pxl
         ~VulkanBuffer();
 
         virtual void Bind() override;
-        virtual void Unbind() override {};
+        virtual void Unbind() override {}
 
         void Bind(VkCommandBuffer commandBuffer);
 
@@ -30,6 +30,9 @@ namespace pxl
     private:
         void CreateBuffer(VkBufferUsageFlags usage, uint32_t size);
         void AllocateMemory();
+
+        void BindVertexImpl(VkCommandBuffer commandBuffer);
+        void BindIndexImpl(VkCommandBuffer commandBuffer);
     private:
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
         static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(BufferUsage usage);
@@ -38,8 +41,9 @@ namespace pxl
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VkDeviceMemory m_Memory = VK_NULL_HANDLE;
-
         VkBufferUsageFlagBits m_Usage;
+
+        std::function<void(VkCommandBuffer)> m_BindFunc;
         // BindBuffer function pointer
         //void(*m_VkBindFunc)();
     };
