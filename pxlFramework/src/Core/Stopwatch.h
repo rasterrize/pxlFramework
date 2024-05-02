@@ -10,7 +10,7 @@ namespace pxl
         Stopwatch(bool start = true) 
         {
             if (start)
-                m_StartTime = std::chrono::high_resolution_clock::now(); // could calling Start() be convenient or dangerous?
+                Start(); // could calling Start() be convenient or dangerous?
         }
 
         ~Stopwatch() { Stop(); }

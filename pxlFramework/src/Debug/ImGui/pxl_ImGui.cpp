@@ -30,13 +30,9 @@ namespace pxl
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.IniFilename = NULL;
         if (std::filesystem::exists(fontFilename))
-        {
             io.Fonts->AddFontFromFileTTF(fontFilename, 16);
-        }
         else
-        {
             io.Fonts->AddFontDefault();
-        }
 
         ImGui::StyleColorsDark();
 

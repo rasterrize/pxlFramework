@@ -24,9 +24,7 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::Input, "Failed to initalize input, it's already initialized");
             return;
         }
-
-        
-        if (!Application::Get().IsRunning())
+        else if (!Application::Get().IsRunning())
         {
             PXL_LOG_ERROR(LogArea::Input, "Can't initialize input, no application exists");
             return;
@@ -34,6 +32,7 @@ namespace pxl
 
         s_WindowHandle = window->GetNativeWindow();
         s_Enabled = true;
+
         PXL_LOG_INFO(LogArea::Input, "Input initialized");
     }
 
@@ -52,18 +51,10 @@ namespace pxl
         if (!s_Enabled)
             return false;
 
-        bool keyPressed = false;
-        
-        if (s_CurrentKeyStates[keyCode] == GLFW_PRESS && s_PreviousKeyStates[keyCode] != GLFW_PRESS)
-        {
-            keyPressed = true;
-        }
-        else
-        {
-            keyPressed = false;
-        }
+        bool keyPressed = s_CurrentKeyStates[keyCode] == GLFW_PRESS && s_PreviousKeyStates[keyCode] != GLFW_PRESS ? true : false;
 
         s_PreviousKeyStates[keyCode] = s_CurrentKeyStates[keyCode];
+        
         return keyPressed;
     }
 
@@ -83,17 +74,8 @@ namespace pxl
         if (!s_Enabled)
             return false;
 
-        bool buttonPressed = false;
+        bool buttonPressed = s_CurrentMBStates[buttonCode] == GLFW_PRESS && s_PreviousMBStates[buttonCode] != GLFW_PRESS ? true : false;
         
-        if (s_CurrentMBStates[buttonCode] == GLFW_PRESS && s_PreviousMBStates[buttonCode] != GLFW_PRESS)
-        {
-            buttonPressed = true;
-        }
-        else
-        {
-            buttonPressed = false;
-        }
-
         s_PreviousMBStates[buttonCode] = s_CurrentMBStates[buttonCode];
 
         return buttonPressed;
@@ -195,13 +177,9 @@ namespace pxl
             return;
 
         if (visible)
-        {
             glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
-        }
         else
-        {
             glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-        }
     }
 
     void Input::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
