@@ -10,14 +10,29 @@
 
 namespace pxl
 {
-    struct WindowSpecs
+    static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 640;
+    static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 480;
+
+    struct WindowSpecs // WindowSpec?
     {
-        uint32_t Width = 640;
-        uint32_t Height = 480;
-        std::string Title = "";
-        RendererAPIType RendererAPI = RendererAPIType::None;
+        uint32_t Width = DEFAULT_WINDOW_WIDTH;
+        uint32_t Height = DEFAULT_WINDOW_HEIGHT;
+        std::string Title;
         WindowMode WindowMode = WindowMode::Windowed;
+        RendererAPIType RendererAPI = RendererAPIType::None;
         bool Minimized = false;
+    };
+
+    struct Monitor
+    {
+        std::string Name;
+        uint8_t Index = 0; // refers to the operating system's ID for the monitor, so 0 is should be invalid
+        GLFWmonitor* GLFWMonitor = nullptr;
+        std::vector<GLFWvidmode> VideoModes;
+        bool IsPrimary = false;
+        //int BitDepth;
+
+        const GLFWvidmode* GetCurrentVideoMode() const { return glfwGetVideoMode(GLFWMonitor); }
     };
 
     class Window
@@ -25,9 +40,7 @@ namespace pxl
     public:
         Window(const WindowSpecs& windowSpecs);
 
-        void Close();
-
-        void CreateGLFWWindow(const WindowSpecs& windowSpecs);
+        void Close() const;
 
         void SetSize(uint32_t width, uint32_t height);
 
@@ -35,13 +48,14 @@ namespace pxl
 
         void SetWindowMode(WindowMode winMode);
 
-        void SetMonitor(uint8_t monitorIndex);
+        void SetMonitor(uint8_t index); // OS monitor index
+        void SetMonitor(const Monitor& monitor);
 
         GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
         std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
 
-        WindowSpecs GetWindowSpecs() const { return m_Specs; }
+        WindowSpecs GetWindowSpecs() const { return m_Specs; } // return a reference?
 
         uint32_t GetWidth() const { return m_Specs.Width; }
 
@@ -49,61 +63,68 @@ namespace pxl
 
         WindowMode GetWindowMode() const { return m_Specs.WindowMode; }
 
-        float GetAspectRatio() const { return ((float)m_Specs.Width / static_cast<float>(m_Specs.Height)); } // should this be cached in a variable? | could be updated every window resize callback
-        glm::u32vec2 GetFramebufferSize();
+        float GetAspectRatio() const { return static_cast<float>(m_Specs.Width) / static_cast<float>(m_Specs.Height); } // should this be cached in a variable? | could be updated every window resize callback
+        
+        glm::u32vec2 GetFramebufferSize(); // should return a member variable that gets updated only when the framebuffer resizes
 
         VkSurfaceKHR CreateVKWindowSurface(VkInstance instance); // Keeping vulkan here for now but obviously not ideal because it shouldnt be tied to window class
-        std::vector<const char*> GetVKRequiredInstanceExtensions();
 
         void NextWindowMode();
         void ToggleFullscreen();
 
-        void SetVSync(bool vsync) { m_GraphicsContext->SetVSync(vsync); }
-        void ToggleVSync();
+        void SetVSync(bool vsync) const { m_GraphicsContext->SetVSync(vsync); }
+        void ToggleVSync() { SetVSync(!m_GraphicsContext->GetVSync()); }
 
         void SetVisibility(bool value);
 
-        void SetGLFWCallbacks();
-        GLFWmonitor* GetCurrentMonitor();
-    private:
-        void Update();
-    public:
-        static int GetMonitorCount() { return s_MonitorCount; }
+        GLFWmonitor* GetWindowsCurrentGLFWMonitor();
 
+        static std::vector<Monitor> GetMonitors() { return s_Monitors; }
+
+        static Monitor GetPrimaryMonitor() { for (const auto& monitor : s_Monitors) { if (monitor.IsPrimary) return monitor; } return s_Monitors[0]; }
+
+        static std::vector<const char*> GetVKRequiredInstanceExtensions();
+        
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
+    private:
+        void CreateGLFWWindow(const WindowSpecs& windowSpecs);
+        void Update() const;
 
-        // GLFW callbacks
+        void SetGLFWCallbacks();
+        static void SetStaticGLFWCallbacks();
+        
+        // Per-window GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
         static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
+
+        // Static GLFW callbacks
+        static void GLFWErrorCallback(int error, const char* description);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
+
     private:
         friend class Application; // for UpdateAll()
         static void UpdateAll();
 
         static void Shutdown();
-        static void PollEvents();
-        static void WaitEvents();
 
-        static void GetGLFWMonitors();
+        static void UpdateMonitors();
     private:
         GLFWwindow* m_GLFWWindow = nullptr;
         std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
-        std::shared_ptr<Window> m_Handle = nullptr;
+        std::weak_ptr<Window> m_Handle;
 
         WindowSpecs m_Specs = {};
 
-        uint32_t m_LastWindowedWidth = 640; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
-        uint32_t m_LastWindowedHeight = 480;
+        uint32_t m_LastWindowedWidth = DEFAULT_WINDOW_WIDTH; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
+        uint32_t m_LastWindowedHeight = DEFAULT_WINDOW_HEIGHT;
 
-        static uint8_t s_WindowCount;
-        static uint8_t s_MonitorCount;
+        static uint8_t s_WindowCount; // s_Windows->size() instead?
 
         static std::vector<std::shared_ptr<Window>> s_Windows;
-        static GLFWmonitor** s_Monitors;
+        static std::vector<Monitor> s_Monitors;
 
-        // not sure
-        static bool s_AllWindowsMinimized;
+        static std::function<void()> s_EventProcessFunc;
     };
 }
