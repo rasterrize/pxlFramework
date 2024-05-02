@@ -8,6 +8,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 
+#include "ImGuiVulkan.h"
 namespace pxl
 {
     std::unique_ptr<ImGuiBase> pxl_ImGui::s_ImGuiRenderer = nullptr;
@@ -52,8 +53,9 @@ namespace pxl
                 s_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
                 break;
             case RendererAPIType::Vulkan:
-                PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui for Vulkan");
-                return;
+                ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
+                s_ImGuiRenderer = std::make_unique<ImGuiVulkan>(window->GetGraphicsContext());
+                break;
         }
 
         s_RendererAPI = window->GetWindowSpecs().RendererAPI;
