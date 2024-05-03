@@ -63,8 +63,6 @@ namespace pxl
     std::shared_ptr<VertexArray> Renderer::s_CubeVAO;
     std::shared_ptr<VertexArray> Renderer::s_LineVAO;
     std::shared_ptr<VertexArray> Renderer::s_MeshVAO;
-
-    std::shared_ptr<Device> Renderer::s_Device;
     
     std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
 
