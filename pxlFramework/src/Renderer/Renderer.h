@@ -6,7 +6,7 @@
 #include "RendererData.h"
 //#include "Texture.h"
 #include "Camera.h"
-//#include "GraphicsContext.h"
+#include "GraphicsContext.h"
 
 #include "VertexArray.h"
 #include "Device.h"
@@ -14,21 +14,21 @@
 //#include "Vulkan/VulkanRenderPass.h"
 
 //#include <glm/matrix.hpp>
-
-class Window;
-enum class RendererAPIType;
 //class RendererAPI;
 // class RendererData;
 // class Shader;
 //class Shader;
 //class Camera;
-class GraphicsContext;
 // class VertexArray;
 // class Device;
 // class Pipeline;
 
 namespace pxl
 {
+    class Window;
+    enum class RendererAPIType;
+    class Shader;
+
     class Renderer
     {
     public:
@@ -38,7 +38,6 @@ namespace pxl
         static bool IsInitialized() { return s_Enabled; }
 
         static RendererAPIType GetCurrentAPI() { return s_RendererAPIType; }
-        static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
         static std::shared_ptr<GraphicsContext> GetGraphicsContext() { return s_ContextHandle; }
 
         static float GetFPS() { return s_FPS; }
@@ -95,7 +94,6 @@ namespace pxl
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;
         static std::unique_ptr<RendererAPI> s_RendererAPI;
-        static std::shared_ptr<Window> s_WindowHandle;
         static std::shared_ptr<GraphicsContext> s_ContextHandle;
 
         // test

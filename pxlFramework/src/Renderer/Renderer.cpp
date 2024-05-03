@@ -13,7 +13,6 @@ namespace pxl
     bool Renderer::s_Enabled = false;
     RendererAPIType Renderer::s_RendererAPIType = RendererAPIType::None;
     std::unique_ptr<RendererAPI> Renderer::s_RendererAPI = nullptr;
-    std::shared_ptr<Window> Renderer::s_WindowHandle = nullptr;
     std::shared_ptr<GraphicsContext> Renderer::s_ContextHandle = nullptr;
 
     float Renderer::s_FPS = 0.0f;
@@ -79,7 +78,6 @@ namespace pxl
             // TODO: recreate all resources used for the renderer if the renderer api has changed
         }
 
-        s_WindowHandle = window;
         s_ContextHandle = window->GetGraphicsContext();
         s_RendererAPIType = window->GetWindowSpecs().RendererAPI;
 
@@ -111,13 +109,6 @@ namespace pxl
                 if (!s_RendererAPI)
                 {
                     PXL_LOG_ERROR(LogArea::Renderer, "Failed to create Vulkan renderer api object"); // need assertions
-                }
-
-                s_Device = vulkanContext->GetDevice();
-
-                if (!s_Device)
-                {
-                    PXL_LOG_ERROR(LogArea::Renderer, "s_Device was nullptr");
                 }
                     
                 break;

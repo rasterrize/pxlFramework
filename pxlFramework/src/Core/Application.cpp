@@ -25,10 +25,6 @@ namespace pxl
 
         // Not sure if these 'Framework' classes should be in the 'Application' class
         FrameworkConfig::Init();
-
-        #ifndef PXL_DISABLE_LOGGING
-            Logger::Init();
-        #endif
     }
 
     void Application::Run()
