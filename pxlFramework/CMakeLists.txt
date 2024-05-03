@@ -69,6 +69,7 @@ src/Utils/FileLoader.h src/Utils/FileLoader.cpp
 src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp
 src/Debug/ImGui/ImGuiBase.h
 src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
+src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
 )
 
 #target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
