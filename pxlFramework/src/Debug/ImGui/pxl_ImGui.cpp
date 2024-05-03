@@ -89,6 +89,6 @@ namespace pxl
         ImGui::DestroyContext();
         s_Enabled = false;
 
-        PXL_LOG_ERROR(LogArea::Other, "ImGui shutdown");
+        PXL_LOG_INFO(LogArea::Other, "ImGui shutdown");
     }
 }
