@@ -161,7 +161,7 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
         
-        if (windowWidth != width | windowHeight != height)
+        if (windowWidth != width || windowHeight != height)
             PXL_LOG_WARN(LogArea::Window, "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 

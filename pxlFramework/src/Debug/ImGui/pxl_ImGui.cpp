@@ -1,9 +1,5 @@
 #include "pxl_ImGui.h"
 
-#include "ImGuiOpenGL.h"
-
-#include "../../Core/Application.h"
-
 #include <filesystem>
 
 #include <backends/imgui_impl_glfw.h>

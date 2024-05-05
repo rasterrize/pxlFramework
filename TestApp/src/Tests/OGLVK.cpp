@@ -17,13 +17,11 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        auto windowRendererAPI = m_Window->GetWindowSpecs().RendererAPI;
-
-        if (windowRendererAPI == pxl::RendererAPIType::OpenGL)
+        if (windowSpecs.RendererAPI == pxl::RendererAPIType::OpenGL)
         {
             m_Shader = pxl::FileLoader::LoadGLSLShader("assets/shaders/first.vert", "assets/shaders/first.frag");
         }
-        else if (windowRendererAPI == pxl::RendererAPIType::Vulkan)
+        else if (windowSpecs.RendererAPI == pxl::RendererAPIType::Vulkan)
         {
             auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
             auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
@@ -37,7 +35,7 @@ namespace TestApp
 
         m_Pipeline = pxl::GraphicsPipeline::Create(m_Shader, layout);
 
-        pxl::Renderer::AddStaticQuad({-0.5f, -0.5f, 0.0f});
+        pxl::Renderer::AddStaticQuad({ -0.5f, -0.5f, 0.0f });
         pxl::Renderer::StaticGeometryReady();
     }
 

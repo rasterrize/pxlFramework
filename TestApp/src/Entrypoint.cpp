@@ -1,6 +1,6 @@
 #include "TestApplication.h"
 
-#ifdef TA_DIST
+#ifdef TA_RELEASE
     #include <Windows.h>
     #define MAIN_FUNC int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
@@ -14,6 +14,6 @@ MAIN_FUNC
         pxl::Logger::Init();
     #endif
 
-    TestApp::TestApplication application; // whether this should be on the heap or stack depends on big this class might get.
-    application.Run();
+    std::unique_ptr<TestApp::TestApplication> app = std::make_unique<TestApp::TestApplication>();
+    app->Run();
 }
