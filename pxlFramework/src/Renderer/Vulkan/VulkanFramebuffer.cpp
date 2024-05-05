@@ -48,7 +48,7 @@ namespace pxl
         
         VkFramebufferCreateInfo framebufferInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         framebufferInfo.renderPass = m_RenderPass;
-        framebufferInfo.attachmentCount = attachments.size();
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = m_Extent.width;
         framebufferInfo.height = m_Extent.height;

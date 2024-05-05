@@ -34,7 +34,6 @@ namespace pxl
 
         // Specify Device Queue Create Infos
         std::vector<VkDeviceQueueCreateInfo> queueInfos;
-        uint32_t queueCount = 0;
 
         if (m_GraphicsQueueFamilyIndex.has_value())
         {
@@ -100,7 +99,7 @@ namespace pxl
         // TODO: expand this
     }
 
-    uint32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    int32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         // Find correct memory type
         VkPhysicalDeviceMemoryProperties memProps;

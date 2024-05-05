@@ -72,9 +72,10 @@ src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
 )
 
-#target_compile_options(pxlFramework PUBLIC "/P") # preprocess to a file
 
 target_compile_features(pxlFramework PUBLIC cxx_std_20)
+# Set highest warning level (highest detection)
+target_compile_options(pxlFramework PUBLIC "/W3")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

@@ -20,7 +20,7 @@ namespace pxl
         m_Frames.resize(m_MaxFramesInFlight);
 
         // Get command pool from graphics context
-        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(device->GetVkDevice(), commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, m_Frames.size());
+        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(device->GetVkDevice(), commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
         uint32_t index = 0;
 
         for (auto& frame : m_Frames)
@@ -250,7 +250,7 @@ namespace pxl
     {
         auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(m_Device->GetVkPhysicalDevice(), m_Surface);
 
-        VkPresentModeKHR suitablePresentMode;
+        VkPresentModeKHR suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         bool foundSuitablePresentMode = false;
 
         // If vsync is enabled we dont need to do any checking since FIFO should already be supported

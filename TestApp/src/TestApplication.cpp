@@ -44,6 +44,7 @@ namespace TestApp
         windowSpecs.Height = 900;
         windowSpecs.Title = windowTitle;
         windowSpecs.RendererAPI = windowRendererAPI;
+        windowSpecs.WindowMode = windowMode;
 
         #define TEST_NAME OGLVK
 

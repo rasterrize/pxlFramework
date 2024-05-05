@@ -19,9 +19,6 @@ namespace pxl
 
     void VulkanGraphicsContext::Init(const std::shared_ptr<Window>& window)
     {
-        VkResult result;
-
-        // Create Vulkan Instance
         // Get the extensions required for Vulkan to work with GLFW (should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE))
         auto glfwExtensions = Window::GetVKRequiredInstanceExtensions();
 
@@ -98,7 +95,7 @@ namespace pxl
 
         // Get swapchain suitable surface format (for renderpass)
         auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(selectedGPU, m_Surface);
-        auto m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);
+        m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);
 
         // Create default render pass for swapchain framebuffers
         m_DefaultRenderPass = std::make_shared<VulkanRenderPass>(logicalDevice, m_SurfaceFormat.format); // should get the format of the swapchain not the surface
@@ -176,8 +173,6 @@ namespace pxl
 
     bool VulkanGraphicsContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
     {
-        VkResult result;
-
         // Check vulkan API version
         uint32_t apiVersion = VulkanHelpers::GetVulkanAPIVersion();
 
@@ -188,9 +183,9 @@ namespace pxl
 
         VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
         instanceInfo.pApplicationInfo = &appInfo;
-        instanceInfo.enabledExtensionCount = extensions.size();
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         instanceInfo.ppEnabledExtensionNames = extensions.data();
-        instanceInfo.enabledLayerCount = layers.size();
+        instanceInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
         instanceInfo.ppEnabledLayerNames = layers.data();
 
         VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));

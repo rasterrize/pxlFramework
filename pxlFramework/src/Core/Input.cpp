@@ -132,8 +132,8 @@ namespace pxl
         // TODO: check if x and y values are outside the bounds of the window
 
         glfwSetCursorPos(s_WindowHandle, x, y);
-        s_CursorPosition.x = x;
-        s_CursorPosition.y = y;
+        s_CursorPosition.x = static_cast<float>(x);
+        s_CursorPosition.y = static_cast<float>(y);
     }
 
     void Input::SetCursorMode(CursorMode cursorMode)

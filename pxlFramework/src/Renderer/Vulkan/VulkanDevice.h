@@ -22,7 +22,7 @@ namespace pxl
         VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }
 
         uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        int32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
 

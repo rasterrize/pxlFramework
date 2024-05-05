@@ -117,10 +117,10 @@ namespace pxl
         auto mesh = std::make_shared<Mesh>();
 
         // Go through all the meshes in the file
-        for (int m = 0; m < scene->mNumMeshes; m++)
+        for (uint32_t m = 0; m < scene->mNumMeshes; m++)
         {
             // Go through all vertices in the current mesh
-            for (int v = 0; v < scene->mMeshes[m]->mNumVertices; v++)
+            for (uint32_t v = 0; v < scene->mMeshes[m]->mNumVertices; v++)
             {
                 float x = scene->mMeshes[m]->mVertices[v].x;
                 float y = scene->mMeshes[m]->mVertices[v].y;
@@ -130,9 +130,9 @@ namespace pxl
             }
 
             // Go through all the faces and indices of the current mesh
-            for (int f = 0; f < scene->mMeshes[m]->mNumFaces; f++)
+            for (uint32_t f = 0; f < scene->mMeshes[m]->mNumFaces; f++)
             {
-                for (int i = 0; i < scene->mMeshes[m]->mFaces[f].mNumIndices; i++)
+                for (uint32_t i = 0; i < scene->mMeshes[m]->mFaces[f].mNumIndices; i++)
                 {
                     mesh->Indices.push_back(scene->mMeshes[m]->mFaces[f].mIndices[i]);
                 }
@@ -155,9 +155,9 @@ namespace pxl
         if (!scene)
             return std::vector<std::shared_ptr<Mesh>>();
 
-        for (int i = 0; i < scene->mNumMeshes; i++)
+        for (uint32_t i = 0; i < scene->mNumMeshes; i++)
         {
-            for (int n = 0; n < scene->mMeshes[i]->mNumVertices; n++)
+            for (uint32_t n = 0; n < scene->mMeshes[i]->mNumVertices; n++)
             {
                 float x = scene->mMeshes[i]->mVertices[n].x;
                 float y = scene->mMeshes[i]->mVertices[n].y;

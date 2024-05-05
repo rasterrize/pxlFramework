@@ -13,8 +13,6 @@ namespace pxl
         : m_ContextHandle(std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())), m_Device(static_cast<VkDevice>(m_ContextHandle->GetDevice()->GetLogicalDevice())) // WARNING: is m_Context valid at this point?
     {
         //m_Device = static_cast<VkDevice>(context->GetDevice()->GetLogicalDevice());
-        
-        VkResult result;
 
         // Create Shader Stages
         VkPipelineShaderStageCreateInfo vertShaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };

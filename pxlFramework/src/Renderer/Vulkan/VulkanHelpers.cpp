@@ -38,7 +38,6 @@ namespace pxl
         const char* validationLayers[] = {
             "VK_LAYER_KHRONOS_validation" // TODO: implement a system that selects the correct validation layers in a priority
         };
-        uint32_t enabledLayerCount = 1;
 
         std::vector<const char*> selectedValidationLayers;
             
@@ -222,7 +221,7 @@ namespace pxl
         VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
         // TODO: flags
 
-        auto result = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore);
+        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore));
         
         if (semaphore == VK_NULL_HANDLE)
         {
@@ -254,9 +253,6 @@ namespace pxl
 
     std::vector<VkCommandBuffer> VulkanHelpers::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count)
     {
-        // Create command buffer
-        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
         std::vector<VkCommandBuffer> commandBuffers(count);
 
         VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };

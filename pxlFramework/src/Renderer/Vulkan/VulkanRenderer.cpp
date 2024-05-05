@@ -7,8 +7,6 @@ namespace pxl
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanGraphicsContext>& context)
         : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice())), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
     {
-        VkResult result;
-
         // Get the graphics queue from the given queue family index
         m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_Device->GetVkDevice(), m_GraphicsQueueFamilyIndex);
 
@@ -20,8 +18,8 @@ namespace pxl
         // Setup Viewport
         m_Viewport.x = 0.0f;
         m_Viewport.y = 0.0f;
-        m_Viewport.width = swapchainExtent.width; // TODO: should width and height default to 0?
-        m_Viewport.height = swapchainExtent.height;
+        m_Viewport.width = static_cast<float>(swapchainExtent.width); // TODO: should width and height default to 0?
+        m_Viewport.height = static_cast<float>(swapchainExtent.height);
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 
@@ -37,10 +35,10 @@ namespace pxl
 
     void VulkanRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        m_Viewport.x = x;
-        m_Viewport.y = y;
-        m_Viewport.width = width;
-        m_Viewport.height = height;
+        m_Viewport.x = static_cast<float>(x);
+        m_Viewport.y = static_cast<float>(y);
+        m_Viewport.width = static_cast<float>(width);
+        m_Viewport.height = static_cast<float>(height);
     }
 
     void VulkanRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -72,8 +70,6 @@ namespace pxl
 
     void VulkanRenderer::Begin()
     {  
-        VkResult result;
-
         // Get the next frame to render to
         m_CurrentFrame = m_ContextHandle->GetSwapchain()->GetCurrentFrame();
         
@@ -116,8 +112,6 @@ namespace pxl
 
     void VulkanRenderer::End()
     {
-        VkResult result;
-
         // End render pass
         vkCmdEndRenderPass(m_CurrentFrame.CommandBuffer);
 

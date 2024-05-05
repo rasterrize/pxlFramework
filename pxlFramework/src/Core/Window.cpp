@@ -161,7 +161,7 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
         
-        if (windowWidth != width || windowHeight != height)
+        if (windowWidth != static_cast<int>(width) || windowHeight != static_cast<int>(height))
             PXL_LOG_WARN(LogArea::Window, "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 
@@ -400,7 +400,7 @@ namespace pxl
         int monitorCount;
         auto glfwMonitors = glfwGetMonitors(&monitorCount);
 
-        for (int i = 0; i < monitorCount; i++)
+        for (uint8_t i = 0; i < monitorCount; i++)
         {
             Monitor monitor;
             monitor.Name = glfwGetMonitorName(glfwMonitors[i]);
