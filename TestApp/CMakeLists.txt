@@ -13,10 +13,10 @@ src/Tests/QuadsTest.h src/Tests/QuadsTest.cpp)
 
 target_link_libraries(TestApp pxlFramework)
 
-#set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<$<CONFIG:Dist>:TRUE>)
+set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<$<CONFIG:Release>:TRUE>)
 
 target_compile_features(TestApp PUBLIC cxx_std_20)
 
-target_compile_definitions(TestApp PUBLIC $<$<CONFIG:Debug>:TA_DEBUG> $<$<CONFIG:Release>:TA_RELEASE>)#$<$<CONFIG:Distribute>:TA_DIST>#
+target_compile_definitions(TestApp PUBLIC $<$<CONFIG:Debug>:TA_DEBUG> $<$<CONFIG:Release>:TA_RELEASE>)
 
 set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")

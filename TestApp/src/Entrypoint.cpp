@@ -1,6 +1,6 @@
 #include "TestApplication.h"
 
-#ifdef TA_DIST
+#ifdef TA_RELEASE
     #include <Windows.h>
     #define MAIN_FUNC int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
