@@ -4,36 +4,42 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "MSBuild - Debug",
+            "label": "MSBuild ALL - Debug",
             "type": "shell",
             "command": "msbuild",
             "args": [
                 "build/ALL_BUILD.vcxproj",
-                "/property:Configuration=Debug"
+                "/property:Configuration=Debug",
+                "/t:build",
+                "/maxCpuCount",
+                "/terminalLogger",
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "presentation": {
-                "reveal": "always"
+                "reveal": "always",
+                "focus": true,
+                "clear": true,
             },
             "problemMatcher": "$msCompile",
-            // "dependsOn": [
-            //     "CMake: configure"
-            // ]
         },
         {
-            "label": "MSBuild - Release",
+            "label": "MSBuild ALL - Release",
             "type": "shell",
             "command": "msbuild",
             "args": [
                 "build/ALL_BUILD.vcxproj",
-                "/property:Configuration=Release"
+                "/property:Configuration=Release",
+                "/maxCpuCount",
+                "/terminalLogger",
             ],
             "group": "build",
             "presentation": {
-                "reveal": "always"
+                "reveal": "always",
+                "focus": true,
+                "clear": true,
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
