@@ -19,6 +19,7 @@ namespace pxl
 
         virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) override;
         virtual void SetUniformInt1(const std::string& name, int value) override;
+        virtual void SetUniformIntArray(const std::string& name, int* values, uint32_t count) override;
     private:
         void Compile(const std::string& vertSrc, const std::string& fragSrc);
         int GetUniformLocation(const std::string& name) const;

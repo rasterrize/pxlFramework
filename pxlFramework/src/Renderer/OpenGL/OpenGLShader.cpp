@@ -166,4 +166,9 @@ namespace pxl
     {
         glUniform1i(GetUniformLocation(name), value);
     }
+
+    void OpenGLShader::SetUniformIntArray(const std::string& name, int* values, uint32_t count)
+    {
+        glUniform1iv(GetUniformLocation(name), count, values);
+    }
 }
