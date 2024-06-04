@@ -80,6 +80,9 @@ target_compile_features(pxlFramework PUBLIC cxx_std_20)
 # Set highest warning level (highest detection)
 target_compile_options(pxlFramework PUBLIC "/W3")
 
+# pxlFramework CMake options
+option(PXL_ENABLE_PROFILING "Enable profiling (WARNING: Will result in extremely high ram usage in applications)" OFF)
+
 # GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -91,6 +94,18 @@ set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
 # YAMLCPP settings
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+
+# Profiling settings
+if (PXL_ENABLE_PROFILING)
+        message("Enabling tracy profiling for pxlFramework")
+        option(TRACY_ENABLE "" ON)    
+        option(TRACY_ON_DEMAND "" ON)
+        add_subdirectory(deps/tracy)
+        set(TRACY_LIB Tracy::TracyClient)
+        target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_PROFILING)
+else()
+        option(TRACY_ENABLE "" OFF)
+endif()
 
 # Add Dependencies (CMake projects)
 add_subdirectory(deps/GLFW)
@@ -122,7 +137,7 @@ endif()
 target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 
 # Link Libraries
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan)
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan ${TRACY_LIB})
 
 target_precompile_headers(pxlFramework PUBLIC 
 src/Core/Logging/Logger.h 

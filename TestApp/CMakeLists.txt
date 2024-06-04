@@ -11,6 +11,8 @@ src/Tests/CubesTest.h src/Tests/CubesTest.cpp
 src/Tests/OGLVK.h src/Tests/OGLVK.cpp
 src/Tests/QuadsTest.h src/Tests/QuadsTest.cpp)
 
+set(PXL_ENABLE_PROFILING ON CACHE BOOL "" FORCE)
+
 target_link_libraries(TestApp pxlFramework)
 
 set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<$<CONFIG:Release>:TRUE>)
