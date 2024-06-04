@@ -3,9 +3,11 @@
 #include "../Buffer.h"
 
 #include <vulkan/vulkan.h>
+#include <vma/vk_mem_alloc.h>
 
 #include "../BufferLayout.h"
 #include "VulkanDevice.h"
+#include "VulkanAllocator.h"
 
 namespace pxl
 {
@@ -26,10 +28,7 @@ namespace pxl
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);                   // }   Could these be Helper functions?
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout); // }
-        
     private:
-        void CreateBuffer(VkBufferUsageFlags usage, uint32_t size);
-        void AllocateMemory();
 
         void BindVertexImpl(VkCommandBuffer commandBuffer);
         void BindIndexImpl(VkCommandBuffer commandBuffer);
@@ -40,7 +39,7 @@ namespace pxl
         std::shared_ptr<VulkanDevice> m_Device;
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
-        VkDeviceMemory m_Memory = VK_NULL_HANDLE;
+        VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage;
 
         std::function<void(VkCommandBuffer)> m_BindFunc;

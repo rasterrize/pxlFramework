@@ -60,6 +60,8 @@ src/Renderer/Vulkan/VulkanHelpers.h src/Renderer/Vulkan/VulkanHelpers.cpp
 src/Renderer/Vulkan/VulkanImage.h src/Renderer/Vulkan/VulkanImage.cpp
 src/Renderer/Vulkan/VulkanBuffer.h src/Renderer/Vulkan/VulkanBuffer.cpp
 src/Renderer/Vulkan/VulkanDevice.h src/Renderer/Vulkan/VulkanDevice.cpp
+src/Renderer/Vulkan/VulkanAllocator.h src/Renderer/Vulkan/VulkanAllocator.cpp
+src/Renderer/Vulkan/VmaUsage.cpp
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp

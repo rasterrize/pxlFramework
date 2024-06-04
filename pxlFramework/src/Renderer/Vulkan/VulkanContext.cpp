@@ -1,6 +1,7 @@
 #include "VulkanContext.h"
 
 #include "VulkanHelpers.h"
+#include "VulkanAllocator.h"
 
 // temp
 #include "../../Core/Stopwatch.h"
@@ -159,6 +160,9 @@ namespace pxl
         stopwatch.Stop();
 
         PXL_LOG_WARN(LogArea::Vulkan, stopwatch.GetElapsedMilliSec());
+        // Initialise Vulkan Memory Allocator
+        if (!VulkanAllocator::IsInitialised())
+            VulkanAllocator::Init(m_Instance, m_Device);
     }
 
     void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)

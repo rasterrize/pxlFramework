@@ -11,14 +11,18 @@ namespace pxl
     VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
-        // Generic buffer usage to vulkan buffer usage
-
         // Create the vulkan buffer
-        CreateBuffer(m_Usage, size);
+        VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        bufferInfo.size = size;
+        bufferInfo.usage = m_Usage;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        // Allocate memory and bind it to the buffer
-        AllocateMemory();
-        vkBindBufferMemory(m_Device->GetVkDevice(), m_Buffer, m_Memory, 0);
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT; // for vmaMapMemory
+
+        // Create buffer and it's associated memory
+        VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
 
         // Set the data inside the memory of the buffer
         SetData(size, data);
@@ -63,38 +67,26 @@ namespace pxl
 
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
-        auto device = m_Device->GetVkDevice();
+        if (!data)
+            return;
+        
+        auto allocator = VulkanAllocator::Get();
 
         // Fill the vertex buffer with the data
-        void* data2;
-        vkMapMemory(device, m_Memory, 0, size, 0, &data2);
-        memcpy(data2, data, (size_t)size);
-        vkUnmapMemory(device, m_Memory);
+        void* mappedMemory;
+        vmaMapMemory(allocator, m_Allocation, &mappedMemory);
+        memcpy(mappedMemory, data, (size_t)size);
+        vmaUnmapMemory(allocator, m_Allocation);
     }
 
     void VulkanBuffer::Destroy()
     {
-        m_Device->WaitIdle();
-        
-        auto device = m_Device->GetVkDevice();
-        
-        if (m_Buffer != VK_NULL_HANDLE)
-            vkDestroyBuffer(device, m_Buffer, nullptr);
-
-        if (m_Memory != VK_NULL_HANDLE)
-            vkFreeMemory(device, m_Memory, nullptr);
-
-    }
-
-    void VulkanBuffer::CreateBuffer(VkBufferUsageFlags usage, uint32_t size)
-    {
-        // Create buffer
-        VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        bufferInfo.size = size;
-        bufferInfo.usage = usage;
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-        VK_CHECK(vkCreateBuffer(m_Device->GetVkDevice(), &bufferInfo, nullptr, &m_Buffer));
+        if (m_Buffer)
+        {
+            vmaDestroyBuffer(VulkanAllocator::Get(), m_Buffer, m_Allocation);
+            m_Buffer = VK_NULL_HANDLE;
+            m_Allocation = VK_NULL_HANDLE;
+        }
     }
 
     VkVertexInputBindingDescription VulkanBuffer::GetBindingDescription(const BufferLayout& layout)
@@ -159,18 +151,5 @@ namespace pxl
         }
         
         return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
-    }
-
-    void VulkanBuffer::AllocateMemory()
-    {
-        auto logicalDevice = m_Device->GetVkDevice();
-        VkMemoryRequirements memReqs;
-        vkGetBufferMemoryRequirements(logicalDevice, m_Buffer, &memReqs);
-
-        VkMemoryAllocateInfo allocInfo = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        allocInfo.allocationSize = memReqs.size;
-        allocInfo.memoryTypeIndex = m_Device->FindMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-        VK_CHECK(vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &m_Memory));
     }
 }
