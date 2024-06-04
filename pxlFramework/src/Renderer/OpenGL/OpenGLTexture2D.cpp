@@ -24,9 +24,9 @@ namespace pxl
         glDeleteTextures(1, &m_RendererID);
     }
 
-    void OpenGLTexture2D::Bind()
+    void OpenGLTexture2D::Bind(uint32_t unit)
     {
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glBindTextureUnit(unit, m_RendererID);
     }
 
     void OpenGLTexture2D::Unbind()

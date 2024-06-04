@@ -13,7 +13,7 @@ namespace pxl
         OpenGLTexture2D(const Image& image);
         virtual ~OpenGLTexture2D() override;
 
-        virtual void Bind() override;
+        virtual void Bind(uint32_t unit) override;
         virtual void Unbind() override;
 
         static GLenum ImageFormatToGLFormat(ImageFormat format);
