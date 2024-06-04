@@ -37,8 +37,8 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLBuffer>(usage, size);
             case RendererAPIType::Vulkan:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex Buffer for Vulkan renderer api.");
-                break;
+                auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
+                return std::make_shared<VulkanBuffer>(vulkanDevice, usage, size, nullptr);
         }
         
         return nullptr;
