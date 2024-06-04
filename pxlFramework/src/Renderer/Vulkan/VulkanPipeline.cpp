@@ -161,6 +161,8 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Bind()
     {
+        PXL_PROFILE_SCOPE;
+        
         auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         // Bind Pipeline
@@ -169,6 +171,8 @@ namespace pxl
 
     void VulkanGraphicsPipeline::SetPushConstantData(std::unordered_map<std::string, const void*>& pcData)
     {
+        PXL_PROFILE_SCOPE;
+        
         auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         for (auto& pc : m_PushConstants)

@@ -79,6 +79,8 @@ namespace pxl
 
     void Renderer::Init(const std::shared_ptr<Window>& window)
     {   
+        PXL_PROFILE_SCOPE;
+        
         if (s_Enabled)
         {
             PXL_LOG_WARN(LogArea::Renderer, "Renderer already initialized");
@@ -273,6 +275,8 @@ namespace pxl
 
     void Renderer::Clear()
     {
+        PXL_PROFILE_SCOPE;
+        
         s_RendererAPI->Clear();
     }
 
@@ -296,6 +300,8 @@ namespace pxl
 
     void Renderer::Begin()
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return;
 
@@ -308,6 +314,8 @@ namespace pxl
 
     void Renderer::End()
     {
+        PXL_PROFILE_SCOPE;
+
         if (!s_Enabled)
             return;
         
@@ -318,6 +326,8 @@ namespace pxl
 
     void Renderer::AddStaticQuad(const glm::vec3& position)
     {
+        PXL_PROFILE_SCOPE;
+        
         constexpr auto colour = glm::vec4(1.0f);
         const auto vertexCount = s_StaticQuadCount * 4;
 
@@ -331,6 +341,8 @@ namespace pxl
 
     void Renderer::StaticGeometryReady()
     {
+        PXL_PROFILE_SCOPE;
+        
         s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
 
         auto layout = QuadVertex::GetLayout();
@@ -344,6 +356,8 @@ namespace pxl
 
     void Renderer::DrawStaticQuads()
     {
+        PXL_PROFILE_SCOPE;
+        
         s_StaticQuadBindFunc();
 
         s_RendererAPI->DrawIndexed(s_StaticQuadCount * 6); // TODO: use a cached s_StaticQuadIndexCount variable so it doesnt have to math everytime
@@ -351,6 +365,8 @@ namespace pxl
 
     void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (s_QuadCount >= s_MaxQuadVertexCount)
             Flush();
 
@@ -370,6 +386,8 @@ namespace pxl
 
     void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (s_QuadCount >= s_MaxQuadCount)
             Flush();
 
@@ -534,6 +552,8 @@ namespace pxl
 
     void Renderer::Flush()
     {
+        PXL_PROFILE_SCOPE;
+        
         // Bind textures
         // for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
         //         s_TextureSlots[i]->Bind(i);

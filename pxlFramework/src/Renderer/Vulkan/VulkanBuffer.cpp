@@ -53,6 +53,8 @@ namespace pxl
 
     void VulkanBuffer::Bind()
     {
+        PXL_PROFILE_SCOPE;
+        
         auto commandBuffer = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         m_BindFunc(commandBuffer);
@@ -60,11 +62,15 @@ namespace pxl
 
     void VulkanBuffer::Bind(VkCommandBuffer commandBuffer)
     {
+        PXL_PROFILE_SCOPE;
+        
         m_BindFunc(commandBuffer);
     }
 
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!data)
             return;
         

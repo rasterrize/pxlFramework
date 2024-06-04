@@ -94,6 +94,8 @@ namespace pxl
 
     void Window::Update() const
     {
+        PXL_PROFILE_SCOPE;
+        
         if (m_GraphicsContext) // this can be kept since it takes like less than a microsecond to check for this to evaluate.
             m_GraphicsContext->Present();
     }
@@ -382,6 +384,8 @@ namespace pxl
 
     void Window::UpdateAll()
     {
+        PXL_PROFILE_SCOPE;
+        
         for (const auto& window : s_Windows)
             window->Update();
 

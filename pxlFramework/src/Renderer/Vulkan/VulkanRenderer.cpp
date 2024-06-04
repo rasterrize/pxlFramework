@@ -68,11 +68,15 @@ namespace pxl
 
     void VulkanRenderer::DrawIndexed(uint32_t indexCount)
     {
+        PXL_PROFILE_SCOPE;
+
         vkCmdDrawIndexed(m_CurrentFrame.CommandBuffer, indexCount, 1, 0, 0, 0);
     }
 
     void VulkanRenderer::Begin()
     {  
+        PXL_PROFILE_SCOPE;
+        
         auto device = static_cast<VkDevice>(m_Device->GetDevice());
 
         // Get the next frame to render to
@@ -115,6 +119,8 @@ namespace pxl
 
     void VulkanRenderer::End()
     {
+        PXL_PROFILE_SCOPE;
+        
         // End render pass
         vkCmdEndRenderPass(m_CurrentFrame.CommandBuffer);
 

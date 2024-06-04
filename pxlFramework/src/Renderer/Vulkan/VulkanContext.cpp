@@ -118,11 +118,15 @@ namespace pxl
 
     void VulkanGraphicsContext::Present()
     {
+        PXL_PROFILE_SCOPE;
+        
         m_Swapchain->QueuePresent(m_PresentQueue);
     }
 
     void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)
     {
+        PXL_PROFILE_SCOPE;
+        
         VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
     }
 

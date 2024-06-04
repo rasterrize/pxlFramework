@@ -14,6 +14,7 @@ src/Core/MouseCodes.h
 src/Core/Platform.h
 src/Core/Stopwatch.h
 src/Core/Config.h src/Core/Config.cpp
+src/Core/Profiler.h
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -81,7 +82,7 @@ target_compile_features(pxlFramework PUBLIC cxx_std_20)
 target_compile_options(pxlFramework PUBLIC "/W3")
 
 # pxlFramework CMake options
-option(PXL_ENABLE_PROFILING "Enable profiling (WARNING: Will result in extremely high ram usage in applications)" OFF)
+option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
 
 # GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -140,19 +141,20 @@ target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan ${TRACY_LIB})
 
 target_precompile_headers(pxlFramework PUBLIC 
-src/Core/Logging/Logger.h 
-src/Core/Logging/FrameworkLog.h 
-src/Core/Assert.h 
-src/Core/Stopwatch.h 
-<iostream> 
-<string> 
-<memory> 
-<unordered_map> 
-<algorithm> 
-<optional> 
+src/Core/Logging/Logger.h
+src/Core/Logging/FrameworkLog.h
+src/Core/Assert.h
+src/Core/Profiler.h
+<iostream>
+<string>
+<memory>
+<unordered_map>
+<algorithm>
+<optional>
 <functional>
 <array>
-<deque>)
+<deque>
+)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE
