@@ -5,7 +5,7 @@
 
 namespace pxl
 {
-    std::shared_ptr<Texture2D> Texture2D::Create(unsigned char* imageBuffer, const glm::vec2& imageSize, int channels)
+    std::shared_ptr<Texture2D> Texture2D::Create(const Image& image)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -13,7 +13,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLTexture2D>(imageBuffer, imageSize, channels);
+                return std::make_shared<OpenGLTexture2D>(image);
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
                 break;

@@ -1,12 +1,12 @@
 #include "OpenGLTexture2D.h"
 
-#include <glad/glad.h>
-
 namespace pxl
 {
-    OpenGLTexture2D::OpenGLTexture2D(unsigned char* imageBuffer, glm::vec2 imageSize, int channels)
-        : m_ImageBuffer(imageBuffer), m_ImageSize(imageSize), m_Channels(channels)
+    OpenGLTexture2D::OpenGLTexture2D(const Image& image)
+        : m_ImageBuffer(image.Buffer), m_ImageSize(image.Size)
     {
+        m_GLFormat = ImageFormatToGLFormat(image.Format);
+
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
         
@@ -15,18 +15,7 @@ namespace pxl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        int channelType;
-
-        if (channels == 3)          // All this is kinda temporary
-        {   
-            channelType = GL_RGB;
-        }
-        else if (channels == 4)
-        {
-            channelType = GL_RGBA;
-        }
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_ImageSize.x, m_ImageSize.y, 0, channelType, GL_UNSIGNED_BYTE, m_ImageBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<int>(m_ImageSize.x), static_cast<int>(m_ImageSize.y), 0, m_GLFormat, GL_UNSIGNED_BYTE, m_ImageBuffer);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -43,5 +32,17 @@ namespace pxl
     void OpenGLTexture2D::Unbind()
     {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    GLenum OpenGLTexture2D::ImageFormatToGLFormat(ImageFormat format)
+    {
+        switch (format)
+        {
+            case ImageFormat::Undefined: return GL_INVALID_ENUM;
+            case ImageFormat::RGB8:      return GL_RGB;
+            case ImageFormat::RGBA8:     return GL_RGBA;
+        }
+        
+        return GL_INVALID_ENUM;
     }
 }

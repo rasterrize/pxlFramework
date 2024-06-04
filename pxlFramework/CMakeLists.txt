@@ -33,6 +33,7 @@ src/Renderer/RendererData.h
 src/Renderer/Pipeline.h src/Renderer/Pipeline.cpp
 src/Renderer/Framebuffer.h
 src/Renderer/Device.h
+src/Renderer/Image.h
 
 # OPENGL
 src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp

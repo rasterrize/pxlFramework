@@ -28,7 +28,20 @@ namespace pxl
             return nullptr;
         }
 
-        std::shared_ptr<Texture2D> texture = Texture2D::Create(bytes, { width, height }, channels); // should glm be used here?
+        Image spec;
+
+        spec.Buffer = bytes;
+        spec.Size = { width, height };
+
+        if (channels == 3)
+            spec.Format = ImageFormat::RGB8;
+        else if (channels == 4)
+            spec.Format = ImageFormat::RGBA8;
+        else
+            spec.Format = ImageFormat::Undefined;
+
+
+        std::shared_ptr<Texture2D> texture = Texture2D::Create(spec); // should glm be used here?
 
         // stb image requires we manually free the loaded image from memory
         stbi_image_free(bytes);

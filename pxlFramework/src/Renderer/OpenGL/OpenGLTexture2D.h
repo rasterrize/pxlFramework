@@ -3,22 +3,25 @@
 #include "../Texture.h"
 
 #include <glm/vec2.hpp>
+#include <glad/glad.h>
 
 namespace pxl
 {
     class OpenGLTexture2D : public Texture2D
     {
     public:
-        OpenGLTexture2D(unsigned char* imageBuffer, glm::vec2 imageSize, int channels);
+        OpenGLTexture2D(const Image& image);
         virtual ~OpenGLTexture2D() override;
 
         virtual void Bind() override;
         virtual void Unbind() override;
+
+        static GLenum ImageFormatToGLFormat(ImageFormat format);
     private:
         unsigned char* m_ImageBuffer;
         glm::vec2 m_ImageSize;
-        int m_Channels;
+        GLenum m_GLFormat;
 
-        uint32_t m_RendererID;
+        uint32_t m_RendererID = GL_INVALID_VALUE; // Is GL_INVALID_VALUE supposed to be used here?
     };
 }
