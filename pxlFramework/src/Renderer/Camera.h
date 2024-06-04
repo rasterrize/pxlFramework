@@ -7,13 +7,14 @@
 
 namespace pxl
 {   
-    enum class CameraType
+    enum class ProjectionType
     {
-        Orthographic, Perspective
+        None = 0, Orthographic, Perspective
     };
 
     struct CameraSettings
     {
+        ProjectionType ProjType;
         float AspectRatio;
         float NearClip;
         float FarClip;
@@ -44,10 +45,10 @@ namespace pxl
 
         const glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
-        static std::shared_ptr<Camera> Create(CameraType type, const CameraSettings& settings);
+        static std::shared_ptr<Camera> Create(const CameraSettings& settings);
     protected:
-        Camera(CameraType type, const CameraSettings& cameraSettings) 
-            : m_CameraType(type), m_CameraSettings(cameraSettings) {};
+        Camera(const CameraSettings& cameraSettings) 
+            : m_CameraSettings(cameraSettings) {};
 
         glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
         glm::mat4 m_ViewMatrix       = glm::mat4(1.0f);
@@ -55,10 +56,9 @@ namespace pxl
         glm::vec3 m_Position = glm::vec3(0.0f);
         glm::vec3 m_Rotation = glm::vec3(0.0f);
 
-        CameraType m_CameraType;
         CameraSettings m_CameraSettings;
 
-        std::shared_ptr<Camera> m_Handle;
+        std::weak_ptr<Camera> m_Handle;
     private:
         virtual void RecalculateProjection() = 0;
 

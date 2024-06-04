@@ -5,7 +5,7 @@
 namespace pxl
 {
     PerspectiveCamera::PerspectiveCamera(const CameraSettings& settings)
-        : Camera(CameraType::Perspective, settings)
+        : Camera(settings)
     {
         RecalculateProjection();
     }

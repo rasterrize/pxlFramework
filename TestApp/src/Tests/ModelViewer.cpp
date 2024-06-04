@@ -22,7 +22,7 @@ namespace TestApp
         m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
         pxl::Renderer::SetClearColour(m_ClearColour);
 
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
+        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Orthographic, 16.0f / 9.0f, -10.0, 10.0f });
 
         auto windowRendererAPI = m_Window->GetWindowSpecs().RendererAPI;
 

@@ -23,7 +23,6 @@ namespace TestApp
 
     void QuadsTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
         windowSpecs.Title += " - Running Test 'QuadsTest'";
 
         m_Window = pxl::Window::Create(windowSpecs);
@@ -31,6 +30,8 @@ namespace TestApp
         pxl::Renderer::Init(m_Window);
 
         pxl::Input::Init(m_Window);
+        
+        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Orthographic, 16.0f / 9.0f, -10.0f, 10.0f });
         m_Camera->SetPosition({ 0.0f, 0.0f, 0.0f });
         m_Camera->SetZoom(2.5f);
 

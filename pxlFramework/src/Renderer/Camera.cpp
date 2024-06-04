@@ -10,37 +10,32 @@ namespace pxl
 {
     std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
 
-    std::shared_ptr<Camera> Camera::Create(CameraType cameraType, const CameraSettings& settings)
+    std::shared_ptr<Camera> Camera::Create(const CameraSettings& settings)
     {
         std::shared_ptr<Camera> camera;
         
-        switch (cameraType)
+        switch (settings.ProjType)
         {
-            case CameraType::Orthographic:
+            case ProjectionType::None: return nullptr;
+            case ProjectionType::Orthographic:
                 camera = std::make_shared<OrthographicCamera>(settings);
                 break;
-            case CameraType::Perspective:
+            case ProjectionType::Perspective:
                 camera = std::make_shared<PerspectiveCamera>(settings);
                 break;
         }
 
-        if (camera) // technically this check is unnecessary but im gonna leave it here for now
-        {
-            camera->m_Handle = camera;
-            s_Cameras.push_back(camera);
-            return camera;
-        }
+        PXL_ASSERT(camera);
 
-        PXL_LOG_ERROR(LogArea::Renderer, "Failed to create camera");
-        return nullptr;
+        camera->m_Handle = camera;
+        s_Cameras.push_back(camera);
+        return camera;
     }
 
     void Camera::UpdateAll()
     {
-        for (auto camera : s_Cameras)
-        {
+        for (auto& camera : s_Cameras)
             camera->Update();
-        }
     }
 
     const glm::vec3 Camera::GetForwardVector()

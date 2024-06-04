@@ -5,7 +5,7 @@
 namespace pxl
 {
     OrthographicCamera::OrthographicCamera(const CameraSettings& settings) 
-        : Camera(CameraType::Orthographic, settings)
+        : Camera(settings)
     {
         RecalculateSides();
         RecalculateProjection();

@@ -15,7 +15,7 @@ namespace TestApp
 
     void CubesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        m_Camera = pxl::Camera::Create(pxl::CameraType::Orthographic, { 16.0f / 9.0f, -10.0, 10.0f });
+        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Orthographic, 16.0f / 9.0f, -10.0, 10.0f });
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
 
         m_ClearColour = glm::vec4(0.078f, 0.094f, 0.109f, 1.0f);
