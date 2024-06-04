@@ -81,7 +81,10 @@ namespace pxl
         void SetVSync(bool vsync) const { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync() { SetVSync(!m_GraphicsContext->GetVSync()); }
 
+        bool GetVisibility() const { return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE); }
         void SetVisibility(bool value);
+
+        void SetTitle(const std::string_view& title) const { glfwSetWindowTitle(m_GLFWWindow, title.data()); }
 
         GLFWmonitor* GetWindowsCurrentGLFWMonitor();
 
