@@ -16,10 +16,10 @@ namespace pxl
 
         virtual void* GetLogicalDevice() override { return m_LogicalDevice; };
 
-        virtual void Destroy() override;
 
         VkDevice GetVkDevice() const { return m_LogicalDevice; } // TODO: either GetLogicalDevice is used everywhere (more casting) or this is used idk
         VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }
+        void Destroy();
 
         uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
         int32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);

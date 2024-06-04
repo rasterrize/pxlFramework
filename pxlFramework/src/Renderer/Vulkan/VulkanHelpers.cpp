@@ -2,16 +2,7 @@
 
 namespace pxl
 {
-    // void VulkanHelpers::CheckVkResult(VkResult result)
-    // {
-    //     if (result == VK_SUCCESS)
-	// 	    return;
-
-    //     PXL_LOG_ERROR(LogArea::Vulkan, "VkResult wasn't VK_SUCCESS, error code is {}", string_VkResult(result));
-
-	//     if (result < 0)
-	// 	    abort(); // probably shouldn't abort immediately
-    // }
+    std::vector<std::function<void()>> VulkanDeletionQueue::s_Queue;
 
     uint32_t VulkanHelpers::GetVulkanAPIVersion()
     {

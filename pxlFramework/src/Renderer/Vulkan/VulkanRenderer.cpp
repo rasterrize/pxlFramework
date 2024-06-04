@@ -33,6 +33,10 @@ namespace pxl
         Destroy();
     }
 
+    void VulkanRenderer::Destroy()
+    {
+        
+    }
     void VulkanRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
         m_Viewport.x = static_cast<float>(x);
@@ -47,10 +51,6 @@ namespace pxl
         m_Scissor.offset.y = y;
         m_Scissor.extent.width = width;
         m_Scissor.extent.height = height;
-    }
-
-    void VulkanRenderer::Destroy()
-    {
     }
 
     void VulkanRenderer::DrawArrays(uint32_t vertexCount)

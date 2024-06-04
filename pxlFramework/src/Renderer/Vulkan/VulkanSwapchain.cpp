@@ -35,6 +35,10 @@ namespace pxl
 
         PrepareImages();
         PrepareFramebuffers(renderPass);
+        VulkanDeletionQueue::Add([&]() {
+            DestroyFrameData();
+            Destroy();
+        });
     }
 
     VulkanSwapchain::~VulkanSwapchain()
@@ -142,8 +146,11 @@ namespace pxl
         for (auto& image : m_Images)
             image->Destroy();
 
-        if (m_Swapchain != VK_NULL_HANDLE)
-            vkDestroySwapchainKHR(m_Device->GetVkDevice(), m_Swapchain, nullptr);
+        if (m_Swapchain)
+        {
+            vkDestroySwapchainKHR(static_cast<VkDevice>(m_Device->GetDevice()), m_Swapchain, nullptr);
+            m_Swapchain = VK_NULL_HANDLE;
+        }
     }
 
     void VulkanSwapchain::DestroyFrameData()

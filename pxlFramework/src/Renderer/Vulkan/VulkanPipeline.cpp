@@ -134,6 +134,10 @@ namespace pxl
         graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
 
         VK_CHECK(vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline)); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
+    
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
@@ -148,12 +152,17 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Destroy()
     {
-        vkDeviceWaitIdle(m_Device);
-
-        if (m_Pipeline != VK_NULL_HANDLE)
+        if (m_Pipeline)
+        {
             vkDestroyPipeline(m_Device, m_Pipeline, nullptr);
+            m_Pipeline = VK_NULL_HANDLE;
+        }
 
-        if (m_Layout != VK_NULL_HANDLE)
+        if (m_Layout)
+        {
             vkDestroyPipelineLayout(m_Device, m_Layout, nullptr);
+            m_Layout = VK_NULL_HANDLE;
+        }
+    }
     }
 }

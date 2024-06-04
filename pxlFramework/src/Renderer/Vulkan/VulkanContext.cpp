@@ -10,16 +10,6 @@ namespace pxl
 {
     VulkanGraphicsContext::VulkanGraphicsContext(const std::shared_ptr<Window>& window)
     {
-        Init(window);
-    }
-
-    VulkanGraphicsContext::~VulkanGraphicsContext()
-    {
-        Shutdown();
-    }
-
-    void VulkanGraphicsContext::Init(const std::shared_ptr<Window>& window)
-    {
         // Get the extensions required for Vulkan to work with GLFW (should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE))
         auto glfwExtensions = Window::GetVKRequiredInstanceExtensions();
 
@@ -38,6 +28,11 @@ namespace pxl
 
         // Get the window surface from the window
         m_Surface = window->CreateVKWindowSurface(m_Instance);
+
+        VulkanDeletionQueue::Add([&]() {
+            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+            m_Surface = VK_NULL_HANDLE;
+        });
 
         // Get available physical devices
         auto physicalDevices = VulkanHelpers::GetAvailablePhysicalDevices(m_Instance);
@@ -91,6 +86,11 @@ namespace pxl
 
         VK_CHECK(vkCreateCommandPool(logicalDevice, &commandPoolInfo, nullptr, &m_CommandPool));
 
+        VulkanDeletionQueue::Add([&]() {
+            vkDestroyCommandPool(static_cast<VkDevice>(m_Device->GetDevice()), m_CommandPool, nullptr);
+            m_CommandPool = VK_NULL_HANDLE;
+        });
+
         // Get present queue (graphics queue) from device
         m_PresentQueue = VulkanHelpers::GetQueueHandle(logicalDevice, graphicsQueueFamily);
 
@@ -106,73 +106,24 @@ namespace pxl
         swapchainExtent.width = window->GetFramebufferSize().x;
         swapchainExtent.height = window->GetFramebufferSize().y;
         m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SurfaceFormat, swapchainExtent, m_DefaultRenderPass, m_CommandPool);
-    }
 
-    void VulkanGraphicsContext::Shutdown()
-    {
-        // Wait until device isnt using these objects before deleting them
-        m_Device->WaitIdle();
-
-        Stopwatch stopwatch(true);
-
-        #if 1
-        auto device = m_Device->GetVkDevice();
-
-        if (m_CommandPool != VK_NULL_HANDLE)
-            vkDestroyCommandPool(device, m_CommandPool, nullptr);
-
-        m_Swapchain->Destroy();
-
-        if (m_Surface != VK_NULL_HANDLE)
-            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-
-        m_Device->Destroy();
-
-        if (m_Instance != VK_NULL_HANDLE)
-            vkDestroyInstance(m_Instance, nullptr);
-
-        #else
-        // Destroy VK objects
-        for (auto& frame : m_Frames)
-        {
-            if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(m_Device->GetVkDevice(), frame.ImageAvailableSemaphore, nullptr);
-
-            if (frame.RenderFinishedSemaphore != VK_NULL_HANDLE)
-                vkDestroySemaphore(m_Device->GetVkDevice(), frame.RenderFinishedSemaphore, nullptr);
-        }
-
-        if (m_CommandPool != VK_NULL_HANDLE)
-            vkDestroyCommandPool(m_Device->GetVkDevice(), m_CommandPool, nullptr);
-
-        m_Swapchain->Destroy();
-
-        if (m_Surface != VK_NULL_HANDLE)
-            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-
-        m_Device->Destroy();
-
-        if (m_Instance != VK_NULL_HANDLE)
-            vkDestroyInstance(m_Instance, nullptr);
-
-        #endif
-
-        stopwatch.Stop();
-
-        PXL_LOG_WARN(LogArea::Vulkan, stopwatch.GetElapsedMilliSec());
         // Initialise Vulkan Memory Allocator
         if (!VulkanAllocator::IsInitialised())
             VulkanAllocator::Init(m_Instance, m_Device);
     }
 
-    void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)
+    VulkanGraphicsContext::~VulkanGraphicsContext()
     {
-        VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
     }
 
     void VulkanGraphicsContext::Present()
     {
         m_Swapchain->QueuePresent(m_PresentQueue);
+    }
+
+    void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)
+    {
+        VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
     }
 
     bool VulkanGraphicsContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
@@ -200,7 +151,14 @@ namespace pxl
             return false;
         }
 
+        VulkanDeletionQueue::Add([&]() {
+            vkDestroyInstance(m_Instance, nullptr);
+            m_Instance = VK_NULL_HANDLE;
+        });
+
         // Logging 
+        #ifndef PXL_DISABLE_LOGGING
+        
         std::string apiVersionString;
         switch (appInfo.apiVersion)
         {
@@ -232,6 +190,8 @@ namespace pxl
         {
             PXL_LOG_INFO(LogArea::Vulkan, "   - {}", layer);
         }
+
+        #endif
 
         return true;
     }

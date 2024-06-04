@@ -38,9 +38,6 @@ namespace pxl
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
         
     private:
-        void Init(const std::shared_ptr<Window>& window);
-        void Shutdown();
-
         bool CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers); // Should this class be creating an instance if that instance should be used by a compute context as well
 
         VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices); // TODO: put this in vulkan helpers

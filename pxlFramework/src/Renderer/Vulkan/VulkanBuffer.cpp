@@ -11,7 +11,6 @@ namespace pxl
     VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
-        // Create the vulkan buffer
         VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         bufferInfo.size = size;
         bufferInfo.usage = m_Usage;
@@ -24,14 +23,27 @@ namespace pxl
         // Create buffer and it's associated memory
         VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
 
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
+
         // Set the data inside the memory of the buffer
         SetData(size, data);
 
         // Set appropriate bind function
         if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // also could this be a AND (&&) bit operation, would that be faster?
-            m_BindFunc = [this](VkCommandBuffer commandBuffer) { BindVertexImpl(commandBuffer); };
+            m_BindFunc = [&](VkCommandBuffer commandBuffer) { 
+                VkBuffer buffers[] = { m_Buffer };
+                VkDeviceSize offsets[] = { 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+            };
         else if (m_Usage == VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
-            m_BindFunc = [this](VkCommandBuffer commandBuffer) { BindIndexImpl(commandBuffer); };
+            m_BindFunc = [&](VkCommandBuffer commandBuffer) { 
+                VkDeviceSize offset = 0;
+                vkCmdBindIndexBuffer(commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
+            };
+        else    
+            PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
     }
 
     VulkanBuffer::~VulkanBuffer()
@@ -49,20 +61,6 @@ namespace pxl
     void VulkanBuffer::Bind(VkCommandBuffer commandBuffer)
     {
         m_BindFunc(commandBuffer);
-    }
-
-    void VulkanBuffer::BindVertexImpl(VkCommandBuffer commandBuffer)
-    {
-        VkBuffer buffers[] = { m_Buffer };
-        VkDeviceSize offsets[] = { 0 };
-
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-    }
-
-    void VulkanBuffer::BindIndexImpl(VkCommandBuffer commandBuffer)
-    {
-        VkDeviceSize offset = 0;
-        vkCmdBindIndexBuffer(commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
     }
 
     void VulkanBuffer::SetData(uint32_t size, const void* data)

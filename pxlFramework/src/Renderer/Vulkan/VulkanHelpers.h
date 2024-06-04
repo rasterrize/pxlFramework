@@ -31,6 +31,21 @@ namespace pxl
         static std::vector<VkCommandBuffer> AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count);
     };
 
+    class VulkanDeletionQueue
+    {
+    public:
+        static void Add(std::function<void()> function) { s_Queue.push_back(function); }
+
+        static void Flush() {
+            for (auto it = s_Queue.end() - 1; it != s_Queue.begin(); it--)
+                (*(it))();
+
+            s_Queue.clear();
+        }
+    private:
+        static std::vector<std::function<void()>> s_Queue;
+    };
+
     static void CheckVkResult(VkResult result)
     {
         if (result != VK_SUCCESS)

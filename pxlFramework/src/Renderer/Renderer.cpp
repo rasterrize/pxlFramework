@@ -262,6 +262,13 @@ namespace pxl
     void Renderer::Shutdown()
     {
         s_Enabled = false;
+
+        // Delete vulkan objects before RAII deletes them in the wrong order
+        if (s_RendererAPIType == RendererAPIType::Vulkan)
+        {
+            s_ContextHandle->GetDevice()->WaitIdle();
+            VulkanDeletionQueue::Flush();
+        }
     }
 
     void Renderer::Clear()

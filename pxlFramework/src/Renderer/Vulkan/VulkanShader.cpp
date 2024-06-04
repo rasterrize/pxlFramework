@@ -12,12 +12,14 @@ namespace pxl
 
         m_ShaderModules[VK_SHADER_STAGE_VERTEX_BIT] = vertModule;
         m_ShaderModules[VK_SHADER_STAGE_FRAGMENT_BIT] = fragModule;
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
     }
 
     VulkanShader::~VulkanShader()
     {
-        for (const auto& pair : m_ShaderModules)
-            vkDestroyShaderModule(m_Device->GetVkDevice(), pair.second, nullptr);
+        Destroy();
     }
 
     void VulkanShader::Bind()
@@ -38,6 +40,16 @@ namespace pxl
 
     void VulkanShader::SetUniformInt1(const std::string& name, int value)
     {
+    }
+
+    void VulkanShader::Destroy()
+    {
+        // Destroy shader module
+        if (m_ShaderModule)
+        {
+            vkDestroyShaderModule(m_Device, m_ShaderModule, nullptr);
+            m_ShaderModule = VK_NULL_HANDLE;
+        }
     }
 
     VkShaderModule VulkanShader::CreateShaderModule(VkDevice device, const std::vector<char>& code)

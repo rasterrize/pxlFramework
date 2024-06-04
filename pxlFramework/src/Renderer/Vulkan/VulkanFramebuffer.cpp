@@ -23,7 +23,7 @@ namespace pxl
 			//vkFreeMemory(vulkanDevice->logicalDevice, attachment.memory, nullptr);
 		}
         
-        if (m_Framebuffer != VK_NULL_HANDLE)
+        if (m_Framebuffer)
         {
             vkDestroyFramebuffer(m_Device, m_Framebuffer, nullptr);
             m_Framebuffer = VK_NULL_HANDLE;

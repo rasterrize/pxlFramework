@@ -26,13 +26,13 @@ namespace pxl
 
     void VulkanImage::Destroy()
     {    
-        if (m_Image != VK_NULL_HANDLE)
+        if (m_ImageView)
         {
             vkDestroyImage(m_Device, m_Image, nullptr);
             m_Image = VK_NULL_HANDLE;
         }
 
-        if (m_ImageView != VK_NULL_HANDLE)
+        if (m_ImageView)
         {
             vkDestroyImageView(m_Device, m_ImageView, nullptr);
             m_ImageView = VK_NULL_HANDLE;

@@ -28,10 +28,7 @@ namespace pxl
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);                   // }   Could these be Helper functions?
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout); // }
-    private:
 
-        void BindVertexImpl(VkCommandBuffer commandBuffer);
-        void BindIndexImpl(VkCommandBuffer commandBuffer);
     private:
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
         static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(BufferUsage usage);
@@ -42,8 +39,7 @@ namespace pxl
         VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage;
 
-        std::function<void(VkCommandBuffer)> m_BindFunc;
         // BindBuffer function pointer
-        //void(*m_VkBindFunc)();
+        std::function<void(VkCommandBuffer)> m_BindFunc;
     };
 }

@@ -118,7 +118,20 @@ target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 # Link Libraries
 target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan)
 
-target_precompile_headers(pxlFramework PUBLIC src/Core/Logging/Logger.h src/Core/Logging/FrameworkLog.h src/Core/Assert.h src/Core/Stopwatch.h <iostream> <string> <memory> <unordered_map> <algorithm> <optional> <functional>)
+target_precompile_headers(pxlFramework PUBLIC 
+src/Core/Logging/Logger.h 
+src/Core/Logging/FrameworkLog.h 
+src/Core/Assert.h 
+src/Core/Stopwatch.h 
+<iostream> 
+<string> 
+<memory> 
+<unordered_map> 
+<algorithm> 
+<optional> 
+<functional>
+<array>
+<deque>)
 
 target_compile_definitions(pxlFramework PUBLIC 
 GLFW_INCLUDE_NONE

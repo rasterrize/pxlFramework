@@ -48,6 +48,10 @@ namespace pxl
 
         // Create render pass
         VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
+
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
     }
 
     VulkanRenderPass::~VulkanRenderPass()
@@ -57,7 +61,10 @@ namespace pxl
 
     void VulkanRenderPass::Destroy()
     {
-        if (m_RenderPass != VK_NULL_HANDLE)
+        if (m_RenderPass)
+        {
             vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+            m_RenderPass = VK_NULL_HANDLE;
+        }
     }
 }

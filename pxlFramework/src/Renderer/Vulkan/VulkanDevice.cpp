@@ -8,6 +8,10 @@ namespace pxl
         : m_PhysicalDevice(physicalDevice), m_GraphicsQueueFamilyIndex(graphicsQueueFamily)
     {
         CreateLogicalDevice(m_PhysicalDevice);
+        
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
     }
 
     VulkanDevice::~VulkanDevice()
@@ -15,9 +19,9 @@ namespace pxl
         Destroy();
     }
 
-    void pxl::VulkanDevice::Destroy()
+    void VulkanDevice::Destroy()
     {
-        if (m_LogicalDevice != VK_NULL_HANDLE)
+        if (m_LogicalDevice)
         {
             vkDestroyDevice(m_LogicalDevice, nullptr);
             m_LogicalDevice = VK_NULL_HANDLE;
@@ -125,7 +129,7 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Vulkan, "- Driver Version: {}", properties.driverVersion);
         PXL_LOG_INFO(LogArea::Vulkan, "- Supported Vulkan API Version: {}", properties.apiVersion);
         PXL_LOG_INFO(LogArea::Vulkan, "- Limits");
-        PXL_LOG_INFO(LogArea::Vulkan, " - Max Push Constant Size: {}kb", properties.limits.maxPushConstantsSize);
+        PXL_LOG_INFO(LogArea::Vulkan, " - Max Push Constant Size: {} bytes", properties.limits.maxPushConstantsSize);
         PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indexed Index Value: {}", properties.limits.maxDrawIndexedIndexValue);
         // PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indirect Count: {}", properties.limits.maxDrawIndirectCount);
         // PXL_LOG_INFO(LogArea::Vulkan, " - Max Framebuffer Width and Height: {}, {}", properties.limits.maxFramebufferWidth, properties.limits.maxFramebufferHeight);
