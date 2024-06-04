@@ -12,7 +12,7 @@ namespace pxl
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex Array for no renderer api.");
-                break;
+                return nullptr;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLVertexArray>();
             case RendererAPIType::Vulkan:

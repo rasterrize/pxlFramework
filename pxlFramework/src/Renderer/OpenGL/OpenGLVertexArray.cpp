@@ -1,7 +1,5 @@
 #include "OpenGLVertexArray.h"
 
-#include <glad/glad.h>
-
 namespace pxl
 {
     OpenGLVertexArray::OpenGLVertexArray()
@@ -26,28 +24,40 @@ namespace pxl
 
     void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<Buffer>& vertexBuffer, const BufferLayout& layout)
     {
-        glBindVertexArray(m_RendererID);
-        vertexBuffer->Bind();
+        glBindVertexArray(m_RendererID); // Ensure this vertex array is the one currently bound
+        vertexBuffer->Bind(); // Sets the global vertex buffer bound so glVertexAttribPointer can grab it and store it in the VAO
         
         uint32_t index = 0; // attribute number (location in shader)
         size_t offset = 0; // amount of bytes currently allocated
         for (const BufferElement& element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), (const void*)offset);
+
+            // Float type checking
+            if (element.Type == BufferDataType::Float || element.Type == BufferDataType::Float2 || element.Type == BufferDataType::Float3 || element.Type == BufferDataType::Float4)
+                glVertexAttribPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
+
+            // Int type checking
+            if (element.Type == BufferDataType::Int || element.Type == BufferDataType::Int2 || element.Type == BufferDataType::Int3 || element.Type == BufferDataType::Int4)
+                glVertexAttribIPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
+
+            // Bool type checking
+            if (element.Type == BufferDataType::Bool)
+                glVertexAttribIPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
+
+            // Mat type checking
+            if (element.Type == BufferDataType::Mat3 || element.Type == BufferDataType::Mat4)
+                glVertexAttribPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
+                            
             offset += GetSizeOfType(element.Type);
             index++;
         }
-
-        m_VertexBuffers.push_back(vertexBuffer);
     }
 
     void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<Buffer>& indexBuffer)
     {
         glBindVertexArray(m_RendererID);
         indexBuffer->Bind();
-
-        m_IndexBuffer = indexBuffer;
     }
 
     GLenum OpenGLVertexArray::GetOpenGLTypeOfBufferDataType(BufferDataType type)
