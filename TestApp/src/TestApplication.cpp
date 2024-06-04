@@ -3,6 +3,7 @@
 // Tests
 #include "Tests/ModelViewer.h"
 #include "Tests/OGLVK.h"
+#include "Tests/QuadsTest.h"
 
 namespace TestApp
 {
@@ -51,7 +52,8 @@ namespace TestApp
         m_OnStartFunc =  TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
         m_OnRenderFunc = TEST_NAME::OnRender;
-
+        m_OnImGuiRender = TEST_NAME::OnImGuiRender;
+        
         m_OnStartFunc(windowSpecs);
     }
 

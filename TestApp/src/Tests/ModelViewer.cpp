@@ -26,25 +26,7 @@ namespace TestApp
 
         auto windowRendererAPI = m_Window->GetWindowSpecs().RendererAPI;
 
-        if (windowRendererAPI == pxl::RendererAPIType::OpenGL)
-        {
-            m_Shader = pxl::FileLoader::LoadGLSLShader("assets/shaders/first.vert", "assets/shaders/first.frag");
-        }
-        else if (windowRendererAPI == pxl::RendererAPIType::Vulkan)
-        {
-            auto vertBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/vert.spv");
-            auto fragBin = pxl::FileLoader::LoadSPIRV("assets/shaders/compiled/frag.spv");
-            m_Shader = pxl::Shader::Create(vertBin, fragBin);
-        }
-
         APP_LOG_INFO("Compiling shaders... (1/1)");
-
-        pxl::BufferLayout layout;
-        layout.Add(pxl::BufferDataType::Float3, false); // vertex position
-        layout.Add(pxl::BufferDataType::Float4, false); // colour
-        layout.Add(pxl::BufferDataType::Float2, false); // texture coords
-
-        m_Pipeline = pxl::GraphicsPipeline::Create(m_Shader, layout);
 
         pxl::Renderer::AddStaticQuad({-0.5f, -0.5f, 0.0f});
         pxl::Renderer::StaticGeometryReady();
@@ -69,7 +51,7 @@ namespace TestApp
     {
         pxl::Renderer::Clear();
 
-        pxl::Renderer::Submit(m_Pipeline);
+        //pxl::Renderer::Submit(m_Pipeline);
     
         pxl::Renderer::DrawStaticQuads();
     }

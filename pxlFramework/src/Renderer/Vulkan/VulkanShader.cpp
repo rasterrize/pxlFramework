@@ -2,16 +2,11 @@
 
 namespace pxl
 {
-    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, const std::vector<char>& vertBin, const std::vector<char>& fragBin)
-        : m_Device(device)
+    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin)
+        : m_Device(static_cast<VkDevice>(device->GetDevice())), m_ShaderStage(stage)
     {
-        auto logicalDevice = m_Device->GetVkDevice();
+        m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
 
-        auto vertModule = CreateShaderModule(logicalDevice, vertBin);
-        auto fragModule = CreateShaderModule(logicalDevice, fragBin);
-
-        m_ShaderModules[VK_SHADER_STAGE_VERTEX_BIT] = vertModule;
-        m_ShaderModules[VK_SHADER_STAGE_FRAGMENT_BIT] = fragModule;
         VulkanDeletionQueue::Add([&]() {
             Destroy();
         });
@@ -54,12 +49,12 @@ namespace pxl
 
     VkShaderModule VulkanShader::CreateShaderModule(VkDevice device, const std::vector<char>& code)
     {
-        VkShaderModuleCreateInfo vertShaderModuleCreateInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-        vertShaderModuleCreateInfo.codeSize = code.size();
-        vertShaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // because pCode takes in a uint32_t pointer // need to learn about reinterpret_casts
+        VkShaderModuleCreateInfo shaderModuleCreateInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+        shaderModuleCreateInfo.codeSize = code.size();
+        shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // because pCode takes in a uint32_t pointer // need to learn about reinterpret_casts
 
         VkShaderModule shaderModule;
-        auto result = vkCreateShaderModule(device, &vertShaderModuleCreateInfo, nullptr, &shaderModule);
+        auto result = vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule);
         if (result != VK_SUCCESS)
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create shader module");

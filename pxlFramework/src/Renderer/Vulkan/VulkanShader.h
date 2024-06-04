@@ -11,7 +11,7 @@ namespace pxl
     class VulkanShader : public Shader
     {
     public:
-        VulkanShader(const std::shared_ptr<VulkanDevice>& device, const std::vector<char>& vertBin, const std::vector<char>& fragBin);
+        VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin);
         ~VulkanShader();
 
         virtual void Bind() override;
@@ -21,12 +21,16 @@ namespace pxl
 
         virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) override;
         virtual void SetUniformInt1(const std::string& name, int value) override;
+        virtual void SetUniformIntArray(const std::string& name, int* values, uint32_t count) override {}
 
-        VkShaderModule GetShaderModule(VkShaderStageFlagBits stage) { return m_ShaderModules[stage]; } 
+        void Destroy();
+
+        VkShaderModule GetShaderModule() { return m_ShaderModule; }
     private:
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
     private:
-        std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderModules;
         VkDevice m_Device;
+        VkShaderModule m_ShaderModule;
+        ShaderStage m_ShaderStage = ShaderStage::None;
     };
 }

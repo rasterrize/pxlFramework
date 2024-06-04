@@ -23,7 +23,7 @@ namespace pxl
         return nullptr;
     }
 
-    std::shared_ptr<Shader> Shader::Create(const std::vector<char>& vertBin, const std::vector<char>& fragBin)
+    std::shared_ptr<Shader> Shader::Create(ShaderStage stage, const std::vector<char>& sprvBin)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -34,7 +34,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(std::dynamic_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), vertBin, fragBin);
+                return std::make_shared<VulkanShader>(std::dynamic_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, sprvBin);
         }
         
         return nullptr;

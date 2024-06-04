@@ -23,6 +23,7 @@ src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
 src/Renderer/Buffer.h src/Renderer/Buffer.cpp
 src/Renderer/VertexArray.h src/Renderer/VertexArray.cpp
 src/Renderer/BufferLayout.h
+src/Renderer/UniformLayout.h
 src/Renderer/Shader.h src/Renderer/Shader.cpp
 src/Renderer/Camera.h src/Renderer/Camera.cpp
 src/Renderer/OrthographicCamera.h src/Renderer/OrthographicCamera.cpp
@@ -113,6 +114,7 @@ else()
         message("Failed to find Vulkan SDK")
 endif()
 
+# Add Vulkan include directory
 target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 
 # Link Libraries
@@ -145,3 +147,6 @@ IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
 #IMGUI_IMPL_OPENGL_LOADER_GLAD
 
 target_include_directories(pxlFramework PUBLIC include)
+
+# Copy internal resources to TestApp current working directory
+file(COPY resources/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin/resources) # TODO: make this only happen if BUILD_TEST_APP is enabled

@@ -20,3 +20,9 @@ target_compile_features(TestApp PUBLIC cxx_std_20)
 target_compile_definitions(TestApp PUBLIC $<$<CONFIG:Debug>:TA_DEBUG> $<$<CONFIG:Release>:TA_RELEASE>)
 
 set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+
+# Copy assets to the bin folder so executables can use them along with framework resources
+file(COPY assets DESTINATION "${CMAKE_BINARY_DIR}/bin")
+
+# TEMP: Currently moves the framework config to the cwd but the application should be able to create one itself in the future
+configure_file(FrameworkConfig.yaml ${CMAKE_BINARY_DIR}/bin)

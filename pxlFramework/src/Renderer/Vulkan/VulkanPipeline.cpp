@@ -9,25 +9,22 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanShader>& shader, const std::shared_ptr<VulkanRenderPass> renderPass, const BufferLayout& bufferLayout)
-        : m_ContextHandle(std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())), m_Device(static_cast<VkDevice>(m_ContextHandle->GetDevice()->GetLogicalDevice())) // WARNING: is m_Context valid at this point?
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass, const BufferLayout& bufferLayout, const UniformLayout& uniformLayout)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetDevice())), m_Shaders(shaders)
     {
-        //m_Device = static_cast<VkDevice>(context->GetDevice()->GetLogicalDevice());
+        std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation
 
         // Create Shader Stages
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
-        vertShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_VERTEX_BIT);
-        vertShaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
-        vertShaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
-
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = shader->GetShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT);
-        fragShaderStageInfo.pName = "main";
-        fragShaderStageInfo.pSpecializationInfo = nullptr;
-
-        VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo }; // Store these for graphics pipeline creation
+        for (auto& shader : shaders)
+        {
+            VkPipelineShaderStageCreateInfo shaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
+            shaderStageInfo.stage = GetVkShaderStage(shader.first); // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
+            shaderStageInfo.module = static_pointer_cast<VulkanShader>(shader.second)->GetShaderModule();
+            shaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
+            shaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
+        
+            shaderStages.push_back(shaderStageInfo);
+        }
 
         // Dynamic state
         std::vector<VkDynamicState> dynamicStates = {
@@ -56,17 +53,17 @@ namespace pxl
 
         // Specify viewport state
         VkPipelineViewportStateCreateInfo viewportState = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
+        viewportState.viewportCount = 1; // } increasing these requires enabling a gpu feature
+        viewportState.scissorCount = 1;  // }
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
         rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
         rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
-        rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL; // Can be lines and points, but requires enabling a gpu feature
-        rasterizationInfo.lineWidth = 1.0f; // 1.0f is good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = VK_CULL_MODE_NONE; // specify different types of culling here
-        rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // (I think) This is counter clockwise in OpenGL
+        rasterizationInfo.polygonMode = m_Settings.PolygonMode; // Can be lines and points, but requires enabling a gpu feature
+        rasterizationInfo.lineWidth = 1.0f; // 1.0f is a good default, any higher requires enabling a gpu feature
+        rasterizationInfo.cullMode = m_Settings.CullMode; // specify different types of culling here
+        rasterizationInfo.frontFace = m_Settings.FrontFace; // This is counter clockwise in OpenGL
         //rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -86,14 +83,14 @@ namespace pxl
 
         // Colour Blending
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // ColorBlendAttachment is per framebuffer, and ColorBlendState is global // no sType for this struct
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
         VkPipelineColorBlendStateCreateInfo colorBlending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         colorBlending.logicOpEnable = VK_FALSE;
@@ -105,20 +102,37 @@ namespace pxl
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
+        std::vector<VkPushConstantRange> ranges;
+
+        // Convert uniform layout to push constant ranges (for valid push constants)
+        for (const auto& element : uniformLayout.GetElements())
+        {
+            if (element.IsPushConstant)
+            {
+                VkPushConstantRange range = {};
+                range.stageFlags = GetVkShaderStage(element.PushConstantShaderStage);
+                range.offset = 0; // TODO: implement correct offsets
+                range.size = GetSizeOfType(element.Type); // 4x4 float matrix 
+
+                m_PushConstants.push_back({ element.Name, range });
+                ranges.push_back(range);
+            }
+        }
+
         // Pipeline layout (uniforms, etc)
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
         pipelineLayoutInfo.setLayoutCount = 0; // Optional
         pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(m_PushConstants.size()); // Optional
+        pipelineLayoutInfo.pPushConstantRanges = ranges.data(); // Optional
 
         // Create pipeline layout
         VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout));
 
         // Specify graphics pipeline create info
         VkGraphicsPipelineCreateInfo graphicsPipelineInfo = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-        graphicsPipelineInfo.stageCount = 2;
-        graphicsPipelineInfo.pStages = shaderStages;
+        graphicsPipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+        graphicsPipelineInfo.pStages = shaderStages.data();
         graphicsPipelineInfo.pVertexInputState = &vertexInputInfo;
         graphicsPipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
         graphicsPipelineInfo.pViewportState = &viewportState;
@@ -147,7 +161,21 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Bind()
     {
-        vkCmdBindPipeline(m_ContextHandle->GetSwapchain()->GetCurrentFrame().CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+        auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
+
+        // Bind Pipeline
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+    }
+
+    void VulkanGraphicsPipeline::SetPushConstantData(std::unordered_map<std::string, const void*>& pcData)
+    {
+        auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
+
+        for (auto& pc : m_PushConstants)
+        {
+            auto data = pcData[pc.Name];
+            vkCmdPushConstants(commandBuffer, m_Layout, pc.Range.stageFlags, pc.Range.offset, pc.Range.size, data);
+        }
     }
 
     void VulkanGraphicsPipeline::Destroy()
@@ -164,5 +192,19 @@ namespace pxl
             m_Layout = VK_NULL_HANDLE;
         }
     }
+
+    VkShaderStageFlagBits VulkanGraphicsPipeline::GetVkShaderStage(ShaderStage stage)
+    {
+        switch (stage)
+        {
+            case ShaderStage::None:        return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+            case ShaderStage::Vertex:      return VK_SHADER_STAGE_VERTEX_BIT;
+            case ShaderStage::Fragment:    return VK_SHADER_STAGE_FRAGMENT_BIT;
+            case ShaderStage::Geometry:    return VK_SHADER_STAGE_GEOMETRY_BIT;
+            case ShaderStage::Tesselation: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT; // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT
+        }
+
+        PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkShaderStage");
+        return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
     }
 }

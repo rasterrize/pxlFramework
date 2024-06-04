@@ -5,9 +5,10 @@ namespace TestApp
     class QuadsTest
     {
     public:
-        static void OnStart(const std::shared_ptr<pxl::Window>& window);
+        static void OnStart(pxl::WindowSpecs& windowSpecs);
         static void OnUpdate(float dt);
         static void OnRender();
+        static void OnImGuiRender();
         static void OnClose();
     private:
         static std::shared_ptr<pxl::Window> m_Window;
@@ -25,7 +26,9 @@ namespace TestApp
 
         static glm::vec2 m_SelectedTile;
 
-        static int m_BlueQuadAmount;
-        static int m_OrangeQuadAmount;
+        static uint32_t m_BlueQuadAmount;
+        static uint32_t m_OrangeQuadAmount;
+
+        static std::shared_ptr<pxl::Texture2D> m_StoneTexture;
     };
 }

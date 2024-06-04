@@ -9,7 +9,7 @@
             "preLaunchTask": "MSBuild ALL - Debug",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/TestApp",
+            "cwd": "${workspaceFolder}/build/bin",
             "environment": [],
             "console": "integratedTerminal"
         },
@@ -21,7 +21,7 @@
             "preLaunchTask": "MSBuild ALL - Release",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/TestApp",
+            "cwd": "${workspaceFolder}/build/bin",
             "environment": [],
             "console": "integratedTerminal"
         }

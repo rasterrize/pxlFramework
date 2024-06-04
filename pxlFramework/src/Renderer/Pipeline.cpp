@@ -6,7 +6,7 @@
 
 namespace pxl
 {
-    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(const std::shared_ptr<Shader>& shader, const BufferLayout& vertexLayout)
+    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(const std::shared_ptr<Shader>& shader, const BufferLayout &vertexLayout, const UniformLayout &uniformLayout)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -15,21 +15,27 @@ namespace pxl
                 return nullptr;
             case RendererAPIType::OpenGL: return std::make_shared<OpenGLGraphicsPipeline>(shader);
             case RendererAPIType::Vulkan:
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for Vulkan using a single shader.")
+                return nullptr;
+        }
+
+        return nullptr;
+    }
+
+    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const BufferLayout& vertexLayout, const UniformLayout& uniformLayout)
+    {
+        switch (Renderer::GetCurrentAPI())
+        {
+            case RendererAPIType::None:
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for no renderer api.");
+                return nullptr;
+            case RendererAPIType::OpenGL:
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline for OpenGL using multiple shaders.");
+                return nullptr;
+            case RendererAPIType::Vulkan:
                 auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
-                if (!context)
-                {
-                    PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline, failed to retrieve Vulkan GraphicsContext from renderer");
-                    break;
-                }
 
-                auto vulkanShader = std::dynamic_pointer_cast<VulkanShader>(shader);
-                if (!shader)
-                {
-                    PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Pipeline, failed to retrieve VulkanShader from renderer");
-                    break;
-                }
-
-                return std::make_shared<VulkanGraphicsPipeline>(vulkanShader, context->GetDefaultRenderPass(), vertexLayout);
+                return std::make_shared<VulkanGraphicsPipeline>(shaders, context->GetDefaultRenderPass(), vertexLayout, uniformLayout);
         }
 
         return nullptr;
