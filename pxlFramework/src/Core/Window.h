@@ -4,7 +4,6 @@
 #include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
 #include <vulkan/vulkan.h>
 
-#include "WindowMode.h"
 #include "../Renderer/GraphicsContext.h"
 #include "../Renderer/RendererAPIType.h"
 
@@ -12,6 +11,13 @@ namespace pxl
 {
     static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 640;
     static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 480;
+
+    enum class WindowMode
+    {
+        Windowed = 0,
+        Borderless,
+        Fullscreen
+    };
 
     struct WindowSpecs // WindowSpec?
     {

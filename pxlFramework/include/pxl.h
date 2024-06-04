@@ -2,7 +2,6 @@
 
 #include "../src/Core/Application.h"
 #include "../src/Core/Window.h"
-#include "../src/Core/WindowMode.h"
 #include "../src/Core/Logging/ApplicationLog.h"
 #include "../src/Core/Input.h"
 #include "../src/Core/KeyCodes.h"

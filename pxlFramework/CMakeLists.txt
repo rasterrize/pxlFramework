@@ -5,7 +5,6 @@ add_library(pxlFramework STATIC
 # CORE
 src/Core/Application.h src/Core/Application.cpp
 src/Core/Window.h src/Core/Window.cpp
-src/Core/WindowMode.h
 src/Core/Logging/Logger.h src/Core/Logging/Logger.cpp
 src/Core/Logging/FrameworkLog.h
 src/Core/Logging/ApplicationLog.h

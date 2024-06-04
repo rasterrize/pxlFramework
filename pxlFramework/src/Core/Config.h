@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WindowMode.h"
+#include "Window.h"
 #include "../Renderer/RendererAPIType.h"
 
 namespace pxl
