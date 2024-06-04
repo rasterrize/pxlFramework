@@ -70,16 +70,22 @@ namespace TestApp
 
     void TestApplication::OnUpdate(float dt)
     {
+        PXL_PROFILE_SCOPE;
+        
         m_OnUpdateFunc(dt);
     }
 
     void TestApplication::OnRender()
     {
+        PXL_PROFILE_SCOPE;
+        
         m_OnRenderFunc();
     }
 
     void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized
     {
+        PXL_PROFILE_SCOPE;
+        
         m_OnImGuiRender();
     }
 }

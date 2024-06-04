@@ -60,6 +60,8 @@ namespace pxl
 
     void GUI::Update()
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled) 
             return;
 

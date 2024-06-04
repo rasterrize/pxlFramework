@@ -33,6 +33,8 @@ namespace pxl
         
         while (m_Running)
         {
+            PXL_PROFILE_SCOPE;
+
             float time = static_cast<float>(Platform::GetTime());
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
@@ -52,6 +54,8 @@ namespace pxl
             }
 
             Window::UpdateAll();
+
+            PXL_PROFILE_FRAME_END;
         }
 
         stopwatch.Stop();

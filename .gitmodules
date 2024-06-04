@@ -16,3 +16,6 @@
 [submodule "pxlFramework/deps/ImGui"]
 	path = pxlFramework/deps/ImGui
 	url = https://github.com/rasterrize/imgui
+[submodule "pxlFramework/deps/tracy"]
+	path = pxlFramework/deps/tracy
+	url = https://github.com/wolfpld/tracy/

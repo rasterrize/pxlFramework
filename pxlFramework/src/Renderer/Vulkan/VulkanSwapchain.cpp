@@ -164,6 +164,8 @@ namespace pxl
 
     void VulkanSwapchain::QueuePresent(VkQueue queue)
     {
+        PXL_PROFILE_SCOPE;
+        
         VkSwapchainKHR swapChains[] = { m_Swapchain };
         VkSemaphore waitSemaphores[] = { m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore }; // wait for the command buffers to finish executing (rendering) to finish before presenting
         

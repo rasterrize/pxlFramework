@@ -26,6 +26,8 @@ namespace TestApp
 
     void OGLVK::OnUpdate(float dt)
     {
+        PXL_PROFILE_SCOPE;
+        
         auto cameraPosition = m_Camera->GetPosition();
         auto cameraZoom = m_Camera->GetZoom();
         auto cameraFOV = m_Camera->GetFOV();
@@ -108,6 +110,8 @@ namespace TestApp
         
     void OGLVK::OnRender()
     {
+        PXL_PROFILE_SCOPE;
+        
         pxl::Renderer::Clear();
 
         constexpr uint32_t quadCount = 100;
@@ -125,6 +129,7 @@ namespace TestApp
 
     void OGLVK::OnImGuiRender()
     {
+        PXL_PROFILE_SCOPE;
     }
 
     void OGLVK::OnClose()

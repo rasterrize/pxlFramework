@@ -34,6 +34,8 @@ namespace pxl
 
     void Camera::UpdateAll()
     {
+        PXL_PROFILE_SCOPE;
+        
         for (auto& camera : s_Cameras)
             camera->Update();
     }
