@@ -5,17 +5,17 @@ namespace pxl
     OpenGLBuffer::OpenGLBuffer(BufferUsage usage, uint32_t size, const void* data)
         : m_Usage(GetGLUsageEnumOfBufferUsage(usage))
     {
-        glCreateBuffers(1, &m_RendererID); // Create Buffer - NOTE: glCreateBuffers is supposed to bind the buffer at the same time, but from testing that doesnt seem to work
-        glBindBuffer(m_Usage, m_RendererID);
-        glBufferData(m_Usage, size, data, GL_STATIC_DRAW); // Write the data into the buffer
+        glCreateBuffers(1, &m_RendererID); // "CreateBuffers" instead of "GenBuffers" initializes the object on creation rather than on binding. However, The buffer still needs to be bound to the current OGL context
+        glBindBuffer(m_Usage, m_RendererID); // Initiliazes the buffer object (not the data) to the context
+        glBufferData(m_Usage, size, data, GL_STATIC_DRAW); // Initialize the data storage and copy the data into the memory
     }
 
     OpenGLBuffer::OpenGLBuffer(BufferUsage usage, uint32_t size)
         : m_Usage(GetGLUsageEnumOfBufferUsage(usage))
     {
-        glCreateBuffers(1, &m_RendererID); // Create Buffer - NOTE: glCreateBuffers is supposed to bind the buffer at the same time, but from testing that doesnt seem to work
+        glCreateBuffers(1, &m_RendererID);
         glBindBuffer(m_Usage, m_RendererID);
-        glBufferData(m_Usage, size, nullptr, GL_DYNAMIC_DRAW); // Write the data into the buffer
+        glBufferData(m_Usage, size, nullptr, GL_DYNAMIC_DRAW); // Initializes the data storage but doesn't copy any data into its memory. The memory therefore is undefined
     }
 
     OpenGLBuffer::~OpenGLBuffer()
