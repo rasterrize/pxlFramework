@@ -77,7 +77,7 @@ namespace pxl
             return;
         }
 
-        auto logicalDevice = m_Device->GetVkDevice();
+        auto logicalDevice = static_cast<VkDevice>(m_Device->GetDevice());
 
         // Create command pool
         VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };

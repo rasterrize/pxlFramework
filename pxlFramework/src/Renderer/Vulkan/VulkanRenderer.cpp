@@ -8,7 +8,7 @@ namespace pxl
         : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice())), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
     {
         // Get the graphics queue from the given queue family index
-        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_Device->GetVkDevice(), m_GraphicsQueueFamilyIndex);
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetDevice()), m_GraphicsQueueFamilyIndex);
 
         m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
@@ -70,17 +70,19 @@ namespace pxl
 
     void VulkanRenderer::Begin()
     {  
+        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+
         // Get the next frame to render to
         m_CurrentFrame = m_ContextHandle->GetSwapchain()->GetCurrentFrame();
         
         // Wait until the command buffers and semaphores are ready again
-        VK_CHECK(vkWaitForFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX)); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
+        VK_CHECK(vkWaitForFences(device, 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX)); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
 
         // Get next available image index
         m_ContextHandle->GetSwapchain()->AcquireNextAvailableImageIndex();
         uint32_t imageIndex = m_ContextHandle->GetSwapchain()->GetCurrentImageIndex();
         
-        VK_CHECK(vkResetFences(m_Device->GetVkDevice(), 1, &m_CurrentFrame.InFlightFence));
+        VK_CHECK(vkResetFences(device, 1, &m_CurrentFrame.InFlightFence));
         
         // Begin command buffer recording
         VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };

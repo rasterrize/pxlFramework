@@ -14,11 +14,11 @@ namespace pxl
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
         virtual ~VulkanDevice() override;
 
-        virtual void* GetLogicalDevice() override { return m_LogicalDevice; };
+        virtual void* GetDevice() override { return m_LogicalDevice; } // TODO: rename to something better (so I don't get code like m_Context->GetDevice()->GetDevice())
+        virtual void* GetPhysicalDevice() override { return m_PhysicalDevice; }
 
+        virtual void WaitIdle() override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
 
-        VkDevice GetVkDevice() const { return m_LogicalDevice; } // TODO: either GetLogicalDevice is used everywhere (more casting) or this is used idk
-        VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }
         void Destroy();
 
         uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
@@ -26,9 +26,6 @@ namespace pxl
 
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
 
-        void WaitIdle() { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
-
-        static void WaitIdle(VkDevice device) { VK_CHECK(vkDeviceWaitIdle(device)); }
     private:
         void CreateLogicalDevice(VkPhysicalDevice gpu);
     private:

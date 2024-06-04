@@ -7,8 +7,9 @@ namespace pxl
     public:
         virtual ~Device() = default;
 
-        virtual void* GetLogicalDevice() = 0;
+        virtual void* GetDevice() = 0;
+        virtual void* GetPhysicalDevice() = 0;
 
-        virtual void Destroy() = 0;
+        virtual void WaitIdle() = 0;
     };
 }

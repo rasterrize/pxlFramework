@@ -26,7 +26,7 @@ namespace pxl
     private:
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
     private:
-        std::shared_ptr<VulkanDevice> m_Device;
         std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderModules;
+        VkDevice m_Device;
     };
 }

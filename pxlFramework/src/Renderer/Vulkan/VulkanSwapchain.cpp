@@ -19,18 +19,17 @@ namespace pxl
         // Prepare swapchain frames
         m_Frames.resize(m_MaxFramesInFlight);
 
-        // Get command pool from graphics context
-        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(device->GetVkDevice(), commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
-        uint32_t index = 0;
+        auto vkDevice = static_cast<VkDevice>(m_Device->GetDevice());
+        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(vkDevice, commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
 
-        for (auto& frame : m_Frames)
+        for (size_t i = 0; i < m_Frames.size(); i++)
         {
-            frame.CommandBuffer = commandBuffers[index];
-            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(device->GetVkDevice());
-            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(device->GetVkDevice());
-            frame.InFlightFence = VulkanHelpers::CreateFence(device->GetVkDevice(), true);
-
-            index++;
+            VulkanFrame frame;
+            frame.CommandBuffer = commandBuffers[i];
+            frame.ImageAvailableSemaphore = VulkanHelpers::CreateSemaphore(vkDevice);
+            frame.RenderFinishedSemaphore = VulkanHelpers::CreateSemaphore(vkDevice);
+            frame.InFlightFence = VulkanHelpers::CreateFence(vkDevice, true);
+            m_Frames[i] = frame;
         }
 
         PrepareImages();
@@ -155,8 +154,8 @@ namespace pxl
 
     void VulkanSwapchain::DestroyFrameData()
     {
-        m_Device->WaitIdle();
-
+        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+        
         for (auto& frame : m_Frames)
         {
             if (frame.ImageAvailableSemaphore != VK_NULL_HANDLE)
@@ -169,7 +168,7 @@ namespace pxl
 
     void VulkanSwapchain::AcquireNextAvailableImageIndex()
     { 
-        auto result = vkAcquireNextImageKHR(m_Device->GetVkDevice(), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
+        auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetDevice()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -217,10 +216,12 @@ namespace pxl
     void VulkanSwapchain::PrepareImages()
     {
         m_Images.resize(m_SwapchainSpecs.ImageCount);
+
+        auto device = static_cast<VkDevice>(m_Device->GetDevice());
         
         // Get swapchain image count
         uint32_t swapchainImageCount = 0;
-        vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &swapchainImageCount, nullptr);
+        vkGetSwapchainImagesKHR(device, m_Swapchain, &swapchainImageCount, nullptr);
 
         if (swapchainImageCount != m_SwapchainSpecs.ImageCount)
         {
@@ -231,11 +232,11 @@ namespace pxl
         std::vector<VkImage> images(swapchainImageCount);
 
         // Get swapchain images
-        VK_CHECK(vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &swapchainImageCount, images.data()));
+        VK_CHECK(vkGetSwapchainImagesKHR(device, m_Swapchain, &swapchainImageCount, images.data()));
 
         // Create an imageless image object containing an image view for each swapchain image
         for (uint32_t i = 0; i < swapchainImageCount; i++)
-            m_Images[i] = std::make_shared<VulkanImage>(m_Device->GetVkDevice(), m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
+            m_Images[i] = std::make_shared<VulkanImage>(device, m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
     }
 
     void VulkanSwapchain::PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass)
@@ -246,7 +247,7 @@ namespace pxl
         for (uint32_t i = 0; i < m_SwapchainSpecs.ImageCount; i++)
         {
             std::shared_ptr<VulkanFramebuffer> framebuffer;
-            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device->GetVkDevice(), renderPass, m_SwapchainSpecs.Extent);
+            framebuffer = std::make_shared<VulkanFramebuffer>(static_cast<VkDevice>(m_Device->GetDevice()), renderPass, m_SwapchainSpecs.Extent);
             framebuffer->AddAttachment(m_Images[i]->GetImageView(), m_SwapchainSpecs.Format);
             framebuffer->Recreate();
             m_Framebuffers[i] = framebuffer;
@@ -255,7 +256,7 @@ namespace pxl
 
     VkPresentModeKHR VulkanSwapchain::GetSuitablePresentMode()
     {
-        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(m_Device->GetVkPhysicalDevice(), m_Surface);
+        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
 
         VkPresentModeKHR suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         bool foundSuitablePresentMode = false;
@@ -298,7 +299,7 @@ namespace pxl
 
     uint32_t VulkanSwapchain::GetSuitableImageCount()
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_Device->GetVkPhysicalDevice(), m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
 
         uint32_t suitableImageCount = 0;
 
@@ -324,7 +325,7 @@ namespace pxl
 
     bool VulkanSwapchain::CheckExtentSupport(VkExtent2D extent)
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(m_Device->GetVkPhysicalDevice(), m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
 
         if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height)
             && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))
