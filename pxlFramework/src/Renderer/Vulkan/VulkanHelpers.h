@@ -51,7 +51,7 @@ namespace pxl
         if (result != VK_SUCCESS)
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
-            //__debugbreak();
+            __debugbreak();
         }
     };
 

@@ -16,10 +16,11 @@ namespace pxl
         auto swapchainExtent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
 
         // Setup Viewport
+        // NOTE: We invert the viewport here to match OpenGL - also note that this is only possible on Vulkan 1.1 or higher without extensions
         m_Viewport.x = 0.0f;
-        m_Viewport.y = 0.0f;
+        m_Viewport.y = static_cast<float>(swapchainExtent.height);
         m_Viewport.width = static_cast<float>(swapchainExtent.width); // TODO: should width and height default to 0?
-        m_Viewport.height = static_cast<float>(swapchainExtent.height);
+        m_Viewport.height = static_cast<float>(-(static_cast<int32_t>(swapchainExtent.height)));
         m_Viewport.minDepth = 0.0f;
         m_Viewport.maxDepth = 1.0f;
 
@@ -37,12 +38,14 @@ namespace pxl
     {
         
     }
+
     void VulkanRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
+        // Invert the given viewport values
         m_Viewport.x = static_cast<float>(x);
-        m_Viewport.y = static_cast<float>(y);
+        m_Viewport.y = static_cast<float>(height);
         m_Viewport.width = static_cast<float>(width);
-        m_Viewport.height = static_cast<float>(height);
+        m_Viewport.height = static_cast<float>(-(static_cast<int32_t>(height)));
     }
 
     void VulkanRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

@@ -31,8 +31,8 @@ namespace pxl
         VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass, VkCommandPool commandPool);
         ~VulkanSwapchain();
 
+        void Recreate(uint32_t width, uint32_t height);
         void Recreate();
-        // void Recreate(uint32_t width, uint32_t height);
 
         void Destroy();
         void DestroyFrameData();
@@ -51,10 +51,9 @@ namespace pxl
         void SetVSync(bool value) { m_VSync = value; }
         bool GetVSync() const { return m_VSync; }
 
-        // TEMPORARY
         void SetExtent(VkExtent2D extent) { m_SwapchainSpecs.Extent = extent; }
     private:
-        void Create();
+        void CreateSwapchain();
         void PrepareImages();
         void PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass);
 
