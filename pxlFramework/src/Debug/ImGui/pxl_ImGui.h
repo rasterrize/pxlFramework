@@ -6,7 +6,7 @@
 
 namespace pxl
 {
-    class pxl_ImGui
+    class GUI
     {
     public:
         static void Init(const std::shared_ptr<Window>& window);

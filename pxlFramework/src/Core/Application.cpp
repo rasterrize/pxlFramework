@@ -46,7 +46,7 @@ namespace pxl
                 Camera::UpdateAll();
                 Renderer::Begin(); // should Begin and End be called if the renderer isn't enabled?
                 OnRender();
-                pxl_ImGui::Update();
+                GUI::Update();
                 Renderer::End();
             }
 
@@ -64,7 +64,7 @@ namespace pxl
             Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
             Renderer::Shutdown();
             Input::Shutdown();  
-            pxl_ImGui::Shutdown();
+            GUI::Shutdown();
             s_Instance = nullptr;
         }
     }

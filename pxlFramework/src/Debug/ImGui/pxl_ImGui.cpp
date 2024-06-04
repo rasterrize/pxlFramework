@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 
 #include "ImGuiOpenGL.h"
@@ -9,12 +10,12 @@
 
 namespace pxl
 {
-    std::unique_ptr<ImGuiBase> pxl_ImGui::s_ImGuiRenderer = nullptr;
-    std::shared_ptr<Window> pxl_ImGui::s_WindowHandle;
-    RendererAPIType pxl_ImGui::s_RendererAPI = RendererAPIType::None;
-    bool pxl_ImGui::s_Enabled = false;
+    std::unique_ptr<ImGuiBase> GUI::s_ImGuiRenderer = nullptr;
+    std::shared_ptr<Window> GUI::s_WindowHandle;
+    RendererAPIType GUI::s_RendererAPI = RendererAPIType::None;
+    bool GUI::s_Enabled = false;
 
-    void pxl_ImGui::Init(const std::shared_ptr<Window>& window)
+    void GUI::Init(const std::shared_ptr<Window>& window)
     {
         s_WindowHandle = window;
         
@@ -57,7 +58,7 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Other, "ImGui initialized");
     }
 
-    void pxl_ImGui::Update()
+    void GUI::Update()
     {
         if (!s_Enabled) 
             return;
@@ -74,7 +75,7 @@ namespace pxl
         s_ImGuiRenderer->Render();
     }
 
-    void pxl_ImGui::Shutdown()
+    void GUI::Shutdown()
     {
         // Cleanup
         if (!s_Enabled)

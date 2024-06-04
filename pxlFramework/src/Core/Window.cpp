@@ -105,11 +105,11 @@ namespace pxl
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
         --s_WindowCount;
 
-        if (pxl_ImGui::GetWindowHandle() == m_Handle.lock())
-            pxl_ImGui::Shutdown();
 
         if (Renderer::GetGraphicsContext() == m_GraphicsContext) // this doesnt feel right
             Renderer::Shutdown();
+        if (GUI::GetWindowHandle() == m_Handle.lock())
+            GUI::Shutdown();
 
         if (s_WindowCount == 0)
             Application::Get().Close();
