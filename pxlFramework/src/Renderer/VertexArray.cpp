@@ -2,7 +2,6 @@
 
 #include "Renderer.h"
 #include "OpenGL/OpenGLVertexArray.h"
-#include "Vulkan/VulkanVertexArray.h"
 
 namespace pxl
 {
@@ -16,7 +15,8 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLVertexArray>();
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanVertexArray>();
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex Array for Vulkan renderer api.");
+                return nullptr;
         }
         
         return nullptr;
