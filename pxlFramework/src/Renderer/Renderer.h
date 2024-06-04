@@ -1,34 +1,17 @@
 #pragma once
 
-//#include "../Core/Window.h"
+#include "../Core/Window.h"
 #include "RendererAPIType.h"
 #include "RendererAPI.h"
 #include "RendererData.h"
-//#include "Texture.h"
+#include "Texture.h"
 #include "Camera.h"
 #include "GraphicsContext.h"
-
-#include "VertexArray.h"
-#include "Device.h"
 #include "Pipeline.h"
-//#include "Vulkan/VulkanRenderPass.h"
-
-//#include <glm/matrix.hpp>
-//class RendererAPI;
-// class RendererData;
-// class Shader;
-//class Shader;
-//class Camera;
-// class VertexArray;
-// class Device;
-// class Pipeline;
+#include "Shader.h"
 
 namespace pxl
 {
-    class Window;
-    enum class RendererAPIType;
-    class Shader;
-
     class Renderer
     {
     public:
@@ -49,8 +32,8 @@ namespace pxl
         static void ResizeViewport(uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(0, 0, width, height); }
         static void ResizeScissor(uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(0, 0, width, height); }
 
-        static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera);
-        static void Submit(const std::shared_ptr<GraphicsPipeline>& pipeline);
+        //static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera);
+        //static void Submit(const std::shared_ptr<GraphicsPipeline>& pipeline);
 
         static void Begin();
         static void End();
@@ -58,19 +41,17 @@ namespace pxl
         static void AddStaticQuad(const glm::vec3& position = glm::vec3(0.0f));
         static void StaticGeometryReady();
         static void DrawStaticQuads();
+        static void SetQuadsCamera(const std::shared_ptr<Camera>& camera) { s_QuadsCamera = camera; }
         
-        static void AddQuad(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& rotation = glm::vec3(0.0f), const glm::vec2& scale = glm::vec2(1.0f), const glm::vec4& colour = glm::vec4(1.0f));
-        //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+        static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
+        static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture);
+        static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture, const glm::vec2& textureUV);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& tint);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec2& textureIndex);
-
-        static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
+        //static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
         //static void AddTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex);
-
-        static void AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
-
-        //static void AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
-
+        //static void AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
+        //static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         struct Statistics
         {
@@ -79,7 +60,7 @@ namespace pxl
             uint32_t QuadIndexCount = 0;
             uint32_t LineVertexCount = 0;
             
-            uint32_t GetTriangleCount() { return QuadIndexCount / 3; }
+            //uint32_t GetTriangleCount() { return QuadIndexCount / 3; }
         };
 
         static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
@@ -96,26 +77,11 @@ namespace pxl
         static std::unique_ptr<RendererAPI> s_RendererAPI;
         static std::shared_ptr<GraphicsContext> s_ContextHandle;
 
-        // test
-        static std::shared_ptr<Buffer> s_StaticQuadVBO;
-        static std::shared_ptr<VertexArray> s_StaticQuadVAO;
-        static uint32_t s_StaticQuadCount;
-        //static uint32_t s_StaticQuadVertexCount;
-
-        static std::shared_ptr<VertexArray> s_QuadVAO;
-        static std::shared_ptr<Buffer> s_QuadVBO;
-        static std::shared_ptr<Buffer> s_QuadIBO;
-
-        // For OpenGL
-        static std::shared_ptr<VertexArray> s_CubeVAO;
-        static std::shared_ptr<VertexArray> s_LineVAO;
-        static std::shared_ptr<VertexArray> s_MeshVAO;
+        static std::shared_ptr<Camera> s_QuadsCamera; // TODO: probably remove this
 
         static float s_FPS; // shouldn't store this
         static uint32_t s_FrameCount;
         static float s_TimeAtLastFrame;
-
-        static std::vector<std::shared_ptr<Mesh>> s_Meshes;
 
         static Statistics s_Stats;
     };
