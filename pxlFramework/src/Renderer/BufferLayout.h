@@ -45,7 +45,7 @@ namespace pxl
 
     struct BufferElement
     {
-        BufferDataType Type; // The type of data (float, int2, etc)
+        BufferDataType Type;
         bool Normalized;
     };
 
@@ -54,13 +54,6 @@ namespace pxl
     public:
         std::vector<BufferElement> GetElements() const { return m_Elements; }
         const uint32_t GetStride() const { return m_Stride; }
-
-        void Add(BufferDataType type, bool normalized)
-        {
-            BufferElement element = { type, normalized };
-            m_Elements.push_back(element);
-            m_Stride += GetSizeOfType(element.Type);
-        }
 
         void Add(const BufferElement& element)
         {

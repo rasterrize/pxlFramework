@@ -13,7 +13,7 @@ namespace pxl
 
     enum class LogArea
     {
-        None, Core, Window, Input, Renderer, OpenGL, Vulkan, Audio, Physics, Other
+        None, Core, Window, Input, Renderer, OpenGL, Vulkan, Audio, Physics, Assert, Other
     };
 
     class Logger
@@ -28,7 +28,7 @@ namespace pxl
     private:
         static std::string LogAreaToString(LogArea area);
     private:
-        class SystemAreaFlag : public spdlog::custom_flag_formatter
+        class LogAreaFlag : public spdlog::custom_flag_formatter
         {
         public:
             void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override
@@ -39,11 +39,11 @@ namespace pxl
 
             std::unique_ptr<custom_flag_formatter> clone() const override
             {
-                return spdlog::details::make_unique<SystemAreaFlag>();
+                return spdlog::details::make_unique<LogAreaFlag>();
             }
         };
     private:
-        static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_FrameworkSink; // uses special flag for system areas
+        static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_FrameworkSink; // uses special flag for log areas
         static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_ApplicationSink;
         static std::shared_ptr<spdlog::logger> s_FrameworkLogger;
         static std::shared_ptr<spdlog::logger> s_ApplicationLogger;

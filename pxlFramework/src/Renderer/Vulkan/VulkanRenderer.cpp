@@ -111,8 +111,6 @@ namespace pxl
         // Set dynamic state objects
         vkCmdSetViewport(m_CurrentFrame.CommandBuffer, 0, 1, &m_Viewport);
         vkCmdSetScissor(m_CurrentFrame.CommandBuffer, 0, 1, &m_Scissor);
-
-        // Bind Pipeline (from application)
     }
 
     void VulkanRenderer::End()

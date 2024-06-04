@@ -195,13 +195,13 @@ namespace pxl
         //         s_CubeIndices[i + 0] = 0 + offset;
         //         s_CubeIndices[i + 1] = 1 + offset;
         //         s_CubeIndices[i + 2] = 2 + offset;
-
+        //
         //         s_CubeIndices[i + 3] = 2 + offset;
         //         s_CubeIndices[i + 4] = 3 + offset;
         //         s_CubeIndices[i + 5] = 0 + offset;
-
+        //
         //         s_CubeIndexCount += 6;
-
+        //
         //         offset += 4;
         //     }
         // }
@@ -416,14 +416,14 @@ namespace pxl
     //         DrawQuads();
     //         StartQuadBatch();
     //     }
-        
+    //
     //     s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 0.0f, 0.0f }};
     //     s_QuadVertices[s_QuadVertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 1.0f, 0.0f }};
     //     s_QuadVertices[s_QuadVertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 1.0f, 1.0f }};
     //     s_QuadVertices[s_QuadVertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 0.0f, 1.0f }};
-
+    //
     //     s_QuadVertexCount += 4;
-        
+    //    
     //     s_Stats.VertexCount += 4;
     //     s_Stats.IndexCount += 6;
     // }

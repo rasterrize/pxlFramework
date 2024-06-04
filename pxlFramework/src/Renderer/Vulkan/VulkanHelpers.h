@@ -60,5 +60,4 @@ namespace pxl
     #else
         #define VK_CHECK(x) x
     #endif
-
 }

@@ -20,7 +20,7 @@ namespace pxl
     private:
         static GLenum GetGLUsageEnumOfBufferUsage(BufferUsage usage);
     private:
-        uint32_t m_RendererID;
+        uint32_t m_RendererID = 0;
         GLenum m_Usage; // GL Buffer Type
         //uint32_t m_Size;
     };  

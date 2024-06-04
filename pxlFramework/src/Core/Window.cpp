@@ -74,7 +74,6 @@ namespace pxl
         // Create GLFW window and set it up
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(windowSpecs.Width), static_cast<int>(windowSpecs.Height), windowSpecs.Title.c_str(), nullptr, nullptr);
 
-        // Check to see if the window object was created successfully
         PXL_ASSERT(m_GLFWWindow);
 
         // Set window to the center of the display
@@ -86,7 +85,7 @@ namespace pxl
         if (m_GLFWWindow)
             PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
         else
-            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title)
+            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         SetStaticGLFWCallbacks();
@@ -105,9 +104,6 @@ namespace pxl
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
         --s_WindowCount;
 
-
-        if (Renderer::GetGraphicsContext() == m_GraphicsContext) // this doesnt feel right
-            Renderer::Shutdown();
         if (GUI::GetWindowHandle() == m_Handle.lock())
             GUI::Shutdown();
 
@@ -167,7 +163,7 @@ namespace pxl
 
     void Window::SetPosition(uint32_t xpos, uint32_t ypos)
     {
-        // TODO: check if the position is inbounds and maybe check monitor properties to correctly set things
+        // TODO: check if the position is inbounds and maybe check monitor properties before setting windows pos
 
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
     }
@@ -254,13 +250,13 @@ namespace pxl
         {
             case WindowMode::Windowed:
                 SetWindowMode(WindowMode::Borderless);
-                break;
+                return;
             case WindowMode::Borderless:
                 SetWindowMode(WindowMode::Fullscreen);
-                break;
+                return;
             case WindowMode::Fullscreen:
                 SetWindowMode(WindowMode::Windowed);
-                break;
+                return;
         }
     }
 
@@ -331,8 +327,8 @@ namespace pxl
 
         if (Renderer::IsInitialized())
         {
-            Renderer::ResizeViewport(width, height);
-            Renderer::ResizeScissor(width, height);
+            Renderer::ResizeViewport(0, 0, width, height);
+            Renderer::ResizeScissor(0, 0, width, height);
         }
 
         if (width == 0 && height == 0)
@@ -343,7 +339,7 @@ namespace pxl
             auto vulkanContext = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->GetGraphicsContext());
 
             if (vulkanContext)
-                vulkanContext->GetSwapchain()->SetExtent( { static_cast<uint32_t>(width), static_cast<uint32_t>(height) } ); // might need other data  
+                vulkanContext->GetSwapchain()->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height)); // might need other data  
         }
     }
 
@@ -428,14 +424,14 @@ namespace pxl
         // TODO: check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
         
-        PXL_LOG_INFO(LogArea::Window, "GLFW terminated")
+        PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
     }
 
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
     {
         if (s_WindowCount >= MAX_WINDOW_COUNT)
         {
-            PXL_LOG_WARN(LogArea::Window, "Failed to create window, the max window count has been reached")
+            PXL_LOG_WARN(LogArea::Window, "Failed to create window, the max window count has been reached");
             return nullptr;
         }
         

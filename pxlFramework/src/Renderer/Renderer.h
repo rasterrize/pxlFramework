@@ -29,8 +29,8 @@ namespace pxl
         static void Clear();
         static void SetClearColour(const glm::vec4& colour);
 
-        static void ResizeViewport(uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(0, 0, width, height); }
-        static void ResizeScissor(uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(0, 0, width, height); }
+        static void ResizeViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(0, 0, width, height); }
+        static void ResizeScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(0, 0, width, height); }
 
         //static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera);
         //static void Submit(const std::shared_ptr<GraphicsPipeline>& pipeline);

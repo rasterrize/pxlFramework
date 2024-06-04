@@ -61,7 +61,7 @@ namespace pxl
 
         std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
 
-        WindowSpecs GetWindowSpecs() const { return m_Specs; } // return a reference?
+        const WindowSpecs& GetWindowSpecs() const { return m_Specs; }
 
         uint32_t GetWidth() const { return m_Specs.Width; }
 

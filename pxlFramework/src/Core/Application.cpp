@@ -18,7 +18,7 @@ namespace pxl
         if (s_Instance)
         {
             PXL_LOG_ERROR(LogArea::Core, "Can't create application, one already exists");
-            throw;
+            throw; // should this be abort() or exit()?
         }
 
         s_Instance = this;
@@ -30,9 +30,10 @@ namespace pxl
     void Application::Run()
     {
         Stopwatch stopwatch;
+        
         while (m_Running)
         {
-            float time = (float)Platform::GetTime();
+            float time = static_cast<float>(Platform::GetTime());
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
@@ -52,6 +53,7 @@ namespace pxl
 
             Window::UpdateAll();
         }
+
         stopwatch.Stop();
         PXL_LOG_INFO(LogArea::Core, "Application ran for {} seconds", stopwatch.GetElapsedSec());
     }

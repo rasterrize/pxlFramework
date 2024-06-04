@@ -10,7 +10,6 @@ namespace pxl
         RendererAPIType RendererAPI = RendererAPIType::OpenGL;
         uint32_t MonitorIndex = 1;
         WindowMode WindowMode = WindowMode::Windowed;
-
     };
 
     class FrameworkConfig

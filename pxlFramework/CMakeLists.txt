@@ -74,18 +74,22 @@ src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
 )
 
-
+# Set project c++ standard
 target_compile_features(pxlFramework PUBLIC cxx_std_20)
+
 # Set highest warning level (highest detection)
 target_compile_options(pxlFramework PUBLIC "/W3")
 
+# GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# ASSIMP settings
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
+# YAMLCPP settings
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 
 # Add Dependencies (CMake projects)
@@ -99,7 +103,7 @@ add_subdirectory(deps/assimp)
 add_subdirectory(deps/yaml-cpp)
 
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+#target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
 # Find Vulkan SDK using its environment variable
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
@@ -140,7 +144,7 @@ GLFW_INCLUDE_NONE
 GLFW_EXPOSE_NATIVE_WIN32
 GLFW_INCLUDE_VULKAN
 $<$<CONFIG:Release>:PXL_DISABLE_LOGGING> # TODO: switch this to distribution builds
-$<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS>
+$<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the application cmake file so users can actually change them
 $<$<CONFIG:Debug>:PXL_DEBUG>
 _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
 IMGUI_IMPL_VULKAN_NO_PROTOTYPES) 
