@@ -10,10 +10,13 @@ namespace pxl
         Stopwatch(bool start = true) 
         {
             if (start)
-                Start(); // could calling Start() be convenient or dangerous?
+                Start();
         }
 
-        ~Stopwatch() { Stop(); }
+        ~Stopwatch() 
+        {
+            Stop(); 
+        }
 
         void Start()
         {
@@ -44,13 +47,9 @@ namespace pxl
         void CalculateElapsed()
         {
             if (m_Stopped)
-            {
                 m_Elapsed = m_EndTime - m_StartTime;
-            }
             else
-            {
                 m_Elapsed = std::chrono::high_resolution_clock::now() - m_StartTime;
-            }
         }
     
     private:

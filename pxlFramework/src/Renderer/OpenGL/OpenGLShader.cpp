@@ -7,10 +7,10 @@ namespace pxl
 {
     OpenGLShader::OpenGLShader(const std::string& vertSrc, const std::string& fragSrc)
     {
-        m_vertSource = vertSrc;
-        m_fragSource = fragSrc;
+        m_VertSource = vertSrc;
+        m_FragSource = fragSrc;
         
-        Compile(m_vertSource, m_fragSource);
+        Compile(m_VertSource, m_FragSource);
     }
 
     OpenGLShader::~OpenGLShader()
@@ -34,7 +34,7 @@ namespace pxl
 
         // TODO: Load shader from file (hot reload)
 
-        Compile(m_vertSource, m_fragSource); 
+        Compile(m_VertSource, m_FragSource); 
     }
 
     void OpenGLShader::Compile(const std::string& vertSrc, const std::string& fragSrc)

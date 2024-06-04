@@ -11,7 +11,7 @@ namespace pxl
 
         virtual void Update() override;
 
-        virtual void SetFOV(float fov) override {} // orthographic cameras don't have a field of view, OOP moment
+        virtual void SetFOV(float fov) override {} // orthographic cameras don't have a field of view
         virtual float GetFOV() override { return 0.0f; }
 
         virtual void SetZoom(float zoom) override { m_Zoom = zoom; RecalculateSides(); RecalculateProjection(); }

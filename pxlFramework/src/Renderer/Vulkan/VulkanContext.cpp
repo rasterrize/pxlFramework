@@ -17,7 +17,7 @@ namespace pxl
         auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
         auto selectedLayers = std::vector<const char*>();
 
-        #ifdef PXL_DEBUG
+        #ifdef PXL_DEBUG_VULKAN
             auto validationLayers = VulkanHelpers::GetValidationLayers(availableLayers);
             selectedLayers = validationLayers;
         #endif
@@ -157,7 +157,7 @@ namespace pxl
         });
 
         // Logging 
-        #ifndef PXL_DISABLE_LOGGING
+        #ifdef PXL_ENABLE_LOGGING
         
         std::string apiVersionString;
         switch (appInfo.apiVersion)

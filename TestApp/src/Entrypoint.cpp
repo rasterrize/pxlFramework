@@ -10,7 +10,7 @@
 MAIN_FUNC
 {
     // Init log before creating application
-    #ifndef PXL_DISABLE_LOGGING
+    #ifdef PXL_ENABLE_LOGGING
         pxl::Logger::Init();
     #endif
 

@@ -157,13 +157,9 @@ namespace pxl
         auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetDevice()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
             Recreate();
-        }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-        {
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to retrieve next available image in the swapchain");
-        }
     }
 
     void VulkanSwapchain::QueuePresent(VkQueue queue)
@@ -186,13 +182,9 @@ namespace pxl
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
-        {
             Recreate();
-        } 
         else if (result != VK_SUCCESS) 
-        {
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
-        }
     }
 
     void VulkanSwapchain::PrepareImages()
@@ -289,13 +281,9 @@ namespace pxl
         if (surfaceCapabilities.minImageCount >= 2)
         {
             if (surfaceCapabilities.maxImageCount >= 3)
-            {
                 suitableImageCount = 3; // Triple buffering
-            }
             else
-            {
                 suitableImageCount = 2; // Double buffering
-            }
         }
         else
         {
@@ -311,13 +299,9 @@ namespace pxl
 
         if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height)
             && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))
-        {
             return true;
-        }
         else
-        {
             PXL_LOG_ERROR(LogArea::Vulkan, "Specified swapchain extent isnt supported by the surface");
-        }
 
         return false;
     }

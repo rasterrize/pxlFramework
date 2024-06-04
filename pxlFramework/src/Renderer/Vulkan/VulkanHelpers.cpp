@@ -39,15 +39,11 @@ namespace pxl
             for (const auto& layerProperties : availableLayers)
             {
                 if (strcmp(layer, layerProperties.layerName) == 0)
-                {
                     layerFound = true;
-                }
             }
 
             if (layerFound)
-            {
                 selectedValidationLayers.push_back(layer);
-            }
         }
 
         return selectedValidationLayers;
@@ -89,11 +85,15 @@ namespace pxl
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        // for (uint32_t i = 0; i < queueFamilyCount; i++)
-        // {
-        //     Logger::LogInfo("Queue Family " + std::to_string(i + 1) + ":");
-        //     Logger::LogInfo(" - " + string_VkQueueFlags(queueFamilies[i].queueFlags));
-        // }
+        #ifdef PXL_ENABLE_LOGGING
+
+            for (uint32_t i = 0; i < queueFamilyCount; i++)
+            {
+                PXL_LOG_INFO(LogArea::Vulkan, "Queue Family {}:", i);
+                PXL_LOG_INFO(LogArea::Vulkan, " - {}", string_VkQueueFlags(queueFamilies[i].queueFlags));
+            }
+
+        #endif
 
         return queueFamilies;
     }
