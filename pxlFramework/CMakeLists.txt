@@ -164,8 +164,8 @@ $<$<CONFIG:Debug>:PXL_ENABLE_LOGGING>
 $<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the application cmake file so users can actually change them
 $<$<CONFIG:Debug>:PXL_DEBUG_VULKAN>
 _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
-IMGUI_IMPL_VULKAN_NO_PROTOTYPES) 
-#IMGUI_IMPL_OPENGL_LOADER_GLAD
+IMGUI_IMPL_OPENGL_LOADER_GLAD
+IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
 
 target_include_directories(pxlFramework PUBLIC include)
 

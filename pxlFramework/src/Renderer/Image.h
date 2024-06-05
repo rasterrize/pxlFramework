@@ -11,7 +11,7 @@ namespace pxl
         RGBA8
     };
 
-    enum class ImageFilter // Should this be TextureFilter instead?
+    enum class ImageFilter
     {
         Undefined = 0,
         Nearest,           // Should nearest be default?

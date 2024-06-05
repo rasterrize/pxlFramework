@@ -11,7 +11,7 @@ namespace pxl
         void Run();
         void Close();
 
-        bool IsRunning() const { return m_Running; }
+        const bool IsRunning() const { return m_Running; }
 
         virtual void OnUpdate(float dt) = 0;
         virtual void OnRender() = 0;

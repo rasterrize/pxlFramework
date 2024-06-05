@@ -7,11 +7,13 @@ namespace pxl
         None = 0, Float, Float2, Float3, Float4, Int, Int2, Int3, Int4, Mat3, Mat4, Bool
     };
 
-    static uint32_t GetSizeOfType(BufferDataType type) // gets the size in bytes
+    // Returns size of type in bytes
+    static uint32_t GetSizeOfType(BufferDataType type)
     {
         switch (type)
         {
-            case BufferDataType::Float:  return 4; // these are currently hardcoded but an optimal way in the future would be to use API data types, such as sizeof(Glfloat)
+            // These are currently hardcoded but an optimal way in the future would be to use API data types, such as sizeof(Glfloat)
+            case BufferDataType::Float:  return 4;
             case BufferDataType::Float2: return 4 * 2;
             case BufferDataType::Float3: return 4 * 3;
             case BufferDataType::Float4: return 4 * 4;
@@ -37,7 +39,7 @@ namespace pxl
             case BufferDataType::Int2:   return 2;
             case BufferDataType::Int3:   return 3;
             case BufferDataType::Int4:   return 4;
-            case BufferDataType::Mat3:   return 3; // } unsure about these ones
+            case BufferDataType::Mat3:   return 3; // } unsure about these two
             case BufferDataType::Mat4:   return 4; // }
         }
         return 0;
