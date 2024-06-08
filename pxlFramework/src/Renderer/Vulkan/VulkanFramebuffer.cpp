@@ -18,9 +18,7 @@ namespace pxl
     {
         for (auto attachment : m_Attachments)
 		{
-			//vkDestroyImage(m_Device, attachment.Image, nullptr);    
-			//vkDestroyImageView(m_Device, attachment.ImageView, nullptr); // TODO: move these into Image class
-			//vkFreeMemory(vulkanDevice->logicalDevice, attachment.memory, nullptr);
+			// TODO: figure out
 		}
         
         if (m_Framebuffer)

@@ -18,19 +18,16 @@ namespace pxl
         if (s_Instance)
         {
             PXL_LOG_ERROR(LogArea::Core, "Can't create application, one already exists");
-            throw; // should this be abort() or exit()?
+            throw std::runtime_error("Failed to create application object because one already exists. This likely indicates a bug within the application.");
         }
 
         s_Instance = this;
 
-        // Not sure if these 'Framework' classes should be in the 'Application' class
         FrameworkConfig::Init();
     }
 
     void Application::Run()
     {
-        Stopwatch stopwatch;
-        
         while (m_Running)
         {
             PXL_PROFILE_SCOPE;
@@ -47,7 +44,7 @@ namespace pxl
                     break;
 
                 Camera::UpdateAll();
-                Renderer::Begin(); // should Begin and End be called if the renderer isn't enabled?
+                Renderer::Begin();
                 OnRender();
                 GUI::Update();
                 Renderer::End();
@@ -57,21 +54,19 @@ namespace pxl
 
             PXL_PROFILE_FRAME_END;
         }
-
-        stopwatch.Stop();
-        PXL_LOG_INFO(LogArea::Core, "Application ran for {} seconds", stopwatch.GetElapsedSec());
     }
 
     void Application::Close()
     {
-        if (m_Running)
-        {
-            m_Running = false; // this must be set first so window or input don't call the close function as well
-            Window::Shutdown(); // could these be put into the test app destructor to reduce overhead?
-            Renderer::Shutdown();
-            Input::Shutdown();  
-            GUI::Shutdown();
-            s_Instance = nullptr;
-        }
+        m_Running = false;
+        
+        Input::Shutdown();
+        Window::Shutdown();
+        Renderer::Shutdown();
+        GUI::Shutdown();
+
+        s_Instance = nullptr;
+
+        PXL_LOG_INFO(LogArea::Core, "Application closed");
     }
 }

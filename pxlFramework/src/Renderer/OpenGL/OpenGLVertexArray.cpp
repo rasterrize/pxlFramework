@@ -29,27 +29,27 @@ namespace pxl
         
         uint32_t index = 0; // attribute number (location in shader)
         size_t offset = 0; // amount of bytes currently allocated
-        for (const BufferElement& element : layout.GetElements())
+        for (BufferElement& element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
 
             // Float type checking
             if (element.Type == BufferDataType::Float || element.Type == BufferDataType::Float2 || element.Type == BufferDataType::Float3 || element.Type == BufferDataType::Float4)
-                glVertexAttribPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
+                glVertexAttribPointer(index, element.CountOfBufferDataType(), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
 
             // Int type checking
             if (element.Type == BufferDataType::Int || element.Type == BufferDataType::Int2 || element.Type == BufferDataType::Int3 || element.Type == BufferDataType::Int4)
-                glVertexAttribIPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
+                glVertexAttribIPointer(index, element.CountOfBufferDataType(), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
 
             // Bool type checking
             if (element.Type == BufferDataType::Bool)
-                glVertexAttribIPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
+                glVertexAttribIPointer(index, element.CountOfBufferDataType(), GetOpenGLTypeOfBufferDataType(element.Type), layout.GetStride(), reinterpret_cast<void*>(offset));
 
             // Mat type checking
             if (element.Type == BufferDataType::Mat3 || element.Type == BufferDataType::Mat4)
-                glVertexAttribPointer(index, GetCountOfType(element.Type), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
+                glVertexAttribPointer(index, element.CountOfBufferDataType(), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
                             
-            offset += GetSizeOfType(element.Type);
+            offset += SizeOfBufferDataType(element.Type);
             index++;
         }
     }

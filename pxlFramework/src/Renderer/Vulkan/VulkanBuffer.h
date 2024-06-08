@@ -14,7 +14,7 @@ namespace pxl
     class VulkanBuffer : public Buffer
     {
     public:
-        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data); // physical device is for getting memory properties, it should be in the VulkanContext or VulkanDevice classes respectively
+        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data);
         virtual ~VulkanBuffer() override;
 
         virtual void Bind() override;
@@ -39,7 +39,6 @@ namespace pxl
         VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage;
 
-        // BindBuffer function pointer
         std::function<void(VkCommandBuffer)> m_BindFunc;
     };
 }

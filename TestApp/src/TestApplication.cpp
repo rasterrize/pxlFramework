@@ -82,7 +82,7 @@ namespace TestApp
         m_OnRenderFunc();
     }
 
-    void TestApplication::OnImGuiRender() // Function only gets called if ImGui is initialized
+    void TestApplication::OnGuiRender() // Function only gets called if ImGui is initialized
     {
         PXL_PROFILE_SCOPE;
         

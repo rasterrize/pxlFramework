@@ -3,10 +3,8 @@
 namespace pxl
 {
     OpenGLTexture2D::OpenGLTexture2D(const Image& image)
-        : m_ImageBuffer(image.Buffer), m_ImageSize(image.Size)
+        : m_ImageBuffer(image.Buffer), m_ImageSize(image.Size), m_GLFormat(ImageFormatToGLFormat(image.Format))
     {
-        m_GLFormat = ImageFormatToGLFormat(image.Format);
-
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
         

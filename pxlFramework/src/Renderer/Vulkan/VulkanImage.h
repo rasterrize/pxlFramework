@@ -4,13 +4,6 @@
 
 namespace pxl
 {
-    // struct ImageSpec
-    // {
-    //     uint32_t Width = 0;
-    //     uint32_t Height = 0;
-    //     ImageFormat Format = ImageFormat::Undefined;
-    // };
-
     // TODO: abstracted
     class VulkanImage
     {

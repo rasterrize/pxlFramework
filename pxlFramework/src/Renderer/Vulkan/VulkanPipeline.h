@@ -6,7 +6,6 @@
 
 #include "VulkanShader.h"
 #include "VulkanRenderPass.h"
-#include "VulkanContext.h"
 #include "../BufferLayout.h"
 
 namespace pxl

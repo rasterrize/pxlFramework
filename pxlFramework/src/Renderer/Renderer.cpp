@@ -366,8 +366,8 @@ namespace pxl
     void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
         PXL_PROFILE_SCOPE;
-        
-        if (s_QuadCount >= s_MaxQuadVertexCount)
+
+        if (s_QuadCount >= s_MaxQuadCount)
             Flush();
 
         const float texIndex = -1.0f;

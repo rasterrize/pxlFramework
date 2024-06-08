@@ -20,7 +20,7 @@ namespace pxl
         allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT; // for vmaMapMemory
 
-        // Create buffer and it's associated memory
+        // Create buffer and its associated memory
         VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
 
         VulkanDeletionQueue::Add([&]() {
@@ -118,7 +118,7 @@ namespace pxl
             vertexAttributes[i].format = GetVkFormatOfBufferDataType(element.Type);
             vertexAttributes[i].location = i;
             vertexAttributes[i].offset = offset;
-            offset += GetSizeOfType(element.Type);
+            offset += SizeOfBufferDataType(element.Type);
         }
 
         return vertexAttributes;

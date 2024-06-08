@@ -22,6 +22,6 @@ namespace pxl
         glm::vec2 m_ImageSize;
         GLenum m_GLFormat;
 
-        uint32_t m_RendererID = GL_INVALID_VALUE; // Is GL_INVALID_VALUE supposed to be used here?
+        uint32_t m_RendererID;
     };
 }

@@ -99,8 +99,8 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 # Profiling settings
 if (PXL_ENABLE_PROFILING)
         message("Enabling tracy profiling for pxlFramework")
-        option(TRACY_ENABLE "" ON)    
-        option(TRACY_ON_DEMAND "" ON)
+        set(TRACY_ENABLE "" ON)
+        set(TRACY_ON_DEMAND "" ON)
         add_subdirectory(deps/tracy)
         set(TRACY_LIB Tracy::TracyClient)
         target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_PROFILING)
@@ -165,7 +165,8 @@ $<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the applicatio
 $<$<CONFIG:Debug>:PXL_DEBUG_VULKAN>
 _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
 IMGUI_IMPL_OPENGL_LOADER_GLAD
-IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
+IMGUI_IMPL_VULKAN_NO_PROTOTYPES
+)
 
 target_include_directories(pxlFramework PUBLIC include)
 

@@ -4,14 +4,14 @@
 
 namespace pxl
 {
-    static void GLCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+    static void GLCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
     {
         PXL_LOG_ERROR(LogArea::OpenGL, message);
     }
 
     OpenGLGraphicsContext::OpenGLGraphicsContext(const std::shared_ptr<Window>& window)
+        : m_WindowHandle(window->GetNativeWindow())
     {
-        m_WindowHandle = window->GetNativeWindow();
         Init();
     }
 

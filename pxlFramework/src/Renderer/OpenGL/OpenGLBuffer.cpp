@@ -6,10 +6,23 @@ namespace pxl
         : m_Usage(GetGLUsageEnumOfBufferUsage(usage))
     {
         glCreateBuffers(1, &m_RendererID); // "CreateBuffers" instead of "GenBuffers" initializes the object on creation rather than on binding. However, The buffer still needs to be bound to the current OGL context
-        glBindBuffer(m_Usage, m_RendererID); // Initiliazes the buffer object (not the data) to the context
+        glBindBuffer(m_Usage, m_RendererID); // Initializes the buffer object (not the data) to the context
         glBufferData(m_Usage, size, data, GL_STATIC_DRAW); // Initialize the data storage and copy the data into the memory
 
-        PXL_LOG_INFO(LogArea::OpenGL, "Created OGL buffer with {} bytes of data", size);
+        #ifdef PXL_ENABLE_LOGGING
+            switch (usage)
+            {
+                case BufferUsage::None:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing {} bytes of data", size);
+                    break;
+                case BufferUsage::Vertex:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing {} bytes of data", size);
+                    break;
+                case BufferUsage::Index:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing {} bytes of data", size);
+                    break;
+            }
+        #endif
     }
 
     OpenGLBuffer::OpenGLBuffer(BufferUsage usage, uint32_t size)
@@ -19,7 +32,20 @@ namespace pxl
         glBindBuffer(m_Usage, m_RendererID);
         glBufferData(m_Usage, size, nullptr, GL_DYNAMIC_DRAW); // Initializes the data storage but doesn't copy any data into its memory. The memory therefore is undefined
 
-        PXL_LOG_INFO(LogArea::OpenGL, "Created OGL buffer with no data");
+        #ifdef PXL_ENABLE_LOGGING
+            switch (usage)
+            {
+                case BufferUsage::None:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing no data", size);
+                    break;
+                case BufferUsage::Vertex:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing no data", size);
+                    break;
+                case BufferUsage::Index:
+                    PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing no data", size);
+                    break;
+            }
+        #endif
     }
 
     OpenGLBuffer::~OpenGLBuffer()

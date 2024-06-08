@@ -28,16 +28,15 @@ namespace pxl
         static bool IsMouseButtonPressed(MouseCode buttonCode);
         static bool IsMouseButtonHeld(MouseCode buttonCode);
 
-        static bool IsMouseScrolledUp(); // this should be only 'IsMouseScrolled' and then have a MouseCode a parameter
+        static bool IsMouseScrolledUp();
         static bool IsMouseScrolledDown();
 
-        static const glm::vec2 GetCursorPosition() { return s_CursorPosition; }
+        static const glm::vec2& GetCursorPosition() { return s_CursorPosition; }
         static void SetCursorPosition(uint32_t x, uint32_t y);
         static void SetCursorMode(CursorMode cursorMode);
         static void SetRawInput(bool value);
 
         static void SetCursorVisibility(bool visible);
-        //static int GetKeyState(KeyCode keycode) { return s_KeyStates[keycode]; }
     private:
         static void GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);

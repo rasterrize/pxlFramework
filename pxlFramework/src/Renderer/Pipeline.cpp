@@ -1,12 +1,14 @@
 #include "Pipeline.h"
 
+#include "Renderer.h"
 #include "Vulkan/VulkanPipeline.h"
 #include "OpenGL/OpenGLPipeline.h"
-#include "Renderer.h"
+#include "Vulkan/VulkanContext.h"
+
 
 namespace pxl
 {
-    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(const std::shared_ptr<Shader>& shader, const BufferLayout &vertexLayout, const UniformLayout &uniformLayout)
+    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(const std::shared_ptr<Shader>& shader)
     {
         switch (Renderer::GetCurrentAPI())
         {

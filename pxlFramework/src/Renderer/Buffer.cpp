@@ -4,8 +4,6 @@
 #include "OpenGL/OpenGLBuffer.h"
 #include "Vulkan/VulkanBuffer.h"
 
-#include "GraphicsContext.h"
-
 namespace pxl
 {
     // Static Buffer

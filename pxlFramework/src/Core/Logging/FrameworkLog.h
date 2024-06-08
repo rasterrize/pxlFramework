@@ -1,7 +1,7 @@
 #pragma once
 
 // A current side affect of these macros is they take up 2 lines, causing issues with one line if statemtents
-#ifndef PXL_ENABLE_LOGGING
+#ifdef PXL_ENABLE_LOGGING
     #include "Logger.h"
 
     #define PXL_LOG_INFO(area, ...)     { pxl::Logger::SetCurrentArea(area); pxl::Logger::GetFrameworkLogger()->info(__VA_ARGS__); }

@@ -70,7 +70,7 @@ namespace pxl
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        Application::Get().OnImGuiRender();
+        Application::Get().OnGuiRender();
             
         // Rendering
         ImGui::Render();

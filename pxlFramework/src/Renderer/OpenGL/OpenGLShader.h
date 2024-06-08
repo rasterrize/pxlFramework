@@ -2,7 +2,7 @@
 
 #include "../Shader.h"
 
-#include <glm/mat4x4.hpp>
+#include <glm/matrix.hpp>
 
 namespace pxl
 {

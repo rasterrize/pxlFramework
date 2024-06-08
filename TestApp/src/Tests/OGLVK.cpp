@@ -18,7 +18,7 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 0.0001f, 1000.0f });
+        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 1.0f, 1000.0f });
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);

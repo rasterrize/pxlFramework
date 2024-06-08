@@ -1,6 +1,5 @@
 #include "VulkanPipeline.h"
 
-#include "VulkanShader.h"
 #include "VulkanContext.h"
 #include "VulkanBuffer.h"
 #include "VulkanHelpers.h"
@@ -112,7 +111,7 @@ namespace pxl
                 VkPushConstantRange range = {};
                 range.stageFlags = GetVkShaderStage(element.PushConstantShaderStage);
                 range.offset = 0; // TODO: implement correct offsets
-                range.size = GetSizeOfType(element.Type); // 4x4 float matrix 
+                range.size = SizeOfBufferDataType(element.Type); // 4x4 float matrix 
 
                 m_PushConstants.push_back({ element.Name, range });
                 ranges.push_back(range);

@@ -3,9 +3,6 @@
 #include "VulkanHelpers.h"
 #include "VulkanAllocator.h"
 
-// temp
-#include "../../Core/Stopwatch.h"
-
 namespace pxl
 {
     VulkanGraphicsContext::VulkanGraphicsContext(const std::shared_ptr<Window>& window)

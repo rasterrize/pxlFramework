@@ -14,6 +14,6 @@ MAIN_FUNC
         pxl::Logger::Init();
     #endif
 
-    std::unique_ptr<TestApp::TestApplication> app = std::make_unique<TestApp::TestApplication>();
-    app->Run();
+    TestApp::TestApplication app;
+    app.Run();
 }

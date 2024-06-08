@@ -37,9 +37,12 @@ namespace pxl
     {
     }
 
+    void VulkanShader::SetUniformIntArray(const std::string &name, int *values, uint32_t count)
+    {
+    }
+
     void VulkanShader::Destroy()
     {
-        // Destroy shader module
         if (m_ShaderModule)
         {
             vkDestroyShaderModule(m_Device, m_ShaderModule, nullptr);

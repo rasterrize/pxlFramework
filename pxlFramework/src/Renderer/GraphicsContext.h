@@ -5,6 +5,7 @@
 
 namespace pxl
 {
+    // Use forward declaration instead of include to avoid cycling includes
     class Window;
 
     class GraphicsContext

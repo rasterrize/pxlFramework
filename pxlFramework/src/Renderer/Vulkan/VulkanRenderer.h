@@ -6,7 +6,6 @@
 
 #include "VulkanRenderPass.h"
 #include "VulkanContext.h"
-#include "VulkanBuffer.h"
 
 namespace pxl
 {

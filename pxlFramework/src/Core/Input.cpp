@@ -1,11 +1,8 @@
 #include "Input.h"
 
-#include "Window.h"
-#include "Application.h"
-
 namespace pxl
 {
-    GLFWwindow* Input::s_WindowHandle;
+    GLFWwindow* Input::s_WindowHandle = nullptr;
     bool Input::s_Enabled = false;
     std::unordered_map<int, int> Input::s_CurrentKeyStates;
     std::unordered_map<int, int> Input::s_PreviousKeyStates;
@@ -17,16 +14,11 @@ namespace pxl
 
     void Input::Init(const std::shared_ptr<Window>& window)
     {
-        PXL_ASSERT(window);
+        PXL_ASSERT_MSG(window, "Can't initialize input since window was invalid");
         
         if (s_Enabled)
         {
             PXL_LOG_ERROR(LogArea::Input, "Failed to initalize input, it's already initialized");
-            return;
-        }
-        else if (!Application::Get().IsRunning())
-        {
-            PXL_LOG_ERROR(LogArea::Input, "Can't initialize input, no application exists");
             return;
         }
 
@@ -48,6 +40,8 @@ namespace pxl
 
     bool Input::IsKeyPressed(KeyCode keyCode)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -60,6 +54,8 @@ namespace pxl
 
     bool Input::IsKeyHeld(KeyCode keyCode)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -71,6 +67,8 @@ namespace pxl
 
     bool Input::IsMouseButtonPressed(MouseCode buttonCode)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -83,6 +81,8 @@ namespace pxl
 
     bool Input::IsMouseButtonHeld(MouseCode buttonCode)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -94,6 +94,8 @@ namespace pxl
 
     bool Input::IsMouseScrolledUp()
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -110,6 +112,8 @@ namespace pxl
 
     bool Input::IsMouseScrolledDown()
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!s_Enabled)
             return false;
 
@@ -159,7 +163,7 @@ namespace pxl
     {
         if (value)
         {
-            if (glfwRawMouseMotionSupported()) // this function really only needs to be called once
+            if (glfwRawMouseMotionSupported()) // TODO: Ensure this function is only called once
             {
                 glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
                 PXL_LOG_INFO(LogArea::Input, "Enabled Raw Input");

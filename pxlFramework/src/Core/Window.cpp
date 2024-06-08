@@ -9,9 +9,7 @@
 
 namespace pxl
 {
-    constexpr uint8_t MAX_WINDOW_COUNT = 5; // TODO: currently unused, can be useful so the program can't accidently infinitely create windows
-
-    uint8_t Window::s_WindowCount = 0;
+    constexpr uint8_t MAX_WINDOW_COUNT = 5;
 
     std::vector<Monitor> Window::s_Monitors;
     std::vector<std::shared_ptr<Window>> Window::s_Windows;
@@ -29,7 +27,7 @@ namespace pxl
     {
         glfwSetErrorCallback(GLFWErrorCallback); // Shouldn't be set everytime window is created
         
-        if (s_WindowCount == 0)
+        if (s_Windows.size() <= 0)
         {
             if (glfwInit())
             {
@@ -44,7 +42,7 @@ namespace pxl
             }
         }
 
-        // reset window hints so we don't get undefined behaviour
+        // Reset window hints so we don't get undefined behaviour
         glfwDefaultWindowHints();
 
         // Set window hints based on renderer api
@@ -80,8 +78,6 @@ namespace pxl
         auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.
         glfwSetWindowPos(m_GLFWWindow, vidMode->width / 2 - windowSpecs.Width / 2, vidMode->height / 2 - windowSpecs.Height / 2);
 
-        s_WindowCount++;
-
         if (m_GLFWWindow)
             PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
         else
@@ -96,7 +92,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        if (m_GraphicsContext) // this can be kept since it takes like less than a microsecond to check for this to evaluate.
+        if (m_GraphicsContext)
             m_GraphicsContext->Present();
     }
 
@@ -104,12 +100,8 @@ namespace pxl
     {
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
-        --s_WindowCount;
 
-        if (GUI::GetWindowHandle() == m_Handle.lock())
-            GUI::Shutdown();
-
-        if (s_WindowCount == 0)
+        if (s_Windows.size() <= 0 && Application::Get().IsRunning())
             Application::Get().Close();
     }
 
@@ -347,7 +339,6 @@ namespace pxl
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
     {
-        // probably won't work for multiple windows
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
         iconified ? windowInstance->m_Specs.Minimized = true : windowInstance->m_Specs.Minimized = false;
@@ -374,9 +365,9 @@ namespace pxl
 
     void Window::MonitorCallback(GLFWmonitor* monitor, int event)
     {
-        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED) // Using this we could dynamically add and remove the specified monitor from s_Monitors.
+        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
         {
-            // NOTE: Either GLFW or the OS is handling moving the window when a monitor is disconnected. This might break stuff and needs extra testing
+            // TODO: Dynamically add and remove the specified monitor from s_Monitors
         }
 
         UpdateMonitors();
@@ -389,10 +380,11 @@ namespace pxl
         for (const auto& window : s_Windows)
             window->Update();
 
-        Renderer::s_FrameCount++; // should be done at the end of making a frame in the renderer class (Renderer::EndFrame)
+        // TODO: Move these into the Renderer class
+        Renderer::s_FrameCount++;
         Renderer::CalculateFPS();
 
-        s_EventProcessFunc(); // glfw docs use pollevents after swapbuffers // also this should be moved if I decide to support other platforms (linux/mac)
+        s_EventProcessFunc();
     }
 
     void Window::UpdateMonitors()
@@ -420,12 +412,12 @@ namespace pxl
 
     void Window::Shutdown()
     {
-        uint8_t windowCount = s_WindowCount; // s_WindowCount changes each time a window is closed
+        auto windowCount = s_Windows.size();
 
-        for (uint8_t i = 0; i < windowCount; i++)
+        for (size_t i = 0; i < windowCount; i++)
             s_Windows[i]->Close();
 
-        // TODO: check if GLFW is in use by other systems first before terminating it.
+        // TODO: Check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
         
         PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
@@ -433,7 +425,7 @@ namespace pxl
 
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
     {
-        if (s_WindowCount >= MAX_WINDOW_COUNT)
+        if (s_Windows.size() >= MAX_WINDOW_COUNT)
         {
             PXL_LOG_WARN(LogArea::Window, "Failed to create window, the max window count has been reached");
             return nullptr;

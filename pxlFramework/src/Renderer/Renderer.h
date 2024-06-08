@@ -29,8 +29,8 @@ namespace pxl
         static void Clear();
         static void SetClearColour(const glm::vec4& colour);
 
-        static void ResizeViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(0, 0, width, height); }
-        static void ResizeScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(0, 0, width, height); }
+        static void ResizeViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(x, y, width, height); }
+        static void ResizeScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(x, y, width, height); }
 
         //static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera);
         //static void Submit(const std::shared_ptr<GraphicsPipeline>& pipeline);
@@ -45,7 +45,7 @@ namespace pxl
         
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
         static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture);
-        static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture, const glm::vec2& textureUV);
+        //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture, const glm::vec2& textureUV);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& tint);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec2& textureIndex);
         //static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
@@ -77,7 +77,7 @@ namespace pxl
         static std::unique_ptr<RendererAPI> s_RendererAPI;
         static std::shared_ptr<GraphicsContext> s_ContextHandle;
 
-        static std::shared_ptr<Camera> s_QuadsCamera; // TODO: probably remove this
+        static std::shared_ptr<Camera> s_QuadsCamera;
 
         static float s_FPS; // shouldn't store this
         static uint32_t s_FrameCount;
