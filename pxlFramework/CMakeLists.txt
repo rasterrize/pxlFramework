@@ -83,6 +83,7 @@ add_library(pxlFramework STATIC
     src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
     src/Utils/DiscordRPC.h src/Utils/DiscordRPC.cpp
     src/Utils/Easing.h src/Utils/Easing.cpp
+    src/Utils/Random.h src/Utils/Random.cpp
 
     # DEBUG
     src/Debug/GUI/GUI.h src/Debug/GUI/GUI.cpp
