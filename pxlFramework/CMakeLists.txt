@@ -14,7 +14,6 @@ src/Core/MouseCodes.h
 src/Core/Platform.h
 src/Core/Stopwatch.h
 src/Core/Config.h src/Core/Config.cpp
-src/Core/Profiler.h
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -73,6 +72,7 @@ src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp
 src/Debug/ImGui/ImGuiBase.h
 src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
 src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
+src/Debug/Profiler.h
 )
 
 # Set project c++ standard
@@ -144,7 +144,7 @@ target_precompile_headers(pxlFramework PUBLIC
 src/Core/Logging/Logger.h
 src/Core/Logging/FrameworkLog.h
 src/Core/Assert.h
-src/Core/Profiler.h
+src/Debug/Profiler.h
 <iostream>
 <string>
 <memory>
