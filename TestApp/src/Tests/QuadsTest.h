@@ -1,3 +1,5 @@
+#pragma once
+
 #include <pxl.h>
 
 namespace TestApp
