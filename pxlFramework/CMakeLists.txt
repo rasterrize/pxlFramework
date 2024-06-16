@@ -50,6 +50,7 @@ src/Renderer/OpenGL/OpenGLPipeline.h src/Renderer/OpenGL/OpenGLPipeline.cpp
 # src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
 
 # VULKAN
+src/Renderer/Vulkan/VulkanInstance.h src/Renderer/Vulkan/VulkanInstance.cpp
 src/Renderer/Vulkan/VulkanRenderer.h src/Renderer/Vulkan/VulkanRenderer.cpp
 src/Renderer/Vulkan/VulkanContext.h src/Renderer/Vulkan/VulkanContext.cpp
 src/Renderer/Vulkan/VulkanShader.h src/Renderer/Vulkan/VulkanShader.cpp

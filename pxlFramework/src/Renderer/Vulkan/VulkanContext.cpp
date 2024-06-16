@@ -2,6 +2,7 @@
 
 #include "VulkanHelpers.h"
 #include "VulkanAllocator.h"
+#include "VulkanInstance.h"
 
 namespace pxl
 {
@@ -19,20 +20,22 @@ namespace pxl
             selectedLayers = validationLayers;
         #endif
 
-        // Create Vulkan Instance with specified extensions and layers
-        if (!CreateInstance(glfwExtensions, selectedLayers))
-            return;
+        // Create Vulkan instance with specified extensions and layers
+        if (!VulkanInstance::Get())
+            VulkanInstance::Init(glfwExtensions, selectedLayers);
+
+        auto vulkanInstance = VulkanInstance::Get();
 
         // Get the window surface from the window
-        m_Surface = window->CreateVKWindowSurface(m_Instance);
+        m_Surface = window->CreateVKWindowSurface(vulkanInstance);
 
         VulkanDeletionQueue::Add([&]() {
-            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+            vkDestroySurfaceKHR(vulkanInstance, m_Surface, nullptr);
             m_Surface = VK_NULL_HANDLE;
         });
 
         // Get available physical devices
-        auto physicalDevices = VulkanHelpers::GetAvailablePhysicalDevices(m_Instance);
+        auto physicalDevices = VulkanHelpers::GetAvailablePhysicalDevices(vulkanInstance);
 
         if (physicalDevices.size() < 1)
             return;
@@ -105,12 +108,8 @@ namespace pxl
         m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SurfaceFormat, swapchainExtent, m_DefaultRenderPass, m_CommandPool);
 
         // Initialise Vulkan Memory Allocator
-        if (!VulkanAllocator::IsInitialised())
-            VulkanAllocator::Init(m_Instance, m_Device);
-    }
-
-    VulkanGraphicsContext::~VulkanGraphicsContext()
-    {
+        if (!VulkanAllocator::Get())
+            VulkanAllocator::Init(vulkanInstance, m_Device);
     }
 
     void VulkanGraphicsContext::Present()
@@ -127,74 +126,6 @@ namespace pxl
         VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
     }
 
-    bool VulkanGraphicsContext::CreateInstance(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
-    {
-        // Check vulkan API version
-        uint32_t apiVersion = VulkanHelpers::GetVulkanAPIVersion();
-
-        // TODO: check if the implementation api version is greater than the specifed application version
-
-        VkApplicationInfo appInfo = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
-        appInfo.apiVersion = VK_API_VERSION_1_3; // The vulkan API version this application (code base) is built on (not implementation version)
-
-        VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
-        instanceInfo.pApplicationInfo = &appInfo;
-        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-        instanceInfo.ppEnabledExtensionNames = extensions.data();
-        instanceInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
-        instanceInfo.ppEnabledLayerNames = layers.data();
-
-        VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));
-
-        if (!m_Instance)
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan instance");
-            return false;
-        }
-
-        VulkanDeletionQueue::Add([&]() {
-            vkDestroyInstance(m_Instance, nullptr);
-            m_Instance = VK_NULL_HANDLE;
-        });
-
-        // Logging 
-        #ifdef PXL_ENABLE_LOGGING
-        
-        std::string apiVersionString;
-        switch (appInfo.apiVersion)
-        {
-            case VK_API_VERSION_1_0:
-                apiVersionString = "1.0";
-                break;
-            case VK_API_VERSION_1_1:
-                apiVersionString = "1.1";
-                break;
-            case VK_API_VERSION_1_2:
-                apiVersionString = "1.2";
-                break;
-            case VK_API_VERSION_1_3:
-                apiVersionString = "1.3";
-                break;
-        }
-
-        PXL_LOG_INFO(LogArea::Vulkan, "VK Instance Info:");
-        PXL_LOG_INFO(LogArea::Vulkan, "   Application Vulkan API Version: {}", apiVersionString);
-
-        PXL_LOG_INFO(LogArea::Vulkan, "   {} enabled extensions: ", extensions.size());
-        for (auto& extension : extensions)
-        {
-            PXL_LOG_INFO(LogArea::Vulkan, "   - {}", extension);
-        }
-
-        PXL_LOG_INFO(LogArea::Vulkan, "   {} enabled layers:", layers.size());
-        for (auto& layer : layers)
-        {
-            PXL_LOG_INFO(LogArea::Vulkan, "   - {}", layer);
-        }
-
-        #endif
-
-        return true;
     }
 
     VkPhysicalDevice VulkanGraphicsContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)

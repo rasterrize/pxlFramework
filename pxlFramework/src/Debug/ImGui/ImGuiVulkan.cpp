@@ -3,6 +3,7 @@
 #include <backends/imgui_impl_vulkan.h>
 
 #include "../../Renderer/Vulkan/VulkanHelpers.h"
+#include "../../Renderer/Vulkan/VulkanInstance.h"
 
 namespace pxl
 {
@@ -37,7 +38,7 @@ namespace pxl
 	    VK_CHECK(vkCreateDescriptorPool(static_cast<VkDevice>(m_Device->GetDevice()), &pool_info, nullptr, &m_ImGuiDescriptorPool));
 
         ImGui_ImplVulkan_InitInfo initInfo = {};
-        initInfo.Instance = m_ContextHandle->GetInstance();
+        initInfo.Instance = VulkanInstance::Get();
         initInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice());
         initInfo.Device = static_cast<VkDevice>(m_Device->GetDevice());
         initInfo.QueueFamily = m_Device->GetGraphicsQueueIndex();
