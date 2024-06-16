@@ -4,6 +4,7 @@
 #include "Tests/ModelViewer.h"
 #include "Tests/OGLVK.h"
 #include "Tests/QuadsTest.h"
+#include "Tests/EmptyApp.h"
 #include "Tests/WindowTest.h"
 
 namespace TestApp
