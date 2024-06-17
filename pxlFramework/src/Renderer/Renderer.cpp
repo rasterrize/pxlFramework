@@ -345,7 +345,7 @@ namespace pxl
         
         s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
 
-        auto layout = QuadVertex::GetLayout();
+        const auto layout = QuadVertex::GetLayout();
 
         if (s_RendererAPIType == RendererAPIType::OpenGL)
         {
@@ -370,8 +370,8 @@ namespace pxl
         if (s_QuadCount >= s_MaxQuadCount)
             Flush();
 
-        const float texIndex = -1.0f;
         const auto vertexCount = s_QuadCount * 4;
+        constexpr float texIndex = -1.0f;
         
         s_QuadVertices[vertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }, texIndex };
         s_QuadVertices[vertexCount + 1] = {{ position.x + scale.x, position.y, position.z }, colour, { 1.0f, 0.0f }, texIndex };

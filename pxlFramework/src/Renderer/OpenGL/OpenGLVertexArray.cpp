@@ -29,7 +29,7 @@ namespace pxl
         
         uint32_t index = 0; // attribute number (location in shader)
         size_t offset = 0; // amount of bytes currently allocated
-        for (BufferElement& element : layout.GetElements())
+        for (const BufferElement& element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
 

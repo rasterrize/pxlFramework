@@ -274,7 +274,7 @@ namespace pxl
 	    return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
     }
 
-    glm::u32vec2 Window::GetFramebufferSize()
+    glm::u32vec2 Window::GetFramebufferSize() const
     {
         int width, height;
         glfwGetFramebufferSize(m_GLFWWindow, &width, &height);

@@ -18,7 +18,7 @@ namespace pxl
         virtual void Destroy() = 0;
 
         static std::shared_ptr<GraphicsPipeline> Create(const std::shared_ptr<Shader>& shader);
-        static std::shared_ptr<GraphicsPipeline> Create(std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const BufferLayout& vertexLayout, const UniformLayout& uniformLayout);
+        static std::shared_ptr<GraphicsPipeline> Create(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const BufferLayout& vertexLayout, const UniformLayout& uniformLayout);
     };
 
     // Compute Pipeline

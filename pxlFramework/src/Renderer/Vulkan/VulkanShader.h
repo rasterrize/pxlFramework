@@ -25,7 +25,7 @@ namespace pxl
 
         void Destroy();
 
-        VkShaderModule GetShaderModule() { return m_ShaderModule; }
+        VkShaderModule GetShaderModule() const { return m_ShaderModule; }
     private:
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
     private:

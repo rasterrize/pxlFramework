@@ -8,7 +8,7 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass, const BufferLayout& bufferLayout, const UniformLayout& uniformLayout)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass, const BufferLayout& bufferLayout, const UniformLayout& uniformLayout)
         : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetDevice())), m_Shaders(shaders)
     {
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation

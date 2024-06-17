@@ -24,7 +24,7 @@ namespace pxl
         return nullptr;
     }
 
-    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const BufferLayout& vertexLayout, const UniformLayout& uniformLayout)
+    std::shared_ptr<GraphicsPipeline> GraphicsPipeline::Create(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const BufferLayout& vertexLayout, const UniformLayout& uniformLayout)
     {
         switch (Renderer::GetCurrentAPI())
         {

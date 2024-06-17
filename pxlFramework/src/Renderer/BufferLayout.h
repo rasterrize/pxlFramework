@@ -54,8 +54,8 @@ namespace pxl
     class BufferLayout
     {
     public:
-        std::vector<BufferElement> GetElements() const { return m_Elements; }
-        const uint32_t GetStride() const { return m_Stride; }
+        const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+        uint32_t GetStride() const { return m_Stride; }
 
         void Add(const BufferElement& element)
         {

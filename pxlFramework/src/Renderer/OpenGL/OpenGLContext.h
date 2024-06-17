@@ -17,9 +17,9 @@ namespace pxl
         virtual void Present() override;
 
         virtual void SetVSync(bool value) override;
-        virtual bool GetVSync() override { return m_VSync; }
+        virtual bool GetVSync() const override { return m_VSync; }
 
-        virtual std::shared_ptr<Device> GetDevice() override { return nullptr; }
+        virtual std::shared_ptr<Device> GetDevice() const override { return nullptr; }
         
     private:
         void Init();

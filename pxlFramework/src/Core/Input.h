@@ -20,7 +20,7 @@ namespace pxl
         static void Init(const std::shared_ptr<Window>& window);
         static void Shutdown();
 
-        static const bool IsInitialized() { return s_Enabled; }
+        static bool IsInitialized() { return s_Enabled; }
     
         static bool IsKeyPressed(KeyCode keyCode);
         static bool IsKeyHeld(KeyCode keyCode);
