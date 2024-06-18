@@ -126,8 +126,6 @@ namespace pxl
         VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
     }
 
-    }
-
     VkPhysicalDevice VulkanGraphicsContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
     {
         // Find a suitable discrete gpu physical device from the given physical devices
