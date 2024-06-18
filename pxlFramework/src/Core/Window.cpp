@@ -20,10 +20,10 @@ namespace pxl
         : m_Specs(windowSpecs), m_LastWindowedWidth(m_Specs.Width), m_LastWindowedHeight(m_Specs.Height)
     {
         CreateGLFWWindow(windowSpecs);
-        UpdateMonitors(); // safeguard for the moment
+        UpdateMonitors(); // NOTE: Safeguard, so the monitors are updated on first window creation
     }
 
-    void Window::CreateGLFWWindow(const WindowSpecs& windowSpecs) // refresh rate/other params
+    void Window::CreateGLFWWindow(const WindowSpecs& windowSpecs)
     {
         glfwSetErrorCallback(GLFWErrorCallback); // Shouldn't be set everytime window is created
         
@@ -49,7 +49,7 @@ namespace pxl
         switch (windowSpecs.RendererAPI)
         {
             case RendererAPIType::None:
-                PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'none' specified! Creating a GLFW window with no renderer api...");
+                PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'None' specified! Creating a GLFW window with no renderer api...");
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
             case RendererAPIType::OpenGL:
@@ -59,29 +59,29 @@ namespace pxl
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
                 break;
             case RendererAPIType::Vulkan:
-                if (!glfwVulkanSupported())
-                    PXL_LOG_ERROR(LogArea::Window, "Vulkan loader wasn't found by GLFW");
+                PXL_ASSERT_MSG(glfwVulkanSupported(), "Vulkan loader wasn't found by GLFW");
 
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
         }
 
-        // Hide the window on creation so we can silently move the window to the center
+        // Hide the window on creation as we will still need to prepare it
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-        // Create GLFW window and set it up
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(windowSpecs.Width), static_cast<int>(windowSpecs.Height), windowSpecs.Title.c_str(), nullptr, nullptr);
 
-        PXL_ASSERT(m_GLFWWindow);
+        #ifdef PXL_ENABLE_LOGGING
+            if (m_GLFWWindow)
+                PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
+            else
+                PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
+        #endif
 
+        PXL_ASSERT(m_GLFWWindow);
+        
         // Set window to the center of the display
         auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.
         glfwSetWindowPos(m_GLFWWindow, vidMode->width / 2 - windowSpecs.Width / 2, vidMode->height / 2 - windowSpecs.Height / 2);
-
-        if (m_GLFWWindow)
-            PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
-        else
-            PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         SetStaticGLFWCallbacks();
@@ -151,8 +151,7 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
         
-        if (windowWidth != static_cast<int>(width) || windowHeight != static_cast<int>(height))
-            PXL_LOG_WARN(LogArea::Window, "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
+        PXL_ASSERT_MSG(windowWidth != static_cast<int>(width) || windowHeight != static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 
     void Window::SetPosition(uint32_t xpos, uint32_t ypos)
@@ -160,6 +159,8 @@ namespace pxl
         // TODO: check if the position is inbounds and maybe check monitor properties before setting windows pos
 
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
+
+        PXL_LOG_INFO(LogArea::Window, "Manually set window position to {}, {}", xpos, ypos);
     }
 
     void Window::SetWindowMode(WindowMode winMode)
@@ -176,8 +177,7 @@ namespace pxl
 
         const GLFWvidmode* vidmode = glfwGetVideoMode(currentMonitor);
 
-        int monitorX, monitorY;
-        int monitorWidth, monitorHeight;
+        int monitorX, monitorY, monitorWidth, monitorHeight;
         glfwGetMonitorWorkarea(currentMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
         switch (winMode)
@@ -188,21 +188,23 @@ namespace pxl
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedWidth / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedHeight / 2), m_LastWindowedWidth, m_LastWindowedHeight, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
                 m_Specs.WindowMode = WindowMode::Windowed;
                 PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Windowed window mode", m_Specs.Title);
-                break;
+                return;
             case WindowMode::Borderless:
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_FALSE);
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
                 m_Specs.WindowMode = WindowMode::Borderless;
                 PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Borderless window mode", m_Specs.Title);
-                break;
+                return;
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_GLFWWindow, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
                 m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync()); // Set VSync because bug idk // TODO: this needs to be tested with vulkan
                 m_Specs.WindowMode = WindowMode::Fullscreen;
                 PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Fullscreen window mode", m_Specs.Title);
-                break;
+                return;
         }
+
+        PXL_LOG_WARN(LogArea::Window, "Failed to switch window mode for window '{}'", m_Specs.Title);
     }
 
     void Window::SetMonitor(uint8_t monitorIndex)
@@ -330,10 +332,10 @@ namespace pxl
 
         if (Renderer::GetCurrentAPI() == RendererAPIType::Vulkan)
         {
-            auto vulkanContext = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->GetGraphicsContext());
+            auto vulkanContext = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->m_GraphicsContext);
 
             if (vulkanContext)
-                vulkanContext->GetSwapchain()->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height)); // might need other data  
+                vulkanContext->GetSwapchain()->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
         }
     }
 

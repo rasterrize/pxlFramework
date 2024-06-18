@@ -63,14 +63,14 @@ namespace pxl
         rasterizationInfo.lineWidth = 1.0f; // 1.0f is a good default, any higher requires enabling a gpu feature
         rasterizationInfo.cullMode = m_Settings.CullMode; // specify different types of culling here
         rasterizationInfo.frontFace = m_Settings.FrontFace; // This is counter clockwise in OpenGL
-        //rasterizationInfo.depthBiasEnable = VK_FALSE;
+        // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
         // rasterizationInfo.depthBiasSlopeFactor = 0.0f; // Optional
 
         // Multisampling // REQUIRES ENABLING A GPU FEATURE
         VkPipelineMultisampleStateCreateInfo multisamplingInfo = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-        //multisamplingInfo.sampleShadingEnable = VK_FALSE; // enable or disable multisampling // NOTE: requires enabling a gpu feature
+        // multisamplingInfo.sampleShadingEnable = VK_FALSE; // enable or disable multisampling // NOTE: requires enabling a gpu feature
         multisamplingInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         // multisamplingInfo.minSampleShading = 1.0f; // Optional
         // multisamplingInfo.pSampleMask = nullptr; // Optional

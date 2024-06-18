@@ -13,7 +13,7 @@ namespace pxl
         glm::vec2 TexCoords = glm::vec2(0.0f); // UV coords to use when sampling the TexIndex slot texture
         float TexIndex = -1.0f;                // The texture slot to sample from in the fragment shader
 
-        static BufferLayout GetLayout() 
+        static BufferLayout GetLayout()
         {
             BufferLayout layout;
             layout.Add({ BufferDataType::Float3, false }); // vertex position

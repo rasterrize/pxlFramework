@@ -30,7 +30,7 @@ namespace pxl
         m_Surface = window->CreateVKWindowSurface(vulkanInstance);
 
         VulkanDeletionQueue::Add([&]() {
-            vkDestroySurfaceKHR(vulkanInstance, m_Surface, nullptr);
+            vkDestroySurfaceKHR(VulkanInstance::Get(), m_Surface, nullptr);
             m_Surface = VK_NULL_HANDLE;
         });
 
@@ -123,7 +123,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence)); // TODO: include support for no signal fence?
+        VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence));
     }
 
     VkPhysicalDevice VulkanGraphicsContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)

@@ -12,7 +12,7 @@ namespace pxl
     {
     public:
         OpenGLGraphicsContext(const std::shared_ptr<Window>& window);
-        virtual ~OpenGLGraphicsContext() override {};
+        virtual ~OpenGLGraphicsContext() override = default;
 
         virtual void Present() override;
 

@@ -72,7 +72,7 @@ namespace pxl
         std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
 
         // Synchronization
-        int m_MaxFramesInFlight = 3; // should this always match swapchain image count?
+        uint32_t m_MaxFramesInFlight = 3; // should this always match swapchain image count?
         uint32_t m_CurrentFrameIndex = 0; // for CPU side frame data
         std::vector<VulkanFrame> m_Frames;
 

@@ -8,7 +8,6 @@ namespace pxl
     class Platform
     {
     public:
-        static double GetTime() { if (glfwInit()) { return glfwGetTime(); } else return 0.0f; } // should be changed to check operating system possibly
-    private:
+        static double GetTime() { return glfwInit() ? glfwGetTime() : 0.0f; }
     };
 }

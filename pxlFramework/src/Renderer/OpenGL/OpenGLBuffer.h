@@ -11,7 +11,7 @@ namespace pxl
     public:
         OpenGLBuffer(BufferUsage usage, uint32_t size, const void* data);
         OpenGLBuffer(BufferUsage usage, uint32_t size);
-        ~OpenGLBuffer();
+        virtual ~OpenGLBuffer() override;
 
         virtual void Bind() override;
         virtual void Unbind() override;
@@ -21,7 +21,6 @@ namespace pxl
         static GLenum GetGLUsageEnumOfBufferUsage(BufferUsage usage);
     private:
         uint32_t m_RendererID = 0;
-        GLenum m_Usage; // GL Buffer Type
-        //uint32_t m_Size;
-    };  
+        GLenum m_Usage;
+    };
 }

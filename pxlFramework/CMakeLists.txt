@@ -173,9 +173,9 @@ IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 
 target_include_directories(pxlFramework PUBLIC include)
 
-# Copy internal resources to bin folder
+# Copy internal resources to bin directory
 file(COPY resources/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
 
-# Copy necessary framework DLLs
+# Copy necessary framework DLLs to bin directory
 file (COPY deps/discord-game-sdk/lib/discord_game_sdk.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file (COPY deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)

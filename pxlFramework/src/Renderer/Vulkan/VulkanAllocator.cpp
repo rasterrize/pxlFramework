@@ -23,14 +23,13 @@ namespace pxl
 
     void VulkanAllocator::Shutdown()
     {
-        VmaTotalStatistics stats;
-		vmaCalculateStatistics(s_Allocator, &stats);
-		PXL_LOG_INFO(LogArea::Vulkan, "(VMA) Total device memory leaked: {} bytes.", stats.total.statistics.allocationBytes); // NOTE: unsure if this even works, maybe it needs to be enabled somehow?
+        #ifdef PXL_ENABLE_LOGGING
+            VmaTotalStatistics stats;
+		    vmaCalculateStatistics(s_Allocator, &stats);
+		    PXL_LOG_INFO(LogArea::Vulkan, "(VMA) Total device memory leaked: {} bytes.", stats.total.statistics.allocationBytes);
+        #endif
         
-        if (s_Allocator)
-        {
-            vmaDestroyAllocator(s_Allocator);
-            s_Allocator = nullptr;
-        }
+        vmaDestroyAllocator(s_Allocator);
+        s_Allocator = nullptr;
     }
 }

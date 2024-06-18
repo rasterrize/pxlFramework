@@ -9,14 +9,14 @@ namespace pxl
     {
         // Create a vulkan image AND image view
         CreateImage(m_Width, m_Height, m_Format);
-        CreateImageView(m_Width, m_Height, m_Format, m_Image);
+        CreateImageView(m_Format, m_Image);
     }
 
     VulkanImage::VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
         : m_Device(device), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
     {
         // Create just a vulkan image view for the supplied image
-        CreateImageView(m_Width, m_Height, m_Format, swapchainImage);
+        CreateImageView(m_Format, swapchainImage);
     }
 
     VulkanImage::~VulkanImage()
@@ -44,7 +44,7 @@ namespace pxl
         // TODO: Create VkImage object
     }
 
-    void VulkanImage::CreateImageView(uint32_t width, uint32_t height, VkFormat format, VkImage image)
+    void VulkanImage::CreateImageView(VkFormat format, VkImage image)
     {
         // Create image view
         VkImageViewCreateInfo imageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };

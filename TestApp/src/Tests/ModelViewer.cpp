@@ -24,8 +24,6 @@ namespace TestApp
 
         m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Orthographic, 16.0f / 9.0f, -10.0, 10.0f });
 
-        auto windowRendererAPI = m_Window->GetWindowSpecs().RendererAPI;
-
         APP_LOG_INFO("Compiling shaders... (1/1)");
 
         pxl::Renderer::AddStaticQuad({-0.5f, -0.5f, 0.0f});

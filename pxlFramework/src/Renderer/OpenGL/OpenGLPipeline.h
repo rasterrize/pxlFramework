@@ -17,7 +17,6 @@ namespace pxl
         }
 
         virtual void* GetPipelineLayout() override { return nullptr; }
-        virtual void Destroy() override {};
     private:
         std::shared_ptr<Shader> m_Shader;
     };

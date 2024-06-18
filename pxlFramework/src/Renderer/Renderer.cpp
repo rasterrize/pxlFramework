@@ -112,25 +112,25 @@ namespace pxl
                 break;
         }
 
+        // Prepare Quad Data
         {
             // Prepare Quad Index Data
-            uint32_t offset = 0;
-            for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
             {
-                s_QuadIndices[i + 0] = 0 + offset;
-                s_QuadIndices[i + 1] = 1 + offset;
-                s_QuadIndices[i + 2] = 2 + offset;
+                uint32_t offset = 0;
+                for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
+                {
+                    s_QuadIndices[i + 0] = 0 + offset;
+                    s_QuadIndices[i + 1] = 1 + offset;
+                    s_QuadIndices[i + 2] = 2 + offset;
 
-                s_QuadIndices[i + 3] = 2 + offset;
-                s_QuadIndices[i + 4] = 3 + offset;
-                s_QuadIndices[i + 5] = 0 + offset;
+                    s_QuadIndices[i + 3] = 2 + offset;
+                    s_QuadIndices[i + 4] = 3 + offset;
+                    s_QuadIndices[i + 5] = 0 + offset;
 
-                offset += 4;
+                    offset += 4;
+                }
             }
-
-        }
-
-        {
+            
             auto quadBufferLayout = QuadVertex::GetLayout();
 
             // Prepare Quad Buffers
@@ -175,8 +175,6 @@ namespace pxl
 
                 auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/vert.spv");
                 auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/frag.spv");
-                // auto quadVertShader = Shader::Create(ShaderStage::Vertex, vertBin);
-                // auto quadFragShader = Shader::Create(ShaderStage::Fragment, fragBin);
 
                 std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
@@ -188,6 +186,9 @@ namespace pxl
                 s_QuadPipeline = GraphicsPipeline::Create(shaders, quadBufferLayout, quadUniformLayout);
             }
         }
+
+        #if CUBESLINESMODELS
+        
         // {
         //     // Prepare Cube Index Buffer
         //
@@ -207,8 +208,6 @@ namespace pxl
         //         offset += 4;
         //     }
         // }
-
-        #if CUBESLINESMODELS
 
         // {
         //     // Prepare Cube VAO, VBO, IBO
@@ -306,10 +305,6 @@ namespace pxl
             return;
 
         s_RendererAPI->Begin();
-
-        // Ensure these are set before batch rendering
-        //s_CubeVertexCount = 0;
-        //s_LineVertexCount = 0;
     }
 
     void Renderer::End()
@@ -328,7 +323,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        constexpr auto colour = glm::vec4(1.0f);
+        constexpr glm::vec4 colour(1.0f);
         const auto vertexCount = s_StaticQuadCount * 4;
 
         s_StaticQuadVertices[vertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }};
@@ -379,9 +374,11 @@ namespace pxl
         s_QuadVertices[vertexCount + 3] = {{ position.x, position.y + scale.y, position.z }, colour, { 0.0f, 1.0f }, texIndex };
 
         s_QuadCount++;
-        
-        s_Stats.QuadVertexCount += 4;
-        s_Stats.QuadIndexCount += 6;
+
+        #ifdef PXL_DEBUG
+            s_Stats.QuadVertexCount += 4;
+            s_Stats.QuadIndexCount += 6;
+        #endif
     }
 
     void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture)
@@ -412,7 +409,7 @@ namespace pxl
 			s_TextureUnitIndex++;
         }
 
-        constexpr auto vertexColor = glm::vec4(1.0f);
+        constexpr glm::vec4 vertexColor(1.0f);
         const auto vertexCount = s_QuadCount * 4;
         
         s_QuadVertices[vertexCount + 0] = {{ position.x, position.y + scale.y, position.z }, vertexColor, { 0.0f, 1.0f }, textureIndex };
@@ -421,9 +418,11 @@ namespace pxl
         s_QuadVertices[vertexCount + 3] = {{ position.x + scale.x, position.y + scale.y, position.z }, vertexColor, { 1.0f, 1.0f }, textureIndex };
 
         s_QuadCount++;
-        
-        s_Stats.QuadVertexCount += 4;
-        s_Stats.QuadIndexCount += 6;
+
+        #ifdef PXL_DEBUG
+            s_Stats.QuadVertexCount += 4;
+            s_Stats.QuadIndexCount += 6;
+        #endif
     }
 
     // void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
@@ -588,9 +587,11 @@ namespace pxl
             }
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
-            s_Stats.DrawCalls++;
-
             s_QuadCount = 0;
+
+            #ifdef PXL_DEBUG
+                s_Stats.DrawCalls++;
+            #endif
         }
 
         if (s_StaticQuadCount > 0)

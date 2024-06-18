@@ -40,7 +40,7 @@ namespace pxl
 
         virtual void* GetPipelineLayout() override { return m_Layout; }
 
-        virtual void Destroy() override;
+        void Destroy();
 
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
 
