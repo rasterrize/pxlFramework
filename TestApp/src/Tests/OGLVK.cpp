@@ -22,6 +22,18 @@ namespace TestApp
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
+
+        constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
+
+        std::string rendererAPIString = "Undefined";
+
+        if (windowSpecs.RendererAPI == pxl::RendererAPIType::OpenGL)
+            rendererAPIString = "OpenGL";
+        else if (windowSpecs.RendererAPI == pxl::RendererAPIType::Vulkan)
+            rendererAPIString = "Vulkan";
+
+        pxl::DiscordRPC::Init(RPCCLIENT_ID);
+        pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running Test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
     }
 
     void OGLVK::OnUpdate(float dt)

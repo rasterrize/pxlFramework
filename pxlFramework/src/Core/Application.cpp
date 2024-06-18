@@ -5,6 +5,7 @@
 #include "Platform.h"
 #include "Stopwatch.h"
 #include "Config.h"
+#include "DiscordRPC.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"
@@ -48,6 +49,7 @@ namespace pxl
                 OnRender();
                 GUI::Update();
                 Renderer::End();
+                DiscordRPC::Update();
             }
 
             Window::UpdateAll();

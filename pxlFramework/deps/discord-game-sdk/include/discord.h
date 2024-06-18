@@ -1,0 +1,16 @@
+#pragma once
+
+#include "../src/types.h"
+#include "../src/core.h"
+#include "../src/application_manager.h"
+#include "../src/user_manager.h"
+#include "../src/image_manager.h"
+#include "../src/activity_manager.h"
+#include "../src/relationship_manager.h"
+#include "../src/lobby_manager.h"
+#include "../src/network_manager.h"
+#include "../src/overlay_manager.h"
+#include "../src/storage_manager.h"
+#include "../src/store_manager.h"
+#include "../src/voice_manager.h"
+#include "../src/achievement_manager.h"

@@ -14,6 +14,7 @@ src/Core/MouseCodes.h
 src/Core/Platform.h
 src/Core/Stopwatch.h
 src/Core/Config.h src/Core/Config.cpp
+src/Core/DiscordRPC.h src/Core/DiscordRPC.cpp
 
 # RENDERER
 src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -118,6 +119,7 @@ add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
 add_subdirectory(deps/assimp)
 add_subdirectory(deps/yaml-cpp)
+add_subdirectory(deps/discord-game-sdk)
 
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 #target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
@@ -139,7 +141,7 @@ endif()
 target_include_directories(pxlFramework PUBLIC Vulkan::Headers)
 
 # Link Libraries
-target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan ${TRACY_LIB})
+target_link_libraries(pxlFramework glfw glad spdlog glm imgui stb assimp yaml-cpp Vulkan::Vulkan ${TRACY_LIB} discordgamesdk discord_game_sdk.dll.lib)
 
 target_precompile_headers(pxlFramework PUBLIC 
 src/Core/Logging/Logger.h
@@ -173,3 +175,5 @@ target_include_directories(pxlFramework PUBLIC include)
 
 # Copy internal resources to TestApp current working directory
 file(COPY resources/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin/resources) # TODO: make this only happen if BUILD_TEST_APP is enabled
+
+file (COPY deps/discord-game-sdk/lib/discord_game_sdk.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)

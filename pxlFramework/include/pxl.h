@@ -9,6 +9,7 @@
 #include "../src/Core/Platform.h"
 #include "../src/Core/Stopwatch.h"
 #include "../src/Core/Config.h"
+#include "../src/Core/DiscordRPC.h"
 
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/Camera.h"
