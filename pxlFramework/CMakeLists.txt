@@ -68,6 +68,7 @@ src/Renderer/Vulkan/VmaUsage.cpp
 
 # UTILS
 src/Utils/FileLoader.h src/Utils/FileLoader.cpp
+src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
 
 # DEBUG
 src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp

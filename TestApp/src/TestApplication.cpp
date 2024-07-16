@@ -28,18 +28,7 @@ namespace TestApp
             buildType = "Distribute x64";
         #endif
 
-        switch (windowRendererAPI)
-        {
-            case pxl::RendererAPIType::None:
-                rendererAPIType = "No Renderer API";
-                break;
-            case pxl::RendererAPIType::OpenGL:
-                rendererAPIType = "OpenGL";
-                break;
-            case pxl::RendererAPIType::Vulkan:
-                rendererAPIType = "Vulkan";
-                break;
-        }
+        rendererAPIType = pxl::EnumStringHelper::RendererAPITypeToString(windowRendererAPI);
 
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
 
