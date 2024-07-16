@@ -11,7 +11,7 @@
                 "build/ALL_BUILD.vcxproj",
                 "/property:Configuration=Debug",
                 "/t:build",
-                "/maxCpuCount",
+                "/maxCpuCount"
             ],
             "group": {
                 "kind": "build",
@@ -20,9 +20,9 @@
             "presentation": {
                 "reveal": "always",
                 "focus": true,
-                "clear": true,
+                "clear": true
             },
-            "problemMatcher": "$msCompile",
+            "problemMatcher": "$msCompile"
         },
         {
             "label": "MSBuild ALL - Release",
@@ -31,14 +31,13 @@
             "args": [
                 "build/ALL_BUILD.vcxproj",
                 "/property:Configuration=Release",
-                "/maxCpuCount",
-                "/terminalLogger",
+                "/maxCpuCount"
             ],
             "group": "build",
             "presentation": {
                 "reveal": "always",
                 "focus": true,
-                "clear": true,
+                "clear": true
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
