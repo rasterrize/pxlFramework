@@ -6,6 +6,7 @@
 #include "Tests/QuadsTest.h"
 #include "Tests/EmptyApp.h"
 #include "Tests/WindowTest.h"
+#include "Tests/LinesTest.h"
 
 namespace TestApp
 {

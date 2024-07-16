@@ -12,6 +12,7 @@ src/Tests/OGLVK.h src/Tests/OGLVK.cpp
 src/Tests/QuadsTest.h src/Tests/QuadsTest.cpp
 src/Tests/EmptyApp.h src/Tests/EmptyApp.cpp
 src/Tests/WindowTest.h src/Tests/WindowTest.cpp
+src/Tests/LinesTest.h src/Tests/LinesTest.cpp
 )
 
 set(PXL_ENABLE_PROFILING ON CACHE BOOL "" FORCE)
