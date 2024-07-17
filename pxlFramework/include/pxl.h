@@ -24,3 +24,4 @@
 #include <imgui.h> // so applications can use ImGui functions
 
 #include "../src/Utils/FileLoader.h"
+#include "../src/Utils/EnumStringHelper.h"
