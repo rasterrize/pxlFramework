@@ -3,7 +3,7 @@
 namespace pxl
 {
     bool DiscordRPC::s_Enabled = false;
-    std::unique_ptr<discord::Core> DiscordRPC::s_DiscordAPI; 
+    std::unique_ptr<discord::Core> DiscordRPC::s_DiscordAPI;
 
     static void LogCallback(discord::LogLevel minLevel, const char* message)
     {
@@ -12,30 +12,36 @@ namespace pxl
 
     static void ActivityCallback(discord::Result result)
     {
-        #ifdef PXL_ENABLE_LOGGING
-            if (result == discord::Result::Ok)
-                PXL_LOG_INFO(LogArea::Other, "Discord activity updated")
-            else
-                PXL_LOG_WARN(LogArea::Other, "Discord activity failed to update");
-        #endif
+    #ifdef PXL_ENABLE_LOGGING
+        if (result == discord::Result::Ok)
+            PXL_LOG_INFO(LogArea::Other, "Discord activity updated")
+        else
+            PXL_LOG_WARN(LogArea::Other, "Discord activity failed to update");
+    #endif
     }
 
     void DiscordRPC::Init(int64_t clientID)
     {
         if (s_Enabled)
             return;
-        
-        discord::Core* api;
-        discord::Core::Create(clientID, DiscordCreateFlags_Default, &api); // discord claims that the memory is freed automatically on its own, I should confirm this later
+
+        discord::Core* api = nullptr;
+        auto result = discord::Core::Create(clientID, DiscordCreateFlags_NoRequireDiscord, &api); // discord claims that the memory is freed automatically on its own, I should confirm this later
         s_DiscordAPI.reset(api);
 
-        if (s_DiscordAPI)
+        if (result != discord::Result::Ok)
+        {
+            PXL_LOG_INFO(LogArea::Other, "Failed to initialize Discord RPC");
+            return;
+        }
+
+        if (api)
         {
             PXL_LOG_INFO(LogArea::Other, "Discord RPC instance successfully created");
         }
         else
         {
-            PXL_LOG_INFO(LogArea::Other, "Failed to create DiscordRPC core instance");
+            PXL_LOG_WARN(LogArea::Other, "Failed to create DiscordRPC core instance");
             return;
         }
 
@@ -61,7 +67,10 @@ namespace pxl
 
     void DiscordRPC::SetPresence(const DiscordRPCSettings& settings)
     {
-        discord::Activity activity {};
+        if (!s_Enabled)
+            return;
+        
+        discord::Activity activity = {};
         activity.SetApplicationId(settings.ClientID);
         activity.SetName(settings.AppName.c_str());
         activity.SetDetails(settings.Details.c_str());
@@ -84,8 +93,8 @@ namespace pxl
         }
         activity.SetType(activityType);
 
-        //std::time_t currentTime = std::time(0);
-        //activity.GetTimestamps().SetStart(currentTime);
+        // std::time_t currentTime = std::time(0);
+        // activity.GetTimestamps().SetStart(currentTime);
 
         s_DiscordAPI->ActivityManager().UpdateActivity(activity, ActivityCallback);
     }
