@@ -14,14 +14,9 @@ namespace pxl
         VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin);
         ~VulkanShader();
 
-        virtual void Bind() override;
-        virtual void Unbind() override;
-
         virtual void Reload() override;
 
-        virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) override;
-        virtual void SetUniformInt1(const std::string& name, int value) override;
-        virtual void SetUniformIntArray(const std::string& name, int* values, uint32_t count) override;
+        virtual ShaderStage GetShaderStage() const override { return m_ShaderStage; }
 
         void Destroy();
 

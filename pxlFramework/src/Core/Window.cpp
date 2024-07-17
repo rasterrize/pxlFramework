@@ -382,10 +382,6 @@ namespace pxl
         for (const auto& window : s_Windows)
             window->Update();
 
-        // TODO: Move these into the Renderer class
-        Renderer::s_FrameCount++;
-        Renderer::CalculateFPS();
-
         s_EventProcessFunc();
     }
 

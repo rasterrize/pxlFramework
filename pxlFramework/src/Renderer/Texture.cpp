@@ -1,11 +1,11 @@
 #include "Texture.h"
 
 #include "Renderer.h"
-#include "OpenGL/OpenGLTexture2D.h"
+#include "OpenGL/OpenGLTexture.h"
 
 namespace pxl
 {
-    std::shared_ptr<Texture2D> Texture2D::Create(const Image& image)
+    std::shared_ptr<Texture> Texture::Create(const Image& image)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -13,7 +13,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLTexture2D>(image);
+                return std::make_shared<OpenGLTexture>(image);
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
                 break;

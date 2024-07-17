@@ -63,7 +63,7 @@ namespace pxl
 
     void VulkanRenderer::DrawLines(uint32_t vertexCount)
     {
-        //vkCmdDraw
+        vkCmdDraw(m_CurrentFrame.CommandBuffer, vertexCount, 1, 0, 0);
     }
 
     void VulkanRenderer::DrawIndexed(uint32_t indexCount)

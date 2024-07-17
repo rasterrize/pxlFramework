@@ -8,6 +8,12 @@ namespace pxl
 
     void VulkanInstance::Init(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
     {
+        if (s_Instance)
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Vulkan instance already initialized");
+            return;
+        }
+        
         // Check vulkan API version
         auto apiVersion = VulkanHelpers::GetVulkanAPIVersion();
 
@@ -25,11 +31,7 @@ namespace pxl
 
         VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &s_Instance));
 
-        if (!s_Instance)
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan instance");
-            return;
-        }
+        PXL_ASSERT_MSG(s_Instance, "Failed to create Vulkan instance");
 
         VulkanDeletionQueue::Add([&]() {
             vkDestroyInstance(s_Instance, nullptr);

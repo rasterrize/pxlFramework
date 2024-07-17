@@ -2,33 +2,25 @@
 
 #include "../Shader.h"
 
-#include <glm/matrix.hpp>
-
 namespace pxl
 {
     class OpenGLShader : public Shader
     {
     public:
-        OpenGLShader(const std::string& vertSrc, const std::string& fragSrc);
+        OpenGLShader(ShaderStage stage, const std::string& glslSrc);
         ~OpenGLShader();
 
-        virtual void Bind() override;
-        virtual void Unbind() override;
-
         virtual void Reload() override;
+        
+        virtual ShaderStage GetShaderStage() const override { return m_ShaderStage; }
 
-        virtual void SetUniformMat4(const std::string& name, const glm::mat4& value) override;
-        virtual void SetUniformInt1(const std::string& name, int value) override;
-        virtual void SetUniformIntArray(const std::string& name, int* values, uint32_t count) override;
+        uint32_t GetID() const { return m_RendererID; }
     private:
-        void Compile(const std::string& vertSrc, const std::string& fragSrc);
-        int GetUniformLocation(const std::string& name) const;
+        void Compile(const std::string& glslSrc);
+
+        static uint32_t ShaderStageToOGLShaderStage(ShaderStage stage);
     private:
         uint32_t m_RendererID = 0;
-        mutable std::unordered_map<std::string, int> m_UniformCache;
-
-        std::string m_VertSource;
-        std::string m_FragSource;
-
+        ShaderStage m_ShaderStage;
     };
 }

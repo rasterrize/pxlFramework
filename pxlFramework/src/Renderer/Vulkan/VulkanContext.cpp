@@ -21,10 +21,16 @@ namespace pxl
         #endif
 
         // Create Vulkan instance with specified extensions and layers
+        VkInstance vulkanInstance;
         if (!VulkanInstance::Get())
+        {
             VulkanInstance::Init(glfwExtensions, selectedLayers);
-
-        auto vulkanInstance = VulkanInstance::Get();
+            vulkanInstance = VulkanInstance::Get();
+        }
+        else
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Vulkan instance already initialized possibly with incorrect extensions/layers");
+        }
 
         // Get the window surface from the window
         m_Surface = window->CreateVKWindowSurface(vulkanInstance);
@@ -37,7 +43,7 @@ namespace pxl
         // Get available physical devices
         auto physicalDevices = VulkanHelpers::GetAvailablePhysicalDevices(vulkanInstance);
 
-        if (physicalDevices.size() < 1)
+        if (physicalDevices.empty())
             return;
         
         // Select GPU

@@ -53,6 +53,9 @@ namespace pxl
             }
 
             Window::UpdateAll();
+            
+            Renderer::s_FrameCount++;
+            Renderer::CalculateFPS();
 
             PXL_PROFILE_FRAME_END;
         }

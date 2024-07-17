@@ -7,6 +7,8 @@
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
 #include "../Utils/Fileloader.h"
+#include "BufferLayout.h"
+#include "UniformLayout.h"
 
 namespace pxl
 {
@@ -15,7 +17,6 @@ namespace pxl
     std::unique_ptr<RendererAPI> Renderer::s_RendererAPI = nullptr;
     std::shared_ptr<GraphicsContext> Renderer::s_ContextHandle = nullptr;
 
-    float Renderer::s_FPS = 0.0f;
     uint32_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
@@ -28,46 +29,58 @@ namespace pxl
     constexpr uint32_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
 
     constexpr uint32_t s_MaxLineCount = 10000;
-    constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2; // textures break on 8 vertex cubes, need to look into how this can be solved
+    constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2;
 
     constexpr uint32_t s_MaxTextureUnits = 32; // TODO: I believe 16 is the minimum value for this (on computers) but this should be determined by a RenderCapabilities thing
 
     // --- Most objects below this comment are no longer static as they can cause significantly long compile times ---
 
     // Static Quad Data
+    uint32_t s_StaticQuadCount = 0;
     std::shared_ptr<Buffer> s_StaticQuadVBO = nullptr;
     std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
-    std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO, IBO for Vulkan
+    std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     std::vector<QuadVertex> s_StaticQuadVertices(s_MaxQuadVertexCount);
-    uint32_t s_StaticQuadCount = 0;
 
     // Dynamic Quad Data
-    std::shared_ptr<Buffer> s_QuadVBO = nullptr;
-    std::shared_ptr<Buffer> s_QuadIBO = nullptr;
-    std::function<void()> s_QuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO, IBO for Vulkan
-    std::shared_ptr<Shader> s_QuadShader = nullptr;
-    std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
+    uint32_t s_QuadCount = 0;
     std::vector<QuadVertex> s_QuadVertices(s_MaxQuadVertexCount);
     std::vector<uint32_t> s_QuadIndices(s_MaxQuadIndexCount); // NOTE: currently also used by static quads
-    uint32_t s_QuadCount = 0;
+    std::shared_ptr<Buffer> s_QuadVBO = nullptr;
+    std::shared_ptr<Buffer> s_QuadIBO = nullptr;
+    std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
+    std::function<void()> s_QuadUniformFunc = nullptr;
+    UniformLayout s_QuadUniformLayout;
+    std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
     std::shared_ptr<Camera> Renderer::s_QuadsCamera = nullptr;
 
+    std::function<void(const std::shared_ptr<GraphicsPipeline>&, const void* vp)> s_SetViewProjectionFunc = nullptr;
+
     // Cube Data
-    // static std::array<CubeVertex, s_MaxCubeVertexCount> s_CubeVertices = {};
-    // static std::array<uint32_t, s_MaxCubeIndexCount> s_CubeIndices = {};
-    // static size_t s_CubeVertexCount = 0;
-    // static size_t s_CubeIndexCount = 0;
+    uint32_t s_CubeCount = 0;
+    std::vector<CubeVertex> s_CubeVertices(s_MaxCubeVertexCount);
+    std::vector<uint32_t> s_CubeIndices(s_MaxCubeIndexCount);
+    std::shared_ptr<Buffer> s_CubeVBO = nullptr;
+    std::shared_ptr<Buffer> s_CubeIBO = nullptr;
+    std::function<void()> s_CubeBindFunc = nullptr;
+    std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
+    // std::shared_ptr<Camera> Renderer::s_CubesCamera = nullptr;
 
     // Line Data
-    // static std::array<LineVertex, s_MaxLineVertexCount> s_LineVertices = {};
-    // static size_t s_LineVertexCount = 0;
+    uint32_t s_LineCount = 0;
+    std::vector<LineVertex> s_LineVertices(s_MaxLineVertexCount);
+    std::shared_ptr<Buffer> s_LineVBO = nullptr;
+    std::function<void()> s_LineBindFunc = nullptr;
+    std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
+#if MESH
     // Mesh Data
-    // static std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
+    static std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
+#endif
 
     // Texture Data
     uint32_t s_TextureUnitIndex = 0;
-    std::array<std::shared_ptr<Texture2D>, s_MaxTextureUnits> s_TextureSlots;
+    std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureSlots;
 
     // For OpenGL
     std::shared_ptr<VertexArray> s_QuadVAO;
@@ -90,6 +103,7 @@ namespace pxl
         s_ContextHandle = window->GetGraphicsContext();
         s_RendererAPIType = window->GetWindowSpecs().RendererAPI;
 
+        // Create renderer API object
         switch (s_RendererAPIType)
         {
             case RendererAPIType::None:
@@ -97,24 +111,24 @@ namespace pxl
                 return;
             case RendererAPIType::OpenGL:
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
-
-                if (!s_RendererAPI)
-                    PXL_LOG_ERROR(LogArea::Renderer, "Failed to create OpenGL renderer api object"); // TODO: switch to assert
+                PXL_ASSERT_MSG(s_RendererAPI, "Failed to create OpenGL renderer api object");
 
                 break;
             case RendererAPIType::Vulkan:
-                auto vulkanContext = dynamic_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
-                PXL_ASSERT(vulkanContext);
+                auto vulkanContext = static_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
+                PXL_ASSERT_MSG(vulkanContext, "Failed to retrieve VulkanGraphicsContext");
 
                 s_RendererAPI = std::make_unique<VulkanRenderer>(vulkanContext);
-                PXL_ASSERT(s_RendererAPI);
+                PXL_ASSERT_MSG(s_RendererAPI, "Failed to create Vulkan renderer api object");
                     
                 break;
         }
 
+        // --------------------
         // Prepare Quad Data
+        // --------------------
         {
-            // Prepare Quad Index Data
+            // Prepare Quad Indices
             {
                 uint32_t offset = 0;
                 for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
@@ -131,41 +145,64 @@ namespace pxl
                 }
             }
             
-            auto quadBufferLayout = QuadVertex::GetLayout();
+            const auto bufferLayout = QuadVertex::GetLayout();
 
-            // Prepare Quad Buffers
+            // Prepare Buffers
             s_QuadVBO = Buffer::Create(BufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
             s_QuadIBO = Buffer::Create(BufferUsage::Index, s_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
             s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
 
+            // Shader storage
+            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
+
+            GraphicsPipelineSpecs pipelineSpecs;
+            pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
+            pipelineSpecs.VertexLayout = bufferLayout;
+
+            // Prepare other data based on renderer API
             if (s_RendererAPIType == RendererAPIType::OpenGL)
             {
                 s_QuadVAO = VertexArray::Create();
-                s_QuadVAO->AddVertexBuffer(s_QuadVBO, quadBufferLayout);
+                s_QuadVAO->AddVertexBuffer(s_QuadVBO, bufferLayout);
                 s_QuadVAO->SetIndexBuffer(s_QuadIBO);
 
                 s_StaticQuadVAO = VertexArray::Create();
-                s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, quadBufferLayout);
+                s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, bufferLayout);
                 s_StaticQuadVAO->SetIndexBuffer(s_QuadIBO); // Use the quad index buffer since it's also static
 
-                s_QuadBindFunc = []() {
+                s_QuadBufferBindFunc = []() {
                     s_QuadVAO->Bind();
-                    s_QuadShader->Bind();
                 };
 
                 s_StaticQuadBindFunc = []() {
                     s_StaticQuadVAO->Bind();
-                    s_QuadShader->Bind();
                 };
 
-                s_QuadShader = pxl::FileLoader::LoadGLSLShader("resources/shaders/quad_coloured.vert", "resources/shaders/quad_coloured.frag");
+                s_QuadUniformFunc = []() {
+                    auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+                    s_QuadPipeline->SetUniformData("u_VP", BufferDataType::Mat4, &vp);
+                };
+
+                s_SetViewProjectionFunc = [](const std::shared_ptr<GraphicsPipeline>& pipeline, const void* vp) {
+                    pipeline->SetUniformData("u_VP", BufferDataType::Mat4, vp);
+                };
+
+                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.frag");
+
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_QuadBindFunc = []() {
+                s_QuadBufferBindFunc = []() {
                     s_QuadVBO->Bind();
                     s_QuadIBO->Bind();
-                    s_QuadPipeline->Bind(); // TODO: remove this once opengl pipelines are completely used
+                };
+
+                s_QuadUniformFunc = []() {
+                    auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+                    s_QuadPipeline->SetPushConstantData("u_VP", &vp);
                 };
 
                 s_StaticQuadBindFunc = []() {
@@ -173,87 +210,171 @@ namespace pxl
                     s_QuadIBO->Bind();
                 };
 
-                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/vert.spv");
-                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/frag.spv");
+                s_SetViewProjectionFunc = [](const std::shared_ptr<GraphicsPipeline>& pipeline, const void* vp) {
+                    pipeline->SetPushConstantData("u_VP", vp);
+                };
 
-                std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
+                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
+                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
+
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
 
-                pxl::UniformLayout quadUniformLayout;
-                quadUniformLayout.Add({ "vpPC", pxl::BufferDataType::Mat4, true, pxl::ShaderStage::Vertex });
+                //s_QuadUniformLayout.Add({ "u_VertexColour", pxl::BufferDataType::Float4, pxl::ShaderStage::Vertex });
 
-                s_QuadPipeline = GraphicsPipeline::Create(shaders, quadBufferLayout, quadUniformLayout);
+                pxl::PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+
+                pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
+
+            pipelineSpecs.UniformLayout = s_QuadUniformLayout;
+
+            s_QuadPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+        }
+        
+        // --------------------
+        // Prepare Cube Data
+        // --------------------
+        {
+            // Prepare Cube Indices
+            {
+                uint32_t offset = 0;
+                for (size_t i = 0; i < s_MaxCubeIndexCount; i += 6) // All this assumes the cube is made of 6 quads
+                {
+                    s_CubeIndices[i + 0] = 0 + offset;
+                    s_CubeIndices[i + 1] = 1 + offset;
+                    s_CubeIndices[i + 2] = 2 + offset;
+
+                    s_CubeIndices[i + 3] = 2 + offset;
+                    s_CubeIndices[i + 4] = 3 + offset;
+                    s_CubeIndices[i + 5] = 0 + offset;
+
+                    offset += 4;
+                }
+            }
+
+            const auto bufferLayout = CubeVertex::GetLayout();
+
+            // Prepare Buffers
+            s_CubeVBO = Buffer::Create(BufferUsage::Vertex, s_MaxCubeVertexCount * sizeof(CubeVertex));
+            s_CubeIBO = Buffer::Create(BufferUsage::Index, s_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
+
+            // Shader storage    
+            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
+
+            GraphicsPipelineSpecs pipelineSpecs;
+            pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
+            pipelineSpecs.VertexLayout = bufferLayout;
+
+            // Prepare other data based on renderer API
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+            {
+                s_CubeVAO = VertexArray::Create();
+                s_CubeVAO->AddVertexBuffer(s_CubeVBO, bufferLayout);
+                s_CubeVAO->SetIndexBuffer(s_CubeIBO);
+
+                s_CubeBindFunc = []() {
+                    s_CubeVAO->Bind();
+                };
+
+                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.frag");
+
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+            }
+            else if (s_RendererAPIType == RendererAPIType::Vulkan)
+            {
+                s_CubeBindFunc = []() {
+                    s_CubeVBO->Bind();
+                    s_CubeIBO->Bind();
+                };
+
+                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
+                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
+
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
+
+                pxl::PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+
+                pipelineSpecs.PushConstantLayout = pushConstantLayout;
+            }
+
+            s_CubePipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }
 
-        #if CUBESLINESMODELS
-        
-        // {
-        //     // Prepare Cube Index Buffer
-        //
-        //     uint32_t offset = 0;
-        //     for (size_t i = 0; i < MAX_CUBE_INDEX_COUNT; i += 6) // all this assumes the cube is made of 6 quads
-        //     {
-        //         s_CubeIndices[i + 0] = 0 + offset;
-        //         s_CubeIndices[i + 1] = 1 + offset;
-        //         s_CubeIndices[i + 2] = 2 + offset;
-        //
-        //         s_CubeIndices[i + 3] = 2 + offset;
-        //         s_CubeIndices[i + 4] = 3 + offset;
-        //         s_CubeIndices[i + 5] = 0 + offset;
-        //
-        //         s_CubeIndexCount += 6;
-        //
-        //         offset += 4;
-        //     }
-        // }
+        // --------------------
+        // Prepare Line Data
+        // --------------------
+        {
+            const auto bufferLayout = LineVertex::GetLayout();
 
-        // {
-        //     // Prepare Cube VAO, VBO, IBO
-        //     s_CubeVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
-        //     auto cubeVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(MAX_CUBE_VERTEX_COUNT * sizeof(TriangleVertex)));
-        //     auto cubeIBO = std::make_shared<OpenGLIndexBuffer>((uint32_t)MAX_CUBE_INDEX_COUNT, &s_CubeIndices);
+            // Prepare Buffers
+            s_LineVBO = Buffer::Create(BufferUsage::Vertex, s_MaxLineVertexCount * sizeof(LineVertex));
 
-        //     BufferLayout layout;
-        //     layout.Add(3, BufferDataType::Float, false); // vertex position
-        //     layout.Add(4, BufferDataType::Float, false); // colour
-        //     layout.Add(2, BufferDataType::Float, false); // texture coords
+            // Shader storage
+            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
 
-        //     s_CubeVAO->SetLayout(layout);
-        //     s_CubeVAO->SetVertexBuffer(cubeVBO);
-        //     s_CubeVAO->SetIndexBuffer(cubeIBO);
-        // }
+            GraphicsPipelineSpecs pipelineSpecs;
+            pipelineSpecs.PrimitiveType = PrimitiveTopology::Line;
+            pipelineSpecs.VertexLayout = bufferLayout;
 
-        // {
-        //     // Prepare Line VAO, VBO
-        //     s_LineVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
-        //     auto lineVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(MAX_LINE_VERTEX_COUNT * sizeof(LineVertex)));
+            // Prepare other data based on renderer API
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+            {
+                s_LineVAO = VertexArray::Create();
+                s_LineVAO->AddVertexBuffer(s_LineVBO, bufferLayout);
 
-        //     BufferLayout layout;
-        //     layout.Add(3, BufferDataType::Float, false); // vertex position
-        //     layout.Add(4, BufferDataType::Float, false); // colour
+                s_LineBindFunc = []() {
+                    s_LineVAO->Bind();
+                };
 
-        //     s_LineVAO->SetLayout(layout);
-        //     s_LineVAO->SetVertexBuffer(lineVBO);
-        // }
+                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/line_ogl.vert");
+                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/line_ogl.frag");
 
-        // {
-        //     // Prepare Mesh VAO, VBO, IBO
-        //     s_MeshVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
-        //     auto meshVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(75 * sizeof(TriangleVertex)));
-        //     auto meshIBO = std::make_shared<OpenGLIndexBuffer>(426);
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+            }
+            else if (s_RendererAPIType == RendererAPIType::Vulkan)
+            {
+                s_LineBindFunc = []() {
+                    s_LineVBO->Bind();
+                };
 
-        //     BufferLayout layout;
-        //     layout.Add(3, BufferDataType::Float, false); // vertex position
-        //     layout.Add(2, BufferDataType::Float, false); // texture coords
+                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/line_vert.spv");
+                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/line_frag.spv");
 
-        //     s_MeshVAO->SetLayout(layout);
-        //     s_MeshVAO->SetVertexBuffer(meshVBO);
-        //     s_MeshVAO->SetIndexBuffer(meshIBO);
-        // }
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
 
-        #endif
+                pxl::PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+
+                pipelineSpecs.PushConstantLayout = pushConstantLayout;
+            }
+
+            s_LinePipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+        }
+
+    #if MESH
+        {
+            // Prepare Mesh VAO, VBO, IBO
+            s_MeshVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
+            auto meshVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(75 * sizeof(TriangleVertex)));
+            auto meshIBO = std::make_shared<OpenGLIndexBuffer>(426);
+
+            BufferLayout layout;
+            layout.Add(3, BufferDataType::Float, false); // vertex position
+            layout.Add(2, BufferDataType::Float, false); // texture coords
+
+            s_MeshVAO->SetLayout(layout);
+            s_MeshVAO->SetVertexBuffer(meshVBO);
+            s_MeshVAO->SetIndexBuffer(meshIBO);
+        }
+    #endif
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
 
@@ -284,18 +405,20 @@ namespace pxl
         s_RendererAPI->SetClearColour(colour);
     }
 
-    // void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera)
-    // {
-    //     shader->Bind();
-    //     shader->SetUniformMat4("u_VP", camera->GetViewProjectionMatrix());
-    // }
+#if CUSTOMRENDERING
+    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera)
+    {
+        shader->Bind();
+        shader->SetUniformMat4("u_VP", camera->GetViewProjectionMatrix());
+    }
 
-    // void Renderer::Submit(const std::shared_ptr<GraphicsPipeline>& pipeline)
-    // {
-    //     //auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-    //     pipeline->Bind();
-    //     // TODO: set uniform variables
-    // }
+    void Renderer::Submit(const std::shared_ptr<GraphicsPipeline>& pipeline)
+    {
+        //auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+        pipeline->Bind();
+        // TODO: set uniform variables
+    }
+#endif
 
     void Renderer::Begin()
     {
@@ -375,13 +498,13 @@ namespace pxl
 
         s_QuadCount++;
 
-        #ifdef PXL_DEBUG
-            s_Stats.QuadVertexCount += 4;
-            s_Stats.QuadIndexCount += 6;
-        #endif
+    #ifdef PXL_DEBUG
+        s_Stats.QuadVertexCount += 4;
+        s_Stats.QuadIndexCount += 6;
+    #endif
     }
 
-    void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture)
+    void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture>& texture)
     {
         PXL_PROFILE_SCOPE;
         
@@ -419,205 +542,215 @@ namespace pxl
 
         s_QuadCount++;
 
-        #ifdef PXL_DEBUG
-            s_Stats.QuadVertexCount += 4;
-            s_Stats.QuadIndexCount += 6;
-        #endif
+    #ifdef PXL_DEBUG
+        s_Stats.QuadVertexCount += 4;
+        s_Stats.QuadIndexCount += 6;
+    #endif
     }
 
-    // void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
-    // {
-    //     if (s_QuadVertexCount >= MAX_QUAD_VERTEX_COUNT)
-    //     {
-    //         EndQuadBatch();
-    //         DrawQuads();
-    //         StartQuadBatch();
-    //     }
-    //
-    //     s_QuadVertices[s_QuadVertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 0.0f, 0.0f }};
-    //     s_QuadVertices[s_QuadVertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 1.0f, 0.0f }};
-    //     s_QuadVertices[s_QuadVertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 1.0f, 1.0f }};
-    //     s_QuadVertices[s_QuadVertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z }, glm::vec4(1.0f), { 0.0f, 1.0f }};
-    //
-    //     s_QuadVertexCount += 4;
-    //    
-    //     s_Stats.VertexCount += 4;
-    //     s_Stats.IndexCount += 6;
-    // }
-
-    // void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
-    // {
-        // if (s_CubeVertexCount >= MAX_CUBE_VERTEX_COUNT)
-        // {
-        //     Flush();
-        // }
-
-        // // Front
-        // s_CubeVertices[s_CubeVertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // // Back
-        // s_CubeVertices[s_CubeVertexCount + 4] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 5] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 6] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 7] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-
-        // // Left
-        // s_CubeVertices[s_CubeVertexCount + 8]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 9]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 10] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 11] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // // Top
-        // s_CubeVertices[s_CubeVertexCount + 12] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 13] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 14] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 15] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // // Right
-        // s_CubeVertices[s_CubeVertexCount + 16] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 17] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 18] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 19] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // // Bottom
-        // s_CubeVertices[s_CubeVertexCount + 20] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 21] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 22] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        // s_CubeVertices[s_CubeVertexCount + 23] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // s_CubeVertexCount += 24;
+    void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    {
+        PXL_PROFILE_SCOPE;
         
-    //     s_Stats.QuadVertexCount += 24; // TODO: probably should be CubeVertexCount
-    //     s_Stats.QuadIndexCount += 36; // based on number of cubes, not actual indices in the index buffer
-    // }
+        if (s_CubeCount >= s_MaxCubeCount)
+            Flush();
 
-    // void Renderer::AddTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex)
-    // {
-    //     // constexpr uint32_t x = 2, y = 15;
-    //     // constexpr float sheetSize = 256.0f;
-    //     // constexpr float textureSize = 16.0f;
-    //     // glm::vec2 texCoords[] = {
-    //     //     { (textureIndex * textureSize) / sheetSize, (y * textureSize) / sheetSize },
-    //     //     { ((textureIndex + 1) * textureSize) / sheetSize, (y * textureSize) / sheetSize },
-    //     //     { ((textureIndex + 1) * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
-    //     //     { (textureIndex * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
-    //     // };
+        const auto vertexCount = s_CubeCount * 24;
+
+        // Front
+        s_CubeVertices[vertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+
+        // Back
+        s_CubeVertices[vertexCount + 4] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 5] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 6] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 7] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+
+        // Left
+        s_CubeVertices[vertexCount + 8]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 9]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 10] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 11] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+
+        // Top
+        s_CubeVertices[vertexCount + 12] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 13] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 14] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 15] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+
+        // Right
+        s_CubeVertices[vertexCount + 16] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 17] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 18] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 19] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+
+        // Bottom
+        s_CubeVertices[vertexCount + 20] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 21] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
+        s_CubeVertices[vertexCount + 22] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
+        s_CubeVertices[vertexCount + 23] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+
+        s_CubeCount++;
+
+    #ifdef PXL_DEBUG
+        s_Stats.CubeVertexCount += 4;
+        s_Stats.CubeIndexCount += 6;
+    #endif
+    }
+
+#ifdef TEXTUREDCUBE
+    void Renderer::AddTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex)
+    {
+        constexpr uint32_t x = 2, y = 15;
+        constexpr float sheetSize = 256.0f;
+        constexpr float textureSize = 16.0f;
+        glm::vec2 texCoords[] = {
+            { (textureIndex * textureSize) / sheetSize, (y * textureSize) / sheetSize },
+            { ((textureIndex + 1) * textureSize) / sheetSize, (y * textureSize) / sheetSize },
+            { ((textureIndex + 1) * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
+            { (textureIndex * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
+        };
         
-    //     // for (int i = 0; i < 24; i += 4)
-    //     // {
-    //     //     s_CubeMesh.Vertices[0 + i].TexCoords = texCoords[0]; 
-    //     //     s_CubeMesh.Vertices[1 + i].TexCoords = texCoords[1]; 
-    //     //     s_CubeMesh.Vertices[2 + i].TexCoords = texCoords[2]; 
-    //     //     s_CubeMesh.Vertices[3 + i].TexCoords = texCoords[3]; 
-    //     // }
-    //     // s_CubeMesh.Translate(position.x, position.y, position.z);
-    //     // s_Meshes.push_back(s_CubeMesh);
-    // }
+        for (int i = 0; i < 24; i += 4)
+        {
+            s_CubeMesh.Vertices[0 + i].TexCoords = texCoords[0]; 
+            s_CubeMesh.Vertices[1 + i].TexCoords = texCoords[1]; 
+            s_CubeMesh.Vertices[2 + i].TexCoords = texCoords[2]; 
+            s_CubeMesh.Vertices[3 + i].TexCoords = texCoords[3]; 
+        }
+        s_CubeMesh.Translate(position.x, position.y, position.z);
+        s_Meshes.push_back(s_CubeMesh);
+    }
+#endif
 
-    // void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
-    // {
-        // if (s_LineVertexCount >= MAX_LINE_VERTEX_COUNT)
-        // {
-        //     Flush();
-        // }
+    void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    {
+        PXL_PROFILE_SCOPE;
         
-        // s_LineVertices[s_LineVertexCount + 0] = {{ position1.x * scale.x, position1.y * scale.y, position1.z * scale.z }, colour };
-        // s_LineVertices[s_LineVertexCount + 1] = {{ position2.x * scale.x, position2.y * scale.y, position2.z * scale.z }, colour };
+        if (s_LineCount >= s_MaxLineCount)
+            Flush();
 
-        // s_LineVertexCount += 2;
-
-        // s_Stats.LineVertexCount += 2;
-    //}
-
-    // void Renderer::AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
-    // {
-    //     Submit(s_MeshVAO);
-    //     s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(mesh->Vertices.size() * sizeof(TriangleVertex), mesh->Vertices.data());
-    //     s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(mesh->Indices.size(), mesh->Indices.data());
-
-    //     glm::mat4 transform = glm::translate(position) 
-    //     * glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
-    //     * glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1))
-    //     * glm::rotate(glm::radians(rotation.x), glm::vec3(1, 0, 0)) // are these technically quaternion rotations?
-    //     * glm::scale(scale);
+        const auto vertexCount = s_LineCount * 2;
         
-    //     s_RendererAPI->GetShader()->SetUniformMat4("u_Transform", transform);
+        s_LineVertices[vertexCount + 0] = {{ position1.x * scale.x, position1.y * scale.y, position1.z * scale.z }, colour };
+        s_LineVertices[vertexCount + 1] = {{ position2.x * scale.x, position2.y * scale.y, position2.z * scale.z }, colour };
 
-    //     DrawIndexed();
-    // }
+        s_LineCount++;
+
+    #ifdef PXL_DEBUG
+        s_Stats.LineVertexCount += 2;
+    #endif
+    }
+
+#if MESH
+    void Renderer::AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+    {
+        Submit(s_MeshVAO);
+        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(mesh->Vertices.size() * sizeof(TriangleVertex), mesh->Vertices.data());
+        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(mesh->Indices.size(), mesh->Indices.data());
+
+        glm::mat4 transform = glm::translate(position) 
+        * glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
+        * glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1))
+        * glm::rotate(glm::radians(rotation.x), glm::vec3(1, 0, 0)) // are these technically quaternion rotations?
+        * glm::scale(scale);
+        
+        s_RendererAPI->GetShader()->SetUniformMat4("u_Transform", transform);
+
+        DrawIndexed();
+    }
+#endif
 
     void Renderer::Flush()
     {
         PXL_PROFILE_SCOPE;
-        
+    
+    #if TEXTURES
         // Bind textures
-        // for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
-        //         s_TextureSlots[i]->Bind(i);
+        for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
+                s_TextureSlots[i]->Bind(i);
         
-        // s_TextureUnitIndex = 0;
+        s_TextureUnitIndex = 0;
+    #endif
 
         // Flush quads if necessary
         if (s_QuadCount > 0)
         {
             s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
-            s_QuadBindFunc(); // Bind quad objects
+            s_QuadBufferBindFunc();
 
-            // int32_t samplers[s_MaxTextureUnits];
-            // for (int32_t i = 0; i < s_MaxTextureUnits; i++)
-            //     samplers[i] = i;
+        #if TEXTURES
+            int32_t samplers[s_MaxTextureUnits];
+            for (int32_t i = 0; i < s_MaxTextureUnits; i++)
+                samplers[i] = i;
 
-            //s_QuadShader->SetUniformIntArray("u_Textures", samplers, s_MaxTextureUnits);
+            s_QuadShader->SetUniformIntArray("u_Textures", samplers, s_MaxTextureUnits);
+        #endif
 
-            // TEMP: set uniforms based on renderer API
-            if (s_RendererAPIType == RendererAPIType::OpenGL)
-            {
-                if (s_QuadShader)
-                    s_QuadShader->SetUniformMat4("u_VP", s_QuadsCamera->GetViewProjectionMatrix());
-            }
-            else if (s_RendererAPIType == RendererAPIType::Vulkan)
-            {
-                std::unordered_map<std::string, const void*> pcData;
-                auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-                pcData["vpPC"] = &vp;
-                s_QuadPipeline->SetPushConstantData(pcData);
-            }
+            s_QuadPipeline->Bind();
+
+            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+            s_SetViewProjectionFunc(s_QuadPipeline, &vp);
+
+            //glm::vec4 testVertexColour = { 1.0f, 0.7f, 0.2f, 1.0f };
+
+            // TEMP
+            //s_UniformBuffers[static_pointer_cast<VulkanGraphicsContext>(s_ContextHandle)->GetSwapchain()->GetCurrentImageIndex()]->SetData(s_QuadUniformLayout.GetSize(), &testVertexColour);
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
             s_QuadCount = 0;
 
-            #ifdef PXL_DEBUG
-                s_Stats.DrawCalls++;
-            #endif
+        #ifdef PXL_DEBUG
+            s_Stats.DrawCalls++;
+        #endif
         }
 
         if (s_StaticQuadCount > 0)
         {
-
+            // TODO: Implement
         }
 
-        // if (s_CubeVertexCount > 0)
-        // {
-        //     s_CubeVAO->GetVertexBuffer()->SetData(s_CubeVertexCount * sizeof(TriangleVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
-        //     s_CubeVAO->Bind();
-        //     s_RendererAPI->DrawIndexed(s_QuadIndexCount);
-        //     s_Stats.DrawCalls++;
-        
-        //     s_CubeVertexCount = 0;
-        // }
+        if (s_CubeCount > 0)
+        {
+            s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
+            
+            s_CubeBindFunc();
 
-        // if (s_LineVertexCount > 0)
-        // {
-        //     s_LineVAO->GetVertexBuffer()->SetData(s_LineVertexCount * sizeof(LineVertex), s_LineVertices.data());
-        //     s_LineVAO->Bind();
-        //     s_RendererAPI->DrawLines(s_LineVertexCount);
-        //     s_Stats.DrawCalls++;
+            s_CubePipeline->Bind();
+            
+            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+            s_SetViewProjectionFunc(s_CubePipeline, &vp);
+
+            s_RendererAPI->DrawIndexed(s_CubeCount * 36);;
+            s_CubeCount = 0;
+
+        #ifdef PXL_DEBUG
+            s_Stats.DrawCalls++;
+        #endif
+        }
+
+        if (s_LineCount > 0)
+        {
+            s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
+            
+            s_LineBindFunc();
+
+            s_LinePipeline->Bind();
+
+            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+            s_SetViewProjectionFunc(s_LinePipeline, &vp);
+
+            s_RendererAPI->DrawLines(s_LineCount * 2);
+            s_LineCount = 0;
         
-        //     s_LineVertexCount = 0;
-        // }
+        #ifdef PXL_DEBUG
+            s_Stats.DrawCalls++;
+        #endif
+        }
     }
 
     void Renderer::CalculateFPS()
@@ -627,7 +760,7 @@ namespace pxl
 
         if (elapsedTime > 0.05f)
         {
-            s_FPS = s_FrameCount / elapsedTime;
+            s_Stats.FPS = s_FrameCount / elapsedTime;
             s_TimeAtLastFrame = currentTime;
             s_FrameCount = 0;
         }

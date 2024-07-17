@@ -19,7 +19,7 @@ namespace TestApp
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
         m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 1.0f, 1000.0f });
-        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        m_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
 
@@ -135,8 +135,11 @@ namespace TestApp
                 pxl::Renderer::AddQuad({ x - (quadCount / 2.0f) - 0.2f, y - (quadCount / 2.0f) - 0.2f, 0.0f }, glm::vec3(0.0f), glm::vec2(1.4f), glm::vec4(1.0f));
                 pxl::Renderer::AddQuad({ x - (quadCount / 2.0f) - 0.1f, y - (quadCount / 2.0f) - 0.1f, 0.1f }, glm::vec3(0.0f), glm::vec2(1.2f), { 0.8f, 0.5f, 0.3f, 1.0f });
                 pxl::Renderer::AddQuad({ x - (quadCount / 2.0f), y - (quadCount / 2.0f), 0.2f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
+                pxl::Renderer::AddCube({ x - (quadCount / 2.0f), y - (quadCount / 2.0f), 1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
             }
         }
+
+        pxl::Renderer::AddLine({ -10.0, 10.0, 1.0f }, { 10.0, -10.0, 1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
     }
 
     void OGLVK::OnImGuiRender()

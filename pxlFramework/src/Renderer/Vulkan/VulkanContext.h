@@ -23,7 +23,7 @@ namespace pxl
         virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); }
         virtual bool GetVSync() const override { return m_Swapchain->GetVSync(); }
 
-        virtual std::shared_ptr<Device> GetDevice() const override { return m_Device; }
+        virtual std::shared_ptr<GraphicsDevice> GetDevice() const override { return m_Device; }
 
         VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
         std::shared_ptr<VulkanSwapchain> GetSwapchain() const { return m_Swapchain; }

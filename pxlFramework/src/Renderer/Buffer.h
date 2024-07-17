@@ -4,7 +4,7 @@ namespace pxl
 {
     enum class BufferUsage
     {
-        None, Vertex, Index
+        None, Vertex, Index, Uniform
     };
 
     class Buffer

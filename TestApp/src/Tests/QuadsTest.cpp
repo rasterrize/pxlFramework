@@ -4,8 +4,6 @@ namespace TestApp
 {
     std::shared_ptr<pxl::Window> QuadsTest::m_Window;
     std::shared_ptr<pxl::Camera> QuadsTest::m_Camera;
-    std::shared_ptr<pxl::Shader> QuadsTest::m_Shader; 
-    std::shared_ptr<pxl::GraphicsPipeline> QuadsTest::m_Pipeline;
     glm::vec4 QuadsTest::m_ClearColour;
 
     glm::vec3 QuadsTest::m_CameraPosition = glm::vec3(0.0f);
@@ -19,7 +17,7 @@ namespace TestApp
     uint32_t QuadsTest::m_BlueQuadAmount = 100;
     uint32_t QuadsTest::m_OrangeQuadAmount = 100;
 
-    std::shared_ptr<pxl::Texture2D> QuadsTest::m_StoneTexture;
+    std::shared_ptr<pxl::Texture> QuadsTest::m_StoneTexture;
 
     void QuadsTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {

@@ -32,11 +32,14 @@ namespace pxl
     class VulkanGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        VulkanGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass, const BufferLayout& bufferLayout, const UniformLayout& uniformLayout);
+        VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass);
         virtual ~VulkanGraphicsPipeline() override;
 
         virtual void Bind() override;
-        virtual void SetPushConstantData(std::unordered_map<std::string, const void*>& pcData) override;
+        virtual void Unbind() override {};
+        
+        virtual void SetUniformData(const std::string& name, BufferDataType type, const void* data) override;
+        virtual void SetPushConstantData(const std::string& name, const void* data) override;
 
         virtual void* GetPipelineLayout() override { return m_Layout; }
 
@@ -45,14 +48,16 @@ namespace pxl
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
 
     private:
-        static VkShaderStageFlagBits GetVkShaderStage(ShaderStage stage);
+        static VkShaderStageFlagBits ToVkShaderStage(ShaderStage stage);
+        static VkPrimitiveTopology ToVkPrimitiveTopology(PrimitiveTopology topology);
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
         VkPipelineLayout m_Layout = VK_NULL_HANDLE;
+        VkCommandBuffer m_CurrentCommandBuffer = VK_NULL_HANDLE;
 
         std::unordered_map<ShaderStage, std::shared_ptr<Shader>> m_Shaders; // NOTE: currently holds on to them so they don't immediately get destroyed
-        std::vector<PushConstantRange> m_PushConstants;
+        std::unordered_map<std::string, VkPushConstantRange> m_PushConstantRanges;
 
         VulkanGraphicsPipelineSettings m_Settings;
     };

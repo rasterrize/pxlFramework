@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Device.h"
+#include "../GraphicsDevice.h"
 
 #include <vulkan/vulkan.h>
 
@@ -8,7 +8,7 @@
 
 namespace pxl
 {
-    class VulkanDevice : public Device
+    class VulkanDevice : public GraphicsDevice
     {
     public:
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
@@ -18,6 +18,8 @@ namespace pxl
         virtual void* GetPhysicalDevice() override { return m_PhysicalDevice; }
 
         virtual void WaitIdle() override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
+
+        virtual const DeviceLimits& GetDeviceLimits() override { return DeviceLimits(); }; // TODO
 
         void Destroy();
 

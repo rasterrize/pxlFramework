@@ -14,9 +14,14 @@ layout(push_constant, std430) uniform pc {
     layout(offset = 0) mat4 vp;
 };
 
+// layout(set = 0, binding = 0) uniform ubo {
+//     vec4 vertexColour;
+// } uniforms;
+
 void main()
 {
     v_Position = a_Position;
+    //v_Colour = uniforms.vertexColour;
     v_Colour = a_Colour;
     v_TexCoords = a_TexCoords;
     v_TexIndex = a_TexIndex;

@@ -6,7 +6,7 @@
 
 namespace pxl
 {
-    std::shared_ptr<Shader> Shader::Create(const std::string& vertSrc, const std::string& fragSrc)
+    std::shared_ptr<Shader> Shader::Create(ShaderStage stage, const std::string& glslSrc)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -14,9 +14,9 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLShader>(vertSrc, fragSrc);
+                return std::make_shared<OpenGLShader>(stage, glslSrc);
             case RendererAPIType::Vulkan:
-                PXL_LOG_ERROR(LogArea::Renderer, "Vulkan implementation doesn't support shaders from strings");
+                PXL_LOG_ERROR(LogArea::Renderer, "Vulkan implementation doesn't support shaders from glsl strings");
                 break;
         }
         

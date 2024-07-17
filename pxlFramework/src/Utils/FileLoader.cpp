@@ -10,7 +10,7 @@
 
 namespace pxl
 {
-    std::shared_ptr<Texture2D> FileLoader::LoadTextureFromImage(const std::string& filePath)
+    std::shared_ptr<Texture> FileLoader::LoadTextureFromImage(const std::string& filePath)
     {
         // stb image loads images from bottom to top I guess
         stbi_set_flip_vertically_on_load(1);
@@ -41,7 +41,7 @@ namespace pxl
             spec.Format = ImageFormat::Undefined;
 
 
-        std::shared_ptr<Texture2D> texture = Texture2D::Create(spec); // should glm be used here?
+        std::shared_ptr<Texture> texture = Texture::Create(spec); // should glm be used here?
 
         // stb image requires we manually free the loaded image from memory
         stbi_image_free(bytes);
@@ -49,54 +49,34 @@ namespace pxl
         return texture;
     }
 
-    std::shared_ptr<Shader> FileLoader::LoadGLSLShader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
+    std::string FileLoader::LoadGLSL(const std::filesystem::path& path)
     {    
-        if (!std::filesystem::exists(vertPath))
+        if (!std::filesystem::exists(path))
         {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the vertex shader path doesn't exist '{}'", vertPath.string());
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the shader path doesn't exist '{}'", path.string());
             return nullptr;
         }
 
-        if (!std::filesystem::exists(fragPath))
-        {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the fragment shader path doesn't exist '{}'", fragPath.string());
-            return nullptr;
-        }
-
-        std::ifstream file(vertPath, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
+        std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
 
         if (!file.is_open())
             throw std::runtime_error("Failed to open shader file");
         
-        std::string vertSrc;
-		std::ifstream in(vertPath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
+        std::string src;
+		std::ifstream in(path, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
 		if (in)
 		{
 			in.seekg(0, std::ios::end);
 			size_t size = in.tellg();
 			if (size != -1)
 			{
-				vertSrc.resize(size);
+				src.resize(size);
 				in.seekg(0, std::ios::beg);
-				in.read(&vertSrc[0], size);
+				in.read(&src[0], size);
 			}
 		}
 
-        std::string fragSrc;
-		std::ifstream in2(fragPath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
-		if (in2)
-		{
-			in2.seekg(0, std::ios::end);
-			size_t size = in2.tellg();
-			if (size != -1)
-			{
-				fragSrc.resize(size);
-				in2.seekg(0, std::ios::beg);
-				in2.read(&fragSrc[0], size);
-			}
-		}
-
-        return Shader::Create(vertSrc, fragSrc);
+        return src;
     }
 
     std::vector<char> FileLoader::LoadSPIRV(const std::filesystem::path& path)

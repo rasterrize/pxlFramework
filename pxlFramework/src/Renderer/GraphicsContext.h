@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RendererAPIType.h"
-#include "Device.h"
+#include "GraphicsDevice.h"
 
 namespace pxl
 {
@@ -18,7 +18,7 @@ namespace pxl
         virtual void SetVSync(bool value) = 0;
         virtual bool GetVSync() const = 0;
 
-        virtual std::shared_ptr<Device> GetDevice() const = 0;
+        virtual std::shared_ptr<GraphicsDevice> GetDevice() const = 0;
 
         static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, const std::shared_ptr<Window>& window);
     };

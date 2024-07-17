@@ -236,36 +236,27 @@ namespace pxl
         VkPresentModeKHR suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         bool foundSuitablePresentMode = false;
 
-        // If vsync is enabled we dont need to do any checking since FIFO should already be supported
-        if (m_VSync)
+        for (const auto& presentMode : availablePresentModes)
         {
-            suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
-            foundSuitablePresentMode = true;
-        }
-        else
-        {
-            for (const auto& presentMode : availablePresentModes)
+            // Mailbox present mode is low latency Vsync, we prefer it if available
+            if (m_VSync && presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
             {
-                // Mailbox present mode is the most ideal
-                if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-                {
-                    suitablePresentMode = presentMode;
-                    foundSuitablePresentMode = true;
-                    break;
-                }
-
-                // Use immediate present mode but still loop through incase mailbox is still supported
-                if (presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-			    {
-				    suitablePresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-                    foundSuitablePresentMode = true;
-			    }
+                suitablePresentMode = presentMode;
+                foundSuitablePresentMode = true;
+                break;
             }
+
+            if (!m_VSync && presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+		    {
+			    suitablePresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                foundSuitablePresentMode = true;
+                break;
+		    }
         }
-        
+
         if (!foundSuitablePresentMode)
         {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find suitable swap chain present mode, defaulting to VK_PRESENT_MODE_FIFO_KHR");
+            PXL_LOG_WARN(LogArea::Vulkan, "Failed to find suitable swap chain present mode, defaulting to VK_PRESENT_MODE_FIFO_KHR");
             suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         }
 

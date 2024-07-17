@@ -43,7 +43,7 @@ namespace pxl
         virtual void SetZoom(float zoom) = 0;
         virtual float GetZoom() = 0;
 
-        const glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
+        glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
         static std::shared_ptr<Camera> Create(const CameraSettings& settings);
     protected:

@@ -4,14 +4,14 @@
 
 namespace pxl
 {
-    class Texture2D
+    class Texture
     {
     public:
-        virtual ~Texture2D() = default;
+        virtual ~Texture() = default;
 
         virtual void Bind(uint32_t unit) = 0; // unsure if this is used in Vulkan
         virtual void Unbind() = 0;
 
-        static std::shared_ptr<Texture2D> Create(const Image& image);
+        static std::shared_ptr<Texture> Create(const Image& image);
     };
 }

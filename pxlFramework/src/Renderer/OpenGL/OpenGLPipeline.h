@@ -1,23 +1,30 @@
 #pragma once
 
 #include "../Pipeline.h"
+#include "OpenGLShader.h"
 
 namespace pxl
 {
     class OpenGLGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        OpenGLGraphicsPipeline(const std::shared_ptr<Shader>& shader)
-         : m_Shader(shader) {}
+        OpenGLGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders);
         virtual ~OpenGLGraphicsPipeline() = default;
 
         virtual void Bind() override;
-        virtual void SetPushConstantData(std::unordered_map<std::string, const void*>& pcData) override { 
-            PXL_LOG_WARN(LogArea::OpenGL, "Setting push constant data for OpenGL isn't possible"); 
-        }
+        virtual void Unbind() override;
+
+        virtual void SetUniformData(const std::string& name, BufferDataType type, const void* data) override;
+        virtual void SetPushConstantData(const std::string& name, const void* data) override
+        { 
+            PXL_LOG_WARN(LogArea::OpenGL, "Can't set push constant data, OpenGL doesn't support push constants");
+        };
 
         virtual void* GetPipelineLayout() override { return nullptr; }
     private:
-        std::shared_ptr<Shader> m_Shader;
+        int GetUniformLocation(const std::string& name) const;
+    private:
+        uint32_t m_ShaderProgramID = 0;
+        mutable std::unordered_map<std::string, int> m_UniformCache;
     };
 }

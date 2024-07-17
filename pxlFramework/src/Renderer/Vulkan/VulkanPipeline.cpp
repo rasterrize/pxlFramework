@@ -8,16 +8,16 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass, const BufferLayout& bufferLayout, const UniformLayout& uniformLayout)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass)
         : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetDevice())), m_Shaders(shaders)
     {
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation
 
         // Create Shader Stages
-        for (auto& shader : shaders)
+        for (auto& shader : m_Shaders)
         {
             VkPipelineShaderStageCreateInfo shaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
-            shaderStageInfo.stage = GetVkShaderStage(shader.first); // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
+            shaderStageInfo.stage = ToVkShaderStage(shader.first); // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
             shaderStageInfo.module = static_pointer_cast<VulkanShader>(shader.second)->GetShaderModule();
             shaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
             shaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
@@ -35,8 +35,8 @@ namespace pxl
         dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicStateInfo.pDynamicStates = dynamicStates.data();
 
-        auto bindingDescription = VulkanBuffer::GetBindingDescription(bufferLayout);
-        auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(bufferLayout);
+        auto bindingDescription = VulkanBuffer::GetBindingDescription(specs.VertexLayout);
+        auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(specs.VertexLayout);
 
         // Vertex Input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
@@ -47,7 +47,7 @@ namespace pxl
 
         // Input Assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-        inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssemblyInfo.topology = ToVkPrimitiveTopology(specs.PrimitiveType);
         //inputAssemblyInfo.primitiveRestartEnable = VK_FALSE; // useful for strip topology modes
 
         // Specify viewport state
@@ -101,29 +101,31 @@ namespace pxl
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
-        std::vector<VkPushConstantRange> ranges;
-
-        // Convert uniform layout to push constant ranges (for valid push constants)
-        for (const auto& element : uniformLayout.GetElements())
-        {
-            if (element.IsPushConstant)
-            {
-                VkPushConstantRange range = {};
-                range.stageFlags = GetVkShaderStage(element.PushConstantShaderStage);
-                range.offset = 0; // TODO: implement correct offsets
-                range.size = SizeOfBufferDataType(element.Type); // 4x4 float matrix 
-
-                m_PushConstants.push_back({ element.Name, range });
-                ranges.push_back(range);
-            }
-        }
-
         // Pipeline layout (uniforms, etc)
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
         pipelineLayoutInfo.setLayoutCount = 0; // Optional
         pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(m_PushConstants.size()); // Optional
-        pipelineLayoutInfo.pPushConstantRanges = ranges.data(); // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+        // Create push constant ranges if a pc layout has been provided
+        std::vector<VkPushConstantRange> ranges;
+        if (specs.PushConstantLayout.has_value())
+        {
+            for (const auto& element : specs.PushConstantLayout->GetElements())
+            {
+                VkPushConstantRange range = {};
+                range.stageFlags = ToVkShaderStage(element.PushConstantShaderStage);
+                range.offset = 0; // TODO: implement correct offsets
+                range.size = SizeOfBufferDataType(element.Type);
+
+                m_PushConstantRanges[element.Name] = range;
+                ranges.push_back(range);
+            }
+
+            pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(ranges.size());
+            pipelineLayoutInfo.pPushConstantRanges = ranges.data();
+        }
 
         // Create pipeline layout
         VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout));
@@ -162,23 +164,23 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
+        m_CurrentCommandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         // Bind Pipeline
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+        vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
-    void VulkanGraphicsPipeline::SetPushConstantData(std::unordered_map<std::string, const void*>& pcData)
+    void VulkanGraphicsPipeline::SetUniformData(const std::string& name, BufferDataType type, const void* data)
     {
         PXL_PROFILE_SCOPE;
-        
-        auto commandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
-        for (auto& pc : m_PushConstants)
-        {
-            auto data = pcData[pc.Name];
-            vkCmdPushConstants(commandBuffer, m_Layout, pc.Range.stageFlags, pc.Range.offset, pc.Range.size, data);
-        }
+        
+    }
+    
+    void VulkanGraphicsPipeline::SetPushConstantData(const std::string& name, const void* data)
+    {    
+        auto range = m_PushConstantRanges.at(name);
+        vkCmdPushConstants(m_CurrentCommandBuffer, m_Layout, range.stageFlags, range.offset, range.size, data);
     }
 
     void VulkanGraphicsPipeline::Destroy()
@@ -196,18 +198,37 @@ namespace pxl
         }
     }
 
-    VkShaderStageFlagBits VulkanGraphicsPipeline::GetVkShaderStage(ShaderStage stage)
+    VkShaderStageFlagBits VulkanGraphicsPipeline::ToVkShaderStage(ShaderStage stage)
     {
         switch (stage)
         {
-            case ShaderStage::None:        return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
-            case ShaderStage::Vertex:      return VK_SHADER_STAGE_VERTEX_BIT;
-            case ShaderStage::Fragment:    return VK_SHADER_STAGE_FRAGMENT_BIT;
-            case ShaderStage::Geometry:    return VK_SHADER_STAGE_GEOMETRY_BIT;
-            case ShaderStage::Tesselation: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT; // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT
+            case ShaderStage::None:         return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+            case ShaderStage::Vertex:       return VK_SHADER_STAGE_VERTEX_BIT;
+            case ShaderStage::Fragment:     return VK_SHADER_STAGE_FRAGMENT_BIT;
+            case ShaderStage::Geometry:     return VK_SHADER_STAGE_GEOMETRY_BIT;
+            case ShaderStage::Tessellation: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT; // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT
         }
 
         PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkShaderStage");
         return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+    }
+
+    VkPrimitiveTopology VulkanGraphicsPipeline::ToVkPrimitiveTopology(PrimitiveTopology topology)
+    {
+        switch (topology)
+        {
+            case PrimitiveTopology::None:
+                PXL_LOG_ERROR(LogArea::Vulkan, "Can't convert to VkPrimitiveTopology, topology is 'None'");
+                return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+            case PrimitiveTopology::Triangle:      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            case PrimitiveTopology::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+            case PrimitiveTopology::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+            case PrimitiveTopology::Line:          return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            case PrimitiveTopology::LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+            case PrimitiveTopology::Point:         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        }
+        
+        PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkPrimitiveTopology");
+        return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
     }
 }

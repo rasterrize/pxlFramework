@@ -28,7 +28,8 @@ namespace pxl
         });
 
         // Set the data inside the memory of the buffer
-        SetData(size, data);
+        if (data)
+            SetData(size, data);
 
         // Set appropriate bind function
         if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // also could this be a AND (&&) bit operation, would that be faster?
@@ -42,6 +43,8 @@ namespace pxl
                 VkDeviceSize offset = 0;
                 vkCmdBindIndexBuffer(commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
             };
+        else if (m_Usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+            m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
         else    
             PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
     }
@@ -70,9 +73,6 @@ namespace pxl
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
         PXL_PROFILE_SCOPE;
-        
-        if (!data)
-            return;
         
         auto allocator = VulkanAllocator::Get();
 
@@ -110,13 +110,13 @@ namespace pxl
         std::vector<VkVertexInputAttributeDescription> vertexAttributes(elements.size());
 
         uint32_t offset = 0;
-        for (int i = 0; i < elements.size(); i++)
+        for (size_t i = 0; i < elements.size(); i++)
         {
             auto element = elements[i];
             
             vertexAttributes[i].binding = 0;
             vertexAttributes[i].format = GetVkFormatOfBufferDataType(element.Type);
-            vertexAttributes[i].location = i;
+            vertexAttributes[i].location = static_cast<uint32_t>(i);
             vertexAttributes[i].offset = offset;
             offset += SizeOfBufferDataType(element.Type);
         }
@@ -148,10 +148,9 @@ namespace pxl
             case BufferUsage::None:
                 PXL_LOG_WARN(LogArea::Vulkan, "Buffer usage was none, can't convert to VkBufferUsage");
                 break;
-            case BufferUsage::Vertex:
-                return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            case BufferUsage::Index:
-                return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            case BufferUsage::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            case BufferUsage::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            case BufferUsage::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         }
         
         return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;

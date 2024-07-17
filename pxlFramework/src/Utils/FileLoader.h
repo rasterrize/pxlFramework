@@ -1,7 +1,5 @@
 #pragma once
 
-#include <filesystem>
-
 #include "../Renderer/Texture.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/RendererData.h"
@@ -13,8 +11,8 @@ namespace pxl
     class FileLoader
     {
     public:
-        static std::shared_ptr<Texture2D> LoadTextureFromImage(const std::string& filePath);
-        static std::shared_ptr<Shader> LoadGLSLShader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
+        static std::shared_ptr<Texture> LoadTextureFromImage(const std::string& filePath);
+        static std::string LoadGLSL(const std::filesystem::path& path);
         static std::vector<char> LoadSPIRV(const std::filesystem::path& path);
         static std::shared_ptr<Mesh> LoadOBJ(const std::string& filePath);
         static std::vector<std::shared_ptr<Mesh>> LoadFBX(const std::string& filePath);

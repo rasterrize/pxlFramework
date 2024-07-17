@@ -1,8 +1,8 @@
-#include "OpenGLTexture2D.h"
+#include "OpenGLTexture.h"
 
 namespace pxl
 {
-    OpenGLTexture2D::OpenGLTexture2D(const Image& image)
+    OpenGLTexture::OpenGLTexture(const Image& image)
         : m_ImageBuffer(image.Buffer), m_ImageSize(image.Size), m_GLFormat(ImageFormatToGLFormat(image.Format))
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
@@ -17,22 +17,22 @@ namespace pxl
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    OpenGLTexture2D::~OpenGLTexture2D()
+    OpenGLTexture::~OpenGLTexture()
     {
         glDeleteTextures(1, &m_RendererID);
     }
 
-    void OpenGLTexture2D::Bind(uint32_t unit)
+    void OpenGLTexture::Bind(uint32_t unit)
     {
         glBindTextureUnit(unit, m_RendererID);
     }
 
-    void OpenGLTexture2D::Unbind()
+    void OpenGLTexture::Unbind()
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    GLenum OpenGLTexture2D::ImageFormatToGLFormat(ImageFormat format)
+    GLenum OpenGLTexture::ImageFormatToGLFormat(ImageFormat format)
     {
         switch (format)
         {
