@@ -13,7 +13,7 @@
     #endif
 #else
     #define PXL_ASSERT(x)
-    #define PXL_ASSERT_MSG(x)
+    #define PXL_ASSERT_MSG(x, ...)
 #endif
 
 // Application Macros
