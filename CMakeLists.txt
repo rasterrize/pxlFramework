@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.23)
-project(pxlFramework)
+cmake_minimum_required(VERSION 3.5.0)
+project(pxlFramework VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) # Output directory for static lib (.LIB)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory for shared lib (.DLL)

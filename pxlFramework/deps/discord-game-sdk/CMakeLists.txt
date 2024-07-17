@@ -17,9 +17,10 @@ src/store_manager.h src/store_manager.cpp
 src/types.h src/types.cpp
 src/user_manager.h src/user_manager.cpp
 src/voice_manager.h src/voice_manager.cpp
-include/discord.h
 )
 
 target_include_directories(discordgamesdk PUBLIC include)
-
 target_link_directories(discordgamesdk PUBLIC lib)
+
+# Link project to the DLL lib
+target_link_libraries(discordgamesdk discord_game_sdk.dll.lib)
