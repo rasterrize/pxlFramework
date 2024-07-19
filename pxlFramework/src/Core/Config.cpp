@@ -1,12 +1,10 @@
 #include "Config.h"
 
-#include <filesystem>
-
 #include <yaml-cpp/yaml.h>
 
 namespace pxl
 {
-    FrameworkSettings FrameworkConfig::m_FrameworkSettings = {};
+    FrameworkSettings FrameworkConfig::s_FrameworkSettings = {};
 
     void FrameworkConfig::Init()
     {
@@ -17,7 +15,7 @@ namespace pxl
     void FrameworkConfig::LoadFromYAMLFile()
     {
         YAML::Node config;
-        
+
         if (std::filesystem::exists("FrameworkConfig.yaml"))
         {
             config = YAML::LoadFile("FrameworkConfig.yaml");
@@ -30,20 +28,19 @@ namespace pxl
 
         // Renderer API
         auto rendererAPI = config["RendererAPI"].as<std::string>();
-        if (rendererAPI == "OpenGL") // TODO: Custom data types with yaml-cpp
-            m_FrameworkSettings.RendererAPI = RendererAPIType::OpenGL;
+        if (rendererAPI == "OpenGL")  // TODO: Custom data types with yaml-cpp
+            s_FrameworkSettings.RendererAPI = RendererAPIType::OpenGL;
         else if (rendererAPI == "Vulkan")
-            m_FrameworkSettings.RendererAPI = RendererAPIType::Vulkan;
+            s_FrameworkSettings.RendererAPI = RendererAPIType::Vulkan;
 
         // Window Mode
         auto windowMode = config["WindowMode"].as<std::string>();
-        if (windowMode == "Windowed") // TODO: Custom data types with yaml-cpp
-            m_FrameworkSettings.WindowMode = WindowMode::Windowed;
+        if (windowMode == "Windowed")  // TODO: Custom data types with yaml-cpp
+            s_FrameworkSettings.WindowMode = WindowMode::Windowed;
         else if (windowMode == "Borderless")
-            m_FrameworkSettings.WindowMode = WindowMode::Borderless;
+            s_FrameworkSettings.WindowMode = WindowMode::Borderless;
         else if (windowMode == "Fullscreen")
-            m_FrameworkSettings.WindowMode = WindowMode::Fullscreen;
-
+            s_FrameworkSettings.WindowMode = WindowMode::Fullscreen;
     }
 
     void FrameworkConfig::SaveToFile()

@@ -17,14 +17,15 @@ namespace pxl
     public:
         static void Init();
 
-        static void LoadDefaults() { m_FrameworkSettings = {}; }
+        static void LoadDefaults() { s_FrameworkSettings = {}; }
 
         static void LoadFromYAMLFile();
         static void SaveToFile();
 
-        static const FrameworkSettings GetSettings() { return m_FrameworkSettings; } // return const ref?
-        static void SetSettings(const FrameworkSettings& settings) { m_FrameworkSettings = settings; } // the settings could be dynamic, but that might too much effort for too little reward
+        // the settings could be dynamic, but that might too much effort for too little reward
+        static const FrameworkSettings& GetSettings() { return s_FrameworkSettings; }  // return const ref?
+        static void SetSettings(const FrameworkSettings& settings) { s_FrameworkSettings = settings; }
     private:
-        static FrameworkSettings m_FrameworkSettings;
+        static FrameworkSettings s_FrameworkSettings;
     };
 }
