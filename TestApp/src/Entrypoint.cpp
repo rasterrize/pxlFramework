@@ -10,9 +10,7 @@
 MAIN_FUNC
 {
     // Init log before creating application
-    #ifdef PXL_ENABLE_LOGGING
-        pxl::Logger::Init();
-    #endif
+    PXL_INIT_LOGGING;
 
     TestApp::TestApplication app;
     app.Run();

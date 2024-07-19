@@ -86,6 +86,7 @@ target_compile_options(pxlFramework PRIVATE "/W3")
 
 # pxlFramework CMake options
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
+option(PXL_ENABLE_LOGGING "Enable framework logging" OFF)
 
 # Set GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -98,6 +99,12 @@ set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
 # Set YAMLCPP settings
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+
+# Enable logging if desired
+if (PXL_ENABLE_LOGGING)
+    message("pxlFramework logging ENABLED")
+    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
+endif()
 
 # Enable profiling if desired
 if (PXL_ENABLE_PROFILING)
@@ -176,7 +183,6 @@ target_compile_definitions(pxlFramework PRIVATE
     GLFW_INCLUDE_NONE
     GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_VULKAN
-    $<$<CONFIG:Debug>:PXL_ENABLE_LOGGING>
     $<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the application cmake file so users can actually change them
     $<$<CONFIG:Debug>:PXL_DEBUG_VULKAN>
     _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
