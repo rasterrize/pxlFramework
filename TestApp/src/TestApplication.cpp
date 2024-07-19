@@ -7,6 +7,7 @@
 #include "Tests/EmptyApp.h"
 #include "Tests/WindowTest.h"
 #include "Tests/LinesTest.h"
+#include "Tests/CubesTest.h"
 
 namespace TestApp
 {
@@ -20,13 +21,13 @@ namespace TestApp
         pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
         pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
-        #ifdef TA_DEBUG
-            buildType = "Debug x64";
-        #elif TA_RELEASE
-            buildType = "Release x64";
-        #elif TA_DIST
-            buildType = "Distribute x64";
-        #endif
+    #ifdef TA_DEBUG
+        buildType = "Debug x64";
+    #elif TA_RELEASE
+        buildType = "Release x64";
+    #elif TA_DIST
+        buildType = "Distribute x64";
+    #endif
 
         rendererAPIType = pxl::EnumStringHelper::RendererAPITypeToString(windowRendererAPI);
 
@@ -51,13 +52,15 @@ namespace TestApp
 
     TestApplication::~TestApplication()
     {
+    #if SAVEFRAMEWORKSETTINGS
         // Save framework settings // TODO: this should be semi-automatic and handled by the application class
-        //auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
-        //frameworkSettings.WindowMode = m_Window->GetWindowMode();
-        //frameworkSettings.RendererAPI // TODO
+        frameworkSettings.WindowMode = m_Window->GetWindowMode();
+        frameworkSettings.RendererAPI // TODO
 
-        //pxl::FrameworkConfig::SetSettings(frameworkSettings);
+        pxl::FrameworkConfig::SetSettings(frameworkSettings);
+    #endif
     }
 
     void TestApplication::OnUpdate(float dt)

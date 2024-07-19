@@ -17,9 +17,6 @@ namespace TestApp
         static std::shared_ptr<pxl::Camera> m_Camera;
         static glm::vec4 m_ClearColour;
 
-        static glm::vec3 m_CameraPosition;
-        static glm::vec3 m_CameraRotation;
-
         static bool m_ControllingCamera;
 
         static glm::vec4 m_QuadColour;

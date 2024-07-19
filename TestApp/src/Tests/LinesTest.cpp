@@ -4,6 +4,8 @@ namespace TestApp
 {
     std::shared_ptr<pxl::Window> LinesTest::m_Window = nullptr;
     std::shared_ptr<pxl::Camera> LinesTest::m_Camera = nullptr;
+
+    static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
     
     void LinesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
@@ -21,11 +23,7 @@ namespace TestApp
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
 
-        constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
-
-        std::string rendererAPIString = "Undefined";
-
-        rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
+        std::string rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
         pxl::DiscordRPC::Init(RPCCLIENT_ID);
         pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'LinesTest' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
@@ -33,6 +31,8 @@ namespace TestApp
 
     void LinesTest::OnUpdate(float dt)
     {
+        PXL_PROFILE_SCOPE;
+        
         auto cameraPosition = m_Camera->GetPosition();
         auto cameraZoom = m_Camera->GetZoom();
         auto cameraFOV = m_Camera->GetFOV();
@@ -109,6 +109,8 @@ namespace TestApp
 
     void LinesTest::OnRender()
     {
+        PXL_PROFILE_SCOPE;
+        
         pxl::Renderer::Clear();
 
         pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
@@ -116,6 +118,7 @@ namespace TestApp
 
     void LinesTest::OnImGuiRender()
     {
+        PXL_PROFILE_SCOPE;
     }
 
     void LinesTest::OnClose()

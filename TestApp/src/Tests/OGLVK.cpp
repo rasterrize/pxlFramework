@@ -2,10 +2,10 @@
 
 namespace TestApp
 {
-    std::shared_ptr<pxl::Window> OGLVK::m_Window;
-    std::shared_ptr<pxl::Shader> OGLVK::m_Shader; 
-    std::shared_ptr<pxl::GraphicsPipeline> OGLVK::m_Pipeline;
+    std::shared_ptr<pxl::Window> OGLVK::m_Window; 
     std::shared_ptr<pxl::Camera> OGLVK::m_Camera;
+
+    static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
 
     void OGLVK::OnStart(pxl::WindowSpecs& windowSpecs)
     {
@@ -23,17 +23,10 @@ namespace TestApp
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
 
-        constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
-
-        std::string rendererAPIString = "Undefined";
-
-        if (windowSpecs.RendererAPI == pxl::RendererAPIType::OpenGL)
-            rendererAPIString = "OpenGL";
-        else if (windowSpecs.RendererAPI == pxl::RendererAPIType::Vulkan)
-            rendererAPIString = "Vulkan";
+        auto rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
         pxl::DiscordRPC::Init(RPCCLIENT_ID);
-        pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running Test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
+        pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
     }
 
     void OGLVK::OnUpdate(float dt)
@@ -41,7 +34,6 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
         
         auto cameraPosition = m_Camera->GetPosition();
-        auto cameraZoom = m_Camera->GetZoom();
         auto cameraFOV = m_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
         
@@ -57,66 +49,37 @@ namespace TestApp
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
             m_Window->ToggleVSync();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
-            m_Window->SetMonitor(pxl::Window::GetPrimaryMonitor());
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
-            m_Window->SetMonitor(pxl::Window::GetMonitors()[1]);
-
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
-        {
             cameraSpeed *= 3.0f;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_CONTROL))
-        {
             cameraSpeed *= 0.5f;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
-        {
             cameraPosition.y += cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
-        {
             cameraPosition.x -= cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
-        {
             cameraPosition.y -= cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
-        {
             cameraPosition.x += cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
-        {
             cameraPosition.z += cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
-        {
             cameraPosition.z -= cameraSpeed * dt;
-        }
 
         if (pxl::Input::IsMouseScrolledUp())
-        {
-            cameraZoom -= cameraSpeed * 0.5f;
             cameraFOV -= cameraSpeed * 0.5f;
-        }
 
         if (pxl::Input::IsMouseScrolledDown())
-        {
-            cameraZoom += cameraSpeed * 0.5f;
             cameraFOV += cameraSpeed * 0.5f;
-        }
 
         m_Camera->SetPosition(cameraPosition);
-        m_Camera->SetZoom(cameraZoom);
         m_Camera->SetFOV(cameraFOV);
     }
         
@@ -126,16 +89,16 @@ namespace TestApp
         
         pxl::Renderer::Clear();
 
-        constexpr uint32_t quadCount = 100;
+        constexpr uint32_t objectCount = 10;
 
-        for (uint32_t x = 0; x < quadCount; x += 2)
+        for (uint32_t x = 0; x < objectCount; x += 2)
         {
-            for (uint32_t y = 0; y < quadCount; y += 2)
+            for (uint32_t y = 0; y < objectCount; y += 2)
             {
-                pxl::Renderer::AddQuad({ x - (quadCount / 2.0f) - 0.2f, y - (quadCount / 2.0f) - 0.2f, 0.0f }, glm::vec3(0.0f), glm::vec2(1.4f), glm::vec4(1.0f));
-                pxl::Renderer::AddQuad({ x - (quadCount / 2.0f) - 0.1f, y - (quadCount / 2.0f) - 0.1f, 0.1f }, glm::vec3(0.0f), glm::vec2(1.2f), { 0.8f, 0.5f, 0.3f, 1.0f });
-                pxl::Renderer::AddQuad({ x - (quadCount / 2.0f), y - (quadCount / 2.0f), 0.2f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
-                pxl::Renderer::AddCube({ x - (quadCount / 2.0f), y - (quadCount / 2.0f), 1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
+                pxl::Renderer::AddQuad({ x - (objectCount / 2.0f) - 0.2f, y - (objectCount / 2.0f) - 0.2f, 0.0f }, glm::vec3(0.0f), glm::vec2(1.4f), glm::vec4(1.0f));
+                pxl::Renderer::AddQuad({ x - (objectCount / 2.0f) - 0.1f, y - (objectCount / 2.0f) - 0.1f, 0.1f }, glm::vec3(0.0f), glm::vec2(1.2f), { 0.8f, 0.5f, 0.3f, 1.0f });
+                pxl::Renderer::AddQuad({ x - (objectCount / 2.0f), y - (objectCount / 2.0f), 0.2f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
+                pxl::Renderer::AddCube({ x - (objectCount / 2.0f), y - (objectCount / 2.0f), 1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
             }
         }
 

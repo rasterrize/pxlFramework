@@ -25,6 +25,11 @@ namespace TestApp
 
     void WindowTest::OnUpdate(float dt)
     {
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
+            m_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
+
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
+            m_TestWindowA->SetMonitor(pxl::Window::GetMonitors()[1]);
     }
 
     void WindowTest::OnRender()
@@ -34,6 +39,7 @@ namespace TestApp
 
     void WindowTest::OnImGuiRender()
     {
+        PXL_PROFILE_SCOPE;
     }
 
     void WindowTest::OnClose()

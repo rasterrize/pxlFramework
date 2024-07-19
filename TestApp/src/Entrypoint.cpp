@@ -1,15 +1,15 @@
 #include "TestApplication.h"
 
+#define MAIN_FUNC int main()
+
 #ifdef TA_RELEASE
     #include <Windows.h>
     #define MAIN_FUNC int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-#else
-    #define MAIN_FUNC int main()
 #endif
 
 MAIN_FUNC
 {
-    // Init log before creating application
+    // NOTE: Logging init function should be called before creating an application
     PXL_INIT_LOGGING;
 
     TestApp::TestApplication app;

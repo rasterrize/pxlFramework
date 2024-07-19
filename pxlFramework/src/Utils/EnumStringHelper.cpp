@@ -11,6 +11,6 @@ namespace pxl
             case RendererAPIType::Vulkan: return "Vulkan";
         }
 
-        return std::string();
+        return "Undefined";
     }
 }
