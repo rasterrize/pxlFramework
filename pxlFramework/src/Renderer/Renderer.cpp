@@ -54,7 +54,7 @@ namespace pxl
     std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
     std::shared_ptr<Camera> Renderer::s_QuadsCamera = nullptr;
 
-    std::function<void(const std::shared_ptr<GraphicsPipeline>&, const void* vp)> s_SetViewProjectionFunc = nullptr;
+    std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
 
     // Cube Data
     uint32_t s_CubeCount = 0;
@@ -178,13 +178,8 @@ namespace pxl
                     s_StaticQuadVAO->Bind();
                 };
 
-                s_QuadUniformFunc = []() {
-                    auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-                    s_QuadPipeline->SetUniformData("u_VP", BufferDataType::Mat4, &vp);
-                };
-
-                s_SetViewProjectionFunc = [](const std::shared_ptr<GraphicsPipeline>& pipeline, const void* vp) {
-                    pipeline->SetUniformData("u_VP", BufferDataType::Mat4, vp);
+                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp) {
+                    pipeline->SetUniformData("u_VP", BufferDataType::Mat4, &vp);
                 };
 
                 auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.vert");
@@ -200,18 +195,13 @@ namespace pxl
                     s_QuadIBO->Bind();
                 };
 
-                s_QuadUniformFunc = []() {
-                    auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-                    s_QuadPipeline->SetPushConstantData("u_VP", &vp);
-                };
-
                 s_StaticQuadBindFunc = []() {
                     s_StaticQuadVBO->Bind();
                     s_QuadIBO->Bind();
                 };
 
-                s_SetViewProjectionFunc = [](const std::shared_ptr<GraphicsPipeline>& pipeline, const void* vp) {
-                    pipeline->SetPushConstantData("u_VP", vp);
+                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp) {
+                    pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
                 auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
@@ -693,8 +683,8 @@ namespace pxl
 
             s_QuadPipeline->Bind();
 
-            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-            s_SetViewProjectionFunc(s_QuadPipeline, &vp);
+            //auto vp = s_QuadsCamera->GetViewProjectionMatrix();
+            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadsCamera->GetViewProjectionMatrix());
 
             //glm::vec4 testVertexColour = { 1.0f, 0.7f, 0.2f, 1.0f };
 
@@ -722,8 +712,7 @@ namespace pxl
 
             s_CubePipeline->Bind();
             
-            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-            s_SetViewProjectionFunc(s_CubePipeline, &vp);
+            s_SetViewProjectionFunc(s_CubePipeline, s_QuadsCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_CubeCount * 36);;
             s_CubeCount = 0;
@@ -741,8 +730,7 @@ namespace pxl
 
             s_LinePipeline->Bind();
 
-            auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-            s_SetViewProjectionFunc(s_LinePipeline, &vp);
+            s_SetViewProjectionFunc(s_LinePipeline, s_QuadsCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawLines(s_LineCount * 2);
             s_LineCount = 0;
