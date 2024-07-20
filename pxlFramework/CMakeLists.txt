@@ -75,7 +75,7 @@ add_library(pxlFramework STATIC
     src/Debug/ImGui/ImGuiBase.h
     src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
     src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
-    src/Debug/Profiler.h
+    src/Debug/Profiler.h src/Debug/Profiler.cpp
 )
 
 # Set project c++ standard
