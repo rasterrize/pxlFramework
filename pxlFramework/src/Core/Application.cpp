@@ -65,10 +65,10 @@ namespace pxl
     {
         m_Running = false;
         
-        Input::Shutdown();
-        Window::Shutdown();
-        Renderer::Shutdown();
         GUI::Shutdown();
+        Input::Shutdown();
+        Renderer::Shutdown();
+        Window::Shutdown();
 
         s_Instance = nullptr;
 

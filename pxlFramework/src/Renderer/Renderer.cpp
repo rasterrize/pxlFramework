@@ -429,6 +429,8 @@ namespace pxl
             return;
         
         Flush();
+        
+        GUI::Render();
 
         s_RendererAPI->End();
     }
