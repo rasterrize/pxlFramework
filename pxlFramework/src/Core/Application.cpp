@@ -5,7 +5,7 @@
 #include "Platform.h"
 #include "Stopwatch.h"
 #include "Config.h"
-#include "DiscordRPC.h"
+#include "Utils/DiscordRPC.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Camera.h"
 #include "../Debug/ImGui/pxl_ImGui.h"

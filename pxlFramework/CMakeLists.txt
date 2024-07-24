@@ -14,7 +14,6 @@ add_library(pxlFramework STATIC
     src/Core/Platform.h
     src/Core/Stopwatch.h
     src/Core/Config.h src/Core/Config.cpp
-    src/Core/DiscordRPC.h src/Core/DiscordRPC.cpp
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -69,6 +68,7 @@ add_library(pxlFramework STATIC
     # UTILS
     src/Utils/FileLoader.h src/Utils/FileLoader.cpp
     src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
+    src/Utils/DiscordRPC.h src/Utils/DiscordRPC.cpp
 
     # DEBUG
     src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp
