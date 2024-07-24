@@ -15,7 +15,7 @@ namespace pxl
         auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
         auto selectedLayers = std::vector<const char*>();
 
-        #ifdef PXL_DEBUG_VULKAN
+        #ifdef PXL_DEBUG
             auto validationLayers = VulkanHelpers::GetValidationLayers(availableLayers);
             selectedLayers = validationLayers;
         #endif

@@ -55,7 +55,7 @@ namespace pxl
         }
     };
 
-    #ifdef PXL_DEBUG_VULKAN
+    #ifdef PXL_DEBUG
         #define VK_CHECK(result) CheckVkResult(result)
     #else
         #define VK_CHECK(x) x

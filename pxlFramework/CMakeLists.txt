@@ -166,7 +166,6 @@ target_precompile_headers(pxlFramework PUBLIC
     src/Core/Logging/FrameworkLog.h
     src/Core/Assert.h
     src/Debug/Profiler.h
-    <iostream> # TODO: remove this?
     <string>
     <memory>
     <unordered_map>
@@ -180,14 +179,11 @@ target_precompile_headers(pxlFramework PUBLIC
 )
 
 target_compile_definitions(pxlFramework PRIVATE 
-    GLFW_INCLUDE_NONE
     GLFW_EXPOSE_NATIVE_WIN32
-    GLFW_INCLUDE_VULKAN
+    GLFW_INCLUDE_NONE   # Tell GLFW to not include it's own OpenGL headers
+    GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header 
     $<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the application cmake file so users can actually change them
-    $<$<CONFIG:Debug>:PXL_DEBUG_VULKAN>
-    _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING # temporary fix for warnings
-    IMGUI_IMPL_OPENGL_LOADER_GLAD
-    IMGUI_IMPL_VULKAN_NO_PROTOTYPES
+    $<$<CONFIG:Debug>:PXL_DEBUG>
 )
 
 # Specify source directory as an include folder for simplified '#include's in code
