@@ -37,7 +37,7 @@ namespace TestApp
         pxl::Renderer::Clear();
     }
 
-    void WindowTest::OnImGuiRender()
+    void WindowTest::OnGuiRender()
     {
         PXL_PROFILE_SCOPE;
     }

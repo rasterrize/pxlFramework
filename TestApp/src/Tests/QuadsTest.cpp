@@ -106,7 +106,7 @@ namespace TestApp
         //pxl::Renderer::AddQuad(glm::vec3(0.0f));
     }
 
-    void QuadsTest::OnImGuiRender()
+    void QuadsTest::OnGuiRender()
     {
         PXL_PROFILE_SCOPE;
     }

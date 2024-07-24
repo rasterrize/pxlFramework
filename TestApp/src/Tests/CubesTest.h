@@ -11,7 +11,7 @@ namespace TestApp
         static void OnClose();
         static void OnUpdate(float dt);
         static void OnRender();
-        static void OnImGuiRender();
+        static void OnGuiRender();
     private:
         static std::shared_ptr<pxl::Window> m_Window;
         static std::shared_ptr<pxl::Camera> m_Camera;

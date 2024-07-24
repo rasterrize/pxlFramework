@@ -1,13 +1,13 @@
-#include "ImGuiVulkan.h"
+#include "GUIVulkan.h"
 
 #include <backends/imgui_impl_vulkan.h>
 
-#include "../../Renderer/Vulkan/VulkanHelpers.h"
-#include "../../Renderer/Vulkan/VulkanInstance.h"
+#include "Renderer/Vulkan/VulkanHelpers.h"
+#include "Renderer/Vulkan/VulkanInstance.h"
 
 namespace pxl
 {
-    ImGuiVulkan::ImGuiVulkan(const std::shared_ptr<GraphicsContext>& context)
+    GUIVulkan::GUIVulkan(const std::shared_ptr<GraphicsContext>& context)
         : m_ContextHandle(static_pointer_cast<VulkanGraphicsContext>(context))
     {
         m_Device = std::static_pointer_cast<VulkanDevice>(context->GetDevice());
@@ -56,17 +56,17 @@ namespace pxl
         m_Device->WaitIdle();
     }
 
-    void ImGuiVulkan::NewFrame()
+    void GUIVulkan::NewFrame()
     {
         ImGui_ImplVulkan_NewFrame();
     }
 
-    void ImGuiVulkan::Render()
+    void GUIVulkan::Render()
     {
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_ContextHandle->GetSwapchain()->GetCurrentFrame().CommandBuffer);
     }  
 
-    void ImGuiVulkan::Shutdown()
+    void GUIVulkan::Shutdown()
     {
         m_Device->WaitIdle();
         

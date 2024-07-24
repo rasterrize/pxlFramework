@@ -9,6 +9,7 @@
 #include "../Utils/Fileloader.h"
 #include "BufferLayout.h"
 #include "UniformLayout.h"
+#include "Debug/GUI/GUI.h"
 
 namespace pxl
 {

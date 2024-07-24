@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ImGuiBase.h"
+#include "GUIBase.h"
 
 namespace pxl
 {
-    class ImGuiOpenGL : public ImGuiBase
+    class GUIOpenGL : public GUIBase
     {
     public:
-        ImGuiOpenGL();
+        GUIOpenGL();
 
         virtual void NewFrame() override;
         virtual void Render() override;

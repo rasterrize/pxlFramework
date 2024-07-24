@@ -15,6 +15,6 @@ namespace TestApp
         std::function<void(pxl::WindowSpecs&)> m_OnStartFunc;
         std::function<void(float dt)> m_OnUpdateFunc;
         std::function<void()> m_OnRenderFunc;
-        std::function<void()> m_OnImGuiRender;
+        std::function<void()> m_OnGuiRender;
     };
 }

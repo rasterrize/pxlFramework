@@ -1,17 +1,17 @@
 #pragma once
 
-#include "ImGuiBase.h"
+#include "GUIBase.h"
 
 #include <vulkan/vulkan.h>
 
-#include "../../Renderer/Vulkan/VulkanContext.h"
+#include "Renderer/Vulkan/VulkanContext.h"
 
 namespace pxl
 {
-    class ImGuiVulkan : public ImGuiBase
+    class GUIVulkan : public GUIBase
     {
     public:
-        ImGuiVulkan(const std::shared_ptr<GraphicsContext>& context);
+        GUIVulkan(const std::shared_ptr<GraphicsContext>& context);
 
         virtual void NewFrame() override;
         virtual void Render() override;

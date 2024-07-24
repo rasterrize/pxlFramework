@@ -10,7 +10,7 @@ namespace TestApp
         static void OnStart(pxl::WindowSpecs& windowSpecs);
         static void OnUpdate(float dt);
         static void OnRender();
-        static void OnImGuiRender();
+        static void OnGuiRender();
         static void OnClose();
     };
 }

@@ -19,7 +19,7 @@
 
 //#include "../src/Audio/AudioManager.h"
 
-#include "../src/Debug/ImGui/pxl_ImGui.h"
+#include "../src/Debug/GUI/GUI.h"
 #include <imgui.h> // so applications can use ImGui functions
 
 #include "../src/Utils/FileLoader.h"

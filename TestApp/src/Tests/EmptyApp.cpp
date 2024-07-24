@@ -20,7 +20,7 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
     }
 
-    void EmptyApp::OnImGuiRender()
+    void EmptyApp::OnGuiRender()
     {
         PXL_PROFILE_SCOPE;
     }

@@ -71,10 +71,10 @@ add_library(pxlFramework STATIC
     src/Utils/DiscordRPC.h src/Utils/DiscordRPC.cpp
 
     # DEBUG
-    src/Debug/ImGui/pxl_ImGui.h src/Debug/ImGui/pxl_ImGui.cpp
-    src/Debug/ImGui/ImGuiBase.h
-    src/Debug/ImGui/ImGuiOpenGL.h src/Debug/ImGui/ImGuiOpenGL.cpp
-    src/Debug/ImGui/ImGuiVulkan.h src/Debug/ImGui/ImGuiVulkan.cpp
+    src/Debug/GUI/GUI.h src/Debug/GUI/GUI.cpp
+    src/Debug/GUI/GUIBase.h
+    src/Debug/GUI/GUIOpenGL.h src/Debug/GUI/GUIOpenGL.cpp
+    src/Debug/GUI/GUIVulkan.h src/Debug/GUI/GUIVulkan.cpp
     src/Debug/Profiler.h src/Debug/Profiler.cpp
 )
 

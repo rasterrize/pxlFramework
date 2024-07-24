@@ -105,7 +105,7 @@ namespace TestApp
         pxl::Renderer::AddLine({ -10.0, 10.0, 1.0f }, { 10.0, -10.0, 1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
     }
 
-    void OGLVK::OnImGuiRender()
+    void OGLVK::OnGuiRender()
     {
         PXL_PROFILE_SCOPE;
     }

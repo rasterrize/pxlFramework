@@ -1,16 +1,16 @@
-#include "pxl_ImGui.h"
+#include "GUI.h"
 
 #include <filesystem>
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 
-#include "ImGuiOpenGL.h"
-#include "../../Core/Application.h"
+#include "GUIOpenGL.h"
+#include "Core/Application.h"
 
 namespace pxl
 {
-    std::unique_ptr<ImGuiBase> GUI::s_ImGuiRenderer = nullptr;
+    std::unique_ptr<GUIBase> GUI::s_ImGuiRenderer = nullptr;
     std::shared_ptr<Window> GUI::s_WindowHandle;
     RendererAPIType GUI::s_RendererAPI = RendererAPIType::None;
     bool GUI::s_Enabled = false;
@@ -45,7 +45,7 @@ namespace pxl
                 return;
             case RendererAPIType::OpenGL:
                 ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-                s_ImGuiRenderer = std::make_unique<ImGuiOpenGL>();
+                s_ImGuiRenderer = std::make_unique<GUIOpenGL>();
                 break;
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui for Vulkan");
@@ -55,7 +55,7 @@ namespace pxl
         s_RendererAPI = window->GetWindowSpecs().RendererAPI;
         s_Enabled = true;
 
-        PXL_LOG_INFO(LogArea::Other, "ImGui initialized");
+        PXL_LOG_INFO(LogArea::Other, "Debug GUI using ImGui initialized");
     }
 
     void GUI::Update()
@@ -71,8 +71,10 @@ namespace pxl
         ImGui::NewFrame();
 
         Application::Get().OnGuiRender();
-            
-        // Rendering
+    }
+
+    void GUI::Render()
+    {
         ImGui::Render();
         s_ImGuiRenderer->Render();
     }
@@ -88,6 +90,6 @@ namespace pxl
         ImGui::DestroyContext();
         s_Enabled = false;
 
-        PXL_LOG_INFO(LogArea::Other, "ImGui shutdown");
+        PXL_LOG_INFO(LogArea::Other, "GUI (ImGui) shutdown");
     }
 }

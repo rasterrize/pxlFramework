@@ -45,7 +45,7 @@ namespace TestApp
         m_OnStartFunc =  TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
         m_OnRenderFunc = TEST_NAME::OnRender;
-        m_OnImGuiRender = TEST_NAME::OnImGuiRender;
+        m_OnGuiRender = TEST_NAME::OnGuiRender;
         
         m_OnStartFunc(windowSpecs);
     }
@@ -81,6 +81,6 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
         
-        m_OnImGuiRender();
+        m_OnGuiRender();
     }
 }

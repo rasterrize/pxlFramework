@@ -2,7 +2,7 @@
 
 namespace pxl
 {
-    class ImGuiBase
+    class GUIBase
     {
     public:
         virtual void NewFrame() = 0;

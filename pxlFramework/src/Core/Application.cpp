@@ -8,7 +8,7 @@
 #include "Utils/DiscordRPC.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Camera.h"
-#include "../Debug/ImGui/pxl_ImGui.h"
+#include "../Debug/GUI/GUI.h"
 
 namespace pxl
 {
