@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Buffer.h"
+#include "../GPUBuffer.h"
 
 #include <vulkan/vulkan.h>
 #include <vma/vk_mem_alloc.h>
@@ -11,10 +11,10 @@
 
 namespace pxl
 {
-    class VulkanBuffer : public Buffer
+    class VulkanBuffer : public GPUBuffer
     {
     public:
-        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data);
+        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data);
         virtual ~VulkanBuffer() override;
 
         virtual void Bind() override;
@@ -31,7 +31,7 @@ namespace pxl
 
     private:
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
-        static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(BufferUsage usage);
+        static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(GPUBufferUsage usage);
     private:
         std::shared_ptr<VulkanDevice> m_Device;
 

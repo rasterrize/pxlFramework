@@ -2,7 +2,7 @@
 
 namespace pxl
 {
-    OpenGLBuffer::OpenGLBuffer(BufferUsage usage, uint32_t size, const void* data)
+    OpenGLBuffer::OpenGLBuffer(GPUBufferUsage usage, uint32_t size, const void* data)
         : m_Usage(GetGLUsageEnumOfBufferUsage(usage))
     {
         glCreateBuffers(1, &m_RendererID); // "CreateBuffers" instead of "GenBuffers" initializes the object on creation rather than on binding. However, The buffer still needs to be bound to the current OGL context
@@ -12,20 +12,20 @@ namespace pxl
         #ifdef PXL_ENABLE_LOGGING
             switch (usage)
             {
-                case BufferUsage::None:
+                case GPUBufferUsage::None:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing {} bytes of data", size);
                     break;
-                case BufferUsage::Vertex:
+                case GPUBufferUsage::Vertex:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing {} bytes of data", size);
                     break;
-                case BufferUsage::Index:
+                case GPUBufferUsage::Index:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing {} bytes of data", size);
                     break;
             }
         #endif
     }
 
-    OpenGLBuffer::OpenGLBuffer(BufferUsage usage, uint32_t size)
+    OpenGLBuffer::OpenGLBuffer(GPUBufferUsage usage, uint32_t size)
         : m_Usage(GetGLUsageEnumOfBufferUsage(usage))
     {
         glCreateBuffers(1, &m_RendererID);
@@ -35,13 +35,13 @@ namespace pxl
         #ifdef PXL_ENABLE_LOGGING
             switch (usage)
             {
-                case BufferUsage::None:
+                case GPUBufferUsage::None:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing no data", size);
                     break;
-                case BufferUsage::Vertex:
+                case GPUBufferUsage::Vertex:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing no data", size);
                     break;
-                case BufferUsage::Index:
+                case GPUBufferUsage::Index:
                     PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing no data", size);
                     break;
             }
@@ -69,15 +69,15 @@ namespace pxl
         glBufferSubData(m_Usage, 0, size, data);
     }
 
-    GLenum OpenGLBuffer::GetGLUsageEnumOfBufferUsage(BufferUsage usage)
+    GLenum OpenGLBuffer::GetGLUsageEnumOfBufferUsage(GPUBufferUsage usage)
     {
         switch (usage)
         {
-            case BufferUsage::None:
+            case GPUBufferUsage::None:
                 PXL_LOG_ERROR(LogArea::OpenGL, "Buffer usage was none, can't convert to GLBufferUsage");
                 return GL_INVALID_ENUM;
-            case BufferUsage::Vertex:   return GL_ARRAY_BUFFER;
-            case BufferUsage::Index:    return GL_ELEMENT_ARRAY_BUFFER;
+            case GPUBufferUsage::Vertex:   return GL_ARRAY_BUFFER;
+            case GPUBufferUsage::Index:    return GL_ELEMENT_ARRAY_BUFFER;
         }
 
         return GL_INVALID_ENUM;

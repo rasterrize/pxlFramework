@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 #include "VertexArray.h"
-#include "Buffer.h"
+#include "GPUBuffer.h"
 #include "../Core/Platform.h"
 #include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
@@ -38,7 +38,7 @@ namespace pxl
 
     // Static Quad Data
     uint32_t s_StaticQuadCount = 0;
-    std::shared_ptr<Buffer> s_StaticQuadVBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
     std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
     std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     std::vector<QuadVertex> s_StaticQuadVertices(s_MaxQuadVertexCount);
@@ -47,8 +47,8 @@ namespace pxl
     uint32_t s_QuadCount = 0;
     std::vector<QuadVertex> s_QuadVertices(s_MaxQuadVertexCount);
     std::vector<uint32_t> s_QuadIndices(s_MaxQuadIndexCount); // NOTE: currently also used by static quads
-    std::shared_ptr<Buffer> s_QuadVBO = nullptr;
-    std::shared_ptr<Buffer> s_QuadIBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_QuadVBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
     std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     std::function<void()> s_QuadUniformFunc = nullptr;
     UniformLayout s_QuadUniformLayout;
@@ -61,8 +61,8 @@ namespace pxl
     uint32_t s_CubeCount = 0;
     std::vector<CubeVertex> s_CubeVertices(s_MaxCubeVertexCount);
     std::vector<uint32_t> s_CubeIndices(s_MaxCubeIndexCount);
-    std::shared_ptr<Buffer> s_CubeVBO = nullptr;
-    std::shared_ptr<Buffer> s_CubeIBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_CubeVBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_CubeIBO = nullptr;
     std::function<void()> s_CubeBindFunc = nullptr;
     std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
     // std::shared_ptr<Camera> Renderer::s_CubesCamera = nullptr;
@@ -70,7 +70,7 @@ namespace pxl
     // Line Data
     uint32_t s_LineCount = 0;
     std::vector<LineVertex> s_LineVertices(s_MaxLineVertexCount);
-    std::shared_ptr<Buffer> s_LineVBO = nullptr;
+    std::shared_ptr<GPUBuffer> s_LineVBO = nullptr;
     std::function<void()> s_LineBindFunc = nullptr;
     std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
@@ -149,9 +149,9 @@ namespace pxl
             const auto bufferLayout = QuadVertex::GetLayout();
 
             // Prepare Buffers
-            s_QuadVBO = Buffer::Create(BufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
-            s_QuadIBO = Buffer::Create(BufferUsage::Index, s_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
-            s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
+            s_QuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
+            s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, s_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -248,8 +248,8 @@ namespace pxl
             const auto bufferLayout = CubeVertex::GetLayout();
 
             // Prepare Buffers
-            s_CubeVBO = Buffer::Create(BufferUsage::Vertex, s_MaxCubeVertexCount * sizeof(CubeVertex));
-            s_CubeIBO = Buffer::Create(BufferUsage::Index, s_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
+            s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxCubeVertexCount * sizeof(CubeVertex));
+            s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, s_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
 
             // Shader storage    
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -304,7 +304,7 @@ namespace pxl
             const auto bufferLayout = LineVertex::GetLayout();
 
             // Prepare Buffers
-            s_LineVBO = Buffer::Create(BufferUsage::Vertex, s_MaxLineVertexCount * sizeof(LineVertex));
+            s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxLineVertexCount * sizeof(LineVertex));
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -454,7 +454,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        s_StaticQuadVBO = Buffer::Create(BufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
+        s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
 
         const auto layout = QuadVertex::GetLayout();
 

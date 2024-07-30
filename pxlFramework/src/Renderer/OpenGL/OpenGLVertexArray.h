@@ -15,8 +15,8 @@ namespace pxl
         virtual void Bind() override;
         virtual void Unbind() override;
 
-        virtual void AddVertexBuffer(const std::shared_ptr<Buffer>& vertexBuffer, const BufferLayout& layout) override;
-        virtual void SetIndexBuffer(const std::shared_ptr<Buffer>& indexBuffer) override;
+        virtual void AddVertexBuffer(const std::shared_ptr<GPUBuffer>& vertexBuffer, const BufferLayout& layout) override;
+        virtual void SetIndexBuffer(const std::shared_ptr<GPUBuffer>& indexBuffer) override;
     private:
         static GLenum GetOpenGLTypeOfBufferDataType(BufferDataType type);
     private:

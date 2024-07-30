@@ -22,7 +22,7 @@ namespace pxl
         glBindVertexArray(0);
     }
 
-    void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<Buffer>& vertexBuffer, const BufferLayout& layout)
+    void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<GPUBuffer>& vertexBuffer, const BufferLayout& layout)
     {
         glBindVertexArray(m_RendererID); // Ensure this vertex array is the one currently bound
         vertexBuffer->Bind(); // Sets the global vertex buffer bound so glVertexAttribPointer can grab it and store it in the VAO
@@ -54,7 +54,7 @@ namespace pxl
         }
     }
 
-    void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<Buffer>& indexBuffer)
+    void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<GPUBuffer>& indexBuffer)
     {
         glBindVertexArray(m_RendererID);
         indexBuffer->Bind();

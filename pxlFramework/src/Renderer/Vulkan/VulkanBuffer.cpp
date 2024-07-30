@@ -8,7 +8,7 @@
 
 namespace pxl
 {
-    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, BufferUsage usage, uint32_t size, const void* data)
+    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
         VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -141,16 +141,16 @@ namespace pxl
         return VK_FORMAT_UNDEFINED;
     }
 
-    VkBufferUsageFlagBits VulkanBuffer::GetVkBufferUsageOfBufferUsage(BufferUsage usage)
+    VkBufferUsageFlagBits VulkanBuffer::GetVkBufferUsageOfBufferUsage(GPUBufferUsage usage)
     {
         switch (usage)
         {
-            case BufferUsage::None:
+            case GPUBufferUsage::None:
                 PXL_LOG_WARN(LogArea::Vulkan, "Buffer usage was none, can't convert to VkBufferUsage");
                 break;
-            case BufferUsage::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            case BufferUsage::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-            case BufferUsage::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            case GPUBufferUsage::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            case GPUBufferUsage::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            case GPUBufferUsage::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         }
         
         return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;

@@ -1,4 +1,4 @@
-#include "Buffer.h"
+#include "GPUBuffer.h"
 
 #include "Renderer.h"
 #include "OpenGL/OpenGLBuffer.h"
@@ -6,13 +6,13 @@
 
 namespace pxl
 {
-    // Static Buffer
-    std::shared_ptr<Buffer> Buffer::Create(BufferUsage usage, uint32_t size, const void* data)
+    // Static GPUBuffer
+    std::shared_ptr<GPUBuffer> GPUBuffer::Create(GPUBufferUsage usage, uint32_t size, const void* data)
     {
         switch (Renderer::GetCurrentAPI())
         {
             case RendererAPIType::None:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex Buffer for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex GPUBuffer for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLBuffer>(usage, size, data);
@@ -24,13 +24,13 @@ namespace pxl
         return nullptr;
     }
 
-    // Dynamic Buffer
-    std::shared_ptr<Buffer> Buffer::Create(BufferUsage usage, uint32_t size)
+    // Dynamic GPUBuffer
+    std::shared_ptr<GPUBuffer> GPUBuffer::Create(GPUBufferUsage usage, uint32_t size)
     {
         switch (Renderer::GetCurrentAPI())
         {
             case RendererAPIType::None:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex Buffer for no renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex GPUBuffer for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLBuffer>(usage, size);

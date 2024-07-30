@@ -20,7 +20,7 @@ add_library(pxlFramework STATIC
     src/Renderer/RendererAPI.h
     src/Renderer/RendererAPIType.h
     src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
-    src/Renderer/Buffer.h src/Renderer/Buffer.cpp
+    src/Renderer/GPUBuffer.h src/Renderer/GPUBuffer.cpp
     src/Renderer/VertexArray.h src/Renderer/VertexArray.cpp
     src/Renderer/BufferLayout.h
     src/Renderer/UniformLayout.h
