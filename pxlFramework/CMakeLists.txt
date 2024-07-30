@@ -81,8 +81,11 @@ add_library(pxlFramework STATIC
 # Set project c++ standard
 target_compile_features(pxlFramework PRIVATE cxx_std_20)
 
-# Set compiler warning level - NOTE: This likely only works with MSVC
+# Set compiler warning level - NOTE: This likely only works with MSBuild/MSVC
 target_compile_options(pxlFramework PRIVATE "/W3")
+
+# Set MSBuild multi-processor compilation
+target_compile_options(pxlFramework PRIVATE "/MP")
 
 # pxlFramework CMake options
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
@@ -102,17 +105,16 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 
 # Enable logging if desired
 if (PXL_ENABLE_LOGGING)
-    message("pxlFramework logging ENABLED")
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
 endif()
 
 # Enable profiling if desired
 if (PXL_ENABLE_PROFILING)
-    message("Enabling tracy profiling for pxlFramework")
     option(TRACY_ENABLE "" ON)
     option(TRACY_ON_DEMAND "" ON)
     add_subdirectory(deps/tracy)
     target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
+    target_link_libraries(pxlFramework Tracy::TracyClient)
 else()
     option(TRACY_ENABLE "" OFF)
 endif()
@@ -157,15 +159,17 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::Vulkan
-    Tracy::TracyClient
     discordgamesdk
 )
 
 target_precompile_headers(pxlFramework PUBLIC 
+    # pxlFramework
     src/Core/Logging/Logger.h
     src/Core/Logging/FrameworkLog.h
     src/Core/Assert.h
     src/Debug/Profiler.h
+
+    # STD
     <string>
     <memory>
     <unordered_map>

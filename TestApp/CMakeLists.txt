@@ -35,6 +35,9 @@ set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<$<CONFIG:Release>:TR
 # Set TestApp macros based on build type
 target_compile_definitions(TestApp PRIVATE $<$<CONFIG:Debug>:TA_DEBUG> $<$<CONFIG:Release>:TA_RELEASE>)
 
+# Set MSBuild multi-processor compilation
+target_compile_options(TestApp PRIVATE "/MP")
+
 # Set MSVC runtime library based on build type
 set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 

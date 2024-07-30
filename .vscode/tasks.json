@@ -4,14 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "MSBuild ALL - Debug",
+            "label": "Build pxlFramework (Debug)",
             "type": "shell",
-            "command": "msbuild",
+            "command": "MSBuild",
             "args": [
-                "build/ALL_BUILD.vcxproj",
-                "/property:Configuration=Debug",
+                "build/pxlFramework.sln",
                 "/t:build",
-                "/maxCpuCount"
+                "/property:Configuration=Debug",
+                "/maxCpuCount",
             ],
             "group": {
                 "kind": "build",
@@ -22,14 +22,57 @@
                 "focus": true,
                 "clear": true
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
         },
         {
-            "label": "MSBuild ALL - Release",
+            "label": "Rebuild pxlFramework (Debug)",
             "type": "shell",
-            "command": "msbuild",
+            "command": "MSBuild",
             "args": [
-                "build/ALL_BUILD.vcxproj",
+                "build/pxlFramework.sln",
+                "/t:rebuild",
+                "/property:Configuration=Debug",
+                "/maxCpuCount",
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "clear": true
+            },
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "CMake: clean",
+                "CMake: configure"
+            ]
+        },
+        {
+            "label": "Build pxlFramework (Release)",
+            "type": "shell",
+            "command": "MSBuild",
+            "args": [
+                "build/pxlFramework.sln",
+                "/t:build",
+                "/property:Configuration=Release",
+                "/maxCpuCount"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "clear": true
+            },
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "Rebuild pxlFramework (Release)",
+            "type": "shell",
+            "command": "MSBuild",
+            "args": [
+                "build/pxlFramework.sln",
+                "/t:rebuild",
                 "/property:Configuration=Release",
                 "/maxCpuCount"
             ],
@@ -41,6 +84,7 @@
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
+                "CMake: clean",
                 "CMake: configure"
             ]
         }
