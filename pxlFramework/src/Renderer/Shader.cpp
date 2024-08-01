@@ -16,8 +16,7 @@ namespace pxl
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLShader>(stage, glslSrc);
             case RendererAPIType::Vulkan:
-                PXL_LOG_ERROR(LogArea::Renderer, "Vulkan implementation doesn't support shaders from glsl strings");
-                break;
+                return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, glslSrc);
         }
         
         return nullptr;
@@ -34,7 +33,7 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "OpenGL implementation doesn't support shaders from binary.");
                 break;
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(std::dynamic_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, sprvBin);
+                return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, sprvBin);
         }
         
         return nullptr;

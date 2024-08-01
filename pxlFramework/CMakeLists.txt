@@ -87,6 +87,9 @@ target_compile_options(pxlFramework PRIVATE "/W3")
 # Set MSBuild multi-processor compilation
 target_compile_options(pxlFramework PRIVATE "/MP")
 
+# Ignore PDB missing warnings (currently because of shaderc)
+target_link_options(pxlFramework INTERFACE "/ignore:4099")
+
 # pxlFramework CMake options
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
 option(PXL_ENABLE_LOGGING "Enable framework logging" OFF)
@@ -135,7 +138,6 @@ add_subdirectory(deps/discord-game-sdk)
 
 # Find Vulkan SDK using its environment variable
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
-find_package(Vulkan REQUIRED)
 
 if (${Vulkan_FOUND})
     message("Found Vulkan SDK")
@@ -145,6 +147,7 @@ if (${Vulkan_FOUND})
 else()
     message("Failed to find Vulkan SDK")
 endif()
+find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 # Add Vulkan include directory
 target_include_directories(pxlFramework PRIVATE Vulkan::Headers)
@@ -160,6 +163,7 @@ target_link_libraries(pxlFramework
     yaml-cpp
     Vulkan::Vulkan
     discordgamesdk
+    Vulkan::shaderc_combined
 )
 
 target_precompile_headers(pxlFramework PUBLIC 

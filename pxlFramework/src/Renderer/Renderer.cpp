@@ -205,11 +205,11 @@ namespace pxl
                     pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
-                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
-                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
+                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_vk.vert");
+                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_vk.frag");
 
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
 
                 //s_QuadUniformLayout.Add({ "u_VertexColour", pxl::BufferDataType::Float4, pxl::ShaderStage::Vertex });
 

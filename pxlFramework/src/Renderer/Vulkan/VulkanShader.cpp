@@ -1,10 +1,25 @@
 #include "VulkanShader.h"
 
+#include <shaderc/shaderc.hpp>
+
 namespace pxl
 {
     VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin)
         : m_Device(static_cast<VkDevice>(device->GetDevice())), m_ShaderStage(stage)
     {
+        m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
+
+        VulkanDeletionQueue::Add([&]() {
+            Destroy();
+        });
+    }
+
+    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice> &device, ShaderStage stage, const std::string& glslSrc)
+        : m_Device(static_cast<VkDevice>(device->GetDevice())), m_ShaderStage(stage)
+    {
+        // When given glsl source code, compile it to SPIR-V so vulkan can use it
+        auto sprvBin = CompileToSPIRV(glslSrc, stage);
+
         m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
 
         VulkanDeletionQueue::Add([&]() {
@@ -45,5 +60,66 @@ namespace pxl
         }
 
         return shaderModule;
+    }
+
+    VkShaderModule VulkanShader::CreateShaderModule(VkDevice device, const std::vector<uint32_t>& code)
+    {
+        VkShaderModuleCreateInfo shaderModuleCreateInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+        shaderModuleCreateInfo.codeSize = code.size() * 4;
+        shaderModuleCreateInfo.pCode = code.data();
+
+        VkShaderModule shaderModule;
+        auto result = vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule);
+        if (result != VK_SUCCESS)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create shader module");
+            return VK_NULL_HANDLE;
+        }
+
+        return shaderModule;
+    }
+    
+    std::vector<uint32_t> VulkanShader::CompileToSPIRV(const std::string& glslSrc, ShaderStage stage)
+    {
+        // TODO: add SPIRV optimization support
+
+        PXL_PROFILE_SCOPE;
+        
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+        shaderc_shader_kind shaderKind;
+
+        switch (stage)
+        {
+            case ShaderStage::None:
+                PXL_LOG_ERROR(LogArea::Vulkan, "Can't select shaderc kind, ShaderStage is none");
+                break;
+            case ShaderStage::Vertex:
+                shaderKind = shaderc_shader_kind::shaderc_glsl_vertex_shader;
+                break;
+            case ShaderStage::Fragment:
+                shaderKind = shaderc_shader_kind::shaderc_glsl_fragment_shader;
+                break;
+            case ShaderStage::Geometry:
+                shaderKind = shaderc_shader_kind::shaderc_glsl_geometry_shader;
+                break;
+            case ShaderStage::Tessellation:
+                PXL_LOG_ERROR(LogArea::Vulkan, "Can't select shaderc kind, ShaderStage is tessellation");
+                break;
+        }
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Compiling GLSL shader to SPIR-V...");
+
+        auto result = compiler.CompileGlslToSpv(glslSrc, shaderKind, "main", options);
+
+        if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "shaderc failed to compile glsl to SPIR-V: {}", result.GetErrorMessage());
+            return std::vector<uint32_t>();
+        }
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Finished compiling SPIR-V")
+
+        return { result.cbegin(), result.cend() };
     }
 }
