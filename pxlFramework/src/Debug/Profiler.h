@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef PXL_ENABLE_PROFILING
-    #include "tracy/Tracy.hpp"
+    #include <tracy/Tracy.hpp>
 
     #define PXL_PROFILE_SCOPE ZoneScoped;
     #define PXL_PROFILE_FRAME_END FrameMark;

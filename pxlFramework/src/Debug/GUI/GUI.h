@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GUIBase.h"
-#include "../../Core/Window.h"
-#include "../../Renderer/RendererAPIType.h"
+#include "Core/Window.h"
+#include "Renderer/RendererAPIType.h"
 
 namespace pxl
 {

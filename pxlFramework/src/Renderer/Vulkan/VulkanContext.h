@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../GraphicsContext.h"
+#include "Renderer/GraphicsContext.h"
 
 #include <vulkan/vulkan.h>
 
-#include "../../Core/Window.h"
+#include "Core/Window.h"
 #include "VulkanRenderPass.h"
 #include "VulkanSwapchain.h"
 #include "VulkanDevice.h"

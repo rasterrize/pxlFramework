@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../GPUBuffer.h"
+#include "Renderer/GPUBuffer.h"
 
 #include <vulkan/vulkan.h>
 #include <vma/vk_mem_alloc.h>
 
-#include "../BufferLayout.h"
+#include "Renderer/BufferLayout.h"
 #include "VulkanDevice.h"
 #include "VulkanAllocator.h"
 

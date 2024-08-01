@@ -180,6 +180,7 @@ target_precompile_headers(pxlFramework PUBLIC
     <array>
     <deque>
     <filesystem>
+    <chrono>
 )
 
 target_compile_definitions(pxlFramework PRIVATE 
@@ -191,7 +192,9 @@ target_compile_definitions(pxlFramework PRIVATE
 )
 
 # Specify source directory as an include folder for simplified '#include's in code
-target_include_directories(pxlFramework PRIVATE src)
+# TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
+#       and should instead only expose pxl.h
+target_include_directories(pxlFramework PUBLIC src)
 
 # Specify include directories for projects using pxlFramework via add_subdirectory()
 target_include_directories(pxlFramework PUBLIC include)

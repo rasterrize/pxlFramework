@@ -1,7 +1,7 @@
 #include "VulkanBuffer.h"
 
-#include "../BufferLayout.h"
-#include "../Renderer.h"
+#include "Renderer/BufferLayout.h"
+#include "Renderer/Renderer.h"
 #include "VulkanHelpers.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"

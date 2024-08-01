@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GPUBuffer.h"
+#include "Renderer/GPUBuffer.h"
 
 #include <glad/glad.h>
 

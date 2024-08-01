@@ -11,11 +11,13 @@
 #include "../src/Core/Config.h"
 
 #include "../src/Renderer/Renderer.h"
+#include "../src/Renderer/RendererAPIType.h"
 #include "../src/Renderer/Camera.h"
 #include "../src/Renderer/Shader.h"
 #include "../src/Renderer/ShaderLibrary.h"
 #include "../src/Renderer/Pipeline.h"
 #include "../src/Renderer/BufferLayout.h"
+#include "../src/Renderer/GraphicsContext.h"
 
 //#include "../src/Audio/AudioManager.h"
 

@@ -1,10 +1,10 @@
 #include "Window.h"
 
-#include "../Renderer/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Application.h"
 #include "Input.h"
-#include "../Renderer/Vulkan/VulkanHelpers.h"
-#include "../Renderer/Vulkan/VulkanContext.h"
+#include "Renderer/Vulkan/VulkanHelpers.h"
+#include "Renderer/Vulkan/VulkanContext.h"
 
 namespace pxl
 {

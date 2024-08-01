@@ -6,9 +6,9 @@
 #include "Stopwatch.h"
 #include "Config.h"
 #include "Utils/DiscordRPC.h"
-#include "../Renderer/Renderer.h"
-#include "../Renderer/Camera.h"
-#include "../Debug/GUI/GUI.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/Camera.h"
+#include "Debug/GUI/GUI.h"
 
 namespace pxl
 {

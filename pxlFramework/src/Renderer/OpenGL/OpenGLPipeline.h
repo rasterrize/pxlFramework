@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Pipeline.h"
+#include "Renderer/Pipeline.h"
+
 #include "OpenGLShader.h"
 
 namespace pxl

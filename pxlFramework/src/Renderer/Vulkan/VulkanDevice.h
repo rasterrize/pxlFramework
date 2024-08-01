@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GraphicsDevice.h"
+#include "Renderer/GraphicsDevice.h"
 
 #include <vulkan/vulkan.h>
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../GraphicsContext.h"
+#include "Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
-#include "../../Core/Window.h"
+#include "Core/Window.h"
 
 namespace pxl
 {

@@ -4,8 +4,8 @@
 #include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
 #include <vulkan/vulkan.h>
 
-#include "../Renderer/GraphicsContext.h"
-#include "../Renderer/RendererAPIType.h"
+#include "Renderer/GraphicsContext.h"
+#include "Renderer/RendererAPIType.h"
 
 namespace pxl
 {
