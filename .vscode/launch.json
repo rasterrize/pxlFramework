@@ -6,7 +6,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Debug/TestApp.exe",
-            "preLaunchTask": "Build pxlFramework (Release)",
+            "preLaunchTask": "Build pxlFramework (Debug)",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
