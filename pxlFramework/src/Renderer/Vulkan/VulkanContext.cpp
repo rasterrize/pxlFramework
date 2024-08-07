@@ -97,7 +97,8 @@ namespace pxl
             m_CommandPool = VK_NULL_HANDLE;
         });
 
-        // Get present queue (graphics queue) from device
+        // Get graphics/present queue from device
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(logicalDevice, graphicsQueueFamily);
         m_PresentQueue = VulkanHelpers::GetQueueHandle(logicalDevice, graphicsQueueFamily);
 
         // Get swapchain suitable surface format (for renderpass)

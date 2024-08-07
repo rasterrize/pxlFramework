@@ -30,7 +30,9 @@ namespace pxl
 
         VkCommandPool GetCommandPool() const { return m_CommandPool; }
 
-        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence); // TODO: move this elsewhere or possibly nuke it
+        VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+
+        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence = nullptr); // TODO: move this elsewhere or possibly nuke it
 
         // TEMP (I think)
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
@@ -44,6 +46,7 @@ namespace pxl
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
         VkSurfaceFormatKHR m_SurfaceFormat = {};
 
+        VkQueue m_GraphicsQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
         VkQueue m_PresentQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
 
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
