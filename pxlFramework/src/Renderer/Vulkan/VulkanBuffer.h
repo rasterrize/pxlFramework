@@ -39,6 +39,12 @@ namespace pxl
         VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage;
 
+        VkBuffer m_StagingBuffer = VK_NULL_HANDLE;
+        VmaAllocation m_StagingAllocation = nullptr;
+        VmaAllocationInfo m_StagingAllocationInfo;
+        VkFence m_UploadFence = VK_NULL_HANDLE;
+        VkCommandBuffer m_UploadCommandBuffer = VK_NULL_HANDLE;
+
         std::function<void(VkCommandBuffer)> m_BindFunc;
     };
 }
