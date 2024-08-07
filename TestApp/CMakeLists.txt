@@ -2,20 +2,26 @@ cmake_minimum_required(VERSION 3.5.0)
 project(TestApp VERSION 0.0.1 LANGUAGES CXX)
 
 add_executable(TestApp
-    src/Entrypoint.cpp 
-    src/TestApplication.h src/TestApplication.cpp 
-    
+    src/Entrypoint.cpp
+    src/TestApplication.h src/TestApplication.cpp
+
     # TESTS
-    src/Tests/OGLVK.h 
+    src/Tests/OGLVK.h
     src/Tests/OGLVK.cpp
-    src/Tests/ModelViewer.h 
+    src/Tests/ModelViewer.h
     src/Tests/ModelViewer.cpp
-    src/Tests/CubesTest.h src/Tests/CubesTest.cpp
-    src/Tests/OGLVK.h src/Tests/OGLVK.cpp
-    src/Tests/QuadsTest.h src/Tests/QuadsTest.cpp
-    src/Tests/EmptyApp.h src/Tests/EmptyApp.cpp
-    src/Tests/WindowTest.h src/Tests/WindowTest.cpp
-    src/Tests/LinesTest.h src/Tests/LinesTest.cpp
+    src/Tests/CubesTest.h
+    src/Tests/CubesTest.cpp
+    src/Tests/OGLVK.h
+    src/Tests/OGLVK.cpp
+    src/Tests/QuadsTest.h
+    src/Tests/QuadsTest.cpp
+    src/Tests/EmptyApp.h
+    src/Tests/EmptyApp.cpp
+    src/Tests/WindowTest.h
+    src/Tests/WindowTest.cpp
+    src/Tests/LinesTest.h
+    src/Tests/LinesTest.cpp
 )
 
 # Set project c++ standard

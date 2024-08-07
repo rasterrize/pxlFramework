@@ -14,12 +14,12 @@ namespace pxl
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
         virtual ~VulkanDevice() override;
 
-        virtual void* GetDevice() override { return m_LogicalDevice; } // TODO: rename to something better (so I don't get code like m_Context->GetDevice()->GetDevice())
-        virtual void* GetPhysicalDevice() override { return m_PhysicalDevice; }
+        virtual void* GetDevice() const override { return m_LogicalDevice; } // TODO: rename to something better (so I don't get code like m_Context->GetDevice()->GetDevice())
+        virtual void* GetPhysicalDevice() const override { return m_PhysicalDevice; }
 
-        virtual void WaitIdle() override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
+        virtual void WaitIdle() const override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
 
-        virtual const DeviceLimits& GetDeviceLimits() override { return DeviceLimits(); }; // TODO
+        virtual const DeviceLimits& GetDeviceLimits() const override { return m_DeviceLimits; } // TODO
 
         void Destroy();
 
@@ -33,6 +33,8 @@ namespace pxl
     private:
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+        
+        DeviceLimits m_DeviceLimits;
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
     };

@@ -146,15 +146,6 @@ target_compile_options(yaml-cpp PUBLIC "/MP")
 
 # Find Vulkan SDK using its environment variable
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
-
-if (${Vulkan_FOUND})
-    message("Found Vulkan SDK")
-    message("-- Vulkan SDK Path: $ENV{VULKAN_SDK}")
-    message("-- Vulkan Include: ${Vulkan_INCLUDE_DIR}")
-    message("-- Vulkan Library: ${Vulkan_LIBRARY}")
-else()
-    message("Failed to find Vulkan SDK")
-endif()
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 # Add Vulkan include directory

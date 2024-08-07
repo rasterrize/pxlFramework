@@ -2,7 +2,7 @@
 
 #include "VertexArray.h"
 #include "GPUBuffer.h"
-#include "../Core/Platform.h"
+#include "Core/Platform.h"
 #include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
@@ -717,7 +717,7 @@ namespace pxl
             
             s_SetViewProjectionFunc(s_CubePipeline, s_QuadsCamera->GetViewProjectionMatrix());
 
-            s_RendererAPI->DrawIndexed(s_CubeCount * 36);;
+            s_RendererAPI->DrawIndexed(s_CubeCount * 36);
             s_CubeCount = 0;
 
         #ifdef PXL_DEBUG

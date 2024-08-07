@@ -44,6 +44,9 @@ namespace pxl
         // Reset window hints so we don't get undefined behaviour
         glfwDefaultWindowHints();
 
+        // Hide the window on creation as we will still need to prepare it
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
         // Set window hints based on renderer api
         switch (windowSpecs.RendererAPI)
         {
@@ -63,9 +66,6 @@ namespace pxl
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
         }
-
-        // Hide the window on creation as we will still need to prepare it
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(windowSpecs.Width), static_cast<int>(windowSpecs.Height), windowSpecs.Title.c_str(), nullptr, nullptr);
 

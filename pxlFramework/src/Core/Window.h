@@ -19,7 +19,7 @@ namespace pxl
         Fullscreen
     };
 
-    struct WindowSpecs // WindowSpec?
+    struct WindowSpecs
     {
         uint32_t Width = DEFAULT_WINDOW_WIDTH;
         uint32_t Height = DEFAULT_WINDOW_HEIGHT;

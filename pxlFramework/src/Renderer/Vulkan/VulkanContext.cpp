@@ -21,8 +21,8 @@ namespace pxl
         #endif
 
         // Create Vulkan instance with specified extensions and layers
-        VkInstance vulkanInstance;
-        if (!VulkanInstance::Get())
+        VkInstance vulkanInstance = VulkanInstance::Get();
+        if (!vulkanInstance)
         {
             VulkanInstance::Init(glfwExtensions, selectedLayers);
             vulkanInstance = VulkanInstance::Get();

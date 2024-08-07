@@ -14,11 +14,11 @@ namespace pxl
     public:
         virtual ~GraphicsDevice() = default;
 
-        virtual void* GetDevice() = 0;
-        virtual void* GetPhysicalDevice() = 0;
+        virtual void* GetDevice() const = 0;
+        virtual void* GetPhysicalDevice() const = 0;
 
-        virtual void WaitIdle() = 0;
+        virtual void WaitIdle() const = 0;
 
-        virtual const DeviceLimits& GetDeviceLimits() = 0;
+        virtual const DeviceLimits& GetDeviceLimits() const = 0;
     };
 }

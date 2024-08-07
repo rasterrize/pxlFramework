@@ -2,7 +2,7 @@
 
 namespace TestApp
 {
-    std::shared_ptr<pxl::Window> OGLVK::m_Window; 
+    std::shared_ptr<pxl::Window> OGLVK::m_Window;
     std::shared_ptr<pxl::Camera> OGLVK::m_Camera;
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
