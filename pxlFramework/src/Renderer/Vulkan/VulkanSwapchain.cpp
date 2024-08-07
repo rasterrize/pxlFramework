@@ -103,6 +103,8 @@ namespace pxl
 
     void VulkanSwapchain::Recreate()
     {
+        PXL_PROFILE_SCOPE;
+        
         m_Device->WaitIdle();
 
         CreateSwapchain();

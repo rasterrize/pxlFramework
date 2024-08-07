@@ -58,11 +58,15 @@ namespace pxl
 
     void VulkanRenderer::DrawArrays(uint32_t vertexCount)
     {
+        PXL_PROFILE_SCOPE;
+        
         vkCmdDraw(m_CurrentFrame.CommandBuffer, vertexCount, 1, 0, 0);
     }
 
     void VulkanRenderer::DrawLines(uint32_t vertexCount)
     {
+        PXL_PROFILE_SCOPE;
+        
         vkCmdDraw(m_CurrentFrame.CommandBuffer, vertexCount, 1, 0, 0);
     }
 
