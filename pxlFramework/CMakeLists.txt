@@ -133,6 +133,14 @@ add_subdirectory(deps/assimp)
 add_subdirectory(deps/yaml-cpp)
 add_subdirectory(deps/discord-game-sdk)
 
+# Set libraries to build with multi-processor compilation
+target_compile_options(glfw PUBLIC "/MP")
+target_compile_options(glad PUBLIC "/MP")
+target_compile_options(discordgamesdk PUBLIC "/MP")
+target_compile_options(imgui PUBLIC "/MP")
+target_compile_options(stb PUBLIC "/MP")
+target_compile_options(yaml-cpp PUBLIC "/MP")
+
 #target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 #target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
