@@ -52,6 +52,9 @@ namespace pxl
         bool GetVSync() const { return m_VSync; }
 
         void SetExtent(VkExtent2D extent) { m_SwapchainSpecs.Extent = extent; }
+
+        void Suspend() { m_Suspend = true; }
+        void Continue() { m_Suspend = false; }
     private:
         void CreateSwapchain();
         void PrepareImages();
@@ -81,5 +84,6 @@ namespace pxl
         VulkanSwapchainSpecs m_SwapchainSpecs = {};
 
         bool m_VSync = true;
+        bool m_Suspend = false;
     };
 }

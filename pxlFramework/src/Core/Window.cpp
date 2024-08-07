@@ -326,15 +326,21 @@ namespace pxl
             Renderer::ResizeScissor(0, 0, width, height);
         }
 
-        if (width == 0 && height == 0)
-            return;
-
         if (Renderer::GetCurrentAPI() == RendererAPIType::Vulkan)
         {
-            auto vulkanContext = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->m_GraphicsContext);
+            auto swapchain = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->m_GraphicsContext)->GetSwapchain();
+            auto swapchainSpecs = swapchain->GetSwapchainSpecs();
 
-            if (vulkanContext)
-                vulkanContext->GetSwapchain()->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            if (width == 0 && height == 0)
+            {
+                swapchain->Suspend();
+                return;
+            }
+
+            if (swapchainSpecs.Extent.width != width || swapchainSpecs.Extent.height != height)
+                swapchain->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            
+            swapchain->Continue();
         }
     }
 

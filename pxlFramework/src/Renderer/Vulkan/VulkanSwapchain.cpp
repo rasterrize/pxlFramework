@@ -155,7 +155,10 @@ namespace pxl
 
     void VulkanSwapchain::AcquireNextAvailableImageIndex()
     { 
-        auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetDevice()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
+        if (m_Suspend)
+            return;
+        
+        auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetLogical()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
             Recreate();
@@ -166,6 +169,9 @@ namespace pxl
     void VulkanSwapchain::QueuePresent(VkQueue queue)
     {
         PXL_PROFILE_SCOPE;
+
+        if (m_Suspend)
+            return;
         
         VkSwapchainKHR swapChains[] = { m_Swapchain };
         VkSemaphore waitSemaphores[] = { m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore }; // wait for the command buffers to finish executing (rendering) to finish before presenting
