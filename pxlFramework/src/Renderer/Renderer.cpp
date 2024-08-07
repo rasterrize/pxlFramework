@@ -6,7 +6,7 @@
 #include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
-#include "../Utils/Fileloader.h"
+#include "Utils/FIleSystem.h"
 #include "BufferLayout.h"
 #include "UniformLayout.h"
 #include "Debug/GUI/GUI.h"
@@ -183,8 +183,8 @@ namespace pxl
                     pipeline->SetUniformData("u_VP", BufferDataType::Mat4, &vp);
                 };
 
-                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.vert");
-                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.frag");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
@@ -205,8 +205,8 @@ namespace pxl
                     pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
-                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_vk.vert");
-                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_vk.frag");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
@@ -269,8 +269,8 @@ namespace pxl
                     s_CubeVAO->Bind();
                 };
 
-                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.vert");
-                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/quad_ogl.frag");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
@@ -282,8 +282,8 @@ namespace pxl
                     s_CubeIBO->Bind();
                 };
 
-                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
-                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
+                auto vertBin = FileSystem::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
+                auto fragBin = FileSystem::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
@@ -323,8 +323,8 @@ namespace pxl
                     s_LineVAO->Bind();
                 };
 
-                auto vertSrc = FileLoader::LoadGLSL("resources/shaders/line_ogl.vert");
-                auto fragSrc = FileLoader::LoadGLSL("resources/shaders/line_ogl.frag");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/line_ogl.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/line_ogl.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
@@ -335,8 +335,8 @@ namespace pxl
                     s_LineVBO->Bind();
                 };
 
-                auto vertBin = FileLoader::LoadSPIRV("resources/shaders/compiled/line_vert.spv");
-                auto fragBin = FileLoader::LoadSPIRV("resources/shaders/compiled/line_frag.spv");
+                auto vertBin = FileSystem::LoadSPIRV("resources/shaders/compiled/line_vert.spv");
+                auto fragBin = FileSystem::LoadSPIRV("resources/shaders/compiled/line_frag.spv");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);

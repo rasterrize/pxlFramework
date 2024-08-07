@@ -24,6 +24,6 @@
 #include "../src/Debug/GUI/GUI.h"
 #include <imgui.h> // so applications can use ImGui functions
 
-#include "../src/Utils/FileLoader.h"
+#include "../src/Utils/FileSystem.h"
 #include "../src/Utils/EnumStringHelper.h"
 #include "../src/Utils/DiscordRPC.h"

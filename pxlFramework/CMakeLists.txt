@@ -66,7 +66,7 @@ add_library(pxlFramework STATIC
     src/Renderer/Vulkan/VmaUsage.cpp
 
     # UTILS
-    src/Utils/FileLoader.h src/Utils/FileLoader.cpp
+    src/Utils/FileSystem.h src/Utils/FileSystem.cpp
     src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
     src/Utils/DiscordRPC.h src/Utils/DiscordRPC.cpp
 

@@ -35,7 +35,7 @@ namespace TestApp
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
 
-        m_StoneTexture = pxl::FileLoader::LoadTextureFromImage("assets/textures/stone.png");
+        m_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png");
     }
 
     void QuadsTest::OnUpdate(float dt)

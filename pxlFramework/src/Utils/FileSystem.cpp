@@ -1,4 +1,4 @@
-#include "FileLoader.h"
+#include "FileSystem.h"
 
 #include <stb_image.h>
 #include <fstream>
@@ -10,21 +10,23 @@
 
 namespace pxl
 {
-    std::shared_ptr<Texture> FileLoader::LoadTextureFromImage(const std::string& filePath)
+    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& filePath)
     {
+        auto stringPath = filePath.string();
+        
         // stb image loads images from bottom to top I guess
         stbi_set_flip_vertically_on_load(1);
 
         int width, height, channels;
-        unsigned char* bytes = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
+        unsigned char* bytes = stbi_load(stringPath.c_str(), &width, &height, &channels, 0);
 
         if (bytes)
         {
-            PXL_LOG_INFO(LogArea::Other, "Loaded texture: '" + filePath + "'");
+            PXL_LOG_INFO(LogArea::Other, "Loaded texture: '{}'", stringPath);
         }
         else
         {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load texture: '" + filePath + "'");
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load texture: '{}'", stringPath);
             return nullptr;
         }
 
@@ -49,7 +51,7 @@ namespace pxl
         return texture;
     }
 
-    std::string FileLoader::LoadGLSL(const std::filesystem::path& path)
+    std::string FileSystem::LoadGLSL(const std::filesystem::path& path)
     {    
         if (!std::filesystem::exists(path))
         {
@@ -79,7 +81,7 @@ namespace pxl
         return src;
     }
 
-    std::vector<char> FileLoader::LoadSPIRV(const std::filesystem::path& path)
+    std::vector<char> FileSystem::LoadSPIRV(const std::filesystem::path& path)
     {
         std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
 
@@ -97,12 +99,12 @@ namespace pxl
         return buffer;
     }
 
-    std::shared_ptr<Mesh> FileLoader::LoadOBJ(const std::string& filePath)
+    std::shared_ptr<Mesh> FileSystem::LoadOBJ(const std::filesystem::path& filePath)
     {
         Assimp::Importer importer;
 
         // Load file from disk
-        const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+        const aiScene* scene = importer.ReadFile(filePath.string().c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
         if (!scene)
             return nullptr;
@@ -135,7 +137,7 @@ namespace pxl
         return mesh;
     }
 
-    std::vector<std::shared_ptr<Mesh>> FileLoader::LoadFBX(const std::string& filePath)
+    std::vector<std::shared_ptr<Mesh>> FileSystem::LoadFBX(const std::filesystem::path& filePath)
     {
         Assimp::Importer importer;
 
@@ -143,7 +145,7 @@ namespace pxl
 
         auto mesh = std::make_shared<Mesh>();
 
-        const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate);
+        const aiScene* scene = importer.ReadFile(filePath.string().c_str(), aiProcess_Triangulate);
 
         if (!scene)
             return std::vector<std::shared_ptr<Mesh>>();
@@ -161,7 +163,7 @@ namespace pxl
         return std::vector<std::shared_ptr<Mesh>>();
     }
 
-    // std::shared_ptr<AudioTrack> FileLoader::LoadAudioTrack(const std::string& filePath)
+    // std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::string& filePath)
     // {
     //     HSTREAM stream = BASS_StreamCreateFile(FALSE, filePath.c_str(), 0, 0, BASS_SAMPLE_FLOAT);
 
