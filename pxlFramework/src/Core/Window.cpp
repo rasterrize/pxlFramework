@@ -26,7 +26,7 @@ namespace pxl
     {
         glfwSetErrorCallback(GLFWErrorCallback); // Shouldn't be set everytime window is created
         
-        if (s_Windows.size() <= 0)
+        if (s_Windows.empty())
         {
             if (glfwInit())
             {
@@ -100,7 +100,7 @@ namespace pxl
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
 
-        if (s_Windows.size() <= 0 && Application::Get().IsRunning())
+        if (s_Windows.empty() && Application::Get().IsRunning())
             Application::Get().Close();
     }
 
@@ -197,7 +197,6 @@ namespace pxl
                 return;
             case WindowMode::Fullscreen:
                 glfwSetWindowMonitor(m_GLFWWindow, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
-                m_GraphicsContext->SetVSync(m_GraphicsContext->GetVSync()); // Set VSync because bug idk // TODO: this needs to be tested with vulkan
                 m_Specs.WindowMode = WindowMode::Fullscreen;
                 PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Fullscreen window mode", m_Specs.Title);
                 return;
@@ -337,10 +336,10 @@ namespace pxl
                 return;
             }
 
-            if (swapchainSpecs.Extent.width != width || swapchainSpecs.Extent.height != height)
-                swapchain->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-            
             swapchain->Continue();
+
+            if (static_cast<int32_t>(swapchainSpecs.Extent.width) != width || static_cast<int32_t>(swapchainSpecs.Extent.height) != height)
+                swapchain->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
         }
     }
 
@@ -387,7 +386,7 @@ namespace pxl
         for (const auto& window : s_Windows)
             window->Update();
 
-        s_EventProcessFunc();
+        s_EventProcessFunc(); // NOTE: this must be done second (on vulkan atleast) otherwise vulkan breaks (need to look into this)
     }
 
     void Window::UpdateMonitors()
@@ -417,8 +416,10 @@ namespace pxl
     {
         auto windowCount = s_Windows.size();
 
+        /* Window::Close() removes itself from the vector so we must
+           always access the first element */
         for (size_t i = 0; i < windowCount; i++)
-            s_Windows[i]->Close();
+            s_Windows.front()->Close();
 
         // TODO: Check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
@@ -445,7 +446,7 @@ namespace pxl
             {
                 window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window); // Automatically create a graphics context for the window
 
-                PXL_ASSERT(window->m_GraphicsContext != nullptr);
+                PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", window->GetWindowSpecs().Title);
             }
 
             // Set the visibility now since we have a valid context
