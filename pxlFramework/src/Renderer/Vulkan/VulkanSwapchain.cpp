@@ -21,7 +21,7 @@ namespace pxl
         // Prepare swapchain frames
         m_Frames.resize(m_MaxFramesInFlight);
 
-        auto vkDevice = static_cast<VkDevice>(m_Device->GetDevice());
+        auto vkDevice = static_cast<VkDevice>(m_Device->GetLogical());
         auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(vkDevice, commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
 
         for (size_t i = 0; i < m_Frames.size(); i++)
@@ -77,7 +77,7 @@ namespace pxl
         swapchainInfo.clipped = VK_TRUE; // NOTE: may cause issues with fragment shaders when enabled
         swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        VK_CHECK(vkCreateSwapchainKHR(static_cast<VkDevice>(m_Device->GetDevice()), &swapchainInfo, nullptr, &m_Swapchain));
+        VK_CHECK(vkCreateSwapchainKHR(static_cast<VkDevice>(m_Device->GetLogical()), &swapchainInfo, nullptr, &m_Swapchain));
 
         // Logging
         if (m_Swapchain)
@@ -122,14 +122,14 @@ namespace pxl
 
         if (m_Swapchain)
         {
-            vkDestroySwapchainKHR(static_cast<VkDevice>(m_Device->GetDevice()), m_Swapchain, nullptr);
+            vkDestroySwapchainKHR(static_cast<VkDevice>(m_Device->GetLogical()), m_Swapchain, nullptr);
             m_Swapchain = VK_NULL_HANDLE;
         }
     }
 
     void VulkanSwapchain::DestroyFrameData()
     {
-        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+        auto device = static_cast<VkDevice>(m_Device->GetLogical());
         
         for (auto& frame : m_Frames)
         {
@@ -200,7 +200,7 @@ namespace pxl
     {
         m_Images.resize(m_SwapchainSpecs.ImageCount);
 
-        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+        auto device = static_cast<VkDevice>(m_Device->GetLogical());
         
         // Get swapchain image count
         uint32_t swapchainImageCount = 0;
@@ -230,7 +230,7 @@ namespace pxl
         for (uint32_t i = 0; i < m_SwapchainSpecs.ImageCount; i++)
         {
             std::shared_ptr<VulkanFramebuffer> framebuffer;
-            framebuffer = std::make_shared<VulkanFramebuffer>(static_cast<VkDevice>(m_Device->GetDevice()), renderPass, m_SwapchainSpecs.Extent);
+            framebuffer = std::make_shared<VulkanFramebuffer>(static_cast<VkDevice>(m_Device->GetLogical()), renderPass, m_SwapchainSpecs.Extent);
             framebuffer->AddAttachment(m_Images[i]->GetImageView(), m_SwapchainSpecs.Format);
             framebuffer->Recreate();
             m_Framebuffers[i] = framebuffer;
@@ -239,7 +239,7 @@ namespace pxl
 
     VkPresentModeKHR VulkanSwapchain::GetSuitablePresentMode()
     {
-        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
+        auto availablePresentModes = VulkanHelpers::GetSurfacePresentModes(static_cast<VkPhysicalDevice>(m_Device->GetPhysical()), m_Surface);
 
         VkPresentModeKHR suitablePresentMode = VK_PRESENT_MODE_FIFO_KHR;
         bool foundSuitablePresentMode = false;
@@ -273,7 +273,7 @@ namespace pxl
 
     uint32_t VulkanSwapchain::GetSuitableImageCount()
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysical()), m_Surface);
 
         uint32_t suitableImageCount = 0;
 
@@ -295,7 +295,7 @@ namespace pxl
 
     bool VulkanSwapchain::CheckExtentSupport(VkExtent2D extent)
     {
-        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice()), m_Surface);
+        auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysical()), m_Surface);
 
         if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height)
             && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))

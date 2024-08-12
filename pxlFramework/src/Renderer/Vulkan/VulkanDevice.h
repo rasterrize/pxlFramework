@@ -14,8 +14,8 @@ namespace pxl
         VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
         virtual ~VulkanDevice() override;
 
-        virtual void* GetDevice() const override { return m_LogicalDevice; } // TODO: rename to something better (so I don't get code like m_Context->GetDevice()->GetDevice())
-        virtual void* GetPhysicalDevice() const override { return m_PhysicalDevice; }
+        virtual void* GetLogical() const override { return m_LogicalDevice; }
+        virtual void* GetPhysical() const override { return m_PhysicalDevice; }
 
         virtual void WaitIdle() const override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
 

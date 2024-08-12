@@ -35,14 +35,14 @@ namespace pxl
 	    pool_info.poolSizeCount = static_cast<uint32_t>(std::size(pool_sizes));
 	    pool_info.pPoolSizes = pool_sizes;
 
-	    VK_CHECK(vkCreateDescriptorPool(static_cast<VkDevice>(m_Device->GetDevice()), &pool_info, nullptr, &m_ImGuiDescriptorPool));
+	    VK_CHECK(vkCreateDescriptorPool(static_cast<VkDevice>(m_Device->GetLogical()), &pool_info, nullptr, &m_ImGuiDescriptorPool));
 
         ImGui_ImplVulkan_InitInfo initInfo = {};
         initInfo.Instance = VulkanInstance::Get();
-        initInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(m_Device->GetPhysicalDevice());
-        initInfo.Device = static_cast<VkDevice>(m_Device->GetDevice());
+        initInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(m_Device->GetPhysical());
+        initInfo.Device = static_cast<VkDevice>(m_Device->GetLogical());
         initInfo.QueueFamily = m_Device->GetGraphicsQueueIndex();
-        initInfo.Queue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetDevice()), m_Device->GetGraphicsQueueIndex());
+        initInfo.Queue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetLogical()), m_Device->GetGraphicsQueueIndex());
         initInfo.Subpass = 0; // unsure
         initInfo.DescriptorPool = m_ImGuiDescriptorPool;
         initInfo.MinImageCount = 3;
@@ -72,6 +72,6 @@ namespace pxl
         
         ImGui_ImplVulkan_Shutdown();
         
-        vkDestroyDescriptorPool(static_cast<VkDevice>(m_Device->GetDevice()), m_ImGuiDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(static_cast<VkDevice>(m_Device->GetLogical()), m_ImGuiDescriptorPool, nullptr);
     }
 }

@@ -9,8 +9,8 @@ namespace pxl
     void VulkanAllocator::Init(VkInstance instance, const std::shared_ptr<VulkanDevice>& device)
     {
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
-        allocatorCreateInfo.physicalDevice = static_cast<VkPhysicalDevice>(device->GetPhysicalDevice());
-        allocatorCreateInfo.device = static_cast<VkDevice>(device->GetDevice());
+        allocatorCreateInfo.physicalDevice = static_cast<VkPhysicalDevice>(device->GetPhysical());
+        allocatorCreateInfo.device = static_cast<VkDevice>(device->GetLogical());
         allocatorCreateInfo.instance = instance;
         allocatorCreateInfo.pVulkanFunctions = nullptr;
 

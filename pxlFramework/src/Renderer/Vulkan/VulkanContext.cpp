@@ -83,7 +83,7 @@ namespace pxl
             return;
         }
 
-        auto logicalDevice = static_cast<VkDevice>(m_Device->GetDevice());
+        auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogical());
 
         // Create command pool
         VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -93,7 +93,7 @@ namespace pxl
         VK_CHECK(vkCreateCommandPool(logicalDevice, &commandPoolInfo, nullptr, &m_CommandPool));
 
         VulkanDeletionQueue::Add([&]() {
-            vkDestroyCommandPool(static_cast<VkDevice>(m_Device->GetDevice()), m_CommandPool, nullptr);
+            vkDestroyCommandPool(static_cast<VkDevice>(m_Device->GetLogical()), m_CommandPool, nullptr);
             m_CommandPool = VK_NULL_HANDLE;
         });
 

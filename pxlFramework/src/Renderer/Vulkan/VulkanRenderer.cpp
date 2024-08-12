@@ -8,7 +8,7 @@ namespace pxl
         : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice())), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
     {
         // Get the graphics queue from the given queue family index
-        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetDevice()), m_GraphicsQueueFamilyIndex);
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetLogical()), m_GraphicsQueueFamilyIndex);
 
         m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
@@ -81,7 +81,7 @@ namespace pxl
     {  
         PXL_PROFILE_SCOPE;
         
-        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+        auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
         // Get the next frame to render to
         m_CurrentFrame = m_ContextHandle->GetSwapchain()->GetCurrentFrame();

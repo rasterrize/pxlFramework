@@ -14,8 +14,8 @@ namespace pxl
     public:
         virtual ~GraphicsDevice() = default;
 
-        virtual void* GetDevice() const = 0;
-        virtual void* GetPhysicalDevice() const = 0;
+        virtual void* GetLogical() const = 0;
+        virtual void* GetPhysical() const = 0;
 
         virtual void WaitIdle() const = 0;
 

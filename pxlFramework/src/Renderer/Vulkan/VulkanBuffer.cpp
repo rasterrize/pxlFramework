@@ -26,8 +26,8 @@ namespace pxl
 
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_StagingBuffer, &m_StagingAllocation, &m_StagingAllocationInfo));
 
-            m_UploadFence = VulkanHelpers::CreateFence(static_cast<VkDevice>(m_Device->GetDevice()), false);
-            m_UploadCommandBuffer = VulkanHelpers::AllocateCommandBuffers(static_cast<VkDevice>(m_Device->GetDevice()), std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetCommandPool(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
+            m_UploadFence = VulkanHelpers::CreateFence(static_cast<VkDevice>(m_Device->GetLogical()), false);
+            m_UploadCommandBuffer = VulkanHelpers::AllocateCommandBuffers(static_cast<VkDevice>(m_Device->GetLogical()), std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetCommandPool(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
         }
 
         // Dedicated Buffer (actual buffer)
@@ -114,7 +114,7 @@ namespace pxl
         
         auto allocator = VulkanAllocator::Get();
         auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
-        auto device = static_cast<VkDevice>(m_Device->GetDevice());
+        auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
     #if STAGING_BUFFER
 
@@ -179,7 +179,7 @@ namespace pxl
 
         if (m_UploadFence)
         {
-            vkDestroyFence(static_cast<VkDevice>(m_Device->GetDevice()), m_UploadFence, nullptr);
+            vkDestroyFence(static_cast<VkDevice>(m_Device->GetLogical()), m_UploadFence, nullptr);
             m_UploadFence = VK_NULL_HANDLE;
         }
     }
