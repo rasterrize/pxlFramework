@@ -13,7 +13,7 @@ namespace pxl
 
     enum class LogArea
     {
-        None, Core, Window, Input, Renderer, OpenGL, Vulkan, Audio, Physics, Assert, Other
+        None, Core, Window, Input, Renderer, OpenGL, Vulkan, FileSystem, Audio, Physics, Assert, Other
     };
 
     class Logger
@@ -21,19 +21,19 @@ namespace pxl
     public:
         static void Init();
 
-        static std::shared_ptr<spdlog::logger>& GetFrameworkLogger() { return s_FrameworkLogger; }
-        static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
+        static std::unique_ptr<spdlog::logger>& GetFrameworkLogger() { return s_FrameworkLogger; }
+        static std::unique_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
 
         static void SetCurrentArea(LogArea area) { s_CurrentArea = area; }
     private:
-        static std::string LogAreaToString(LogArea area);
+        static std::string_view LogAreaToString(LogArea area);
     private:
         class LogAreaFlag : public spdlog::custom_flag_formatter
         {
         public:
             void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override
             {
-                std::string area = LogAreaToString(s_CurrentArea); // TODO: not use strings here if possible
+                auto area = LogAreaToString(s_CurrentArea);
                 dest.append(area.data(), area.data() + area.size());
             }
 
@@ -43,10 +43,8 @@ namespace pxl
             }
         };
     private:
-        static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_FrameworkSink; // uses special flag for log areas
-        static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_ApplicationSink;
-        static std::shared_ptr<spdlog::logger> s_FrameworkLogger;
-        static std::shared_ptr<spdlog::logger> s_ApplicationLogger;
+        static std::unique_ptr<spdlog::logger> s_FrameworkLogger; // NOTE: uses special flag for log areas
+        static std::unique_ptr<spdlog::logger> s_ApplicationLogger;
 
         static LogArea s_CurrentArea;
     };
