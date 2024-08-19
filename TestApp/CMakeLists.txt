@@ -28,7 +28,8 @@ add_executable(TestApp
 target_compile_features(TestApp PRIVATE cxx_std_20)
 
 # Set pxlFramework settings
-set(PXL_ENABLE_PROFILING ON CACHE BOOL "" FORCE)
+set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
+set(PXL_ENABLE_ASSERTS $<CONFIG:Debug> CACHE BOOL "" FORCE)
 set(PXL_ENABLE_LOGGING $<CONFIG:Debug> CACHE BOOL "" FORCE)
 
 # Include and link to pxlFramework
@@ -36,13 +37,21 @@ target_include_directories(TestApp PRIVATE ${CMAKE_SOURCE_DIR}/pxlFramework/incl
 target_link_libraries(TestApp pxlFramework)
 
 # Set exe as Win32 for release builds (TODO: use only for distribution builds)
-set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<$<CONFIG:Release>:TRUE>)
+set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
+
+# Set Visual Studio working directory
+set_target_properties(TestApp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 # Set TestApp macros based on build type
-target_compile_definitions(TestApp PRIVATE $<$<CONFIG:Debug>:TA_DEBUG> $<$<CONFIG:Release>:TA_RELEASE>)
+target_compile_definitions(TestApp PRIVATE
+    $<$<CONFIG:Debug>:TA_DEBUG>
+    $<$<CONFIG:Release>:TA_RELEASE>
+)
 
-# Set MSBuild multi-processor compilation
-target_compile_options(TestApp PRIVATE "/MP")
+# Set MSVC multi-processor compilation
+if (MSVC)
+    target_compile_options(TestApp PRIVATE "/MP")
+endif()
 
 # Set MSVC runtime library based on build type
 set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")

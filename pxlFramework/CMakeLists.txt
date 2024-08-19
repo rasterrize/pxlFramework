@@ -81,34 +81,34 @@ add_library(pxlFramework STATIC
 # Set project c++ standard
 target_compile_features(pxlFramework PRIVATE cxx_std_20)
 
-# Set compiler warning level - NOTE: This likely only works with MSBuild/MSVC
-target_compile_options(pxlFramework PRIVATE "/W3")
-
-# Set MSBuild multi-processor compilation
-target_compile_options(pxlFramework PRIVATE "/MP")
-
-# Ignore PDB missing warnings (currently because of shaderc)
-target_link_options(pxlFramework INTERFACE "/ignore:4099")
-
-# pxlFramework CMake options
-option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
-option(PXL_ENABLE_LOGGING "Enable framework logging" OFF)
-
 # Set GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# Set GLM settings
+set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
+
 # Set ASSIMP settings
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
 
 # Set YAMLCPP settings
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
 
 # Enable logging if desired
 if (PXL_ENABLE_LOGGING)
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
+endif()
+
+# Enable asserts if desired
+if (PXL_ENABLE_ASSERTS)
+    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_ASSERTS)
 endif()
 
 # Enable profiling if desired
@@ -118,8 +118,23 @@ if (PXL_ENABLE_PROFILING)
     add_subdirectory(deps/tracy)
     target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
     target_link_libraries(pxlFramework Tracy::TracyClient)
+    message("pxlFramework profiling enabled")
 else()
     option(TRACY_ENABLE "" OFF)
+endif()
+
+if (MSVC)
+    # Set MSVC runtime library based on build type
+    set_target_properties(pxlFramework PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    
+    # Set MSBuild multi-processor compilation
+    target_compile_options(pxlFramework PRIVATE "/MP")
+
+    # Set compiler warning level
+    target_compile_options(pxlFramework PRIVATE "/W3")
+
+    # Ignore PDB missing warnings (currently because of shaderc)
+    target_link_options(pxlFramework PUBLIC "/ignore:4099")
 endif()
 
 # Add Dependencies (CMake projects)
@@ -133,16 +148,19 @@ add_subdirectory(deps/assimp)
 add_subdirectory(deps/yaml-cpp)
 add_subdirectory(deps/discord-game-sdk)
 
-# Set libraries to build with multi-processor compilation
-target_compile_options(glfw PUBLIC "/MP")
-target_compile_options(glad PUBLIC "/MP")
-target_compile_options(discordgamesdk PUBLIC "/MP")
-target_compile_options(imgui PUBLIC "/MP")
-target_compile_options(stb PUBLIC "/MP")
-target_compile_options(yaml-cpp PUBLIC "/MP")
+# BASS audio library
+target_include_directories(pxlFramework PUBLIC deps/BASS/include)
+target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
-#target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-#target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+# Set libraries to build with multi-processor compilation
+if (MSVC)
+    target_compile_options(glfw PUBLIC "/MP")
+    target_compile_options(glad PUBLIC "/MP")
+    target_compile_options(discordgamesdk PUBLIC "/MP")
+    target_compile_options(imgui PUBLIC "/MP")
+    target_compile_options(stb PUBLIC "/MP")
+    target_compile_options(yaml-cpp PUBLIC "/MP")
+endif()
 
 # Find Vulkan SDK using its environment variable
 set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
@@ -167,13 +185,14 @@ target_link_libraries(pxlFramework
 
 target_precompile_headers(pxlFramework PUBLIC 
     # pxlFramework
-    src/Core/Logging/Logger.h
     src/Core/Logging/FrameworkLog.h
     src/Core/Assert.h
     src/Debug/Profiler.h
 
-    # STD
+    # std
     <string>
+    <string_view>
+    <vector>
     <memory>
     <unordered_map>
     <map>
@@ -181,30 +200,23 @@ target_precompile_headers(pxlFramework PUBLIC
     <optional>
     <functional>
     <array>
-    <deque>
     <filesystem>
     <chrono>
+    <stdexcept>
 )
 
 target_compile_definitions(pxlFramework PRIVATE 
     GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_NONE   # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header 
-    $<$<CONFIG:Debug>:PXL_ENABLE_ASSERTS> # Should these be a part of the application cmake file so users can actually change them
     $<$<CONFIG:Debug>:PXL_DEBUG>
+    $<$<CONFIG:Release>:PXL_RELEASE>
 )
 
 # Specify source directory as an include folder for simplified '#include's in code
 # TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
-#       and should instead only expose pxl.h
+#       and should instead only expose pxl.h (I am unsure if this is even possible)
 target_include_directories(pxlFramework PUBLIC src)
 
 # Specify include directories for projects using pxlFramework via add_subdirectory()
 target_include_directories(pxlFramework PUBLIC include)
-
-# Copy internal framework resources to bin directory
-file(COPY resources/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
-
-# Copy necessary framework dependency DLLs to bin directory
-file(COPY deps/discord-game-sdk/lib/discord_game_sdk.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
-file(COPY deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
