@@ -35,9 +35,9 @@ namespace pxl
         static void Begin();
         static void End();
 
-        static void AddStaticQuad(const glm::vec3& position = glm::vec3(0.0f));
+        static void AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
+        static void AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
         static void StaticGeometryReady();
-        static void DrawStaticQuads();
         static void SetQuadsCamera(const std::shared_ptr<Camera>& camera) { s_QuadsCamera = camera; }
         
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
@@ -48,7 +48,8 @@ namespace pxl
         static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
         //static void AddTexturedCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, uint32_t textureIndex);
         static void AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
-        //static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+        
+        static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         struct Statistics
         {
@@ -78,6 +79,8 @@ namespace pxl
         static void CalculateFPS();
 
         static void Flush();
+
+        static glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
     private:
         static bool s_Enabled;
         static RendererAPIType s_RendererAPIType;

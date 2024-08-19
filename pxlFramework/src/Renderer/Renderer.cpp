@@ -21,73 +21,83 @@ namespace pxl
     uint32_t Renderer::s_FrameCount = 0;
     float Renderer::s_TimeAtLastFrame = 0.0f;
 
-    constexpr uint32_t s_MaxQuadCount = 10000;
+    /* VERY IMPORTANT NOTE: Setting these max values to higher counts significantly increases compile times.
+       TODO: Find some good values for these that are good for performance and don't kill the compiler */
+    constexpr uint32_t s_MaxQuadCount = 100;
     constexpr uint32_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
     constexpr uint32_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
 
-    constexpr uint32_t s_MaxCubeCount = 10000;
+    constexpr uint32_t s_MaxCubeCount = 100;
     constexpr uint32_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
     constexpr uint32_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
 
-    constexpr uint32_t s_MaxLineCount = 10000;
+    constexpr uint32_t s_MaxLineCount = 100;
     constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2;
 
-    constexpr uint32_t s_MaxTextureUnits = 32; // TODO: I believe 16 is the minimum value for this (on computers) but this should be determined by a RenderCapabilities thing
-
-    // --- Most objects below this comment are no longer static as they can cause significantly long compile times ---
+    constexpr uint32_t s_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
 
     // Static Quad Data
-    uint32_t s_StaticQuadCount = 0;
-    std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
-    std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
-    std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
-    std::vector<QuadVertex> s_StaticQuadVertices(s_MaxQuadVertexCount);
+    static uint32_t s_StaticQuadCount = 0;
+    static std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
+    static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
+    static std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
+    static std::array<QuadVertex, s_MaxQuadVertexCount> s_StaticQuadVertices;
 
     // Dynamic Quad Data
-    uint32_t s_QuadCount = 0;
-    std::vector<QuadVertex> s_QuadVertices(s_MaxQuadVertexCount);
-    std::vector<uint32_t> s_QuadIndices(s_MaxQuadIndexCount); // NOTE: currently also used by static quads
-    std::shared_ptr<GPUBuffer> s_QuadVBO = nullptr;
-    std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
-    std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
-    std::function<void()> s_QuadUniformFunc = nullptr;
-    UniformLayout s_QuadUniformLayout;
-    std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
+    static uint32_t s_QuadCount = 0;
+    static std::array<QuadVertex, s_MaxQuadVertexCount> s_QuadVertices;
+    static std::array<uint32_t, s_MaxQuadIndexCount> s_QuadIndices; // NOTE: currently also used by static quads
+    static std::shared_ptr<GPUBuffer> s_QuadVBO = nullptr;
+    static std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
+    static std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
+    static std::function<void()> s_QuadUniformFunc = nullptr;
+    static UniformLayout s_QuadUniformLayout;
+    static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
     std::shared_ptr<Camera> Renderer::s_QuadsCamera = nullptr;
+    static std::array<glm::vec4, 4> s_DefaultQuadPositions;
+    static std::array<glm::vec2, 4> s_DefaultQuadTexCoords;
 
-    std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
-
-    // Cube Data
-    uint32_t s_CubeCount = 0;
-    std::vector<CubeVertex> s_CubeVertices(s_MaxCubeVertexCount);
-    std::vector<uint32_t> s_CubeIndices(s_MaxCubeIndexCount);
-    std::shared_ptr<GPUBuffer> s_CubeVBO = nullptr;
-    std::shared_ptr<GPUBuffer> s_CubeIBO = nullptr;
-    std::function<void()> s_CubeBindFunc = nullptr;
-    std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
+    // Dynamic Cube Data
+    static uint32_t s_CubeCount = 0;
+    static std::array<CubeVertex, s_MaxCubeVertexCount> s_CubeVertices;
+    static std::array<uint32_t, s_MaxCubeIndexCount> s_CubeIndices;
+    static std::shared_ptr<GPUBuffer> s_CubeVBO = nullptr;
+    static std::shared_ptr<GPUBuffer> s_CubeIBO = nullptr;
+    static std::function<void()> s_CubeBindFunc = nullptr;
+    static std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
     // std::shared_ptr<Camera> Renderer::s_CubesCamera = nullptr;
+    static std::array<glm::vec4, 24> s_DefaultCubePositions;
+
+    // Static Cube Data
+    static std::shared_ptr<GPUBuffer> s_StaticCubeVBO = nullptr;
+    static std::array<CubeVertex, s_MaxCubeVertexCount> s_StaticCubeVertices;
+    static uint32_t s_StaticCubeCount = 0;
 
     // Line Data
-    uint32_t s_LineCount = 0;
-    std::vector<LineVertex> s_LineVertices(s_MaxLineVertexCount);
-    std::shared_ptr<GPUBuffer> s_LineVBO = nullptr;
-    std::function<void()> s_LineBindFunc = nullptr;
-    std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
+    static uint32_t s_LineCount = 0;
+    static std::array<LineVertex, s_MaxLineVertexCount> s_LineVertices;
+    static std::shared_ptr<GPUBuffer> s_LineVBO = nullptr;
+    static std::function<void()> s_LineBindFunc = nullptr;
+    static std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
-#if MESH
     // Mesh Data
-    static std::vector<std::shared_ptr<Mesh>> Renderer::s_Meshes;
-#endif
+    static std::array<MeshVertex, 1000> s_MeshVertices;
+    static std::shared_ptr<GPUBuffer> s_MeshVBO = nullptr;
+    static std::shared_ptr<GPUBuffer> s_MeshIBO = nullptr;
+    static std::function<void()> s_MeshBindFunc = nullptr;
+    static std::shared_ptr<GraphicsPipeline> s_MeshPipeline = nullptr;
 
     // Texture Data
-    uint32_t s_TextureUnitIndex = 0;
-    std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureSlots;
+    static uint32_t s_TextureUnitIndex = 0;
+    static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureSlots;
 
     // For OpenGL
-    std::shared_ptr<VertexArray> s_QuadVAO;
-    std::shared_ptr<VertexArray> s_CubeVAO;
-    std::shared_ptr<VertexArray> s_LineVAO;
-    std::shared_ptr<VertexArray> s_MeshVAO;
+    static std::shared_ptr<VertexArray> s_QuadVAO;
+    static std::shared_ptr<VertexArray> s_CubeVAO;
+    static std::shared_ptr<VertexArray> s_LineVAO;
+    static std::shared_ptr<VertexArray> s_MeshVAO;
+    
+    static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
     
     Renderer::Statistics Renderer::s_Stats;
 
@@ -144,6 +154,20 @@ namespace pxl
 
                     offset += 4;
                 }
+            }
+            
+            // Assign default quad positions & texcoords
+            {
+                s_DefaultQuadPositions[0] = { 0.0f, 1.0f, 0.0f, 1.0f };
+                s_DefaultQuadPositions[1] = { 0.0f, 0.0f, 0.0f, 1.0f };
+                s_DefaultQuadPositions[2] = { 1.0f, 0.0f, 0.0f, 1.0f };
+                s_DefaultQuadPositions[3] = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+                s_DefaultQuadTexCoords[0] = { 0.0f, 0.0f };
+                s_DefaultQuadTexCoords[1] = { 1.0f, 0.0f };
+                s_DefaultQuadTexCoords[2] = { 1.0f, 1.0f };
+                s_DefaultQuadTexCoords[3] = { 0.0f, 1.0f };
+
             }
             
             const auto bufferLayout = QuadVertex::GetLayout();
@@ -243,6 +267,45 @@ namespace pxl
 
                     offset += 4;
                 }
+            }
+
+            // Assign default cube positions
+            {
+                // Front
+                s_DefaultCubePositions[0] = { -0.5, -0.5f, 0.5f, 1.0f };
+                s_DefaultCubePositions[1] = {  0.5, -0.5f, 0.5f, 1.0f };
+                s_DefaultCubePositions[2] = {  0.5,  0.5f, 0.5f, 1.0f };
+                s_DefaultCubePositions[3] = { -0.5,  0.5f, 0.5f, 1.0f };
+
+                // Back
+                s_DefaultCubePositions[4] = { -0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[5] = {  0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[6] = {  0.5,  0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[7] = { -0.5,  0.5f, -0.5f, 1.0f };
+
+                // Left
+                s_DefaultCubePositions[8]  = { -0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[9]  = { -0.5, -0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[10] = { -0.5,  0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[11] = { -0.5,  0.5f, -0.5f, 1.0f };
+
+                // Top
+                s_DefaultCubePositions[12] = { -0.5, 0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[13] = {  0.5, 0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[14] = {  0.5, 0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[15] = { -0.5, 0.5f, -0.5f, 1.0f };
+
+                // Right
+                s_DefaultCubePositions[16] = { 0.5, -0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[17] = { 0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[18] = { 0.5,  0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[19] = { 0.5,  0.5f,  0.5f, 1.0f };
+
+                // Bottom
+                s_DefaultCubePositions[20] = { -0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[21] = {  0.5, -0.5f, -0.5f, 1.0f };
+                s_DefaultCubePositions[22] = {  0.5, -0.5f,  0.5f, 1.0f };
+                s_DefaultCubePositions[23] = { -0.5, -0.5f,  0.5f, 1.0f };
             }
 
             const auto bufferLayout = CubeVertex::GetLayout();
@@ -350,22 +413,61 @@ namespace pxl
             s_LinePipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }
 
-    #if MESH
+        // --------------------
+        // Prepare Mesh Data
+        // --------------------
         {
-            // Prepare Mesh VAO, VBO, IBO
-            s_MeshVAO = std::make_shared<OpenGLVertexArray>(); // not api agnostic
-            auto meshVBO = std::make_shared<OpenGLVertexBuffer>((uint32_t)(75 * sizeof(TriangleVertex)));
-            auto meshIBO = std::make_shared<OpenGLIndexBuffer>(426);
+            const auto bufferLayout = MeshVertex::GetLayout();
 
-            BufferLayout layout;
-            layout.Add(3, BufferDataType::Float, false); // vertex position
-            layout.Add(2, BufferDataType::Float, false); // texture coords
+            // Prepare Buffers
+            s_MeshVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, 1000 * sizeof(MeshVertex));
+            s_MeshIBO = GPUBuffer::Create(GPUBufferUsage::Index, 1000 * sizeof(uint32_t));
 
-            s_MeshVAO->SetLayout(layout);
-            s_MeshVAO->SetVertexBuffer(meshVBO);
-            s_MeshVAO->SetIndexBuffer(meshIBO);
+            // Shader storage
+            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
+
+            GraphicsPipelineSpecs pipelineSpecs;
+            pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
+            pipelineSpecs.VertexLayout = bufferLayout;
+
+            // Prepare other data based on renderer API
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+            {
+                s_MeshVAO = VertexArray::Create();
+                s_MeshVAO->AddVertexBuffer(s_MeshVBO, bufferLayout);
+                s_MeshVAO->SetIndexBuffer(s_MeshIBO);
+
+                s_MeshBindFunc = []() {
+                    s_MeshVAO->Bind();
+                };
+
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
+
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+            }
+            else if (s_RendererAPIType == RendererAPIType::Vulkan)
+            {
+                s_MeshBindFunc = []() {
+                    s_MeshVBO->Bind();
+                    s_MeshIBO->Bind();
+                };
+
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.frag");
+
+                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
+                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+
+                pxl::PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+
+                pipelineSpecs.PushConstantLayout = pushConstantLayout;
+            }
+
+            s_MeshPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }
-    #endif
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
 
@@ -387,6 +489,8 @@ namespace pxl
     void Renderer::Clear()
     {
         PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT_MSG(s_Enabled, "Renderer isn't initialized")
         
         s_RendererAPI->Clear();
     }
@@ -415,6 +519,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
+        // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
         if (!s_Enabled)
             return;
 
@@ -425,6 +530,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
+        // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
         if (!s_Enabled)
             return;
         
@@ -435,26 +541,48 @@ namespace pxl
         s_RendererAPI->End();
     }
 
-    void Renderer::AddStaticQuad(const glm::vec3& position)
+    void Renderer::AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
         PXL_PROFILE_SCOPE;
         
-        constexpr glm::vec4 colour(1.0f);
         const auto vertexCount = s_StaticQuadCount * 4;
 
-        s_StaticQuadVertices[vertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }};
-        s_StaticQuadVertices[vertexCount + 1] = {{ position.x + 1.0f, position.y , position.z }, colour, { 1.0f, 0.0f }};
-        s_StaticQuadVertices[vertexCount + 2] = {{ position.x + 1.0f, position.y + 1.0f, position.z }, colour, { 1.0f, 1.0f }};
-        s_StaticQuadVertices[vertexCount + 3] = {{ position.x, position.y + 1.0f, position.z }, colour, { 0.0f, 1.0f }};
+        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
+
+        for (uint32_t i = 0; i < 4; i++)
+            s_StaticQuadVertices[vertexCount + i] = { transform * s_DefaultQuadPositions[i], colour, s_DefaultQuadTexCoords[i] };
 
         s_StaticQuadCount++;
+    }
+
+    void Renderer::AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    {
+        PXL_PROFILE_SCOPE;
+
+        const auto vertexCount = s_StaticCubeCount * 24;
+
+        glm::mat4 transform = CalculateTransform(position, rotation, scale);
+
+        for (uint32_t i = 0; i < 4; i++)
+            s_StaticCubeVertices[vertexCount + i] = { transform * s_DefaultCubePositions[i], colour, glm::vec2(0.0f) };
+
+        s_StaticCubeCount++;
+
+    #ifdef PXL_DEBUG
+        s_Stats.CubeVertexCount += 4;
+        s_Stats.CubeIndexCount += 6;
+    #endif
     }
 
     void Renderer::StaticGeometryReady()
     {
         PXL_PROFILE_SCOPE;
         
-        s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
+        if (s_StaticQuadCount > 0)
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
+        
+        if (s_StaticCubeCount > 0)
+            s_StaticCubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticCubeCount * 24 * sizeof(CubeVertex), s_StaticCubeVertices.data());
 
         const auto layout = QuadVertex::GetLayout();
 
@@ -463,15 +591,6 @@ namespace pxl
             s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, layout);
             s_StaticQuadVAO->SetIndexBuffer(s_QuadIBO);
         }
-    }
-
-    void Renderer::DrawStaticQuads()
-    {
-        PXL_PROFILE_SCOPE;
-        
-        s_StaticQuadBindFunc();
-
-        s_RendererAPI->DrawIndexed(s_StaticQuadCount * 6); // TODO: use a cached s_StaticQuadIndexCount variable so it doesnt have to math everytime
     }
 
     void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
@@ -483,11 +602,11 @@ namespace pxl
 
         const auto vertexCount = s_QuadCount * 4;
         constexpr float texIndex = -1.0f;
-        
-        s_QuadVertices[vertexCount + 0] = {{ position.x, position.y, position.z }, colour, { 0.0f, 0.0f }, texIndex };
-        s_QuadVertices[vertexCount + 1] = {{ position.x + scale.x, position.y, position.z }, colour, { 1.0f, 0.0f }, texIndex };
-        s_QuadVertices[vertexCount + 2] = {{ position.x + scale.x, position.y + scale.y, position.z }, colour, { 1.0f, 1.0f }, texIndex };
-        s_QuadVertices[vertexCount + 3] = {{ position.x, position.y + scale.y, position.z }, colour, { 0.0f, 1.0f }, texIndex };
+
+        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
+
+        for (uint32_t i = 0; i < 4; i++)
+            s_QuadVertices[vertexCount + i] = { transform * s_DefaultQuadPositions[i], colour, s_DefaultQuadTexCoords[i], texIndex };
 
         s_QuadCount++;
 
@@ -527,11 +646,9 @@ namespace pxl
 
         constexpr glm::vec4 vertexColor(1.0f);
         const auto vertexCount = s_QuadCount * 4;
-        
-        s_QuadVertices[vertexCount + 0] = {{ position.x, position.y + scale.y, position.z }, vertexColor, { 0.0f, 1.0f }, textureIndex };
-        s_QuadVertices[vertexCount + 1] = {{ position.x, position.y, position.z }, vertexColor, { 0.0f, 0.0f }, textureIndex };
-        s_QuadVertices[vertexCount + 2] = {{ position.x + scale.x, position.y, position.z }, vertexColor, { 1.0f, 0.0f }, textureIndex };
-        s_QuadVertices[vertexCount + 3] = {{ position.x + scale.x, position.y + scale.y, position.z }, vertexColor, { 1.0f, 1.0f }, textureIndex };
+
+        for (uint32_t i = 0; i < 4; i++)
+            s_QuadVertices[vertexCount + i] = {s_DefaultQuadPositions[i], vertexColor, s_DefaultQuadTexCoords[i], textureIndex };
 
         s_QuadCount++;
 
@@ -550,41 +667,10 @@ namespace pxl
 
         const auto vertexCount = s_CubeCount * 24;
 
-        // Front
-        s_CubeVertices[vertexCount + 0] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 1] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 2] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 3] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+        glm::mat4 transform = CalculateTransform(position, rotation, scale);
 
-        // Back
-        s_CubeVertices[vertexCount + 4] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 5] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 6] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 7] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-
-        // Left
-        s_CubeVertices[vertexCount + 8]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 9]  = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 10] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 11] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // Top
-        s_CubeVertices[vertexCount + 12] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 13] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 14] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 15] = {{ position.x - 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // Right
-        s_CubeVertices[vertexCount + 16] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 17] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 18] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 19] = {{ position.x + 0.5f * scale.x, position.y + 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
-
-        // Bottom
-        s_CubeVertices[vertexCount + 20] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 0.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 21] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z - 0.5f * scale.z }, colour, { 1.0f, 0.0f }};
-        s_CubeVertices[vertexCount + 22] = {{ position.x + 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 1.0f, 1.0f }};
-        s_CubeVertices[vertexCount + 23] = {{ position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, position.z + 0.5f * scale.z }, colour, { 0.0f, 1.0f }};
+        for (uint32_t i = 0; i < 24; i++)
+            s_CubeVertices[vertexCount + i] = { transform * s_DefaultCubePositions[i], colour, { 0.0f, 0.0f }}; // NOTE: TexCoords are incorrect here
 
         s_CubeCount++;
 
@@ -638,24 +724,34 @@ namespace pxl
     #endif
     }
 
-#if MESH
-    void Renderer::AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+    void Renderer::DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
-        Submit(s_MeshVAO);
-        s_RendererAPI->GetVertexArray()->GetVertexBuffer()->SetData(mesh->Vertices.size() * sizeof(TriangleVertex), mesh->Vertices.data());
-        s_RendererAPI->GetVertexArray()->GetIndexBuffer()->SetData(mesh->Indices.size(), mesh->Indices.data());
+        if (!mesh)
+        {
+            PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh as it was invalid");
+            return;
+        }
 
-        glm::mat4 transform = glm::translate(position) 
-        * glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
-        * glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1))
-        * glm::rotate(glm::radians(rotation.x), glm::vec3(1, 0, 0)) // are these technically quaternion rotations?
-        * glm::scale(scale);
+        glm::mat4 transform = CalculateTransform(position, rotation, scale);
+
+        uint32_t vertexOffset = 0;
+        for (auto& vertex : mesh->Vertices)
+        {
+            s_MeshVertices[vertexOffset] = { transform * glm::vec4(vertex.Position, 1.0f), vertex.Colour, vertex.TexCoords, vertex.TexIndex };
+            vertexOffset++;
+        }
         
-        s_RendererAPI->GetShader()->SetUniformMat4("u_Transform", transform);
+        s_MeshPipeline->Bind();
 
-        DrawIndexed();
+        s_MeshVBO->SetData(static_cast<uint32_t>(mesh->Vertices.size() * sizeof(MeshVertex)), s_MeshVertices.data());
+        s_MeshIBO->SetData(static_cast<uint32_t>(mesh->Indices.size() * sizeof(uint32_t)), mesh->Indices.data());
+
+        s_MeshBindFunc();
+
+        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadsCamera->GetViewProjectionMatrix());
+
+        s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
     }
-#endif
 
     void Renderer::Flush()
     {
@@ -686,13 +782,7 @@ namespace pxl
 
             s_QuadPipeline->Bind();
 
-            //auto vp = s_QuadsCamera->GetViewProjectionMatrix();
             s_SetViewProjectionFunc(s_QuadPipeline, s_QuadsCamera->GetViewProjectionMatrix());
-
-            //glm::vec4 testVertexColour = { 1.0f, 0.7f, 0.2f, 1.0f };
-
-            // TEMP
-            //s_UniformBuffers[static_pointer_cast<VulkanGraphicsContext>(s_ContextHandle)->GetSwapchain()->GetCurrentImageIndex()]->SetData(s_QuadUniformLayout.GetSize(), &testVertexColour);
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
             s_QuadCount = 0;
@@ -702,11 +792,19 @@ namespace pxl
         #endif
         }
 
+        // Flush static quads if necessary
         if (s_StaticQuadCount > 0)
         {
-            // TODO: Implement
+            s_StaticQuadBindFunc();
+
+            s_QuadPipeline->Bind();
+
+            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadsCamera->GetViewProjectionMatrix());
+
+            s_RendererAPI->DrawIndexed(s_StaticQuadCount * 6); // TODO: use a cached s_StaticQuadIndexCount variable so it doesnt have to math everytime
         }
 
+        // Flush cubes if necessary
         if (s_CubeCount > 0)
         {
             s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
@@ -724,7 +822,22 @@ namespace pxl
             s_Stats.DrawCalls++;
         #endif
         }
+        
+        // Flush static cubes if necessary
+        if (s_StaticCubeCount > 0)
+        {
+            // TODO: Move this into a StaticCubeBind lambda
+            s_StaticCubeVBO->Bind();
+            s_CubeIBO->Bind();
 
+            s_CubePipeline->Bind();
+
+            s_SetViewProjectionFunc(s_CubePipeline, s_QuadsCamera->GetViewProjectionMatrix());
+
+            s_RendererAPI->DrawIndexed(s_StaticCubeCount * 36);
+        }
+
+        // Flush lines if necessary
         if (s_LineCount > 0)
         {
             s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
@@ -742,6 +855,17 @@ namespace pxl
             s_Stats.DrawCalls++;
         #endif
         }
+    }
+
+    glm::mat4 Renderer::CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
+            * glm::scale(glm::mat4(1.0f), { scale.x, scale.y, scale.z });
+        
+        return transform;
     }
 
     void Renderer::CalculateFPS()
