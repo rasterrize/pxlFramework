@@ -31,8 +31,11 @@ namespace pxl
         static bool IsMouseScrolledUp();
         static bool IsMouseScrolledDown();
 
-        static const glm::vec2& GetCursorPosition() { return s_CursorPosition; }
+        static const glm::dvec2& GetCursorPosition() { return s_CursorPosition; }
+
+        // NOTE: this functions takes integers but glfw handles cursor positions in screen coordinates
         static void SetCursorPosition(uint32_t x, uint32_t y);
+
         static void SetCursorMode(CursorMode cursorMode);
         static void SetRawInput(bool value);
 
@@ -57,6 +60,8 @@ namespace pxl
         static double s_VerticalScrollOffset;
         static double s_HorizontalScrollOffset;
 
-        static glm::vec2 s_CursorPosition;
+        static glm::dvec2 s_CursorPosition;
+
+        static bool s_RawInputSupported;
     };
 }
