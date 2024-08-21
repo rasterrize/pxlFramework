@@ -2,8 +2,8 @@
 
 namespace TestApp
 {
-    std::shared_ptr<pxl::Window> LinesTest::m_Window = nullptr;
-    std::shared_ptr<pxl::PerspectiveCamera> LinesTest::m_Camera = nullptr;
+    static std::shared_ptr<pxl::Window> s_Window = nullptr;
+    static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
     
@@ -11,23 +11,23 @@ namespace TestApp
     {
         windowSpecs.Title += " - Running Test 'LinesTest'";
         
-        m_Window = pxl::Window::Create(windowSpecs);
+        s_Window = pxl::Window::Create(windowSpecs);
         
-        pxl::Renderer::Init(m_Window);
-        pxl::Input::Init(m_Window);
+        pxl::Renderer::Init(s_Window);
+        pxl::Input::Init(s_Window);
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        m_Camera = pxl::PerspectiveCamera::Create({
+        s_Camera = pxl::PerspectiveCamera::Create({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 0.01f,
             .FarClip = 1000.0f,
         });
 
-        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-        pxl::Renderer::SetQuadsCamera(m_Camera);
+        pxl::Renderer::SetQuadsCamera(s_Camera);
 
         std::string rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
@@ -39,8 +39,8 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
         
-        auto cameraPosition = m_Camera->GetPosition();
-        auto cameraFOV = m_Camera->GetFOV();
+        auto cameraPosition = s_Camera->GetPosition();
+        auto cameraFOV = s_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
         
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
@@ -50,10 +50,10 @@ namespace TestApp
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
-            m_Window->NextWindowMode();
+            s_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            m_Window->ToggleVSync();
+            s_Window->ToggleVSync();
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
         {
@@ -105,8 +105,8 @@ namespace TestApp
             cameraFOV += cameraSpeed * 0.5f;
         }
 
-        m_Camera->SetPosition(cameraPosition);
-        m_Camera->SetFOV(cameraFOV);
+        s_Camera->SetPosition(cameraPosition);
+        s_Camera->SetFOV(cameraFOV);
     }
 
     void LinesTest::OnRender()

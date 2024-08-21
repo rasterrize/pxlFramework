@@ -2,50 +2,50 @@
 
 namespace TestApp
 {
-    std::shared_ptr<pxl::Window> CubesTest::m_Window;
-    std::shared_ptr<pxl::PerspectiveCamera> CubesTest::m_Camera;
+    static std::shared_ptr<pxl::Window> s_Window = nullptr;
+    static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
 
-    glm::vec4 CubesTest::m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
+    static glm::vec4 s_ClearColour = glm::vec4(glm::vec3(0.0f), 1.0f);
 
-    glm::vec3 CubesTest::m_PlayerPosition = { 0.0f, 0.75f, 2.0f };
+    static glm::vec3 s_PlayerPosition = glm::vec3(0.0f);
 
-    bool CubesTest::controllingCamera = true;
+    static bool s_ControllingCamera = true;
 
     void CubesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        m_Window = pxl::Window::Create(windowSpecs);
+        s_Window = pxl::Window::Create(windowSpecs);
         
-        pxl::Renderer::Init(m_Window);
-        pxl::Input::Init(m_Window);
+        pxl::Renderer::Init(s_Window);
+        pxl::Input::Init(s_Window);
 
-        m_Camera = pxl::PerspectiveCamera::Create({
+        s_Camera = pxl::PerspectiveCamera::Create({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = -10.0f,
             .FarClip = 10.0f,
         });
 
-        m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        s_Camera->SetPosition({0.0f, 0.0f, 0.0f});
 
-        pxl::Renderer::SetClearColour(m_ClearColour);
+        pxl::Renderer::SetClearColour(s_ClearColour);
     }
 
     void CubesTest::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
         
-        auto cameraPosition = m_Camera->GetPosition();
-        auto cameraRotation = m_Camera->GetRotation();
-        auto cameraFOV = m_Camera->GetFOV();
+        auto cameraPosition = s_Camera->GetPosition();
+        auto cameraRotation = s_Camera->GetRotation();
+        auto cameraFOV = s_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
         auto cursorPos = pxl::Input::GetCursorPosition();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
         {
-            if (controllingCamera)
-                controllingCamera = false;
+            if (s_ControllingCamera)
+                s_ControllingCamera = false;
             else
-                controllingCamera = true;
+                s_ControllingCamera = true;
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
@@ -55,38 +55,38 @@ namespace TestApp
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
         {
-            if (controllingCamera)
+            if (s_ControllingCamera)
             {
                 cameraPosition.y += cameraSpeed * dt;
             }
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
         {
-            if (controllingCamera)
+            if (s_ControllingCamera)
             {
                 cameraPosition.x -= cameraSpeed * dt;
             }
             else
             {
-                m_PlayerPosition.x -= 1.0f * dt;
+                s_PlayerPosition.x -= 1.0f * dt;
             }
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
         {
-            if (controllingCamera)
+            if (s_ControllingCamera)
             {
                 cameraPosition.y -= cameraSpeed * dt;
             }
         }
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
         {
-            if (controllingCamera)
+            if (s_ControllingCamera)
             {
                 cameraPosition.x += cameraSpeed * dt;
             }
             else
             {
-                m_PlayerPosition.x += 1.0f * dt;
+                s_PlayerPosition.x += 1.0f * dt;
             }
         }
 
@@ -99,8 +99,8 @@ namespace TestApp
             cameraFOV += cameraSpeed * 0.5f;
         }
 
-        m_Camera->SetPosition({cameraPosition.x, cameraPosition.y, cameraPosition.z});
-        m_Camera->SetFOV(cameraFOV);
+        s_Camera->SetPosition({cameraPosition.x, cameraPosition.y, cameraPosition.z});
+        s_Camera->SetFOV(cameraFOV);
     }
 
     void CubesTest::OnRender()
@@ -186,9 +186,9 @@ namespace TestApp
             static pxl::WindowMode windowMode;
             static pxl::WindowMode windowModeToSet;
 
-            if (windowMode != m_Window->GetWindowMode())
+            if (windowMode != s_Window->GetWindowMode())
             {
-                switch (m_Window->GetWindowMode())
+                switch (s_Window->GetWindowMode())
                 {
                     case pxl::WindowMode::Windowed:
                         windowModeInput = 0;
@@ -201,7 +201,7 @@ namespace TestApp
                         break;
                 }
 
-                windowMode = m_Window->GetWindowMode();
+                windowMode = s_Window->GetWindowMode();
             }
 
             ImGui::Combo("Display Mode", &windowModeInput, windowModes, IM_ARRAYSIZE(windowModes));
@@ -220,7 +220,7 @@ namespace TestApp
             }
 
             // VSync
-            static bool vsync = m_Window->GetGraphicsContext()->GetVSync();
+            static bool vsync = s_Window->GetGraphicsContext()->GetVSync();
             ImGui::Checkbox("VSync", &vsync);
 
             // Camera FOV
@@ -232,9 +232,9 @@ namespace TestApp
             // Apply Button
             if (ImGui::Button("Apply"))
             {
-                m_Window->SetVSync(vsync);
-                m_Window->SetMonitor(monitorIndex);
-                m_Window->SetWindowMode(windowModeToSet);
+                s_Window->SetVSync(vsync);
+                s_Window->SetMonitor(monitorIndex);
+                s_Window->SetWindowMode(windowModeToSet);
 
                 cameraFOV = cameraFOVInput;
             }

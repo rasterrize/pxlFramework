@@ -12,8 +12,5 @@ namespace TestApp
         static void OnRender();
         static void OnGuiRender();
         static void OnClose();
-    private:
-        static std::shared_ptr<pxl::Window> m_TestWindowA;
-        static std::shared_ptr<pxl::Window> m_TestWindowB;
     };
 }
