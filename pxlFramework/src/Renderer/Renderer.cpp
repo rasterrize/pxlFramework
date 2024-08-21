@@ -523,6 +523,8 @@ namespace pxl
         GUI::Render();
 
         s_RendererAPI->End();
+
+        ResetStats();
     }
 
     void Renderer::AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
@@ -765,6 +767,8 @@ namespace pxl
 
     void Renderer::DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
+        PXL_PROFILE_SCOPE;
+        
         if (!mesh)
         {
             PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh as it was invalid");
@@ -790,6 +794,13 @@ namespace pxl
         s_SetViewProjectionFunc(s_MeshPipeline, s_QuadsCamera->GetViewProjectionMatrix());
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
+
+    #ifdef PXL_DEBUG
+        s_Stats.DrawCalls++;
+        s_Stats.MeshCount++;
+        s_Stats.MeshVertexCount += static_cast<uint32_t>(s_MeshVertices.size());
+        s_Stats.MeshIndexCount += static_cast<uint32_t>(mesh->Indices.size());
+    #endif
     }
 
     void Renderer::Flush()

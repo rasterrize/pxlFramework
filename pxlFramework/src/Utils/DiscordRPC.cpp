@@ -93,9 +93,6 @@ namespace pxl
         }
         activity.SetType(activityType);
 
-        // std::time_t currentTime = std::time(0);
-        // activity.GetTimestamps().SetStart(currentTime);
-
         s_DiscordAPI->ActivityManager().UpdateActivity(activity, ActivityCallback);
     }
 }

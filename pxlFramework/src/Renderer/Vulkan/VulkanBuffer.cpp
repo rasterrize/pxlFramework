@@ -111,8 +111,7 @@ namespace pxl
     void VulkanBuffer::SetData(uint32_t size, const void* data)
     {
         PXL_PROFILE_SCOPE;
-        
-        auto allocator = VulkanAllocator::Get();
+
         auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
 

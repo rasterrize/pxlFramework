@@ -124,15 +124,18 @@ namespace pxl
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
 
-        PXL_LOG_INFO(LogArea::Vulkan, "Selected discrete GPU: {}", properties.deviceName);
+        VkPhysicalDeviceMemoryProperties memoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memoryProperties);
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Selected discrete GPU: {}", properties.deviceName); // TODO: move this because it doesn't necessarily mean it has been selected
         PXL_LOG_INFO(LogArea::Vulkan, "- Vendor: {}", properties.vendorID);
         PXL_LOG_INFO(LogArea::Vulkan, "- Driver Version: {}", properties.driverVersion);
         PXL_LOG_INFO(LogArea::Vulkan, "- Supported Vulkan API Version: {}", properties.apiVersion);
         PXL_LOG_INFO(LogArea::Vulkan, "- Limits");
         PXL_LOG_INFO(LogArea::Vulkan, " - Max Push Constant Size: {} bytes", properties.limits.maxPushConstantsSize);
         PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indexed Index Value: {}", properties.limits.maxDrawIndexedIndexValue);
-        // PXL_LOG_INFO(LogArea::Vulkan, " - Max Draw Indirect Count: {}", properties.limits.maxDrawIndirectCount);
-        // PXL_LOG_INFO(LogArea::Vulkan, " - Max Framebuffer Width and Height: {}, {}", properties.limits.maxFramebufferWidth, properties.limits.maxFramebufferHeight);
-
+        PXL_LOG_INFO(LogArea::Vulkan, " - Max Memory Allocation Count: {}", properties.limits.maxMemoryAllocationCount);
+        PXL_LOG_INFO(LogArea::Vulkan, " - Max Memory Heaps Count: {}", memoryProperties.memoryHeapCount);
+        PXL_LOG_INFO(LogArea::Vulkan, " - Memory Heap 1 Size: {}", memoryProperties.memoryHeaps->size);
     }
 }

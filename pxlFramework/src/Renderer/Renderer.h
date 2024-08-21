@@ -65,13 +65,22 @@ namespace pxl
             uint32_t CubeIndexCount  = 0;
             uint32_t LineCount       = 0;
             uint32_t LineVertexCount = 0;
+            uint32_t MeshCount       = 0;
+            uint32_t MeshVertexCount = 0;
+            uint32_t MeshIndexCount  = 0;
             
-            uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3); }
-            uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount; }
-            uint32_t GetTotalIndexCount() { return QuadIndexCount + CubeIndexCount; }
+            uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshVertexCount / 3); }
+            uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }
+            uint32_t GetTotalIndexCount() { return QuadIndexCount + CubeIndexCount + MeshIndexCount; }
         };
 
-        static void ResetStats() { memset(&s_Stats, 0, sizeof(Statistics)); }
+        static void ResetStats()
+        { 
+            auto fps = s_Stats.FPS;
+            memset(&s_Stats, 0, sizeof(Statistics));
+            s_Stats.FPS = fps;
+        }
+
         static const Statistics& GetStats() { return s_Stats; }
 
         static float GetFPS() { return s_Stats.FPS; }

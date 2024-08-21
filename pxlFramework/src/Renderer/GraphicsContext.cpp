@@ -9,12 +9,12 @@ namespace pxl
     {
         switch (api)
         {
-            case RendererAPIType::None:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Context for no renderer api.");
-                return nullptr;
+            case RendererAPIType::None:     PXL_LOG_ERROR(LogArea::Renderer, "Can't create Graphics Context for RendererAPIType::None"); return nullptr;
             case RendererAPIType::OpenGL:   return std::make_shared<OpenGLGraphicsContext>(window);
             case RendererAPIType::Vulkan:   return std::make_shared<VulkanGraphicsContext>(window);
         }
+
+        PXL_LOG_ERROR(LogArea::Renderer, "Unknown RendererAPIType");
 
         return nullptr;
     }

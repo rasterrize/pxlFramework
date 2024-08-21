@@ -1,6 +1,6 @@
 #pragma once
 
-// Asserts terminate execution if they see invalid state
+// Asserts check for a true statement otherwise they terminate execution if they see invalid state
 
 // Framework Macros
 #ifdef PXL_ENABLE_ASSERTS

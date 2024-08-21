@@ -87,7 +87,7 @@ namespace pxl
         
         shaderc::Compiler compiler;
         shaderc::CompileOptions options;
-        shaderc_shader_kind shaderKind;
+        shaderc_shader_kind shaderKind = shaderc_shader_kind::shaderc_vertex_shader;
 
         switch (stage)
         {

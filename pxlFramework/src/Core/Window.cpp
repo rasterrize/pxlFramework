@@ -69,14 +69,9 @@ namespace pxl
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(windowSpecs.Width), static_cast<int>(windowSpecs.Height), windowSpecs.Title.c_str(), nullptr, nullptr);
 
-        #ifdef PXL_ENABLE_LOGGING
-            if (m_GLFWWindow)
-                PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
-            else
-                PXL_LOG_ERROR(LogArea::Window, "Failed to create GLFW window '{}'", windowSpecs.Title);
-        #endif
+        PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", windowSpecs.Title);
 
-        PXL_ASSERT(m_GLFWWindow);
+        PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
         
         // Set window to the center of the display
         auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.

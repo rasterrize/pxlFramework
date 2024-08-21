@@ -56,7 +56,7 @@ namespace pxl
         if (!std::filesystem::exists(path))
         {
             PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the shader path doesn't exist '{}'", path.string());
-            return nullptr;
+            return std::string();
         }
 
         std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
@@ -104,10 +104,13 @@ namespace pxl
         Assimp::Importer importer;
 
         // Load file from disk
-        const aiScene* scene = importer.ReadFile(filePath.string().c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+        const aiScene* scene = importer.ReadFile(filePath.string(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
         if (!scene)
+        {
+            PXL_LOG_WARN(LogArea::FileSystem, "Failed to load OBJ file from path '{}'", filePath.string());
             return nullptr;
+        }
 
         auto mesh = std::make_shared<Mesh>();
 
@@ -117,6 +120,7 @@ namespace pxl
             // Go through all vertices in the current mesh
             for (uint32_t v = 0; v < scene->mMeshes[m]->mNumVertices; v++)
             {
+                // Positions
                 float x = scene->mMeshes[m]->mVertices[v].x;
                 float y = scene->mMeshes[m]->mVertices[v].y;
                 float z = scene->mMeshes[m]->mVertices[v].z;

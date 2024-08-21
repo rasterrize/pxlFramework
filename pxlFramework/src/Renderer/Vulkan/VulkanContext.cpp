@@ -53,17 +53,10 @@ namespace pxl
         if (selectedGPU == VK_NULL_HANDLE)
         {
             selectedGPU = physicalDevices[0];
-            if (selectedGPU == VK_NULL_HANDLE)
-            {
-                PXL_LOG_ERROR(LogArea::Vulkan, "Failed to select any GPU for Vulkan");
-                return;
-            }
-            else
-            {
-                VkPhysicalDeviceProperties properties;
-                vkGetPhysicalDeviceProperties(selectedGPU, &properties);
-                PXL_LOG_INFO(LogArea::Vulkan, "Selected first non-discrete VK capable GPU: {}", properties.deviceName);
-            }
+            
+            VkPhysicalDeviceProperties properties;
+            vkGetPhysicalDeviceProperties(selectedGPU, &properties);
+            PXL_LOG_INFO(LogArea::Vulkan, "Selected first non-discrete VK capable GPU: {}", properties.deviceName);
         }
 
         // Select Queue Families
@@ -75,13 +68,9 @@ namespace pxl
         // Create Logical Device for selected Physical Device
         m_Device = std::make_shared<VulkanDevice>(selectedGPU, graphicsQueueFamily.value());
 
-        m_Device->LogDeviceLimits();
+        PXL_ASSERT_MSG(m_Device, "VulkanGraphicsContext failed to create VulkanDevice object");
 
-        if (!m_Device)
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "VulkanGraphicsContext failed to create VulkanDevice object");
-            return;
-        }
+        m_Device->LogDeviceLimits();
 
         auto logicalDevice = static_cast<VkDevice>(m_Device->GetLogical());
 

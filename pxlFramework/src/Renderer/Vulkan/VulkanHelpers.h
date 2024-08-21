@@ -45,7 +45,8 @@ namespace pxl
     private:
         static std::vector<std::function<void()>> s_Queue;
     };
-
+    
+#ifdef PXL_DEBUG
     static void CheckVkResult(VkResult result)
     {
         if (result != VK_SUCCESS)
@@ -54,6 +55,7 @@ namespace pxl
             __debugbreak();
         }
     };
+#endif
 
     #ifdef PXL_DEBUG
         #define VK_CHECK(result) CheckVkResult(result)

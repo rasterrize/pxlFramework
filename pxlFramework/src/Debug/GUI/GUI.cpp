@@ -75,6 +75,9 @@ namespace pxl
 
     void GUI::Render()
     {
+        if (!s_Enabled) 
+            return;
+        
         ImGui::Render();
         s_ImGuiRenderer->Render();
     }

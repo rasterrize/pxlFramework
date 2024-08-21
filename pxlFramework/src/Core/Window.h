@@ -63,6 +63,8 @@ namespace pxl
 
         const WindowSpecs& GetWindowSpecs() const { return m_Specs; }
 
+        glm::u32vec2 GetSize() { return { m_Specs.Width, m_Specs.Height }; }
+
         uint32_t GetWidth() const { return m_Specs.Width; }
 
         uint32_t GetHeight() const { return m_Specs.Height; }

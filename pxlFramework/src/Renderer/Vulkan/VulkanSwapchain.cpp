@@ -48,7 +48,7 @@ namespace pxl
 
     void VulkanSwapchain::CreateSwapchain()
     {   
-        m_SwapchainSpecs.PresentMode = GetSuitablePresentMode();
+        m_SwapchainSpecs.PresentMode = m_VSync ? VK_PRESENT_MODE_FIFO_KHR : GetSuitablePresentMode();
         m_SwapchainSpecs.ImageCount = GetSuitableImageCount();
 
         CheckExtentSupport(m_SwapchainSpecs.Extent);
