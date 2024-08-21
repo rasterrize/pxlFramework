@@ -21,6 +21,8 @@
 #include "../src/Renderer/BufferLayout.h"
 #include "../src/Renderer/GraphicsContext.h"
 
+#include "../src/Renderer/Primitives/Quad.h"
+
 //#include "../src/Audio/AudioManager.h"
 
 #include "../src/Debug/GUI/GUI.h"

@@ -9,6 +9,7 @@
 #include "GraphicsContext.h"
 #include "Pipeline.h"
 #include "Shader.h"
+#include "Primitives/Quad.h"
 
 namespace pxl
 {
@@ -41,6 +42,7 @@ namespace pxl
         static void SetQuadsCamera(const std::shared_ptr<Camera>& camera) { s_QuadsCamera = camera; }
         
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
+        static void AddQuad(const Quad& quad);
         static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture>& texture);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture, const glm::vec2& textureUV);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& tint);

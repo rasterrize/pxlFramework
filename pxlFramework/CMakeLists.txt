@@ -36,6 +36,10 @@ add_library(pxlFramework STATIC
     src/Renderer/GraphicsDevice.h
     src/Renderer/Image.h
 
+    # PRIMITIVES
+    src/Renderer/Primitives/Primitive.h
+    src/Renderer/Primitives/Quad.h
+
     # OPENGL
     src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
     src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp

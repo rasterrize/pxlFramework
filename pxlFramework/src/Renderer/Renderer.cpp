@@ -10,6 +10,7 @@
 #include "BufferLayout.h"
 #include "UniformLayout.h"
 #include "Debug/GUI/GUI.h"
+#include "Vertices.h"
 
 namespace pxl
 {
@@ -54,8 +55,6 @@ namespace pxl
     static UniformLayout s_QuadUniformLayout;
     static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
     std::shared_ptr<Camera> Renderer::s_QuadsCamera = nullptr;
-    static std::array<glm::vec4, 4> s_DefaultQuadPositions;
-    static std::array<glm::vec2, 4> s_DefaultQuadTexCoords;
 
     // Dynamic Cube Data
     static uint32_t s_CubeCount = 0;
@@ -141,33 +140,18 @@ namespace pxl
         {
             // Prepare Quad Indices
             {
+                std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
+
                 uint32_t offset = 0;
                 for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
                 {
-                    s_QuadIndices[i + 0] = 0 + offset;
-                    s_QuadIndices[i + 1] = 1 + offset;
-                    s_QuadIndices[i + 2] = 2 + offset;
-
-                    s_QuadIndices[i + 3] = 2 + offset;
-                    s_QuadIndices[i + 4] = 3 + offset;
-                    s_QuadIndices[i + 5] = 0 + offset;
+                    for (uint32_t j = 0; j < 6; j++)
+                    {
+                        s_QuadIndices[i + j] = defaultIndices[j] + offset;
+                    }
 
                     offset += 4;
                 }
-            }
-            
-            // Assign default quad positions & texcoords
-            {
-                s_DefaultQuadPositions[0] = { 0.0f, 1.0f, 0.0f, 1.0f };
-                s_DefaultQuadPositions[1] = { 0.0f, 0.0f, 0.0f, 1.0f };
-                s_DefaultQuadPositions[2] = { 1.0f, 0.0f, 0.0f, 1.0f };
-                s_DefaultQuadPositions[3] = { 1.0f, 1.0f, 0.0f, 1.0f };
-
-                s_DefaultQuadTexCoords[0] = { 0.0f, 0.0f };
-                s_DefaultQuadTexCoords[1] = { 1.0f, 0.0f };
-                s_DefaultQuadTexCoords[2] = { 1.0f, 1.0f };
-                s_DefaultQuadTexCoords[3] = { 0.0f, 1.0f };
-
             }
             
             const auto bufferLayout = QuadVertex::GetLayout();
@@ -548,9 +532,18 @@ namespace pxl
         const auto vertexCount = s_StaticQuadCount * 4;
 
         glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
+        
+        std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
 
         for (uint32_t i = 0; i < 4; i++)
-            s_StaticQuadVertices[vertexCount + i] = { transform * s_DefaultQuadPositions[i], colour, s_DefaultQuadTexCoords[i] };
+        {
+            s_StaticQuadVertices[vertexCount + i] = { 
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = colour, 
+                .TexCoords = defaultVertices[i].TexCoords,
+                .TexIndex = -1.0f,
+            };
+        }
 
         s_StaticQuadCount++;
     }
@@ -601,12 +594,20 @@ namespace pxl
             Flush();
 
         const auto vertexCount = s_QuadCount * 4;
-        constexpr float texIndex = -1.0f;
 
         glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
 
+        std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
+
         for (uint32_t i = 0; i < 4; i++)
-            s_QuadVertices[vertexCount + i] = { transform * s_DefaultQuadPositions[i], colour, s_DefaultQuadTexCoords[i], texIndex };
+        {
+            s_QuadVertices[vertexCount + i] = { 
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = colour, 
+                .TexCoords = defaultVertices[i].TexCoords,
+                .TexIndex = -1.0f,
+            };
+        }
 
         s_QuadCount++;
 
@@ -614,6 +615,33 @@ namespace pxl
         s_Stats.QuadVertexCount += 4;
         s_Stats.QuadIndexCount += 6;
     #endif
+    }
+
+    void Renderer::AddQuad(const Quad& quad)
+    {
+        auto position = quad.Position;
+        switch (quad.Origin)
+        {
+            case Origin::TopLeft:
+                position.x += quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
+                break;
+            case Origin::TopRight:
+                position.x -= quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomLeft:
+                position.x += quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomRight:
+                position.x -= quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::Center: break;
+        }
+        
+        AddQuad(position, quad.Rotation, quad.Size, quad.Colour);
     }
 
     void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture>& texture)
@@ -647,8 +675,19 @@ namespace pxl
         constexpr glm::vec4 vertexColor(1.0f);
         const auto vertexCount = s_QuadCount * 4;
 
+        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
+
+        std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
+
         for (uint32_t i = 0; i < 4; i++)
-            s_QuadVertices[vertexCount + i] = {s_DefaultQuadPositions[i], vertexColor, s_DefaultQuadTexCoords[i], textureIndex };
+        {
+            s_QuadVertices[vertexCount + i] = { 
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = vertexColor, 
+                .TexCoords = defaultVertices[i].TexCoords,
+                .TexIndex = textureIndex,
+            };
+        }
 
         s_QuadCount++;
 
