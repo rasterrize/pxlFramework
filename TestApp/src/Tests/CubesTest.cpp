@@ -3,7 +3,7 @@
 namespace TestApp
 {
     std::shared_ptr<pxl::Window> CubesTest::m_Window;
-    std::shared_ptr<pxl::Camera> CubesTest::m_Camera;
+    std::shared_ptr<pxl::PerspectiveCamera> CubesTest::m_Camera;
 
     glm::vec4 CubesTest::m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
 
@@ -18,7 +18,13 @@ namespace TestApp
         pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
 
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 0.01f, 10.0f });
+        m_Camera = pxl::PerspectiveCamera::Create({
+            .FOV = 45.0f,
+            .AspectRatio = 16.0f / 9.0f,
+            .NearClip = -10.0f,
+            .FarClip = 10.0f,
+        });
+
         m_Camera->SetPosition({0.0f, 0.0f, 0.0f});
 
         pxl::Renderer::SetClearColour(m_ClearColour);

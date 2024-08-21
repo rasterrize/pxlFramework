@@ -3,7 +3,7 @@
 namespace TestApp
 {
     std::shared_ptr<pxl::Window> QuadsTest::m_Window;
-    std::shared_ptr<pxl::Camera> QuadsTest::m_Camera;
+    std::shared_ptr<pxl::OrthographicCamera> QuadsTest::m_Camera;
 
     glm::vec4 QuadsTest::m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
 
@@ -27,9 +27,20 @@ namespace TestApp
         pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
         
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Orthographic, 16.0f / 9.0f, -10.0f, 10.0f });
-        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
-        m_Camera->SetZoom(2.5f);
+        m_Camera = pxl::OrthographicCamera::Create({
+            .AspectRatio = 16.0f / 9.0f,
+            .NearClip = -10.0f,
+            .FarClip = 10.0f,
+            .Zoom = 1.0f,
+            .Left = 0.0f,
+            .Right = static_cast<float>(windowSpecs.Width),
+            .Bottom = 0.0f,
+            .Top = static_cast<float>(windowSpecs.Height),
+            .UseAspectRatio = false,
+        });
+
+        //m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        //m_Camera->SetZoom(2.5f);
 
         pxl::Renderer::SetClearColour(m_ClearColour);
 

@@ -3,7 +3,7 @@
 namespace TestApp
 {
     std::shared_ptr<pxl::Window> LinesTest::m_Window = nullptr;
-    std::shared_ptr<pxl::Camera> LinesTest::m_Camera = nullptr;
+    std::shared_ptr<pxl::PerspectiveCamera> LinesTest::m_Camera = nullptr;
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
     
@@ -18,7 +18,13 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 1.0f, 1000.0f });
+        m_Camera = pxl::PerspectiveCamera::Create({
+            .FOV = 45.0f,
+            .AspectRatio = 16.0f / 9.0f,
+            .NearClip = 0.01f,
+            .FarClip = 1000.0f,
+        });
+
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);
@@ -34,7 +40,6 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
         
         auto cameraPosition = m_Camera->GetPosition();
-        auto cameraZoom = m_Camera->GetZoom();
         auto cameraFOV = m_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
         
@@ -92,18 +97,15 @@ namespace TestApp
 
         if (pxl::Input::IsMouseScrolledUp())
         {
-            cameraZoom -= cameraSpeed * 0.5f;
             cameraFOV -= cameraSpeed * 0.5f;
         }
 
         if (pxl::Input::IsMouseScrolledDown())
         {
-            cameraZoom += cameraSpeed * 0.5f;
             cameraFOV += cameraSpeed * 0.5f;
         }
 
         m_Camera->SetPosition(cameraPosition);
-        m_Camera->SetZoom(cameraZoom);
         m_Camera->SetFOV(cameraFOV);
     }
 

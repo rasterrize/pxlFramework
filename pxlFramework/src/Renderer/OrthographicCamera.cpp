@@ -4,10 +4,10 @@
 
 namespace pxl
 {
-    OrthographicCamera::OrthographicCamera(const CameraSettings& settings) 
-        : Camera(settings)
+    OrthographicCamera::OrthographicCamera(const OrthographicCameraSettings& settings) 
+        : m_Settings(settings)
     {
-        RecalculateSides();
+        m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
         RecalculateProjection();
     }
 
@@ -25,16 +25,40 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        m_ProjectionMatrix = glm::ortho(m_Left, m_Right, m_Bottom, m_Top, m_CameraSettings.NearClip, m_CameraSettings.FarClip);
+        m_ProjectionMatrix = glm::ortho(m_Settings.Left, m_Settings.Right, m_Settings.Bottom, m_Settings.Top, m_Settings.NearClip, m_Settings.FarClip);
     }
 
     void OrthographicCamera::RecalculateSides()
     {
         PXL_PROFILE_SCOPE;
 
-        m_Left = -m_CameraSettings.AspectRatio * m_Zoom;
-        m_Right = m_CameraSettings.AspectRatio * m_Zoom;
-        m_Bottom = -m_Zoom;
-        m_Top = m_Zoom;
+        m_Settings.Left = m_Settings.Left * m_Settings.Zoom;
+        m_Settings.Right = m_Settings.Right * m_Settings.Zoom;
+        m_Settings.Bottom = m_Settings.Bottom * m_Settings.Zoom;
+        m_Settings.Top = m_Settings.Top * m_Settings.Zoom;
+    }
+
+    void OrthographicCamera::RecalculateSidesWithAspectRatio()
+    {
+        PXL_PROFILE_SCOPE;
+
+        m_Settings.Left = -m_Settings.AspectRatio * m_Settings.Zoom;
+        m_Settings.Right = m_Settings.AspectRatio * m_Settings.Zoom;
+        m_Settings.Bottom = -m_Settings.Zoom;
+        m_Settings.Top = m_Settings.Zoom;
+    }
+
+    std::shared_ptr<OrthographicCamera> OrthographicCamera::Create(const OrthographicCameraSettings& settings)
+    {
+        auto camera = std::make_shared<OrthographicCamera>(settings);
+
+        PXL_ASSERT(camera);
+
+        camera->m_Handle = camera;
+        
+        // Add camera to pool of cameras
+        Add(camera);
+
+        return camera;
     }
 }

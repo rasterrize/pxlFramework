@@ -10,28 +10,6 @@ namespace pxl
 {
     std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
 
-    std::shared_ptr<Camera> Camera::Create(const CameraSettings& settings)
-    {
-        std::shared_ptr<Camera> camera;
-        
-        switch (settings.ProjType)
-        {
-            case ProjectionType::None: return nullptr;
-            case ProjectionType::Orthographic:
-                camera = std::make_shared<OrthographicCamera>(settings);
-                break;
-            case ProjectionType::Perspective:
-                camera = std::make_shared<PerspectiveCamera>(settings);
-                break;
-        }
-
-        PXL_ASSERT(camera);
-
-        camera->m_Handle = camera;
-        s_Cameras.push_back(camera);
-        return camera;
-    }
-
     void Camera::UpdateAll()
     {
         PXL_PROFILE_SCOPE;

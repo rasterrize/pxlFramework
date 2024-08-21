@@ -3,7 +3,7 @@
 namespace TestApp
 {
     std::shared_ptr<pxl::Window> ModelViewer::m_Window;
-    std::shared_ptr<pxl::Camera> ModelViewer::m_Camera;
+    std::shared_ptr<pxl::PerspectiveCamera> ModelViewer::m_Camera;
     glm::vec4 ModelViewer::m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
 
     static std::shared_ptr<pxl::Mesh> s_CurrentMesh;
@@ -21,7 +21,12 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour(m_ClearColour);
 
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 0.01f, 1000.0f });
+        m_Camera = pxl::PerspectiveCamera::Create({
+            .FOV = 45.0f,
+            .AspectRatio = 16.0f / 9.0f,
+            .NearClip = 0.01f,
+            .FarClip = 1000.0f 
+        });
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);

@@ -3,7 +3,7 @@
 namespace TestApp
 {
     std::shared_ptr<pxl::Window> OGLVK::m_Window;
-    std::shared_ptr<pxl::Camera> OGLVK::m_Camera;
+    std::shared_ptr<pxl::PerspectiveCamera> OGLVK::m_Camera;
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
 
@@ -18,7 +18,13 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        m_Camera = pxl::Camera::Create({ pxl::ProjectionType::Perspective, 16.0f / 9.0f, 1.0f, 1000.0f });
+        m_Camera = pxl::PerspectiveCamera::Create({
+            .FOV = 45.0f,
+            .AspectRatio = 16.0f / 9.0f,
+            .NearClip = 1.0f,
+            .FarClip = 1000.0f,
+        });
+
         m_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
         pxl::Renderer::SetQuadsCamera(m_Camera);

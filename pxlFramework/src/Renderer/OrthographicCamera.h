@@ -4,26 +4,52 @@
 
 namespace pxl
 {
+    struct OrthographicCameraSettings
+    {
+        float AspectRatio;
+        float NearClip;
+        float FarClip;
+        float Zoom;
+        float Left, Right, Bottom, Top;
+        bool UseAspectRatio;
+    };
+    
     class OrthographicCamera : public Camera
     {
     public:
-        OrthographicCamera(const CameraSettings& settings);
+        OrthographicCamera(const OrthographicCameraSettings& settings);
 
         virtual void Update() override;
 
-        virtual void SetFOV(float fov) override {} // orthographic cameras don't have a field of view
-        virtual float GetFOV() override { return 0.0f; }
+        void SetZoom(float zoom)
+        {
+            m_Settings.Zoom = zoom;
+            m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
+            RecalculateProjection(); 
+        }
+        float GetZoom() const { return m_Settings.Zoom; }
 
-        virtual void SetZoom(float zoom) override { m_Zoom = zoom; RecalculateSides(); RecalculateProjection(); }
-        virtual float GetZoom() override { return m_Zoom; }
-        
-    private:
+        void SetSides(float left, float right, float bottom, float top)
+        {
+            m_Settings.Left = left;
+            m_Settings.Right = right;
+            m_Settings.Bottom = bottom;
+            m_Settings.Top = top;
+        }
+
+        void SetLeft(float left)     { m_Settings.Left = left; RecalculateProjection(); }
+        void SetRight(float right)   { m_Settings.Right = right; RecalculateProjection(); }
+        void SetBottom(float bottom) { m_Settings.Bottom = bottom; RecalculateProjection(); }
+        void SetTop(float top)       { m_Settings.Top = top; RecalculateProjection(); }
+
+        static std::shared_ptr<OrthographicCamera> Create(const OrthographicCameraSettings& settings);
+
+    protected:
         virtual void RecalculateProjection() override;
-
-        void RecalculateSides();
     private:
-        float m_Left, m_Right, m_Bottom, m_Top;
-
-        float m_Zoom = 1.0f;
+        void RecalculateSides();
+        void RecalculateSidesWithAspectRatio();
+    private:
+        OrthographicCameraSettings m_Settings;
     };
 }

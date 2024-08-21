@@ -14,7 +14,7 @@ namespace TestApp
         static void OnClose();
     private:
         static std::shared_ptr<pxl::Window> m_Window;
-        static std::shared_ptr<pxl::Camera> m_Camera;
+        static std::shared_ptr<pxl::PerspectiveCamera> m_Camera;
         static glm::vec4 m_ClearColour;
     };
 }

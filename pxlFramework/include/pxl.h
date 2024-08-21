@@ -13,6 +13,8 @@
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/RendererAPIType.h"
 #include "../src/Renderer/Camera.h"
+#include "../src/Renderer/OrthographicCamera.h"
+#include "../src/Renderer/PerspectiveCamera.h"
 #include "../src/Renderer/Shader.h"
 #include "../src/Renderer/ShaderLibrary.h"
 #include "../src/Renderer/Pipeline.h"
