@@ -47,7 +47,6 @@ namespace pxl
                 Camera::UpdateAll();
                 Renderer::Begin();
                 OnRender();
-                GUI::Update();
                 Renderer::End();
                 DiscordRPC::Update();
             }

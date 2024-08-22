@@ -11,7 +11,7 @@ namespace pxl
         glm::vec3 Position  = glm::vec3(0.0f); // Position of vertex in (NDC??)
         glm::vec4 Colour    = glm::vec4(1.0f); // Colour of the vertex. Passed to the fragment shader
         glm::vec2 TexCoords = glm::vec2(0.0f); // UV coords to use when sampling the TexIndex slot texture
-        float TexIndex = -1.0f;                // The texture slot to sample from in the fragment shader
+        float TexIndex = 0.0f;                // The texture slot to sample from in the fragment shader
 
         static BufferLayout GetLayout()
         {

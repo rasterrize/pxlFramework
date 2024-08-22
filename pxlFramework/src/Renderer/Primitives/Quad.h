@@ -24,20 +24,20 @@ namespace pxl
             switch (Origin)
             {
                 case Origin::TopLeft:
-                    newPosition.x -= Size.x / 2.0f;
-                    newPosition.y += Size.y / 2.0f;
+                    newPosition.x += Size.x / 2.0f;
+                    newPosition.y -= Size.y / 2.0f;
                     break;
                 case Origin::TopRight:
-                    newPosition.x += Size.x / 2.0f;
-                    newPosition.y += Size.y / 2.0f;
-                    break;
-                case Origin::BottomLeft:
                     newPosition.x -= Size.x / 2.0f;
                     newPosition.y -= Size.y / 2.0f;
                     break;
-                case Origin::BottomRight:
+                case Origin::BottomLeft:
                     newPosition.x += Size.x / 2.0f;
-                    newPosition.y -= Size.y / 2.0f;
+                    newPosition.y += Size.y / 2.0f;
+                    break;
+                case Origin::BottomRight:
+                    newPosition.x -= Size.x / 2.0f;
+                    newPosition.y += Size.y / 2.0f;
                     break;
                 case Origin::Center: break;
             }
@@ -56,10 +56,10 @@ namespace pxl
         constexpr static std::array<QuadVertex, 4> GetDefaultVertices()
         {
             return {
-                QuadVertex({ -0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }), 
-                QuadVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
-                QuadVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
-                QuadVertex({  0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }),
+                QuadVertex({ -0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
+                QuadVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
+                QuadVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
+                QuadVertex({  0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
             };
         }
 

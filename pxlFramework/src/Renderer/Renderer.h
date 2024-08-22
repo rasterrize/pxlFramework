@@ -43,7 +43,8 @@ namespace pxl
         
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
         static void AddQuad(const Quad& quad);
-        static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture>& texture);
+        static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const std::shared_ptr<Texture>& texture);
+        static void AddTexturedQuad(const Quad& quad, const std::shared_ptr<Texture>& texture);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture2D>& texture, const glm::vec2& textureUV);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& tint);
         //static void AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec2& textureIndex);
@@ -68,6 +69,7 @@ namespace pxl
             uint32_t MeshCount       = 0;
             uint32_t MeshVertexCount = 0;
             uint32_t MeshIndexCount  = 0;
+            uint32_t TextureBinds    = 0;
             
             uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshVertexCount / 3); }
             uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }

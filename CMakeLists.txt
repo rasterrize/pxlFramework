@@ -25,7 +25,7 @@ add_subdirectory(pxlFramework)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TestApp)
 
 # Copy internal framework resources to bin directory
-file(COPY pxlFramework/resources/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
+file(COPY pxlFramework/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # Copy necessary framework dependency DLLs to bin directory
 file(COPY pxlFramework/deps/discord-game-sdk/lib/discord_game_sdk.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)

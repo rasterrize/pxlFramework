@@ -5,10 +5,35 @@
 
 namespace pxl
 {
+    enum class UniformDataType
+    {
+        None = 0, Float, Float2, Float3, Float4, Int, Int2, Int3, Int4, Mat3, Mat4, Bool, IntArray
+    };
+
+    // Returns size of type in bytes
+    static uint32_t SizeOfUniformDataType(UniformDataType type)
+    {
+        switch (type)
+        {
+            // These are currently hardcoded but an optimal way in the future would be to use API data types, such as sizeof(Glfloat)
+            case UniformDataType::Float:  return 4;
+            case UniformDataType::Float2: return 4 * 2;
+            case UniformDataType::Float3: return 4 * 3;
+            case UniformDataType::Float4: return 4 * 4;
+            case UniformDataType::Int:    return 4;
+            case UniformDataType::Int2:   return 4 * 2;
+            case UniformDataType::Int3:   return 4 * 3;
+            case UniformDataType::Int4:   return 4 * 4;
+            case UniformDataType::Mat3:   return 4 * 3 * 3;
+            case UniformDataType::Mat4:   return 4 * 4 * 4;
+        }
+        return 0;
+    }
+
     struct UniformElement
     {
         std::string Name;
-        BufferDataType Type;
+        UniformDataType Type;
         ShaderStage ShaderStage;
     };
 
@@ -27,7 +52,7 @@ namespace pxl
             uint32_t bytes = 0;
             for (const auto& element : m_Elements)
             {
-                bytes += SizeOfBufferDataType(element.Type);
+                bytes += SizeOfUniformDataType(element.Type);
             }
 
             return bytes;
@@ -40,7 +65,7 @@ namespace pxl
     struct PushConstantElement
     {
         std::string Name;
-        BufferDataType Type;
+        UniformDataType Type;
         ShaderStage PushConstantShaderStage;
     };
 

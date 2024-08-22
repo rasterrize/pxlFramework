@@ -14,6 +14,8 @@ namespace pxl
         static void Render();
         static void Shutdown();
 
+        static bool IsInitialized() { return s_Enabled; }
+
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
     private:
         static std::unique_ptr<GUIBase> s_ImGuiRenderer;

@@ -6,7 +6,7 @@
 #include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
-#include "Utils/FIleSystem.h"
+#include "Utils/FileSystem.h"
 #include "BufferLayout.h"
 #include "UniformLayout.h"
 #include "Debug/GUI/GUI.h"
@@ -89,6 +89,7 @@ namespace pxl
     // Texture Data
     static uint32_t s_TextureUnitIndex = 0;
     static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureSlots;
+    static std::shared_ptr<Texture> s_WhitePixelTexture;
 
     // For OpenGL
     static std::shared_ptr<VertexArray> s_QuadVAO;
@@ -133,6 +134,9 @@ namespace pxl
                     
                 break;
         }
+
+        // TEMP: not sure where to put this
+        s_WhitePixelTexture = FileSystem::LoadTextureFromImage("resources/textures/whiteTexture.bmp");
 
         // --------------------
         // Prepare Quad Data
@@ -190,11 +194,11 @@ namespace pxl
                 };
 
                 s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp) {
-                    pipeline->SetUniformData("u_VP", BufferDataType::Mat4, &vp);
+                    pipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
                 };
 
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_textured_ogl.vert");
+                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_textured_ogl.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
@@ -221,10 +225,8 @@ namespace pxl
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
 
-                //s_QuadUniformLayout.Add({ "u_VertexColour", pxl::BufferDataType::Float4, pxl::ShaderStage::Vertex });
-
-                pxl::PushConstantLayout pushConstantLayout;
-                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+                PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
@@ -337,8 +339,8 @@ namespace pxl
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
 
-                pxl::PushConstantLayout pushConstantLayout;
-                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+                PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
@@ -390,8 +392,8 @@ namespace pxl
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
 
-                pxl::PushConstantLayout pushConstantLayout;
-                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+                PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
@@ -446,8 +448,8 @@ namespace pxl
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
                 shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
 
-                pxl::PushConstantLayout pushConstantLayout;
-                pushConstantLayout.Add({ "u_VP", pxl::BufferDataType::Mat4, pxl::ShaderStage::Vertex });
+                PushConstantLayout pushConstantLayout;
+                pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
@@ -510,6 +512,9 @@ namespace pxl
             return;
 
         s_RendererAPI->Begin();
+
+        s_TextureSlots[0] = s_WhitePixelTexture;
+        s_TextureUnitIndex++;
     }
 
     void Renderer::End()
@@ -521,8 +526,12 @@ namespace pxl
             return;
         
         Flush();
-        
-        GUI::Render();
+
+        if (GUI::IsInitialized())
+        {
+            GUI::Update();
+            GUI::Render();
+        }
 
         s_RendererAPI->End();
 
@@ -609,7 +618,7 @@ namespace pxl
                 .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
                 .Colour = colour, 
                 .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = -1.0f,
+                .TexIndex = 0.0f,
             };
         }
 
@@ -648,9 +657,11 @@ namespace pxl
         AddQuad(position, quad.Rotation, quad.Size, quad.Colour);
     }
 
-    void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const std::shared_ptr<Texture>& texture)
+    void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const std::shared_ptr<Texture>& texture)
     {
         PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT_MSG(texture, "Texture is invalid");
         
         if (s_QuadCount >= s_MaxQuadCount)
             Flush();
@@ -660,16 +671,18 @@ namespace pxl
 
         float textureIndex = -1.0f;
 
+        bool foundTexture = false;
         for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
         {
             if (texture == s_TextureSlots[i])
             {
                 textureIndex = static_cast<float>(i);
+                foundTexture = true;
                 break;
             }
         }
 
-        if (textureIndex == -1.0f)
+        if (!foundTexture)
         {
             textureIndex = static_cast<float>(s_TextureUnitIndex);
 			s_TextureSlots[s_TextureUnitIndex] = texture;
@@ -699,6 +712,11 @@ namespace pxl
         s_Stats.QuadVertexCount += 4;
         s_Stats.QuadIndexCount += 6;
     #endif
+    }
+
+    void Renderer::AddTexturedQuad(const Quad& quad, const std::shared_ptr<Texture>& texture)
+    {
+        AddTexturedQuad(quad.Position, quad.Rotation, quad.Size, texture);
     }
 
     void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
@@ -809,13 +827,22 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
     
-    #if TEXTURES
-        // Bind textures
-        for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
+        // Set samplers
+        int32_t samplers[s_MaxTextureUnits];
+        for (int32_t i = 0; i < s_MaxTextureUnits; i++)
+                samplers[i] = i;
+
+        if (s_RendererAPIType == RendererAPIType::OpenGL)
+        {
+            // Bind textures
+            for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
+            {
                 s_TextureSlots[i]->Bind(i);
-        
-        s_TextureUnitIndex = 0;
-    #endif
+                s_Stats.TextureBinds++;
+            }
+
+            s_TextureUnitIndex = 0;
+        }
 
         // Flush quads if necessary
         if (s_QuadCount > 0)
@@ -824,13 +851,8 @@ namespace pxl
 
             s_QuadBufferBindFunc();
 
-        #if TEXTURES
-            int32_t samplers[s_MaxTextureUnits];
-            for (int32_t i = 0; i < s_MaxTextureUnits; i++)
-                samplers[i] = i;
-
-            s_QuadShader->SetUniformIntArray("u_Textures", samplers, s_MaxTextureUnits);
-        #endif
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_MaxTextureUnits, samplers);
 
             s_QuadPipeline->Bind();
 

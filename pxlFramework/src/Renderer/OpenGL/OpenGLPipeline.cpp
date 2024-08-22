@@ -65,22 +65,38 @@ namespace pxl
         glUseProgram(0);
     }
 
-    void OpenGLGraphicsPipeline::SetUniformData(const std::string& name, BufferDataType type, const void* data)
+    void OpenGLGraphicsPipeline::SetUniformData(const std::string& name, UniformDataType type, const void* data)
     {
         switch (type)
         {
-            case BufferDataType::Float:
-                break;
-            case BufferDataType::Mat4:
+            case UniformDataType::Float:
+                PXL_LOG_ERROR(LogArea::OpenGL, "Float for OpenGL uniforms isn't supported atm");
+                return;
+            case UniformDataType::Mat4:
                 glUniformMatrix4fv(GetUniformLocation(name), 1, false, (const GLfloat*)data); // fv ~ float value, dv ~ decimal value
-                break;
-            case BufferDataType::Int:
-                //glUniform1i(GetUniformLocation(name), value);
-                break;
-
-            // Int Array
-            //glUniform1iv(GetUniformLocation(name), count, values);
+                return;
+            case UniformDataType::Int:
+                //glUniform1i(GetUniformLocation(name), (GLint)data);
+                PXL_LOG_ERROR(LogArea::OpenGL, "Int for OpenGL uniforms isn't supported atm");
+                return;
+            case UniformDataType::IntArray:
+                PXL_LOG_ERROR(LogArea::OpenGL, "IntArray requires a count to upload as uniform");
+                return;
         }
+
+        PXL_LOG_ERROR(LogArea::OpenGL, "Invalid UniformDataType");
+    }
+
+    void OpenGLGraphicsPipeline::SetUniformData(const std::string& name, UniformDataType type, uint32_t count, const void* data)
+    {
+        switch (type)
+        {
+            case UniformDataType::IntArray:
+                glUniform1iv(GetUniformLocation(name), count, (const GLint*)data);
+                return;
+        }
+
+        PXL_LOG_ERROR(LogArea::OpenGL, "Invalid UniformDataType");
     }
 
     int OpenGLGraphicsPipeline::GetUniformLocation(const std::string& name) const

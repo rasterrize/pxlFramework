@@ -7,6 +7,7 @@
 
 #include "GUIOpenGL.h"
 #include "Core/Application.h"
+#include "Renderer/Renderer.h"
 
 namespace pxl
 {
@@ -17,6 +18,9 @@ namespace pxl
 
     void GUI::Init(const std::shared_ptr<Window>& window)
     {
+        PXL_ASSERT_MSG(window, "Can't initialize GUI with invalid window");
+        PXL_ASSERT_MSG(Renderer::IsInitialized(), "Renderer must be initialized before GUI is initialized");
+        
         s_WindowHandle = window;
         
         const char* fontFilename = "assets/fonts/Roboto-Medium.ttf";
@@ -27,6 +31,7 @@ namespace pxl
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         io.IniFilename = NULL;
         if (std::filesystem::exists(fontFilename))
             io.Fonts->AddFontFromFileTTF(fontFilename, 16);

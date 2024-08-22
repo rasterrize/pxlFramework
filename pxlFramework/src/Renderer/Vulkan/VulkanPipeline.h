@@ -31,7 +31,8 @@ namespace pxl
         virtual void Bind() override;
         virtual void Unbind() override {};
         
-        virtual void SetUniformData(const std::string& name, BufferDataType type, const void* data) override;
+        virtual void SetUniformData(const std::string& name, UniformDataType type, const void* data) override;
+        virtual void SetUniformData(const std::string& name, UniformDataType type, uint32_t count, const void* data) override;
         virtual void SetPushConstantData(const std::string& name, const void* data) override;
 
         virtual void* GetPipelineLayout() override { return m_Layout; }
