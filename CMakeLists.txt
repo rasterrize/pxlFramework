@@ -17,12 +17,12 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 # NOTE: This is done before pxlFramework because TestApp sets some pxlFramework options
 if (PXL_BUILD_TESTS)
     add_subdirectory(TestApp)
+
+    # Set TestApp to the startup project in Visual Studio
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TestApp)
 endif()
 
 add_subdirectory(pxlFramework)
-
-# Set TestApp to the startup project in Visual Studio
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TestApp)
 
 # Copy internal framework resources to bin directory
 file(COPY pxlFramework/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
