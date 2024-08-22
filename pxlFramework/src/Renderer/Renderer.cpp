@@ -166,6 +166,8 @@ namespace pxl
 
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
+            pipelineSpecs.PolygonFillMode = PolygonFillMode::Fill;
+            pipelineSpecs.CullMode = CullMode::None;
             pipelineSpecs.VertexLayout = bufferLayout;
 
             // Prepare other data based on renderer API

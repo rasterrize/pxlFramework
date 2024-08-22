@@ -17,10 +17,24 @@ namespace pxl
         Point,
     };
 
+    enum class PolygonFillMode
+    {
+        Fill = 0,
+    };
+
+    enum class CullMode
+    {
+        None = 0,
+        Front,
+        Back,
+    };
+
     // NOTE: Most of these members aren't even necessary for OpenGL
     struct GraphicsPipelineSpecs
     {
-        PrimitiveTopology PrimitiveType;
+        PrimitiveTopology PrimitiveType = PrimitiveTopology::Triangle;
+        PolygonFillMode PolygonFillMode = PolygonFillMode::Fill;
+        CullMode CullMode = CullMode::None;
         BufferLayout VertexLayout;
         std::optional<UniformLayout> UniformLayout;
         std::optional<PushConstantLayout> PushConstantLayout;

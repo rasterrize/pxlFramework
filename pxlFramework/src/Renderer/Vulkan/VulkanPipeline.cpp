@@ -59,10 +59,10 @@ namespace pxl
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
         rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
         rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
-        rasterizationInfo.polygonMode = m_Settings.PolygonMode; // Can be lines and points, but requires enabling a gpu feature
+        rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonFillMode); // Can be lines and points, but requires enabling a gpu feature
         rasterizationInfo.lineWidth = 1.0f; // 1.0f is a good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = m_Settings.CullMode; // specify different types of culling here
-        rasterizationInfo.frontFace = m_Settings.FrontFace; // This is counter clockwise in OpenGL
+        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode); // specify different types of culling here
+        rasterizationInfo.frontFace = m_FrontFace; // This is counter clockwise in OpenGL
         // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -230,5 +230,31 @@ namespace pxl
         
         PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkPrimitiveTopology");
         return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+    }
+
+    VkPolygonMode VulkanGraphicsPipeline::ToVkPolygonMode(PolygonFillMode mode)
+    {
+        switch (mode)
+        {
+            case PolygonFillMode::Fill: return VK_POLYGON_MODE_FILL;
+        }
+
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonFillMode for Vulkan");
+        
+        return VK_POLYGON_MODE_MAX_ENUM;
+    }
+
+    VkCullModeFlagBits VulkanGraphicsPipeline::ToVkCullMode(CullMode mode)
+    {
+        switch (mode)
+        {
+            case CullMode::None: return VK_CULL_MODE_NONE;
+            case CullMode::Front: return VK_CULL_MODE_FRONT_BIT;
+            case CullMode::Back: return VK_CULL_MODE_BACK_BIT;
+        }
+
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid CullMode for Vulkan");
+        
+        return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
     }
 }
