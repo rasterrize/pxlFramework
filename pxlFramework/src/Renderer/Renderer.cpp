@@ -716,7 +716,29 @@ namespace pxl
 
     void Renderer::AddTexturedQuad(const Quad& quad, const std::shared_ptr<Texture>& texture)
     {
-        AddTexturedQuad(quad.Position, quad.Rotation, quad.Size, texture);
+        auto position = quad.Position;
+        switch (quad.Origin)
+        {
+            case Origin::TopLeft:
+                position.x -= quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::TopRight:
+                position.x += quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomLeft:
+                position.x -= quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomRight:
+                position.x += quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
+                break;
+            case Origin::Center: break;
+        }
+        
+        AddTexturedQuad(position, quad.Rotation, quad.Size, texture);
     }
 
     void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
