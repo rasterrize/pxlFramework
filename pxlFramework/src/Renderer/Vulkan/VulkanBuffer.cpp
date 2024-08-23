@@ -81,8 +81,8 @@ namespace pxl
                 VkDeviceSize offset = 0;
                 vkCmdBindIndexBuffer(commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
             };
-        else if (m_Usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
-            m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
+        else if (m_Usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) {}
+            //m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
         else    
             PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
     }

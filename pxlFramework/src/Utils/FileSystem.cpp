@@ -125,7 +125,9 @@ namespace pxl
                 float y = scene->mMeshes[m]->mVertices[v].y;
                 float z = scene->mMeshes[m]->mVertices[v].z;
 
-                mesh->Vertices.push_back({{x, y, z}, glm::vec4(1.0f), { 0.0f, 0.0f }});
+                // Colours
+                auto vertexColour = scene->mMeshes[m]->mColors[0];
+                mesh->Vertices.push_back({{ x, y, z }, { vertexColour->r, vertexColour->g, vertexColour->b, vertexColour->a }, { 0.0f, 0.0f }});
             }
 
             // Go through all the faces and indices of the current mesh
@@ -158,9 +160,9 @@ namespace pxl
         {
             for (uint32_t n = 0; n < scene->mMeshes[i]->mNumVertices; n++)
             {
-                float x = scene->mMeshes[i]->mVertices[n].x;
-                float y = scene->mMeshes[i]->mVertices[n].y;
-                float z = scene->mMeshes[i]->mVertices[n].z;
+                [[maybe_unused]] float x = scene->mMeshes[i]->mVertices[n].x;
+                [[maybe_unused]] float y = scene->mMeshes[i]->mVertices[n].y;
+                [[maybe_unused]] float z = scene->mMeshes[i]->mVertices[n].z;
             }
         }
 

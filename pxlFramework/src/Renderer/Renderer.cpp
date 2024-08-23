@@ -788,7 +788,7 @@ namespace pxl
     }
 #endif
 
-    void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, [[maybe_unused]] const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
     {
         PXL_PROFILE_SCOPE;
         

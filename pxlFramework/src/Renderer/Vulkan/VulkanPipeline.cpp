@@ -170,12 +170,12 @@ namespace pxl
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
-    void VulkanGraphicsPipeline::SetUniformData(const std::string& name, UniformDataType type, const void* data)
+    void VulkanGraphicsPipeline::SetUniformData([[maybe_unused]] const std::string& name, [[maybe_unused]] UniformDataType type, [[maybe_unused]] const void* data)
     {
         PXL_PROFILE_SCOPE;
     }
 
-    void VulkanGraphicsPipeline::SetUniformData(const std::string &name, UniformDataType type, uint32_t count, const void *data)
+    void VulkanGraphicsPipeline::SetUniformData([[maybe_unused]] const std::string& name, [[maybe_unused]] UniformDataType type, [[maybe_unused]] uint32_t count, [[maybe_unused]] const void *data)
     {
     }
 

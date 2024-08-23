@@ -39,7 +39,7 @@ namespace pxl
         }
     }
 
-    void VulkanImage::CreateImage(uint32_t width, uint32_t height, VkFormat format)
+    void VulkanImage::CreateImage([[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height, [[maybe_unused]] VkFormat format)
     {
         // TODO: Create VkImage object
     }

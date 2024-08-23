@@ -15,7 +15,7 @@ namespace pxl
         }
         
         // Check vulkan API version
-        auto apiVersion = VulkanHelpers::GetVulkanAPIVersion();
+        [[maybe_unused]] auto apiVersion = VulkanHelpers::GetVulkanAPIVersion();
 
         // TODO: check if the implementation api version is greater than the specifed application version
 

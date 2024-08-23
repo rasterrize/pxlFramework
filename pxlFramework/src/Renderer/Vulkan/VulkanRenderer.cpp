@@ -39,7 +39,7 @@ namespace pxl
         
     }
 
-    void VulkanRenderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    void VulkanRenderer::SetViewport(uint32_t x, [[maybe_unused]] uint32_t y, uint32_t width, uint32_t height)
     {
         // Invert the given viewport values
         m_Viewport.x = static_cast<float>(x);

@@ -180,22 +180,22 @@ namespace pxl
                 : glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 
-    void Input::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]]int mods)
     {
         s_CurrentKeyStates[key] = action;
     }
 
-    void Input::GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+    void Input::GLFWMouseButtonCallback([[maybe_unused]] GLFWwindow* window, int button, int action, [[maybe_unused]] int mods)
     {
         s_CurrentMBStates[button] = action;
     }
 
-    void Input::GLFWCursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+    void Input::GLFWCursorPosCallback([[maybe_unused]] GLFWwindow* window, double xpos, double ypos)
     {
         s_CursorPosition = { xpos, ypos };
     }
 
-    void Input::GLFWScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+    void Input::GLFWScrollCallback([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xoffset, double yoffset)
     {
         s_VerticalScrollOffset = yoffset;
     }

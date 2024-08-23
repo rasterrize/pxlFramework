@@ -127,6 +127,7 @@ else()
     option(TRACY_ENABLE "" OFF)
 endif()
 
+# Set MSVC settings
 if (MSVC)
     # Set MSVC runtime library based on build type
     set_target_properties(pxlFramework PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
@@ -135,9 +136,12 @@ if (MSVC)
     target_compile_options(pxlFramework PRIVATE "/MP")
 
     # Set compiler warning level
-    target_compile_options(pxlFramework PRIVATE "/W3")
+    target_compile_options(pxlFramework PRIVATE "/W4")
 
-    # Ignore PDB missing warnings (currently because of shaderc)
+    # Treat warnings as errors
+    target_compile_options(pxlFramework PRIVATE "/WX")
+
+    # Ignore missing PDB warnings (currently because of shaderc)
     target_link_options(pxlFramework PUBLIC "/ignore:4099")
 endif()
 

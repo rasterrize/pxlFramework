@@ -10,6 +10,7 @@ namespace pxl
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_BLEND);
+        glEnable(GL_SCISSOR_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
@@ -45,6 +46,6 @@ namespace pxl
 
     void OpenGLRenderer::SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        //glScissor(0, 0, width, height);
+        glScissor(x, y, width, height);
     }
 }
