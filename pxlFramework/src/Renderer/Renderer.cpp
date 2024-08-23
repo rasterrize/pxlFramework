@@ -636,20 +636,20 @@ namespace pxl
         switch (quad.Origin)
         {
             case Origin::TopLeft:
-                position.x -= quad.Size.x / 2.0f;
-                position.y += quad.Size.y / 2.0f;
+                position.x += quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
                 break;
             case Origin::TopRight:
-                position.x += quad.Size.x / 2.0f;
-                position.y += quad.Size.y / 2.0f;
-                break;
-            case Origin::BottomLeft:
                 position.x -= quad.Size.x / 2.0f;
                 position.y -= quad.Size.y / 2.0f;
                 break;
-            case Origin::BottomRight:
+            case Origin::BottomLeft:
                 position.x += quad.Size.x / 2.0f;
-                position.y -= quad.Size.y / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomRight:
+                position.x -= quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
                 break;
             case Origin::Center: break;
         }
@@ -720,20 +720,20 @@ namespace pxl
         switch (quad.Origin)
         {
             case Origin::TopLeft:
-                position.x -= quad.Size.x / 2.0f;
-                position.y += quad.Size.y / 2.0f;
+                position.x += quad.Size.x / 2.0f;
+                position.y -= quad.Size.y / 2.0f;
                 break;
             case Origin::TopRight:
-                position.x += quad.Size.x / 2.0f;
-                position.y += quad.Size.y / 2.0f;
-                break;
-            case Origin::BottomLeft:
                 position.x -= quad.Size.x / 2.0f;
                 position.y -= quad.Size.y / 2.0f;
                 break;
-            case Origin::BottomRight:
+            case Origin::BottomLeft:
                 position.x += quad.Size.x / 2.0f;
-                position.y -= quad.Size.y / 2.0f;
+                position.y += quad.Size.y / 2.0f;
+                break;
+            case Origin::BottomRight:
+                position.x -= quad.Size.x / 2.0f;
+                position.y += quad.Size.y / 2.0f;
                 break;
             case Origin::Center: break;
         }
