@@ -99,8 +99,8 @@ namespace pxl
 
         // Create swap chain with specified surface
         VkExtent2D swapchainExtent;
-        swapchainExtent.width = window->GetFramebufferSize().x;
-        swapchainExtent.height = window->GetFramebufferSize().y;
+        swapchainExtent.width = window->GetFramebufferSize().Width;
+        swapchainExtent.height = window->GetFramebufferSize().Height;
         m_Swapchain = std::make_shared<VulkanSwapchain>(m_Device, m_Surface, m_SurfaceFormat, swapchainExtent, m_DefaultRenderPass, m_CommandPool);
 
         // Initialise Vulkan Memory Allocator

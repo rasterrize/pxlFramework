@@ -30,11 +30,7 @@ namespace pxl
 
     void VulkanDevice::CreateLogicalDevice(VkPhysicalDevice gpu)
     {
-        if (gpu == VK_NULL_HANDLE)
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create logical device, physical device was null pointer");
-            return;
-        }
+        PXL_ASSERT_MSG(gpu != VK_NULL_HANDLE, "Failed to create logical device, physical device was null")
 
         // Specify Device Queue Create Infos
         std::vector<VkDeviceQueueCreateInfo> queueInfos;

@@ -1,5 +1,7 @@
 #include "EmptyApp.h"
 
+#include <thread>
+
 namespace TestApp
 {
     void EmptyApp::OnStart(pxl::WindowSpecs& windowSpecs)
@@ -10,9 +12,8 @@ namespace TestApp
     void EmptyApp::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
-        pxl::Application::Get().Close();
-        return;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(33));
     }
 
     void EmptyApp::OnRender()

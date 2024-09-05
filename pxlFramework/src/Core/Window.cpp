@@ -8,12 +8,7 @@
 
 namespace pxl
 {
-    constexpr uint8_t MAX_WINDOW_COUNT = 5;
-
-    std::vector<Monitor> Window::s_Monitors;
-    std::vector<std::shared_ptr<Window>> Window::s_Windows;
-
-    std::function<void()> Window::s_EventProcessFunc = glfwPollEvents;
+    static constexpr uint8_t MAX_WINDOW_COUNT = 5; // TODO: Use different naming convention
 
     Window::Window(const WindowSpecs& windowSpecs)
         : m_Specs(windowSpecs), m_LastWindowedWidth(m_Specs.Width), m_LastWindowedHeight(m_Specs.Height)
@@ -262,7 +257,20 @@ namespace pxl
         value ? glfwShowWindow(m_GLFWWindow) : glfwHideWindow(m_GLFWWindow);
     }
 
-    std::vector<const char*> Window::GetVKRequiredInstanceExtensions()
+    const Monitor& Window::GetPrimaryMonitor()
+    {
+        for (const auto& monitor : s_Monitors)
+        {
+            if (monitor.IsPrimary)  
+                return monitor;
+        }
+
+        PXL_LOG_WARN(LogArea::Window, "Failed to find primary monitor");
+
+        return s_Monitors[0];
+    }
+
+    std::vector<const char *> Window::GetVKRequiredInstanceExtensions()
     {
         uint32_t glfwExtensionCount = 0;
 	    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -373,6 +381,8 @@ namespace pxl
     void Window::UpdateAll()
     {
         PXL_PROFILE_SCOPE;
+
+        if (s_Windows.empty()) return;
         
         for (const auto& window : s_Windows)
             window->Update();
@@ -403,7 +413,7 @@ namespace pxl
         }
     }
 
-    void Window::Shutdown()
+    void Window::CloseAll()
     {
         auto windowCount = s_Windows.size();
 
@@ -411,11 +421,17 @@ namespace pxl
            always access the first element */
         for (size_t i = 0; i < windowCount; i++)
             s_Windows.front()->Close();
+    }
 
+    void Window::Shutdown()
+    {
+        CloseAll();
+        
         // TODO: Check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
         
         PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
+        PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
     }
 
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)

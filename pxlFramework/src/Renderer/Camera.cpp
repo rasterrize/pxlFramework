@@ -13,6 +13,8 @@ namespace pxl
     void Camera::UpdateAll()
     {
         PXL_PROFILE_SCOPE;
+
+        if (s_Cameras.empty()) return;
         
         for (auto& camera : s_Cameras)
             camera->Update();

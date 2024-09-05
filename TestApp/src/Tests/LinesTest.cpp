@@ -29,10 +29,10 @@ namespace TestApp
 
         pxl::Renderer::SetQuadCamera(s_Camera);
 
-        std::string rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
+        //std::string rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
-        pxl::DiscordRPC::Init(RPCCLIENT_ID);
-        pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'LinesTest' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
+        // pxl::DiscordRPC::Init(RPCCLIENT_ID);
+        // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'LinesTest' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
     }
 
     void LinesTest::OnUpdate(float dt)

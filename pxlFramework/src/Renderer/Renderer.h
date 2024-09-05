@@ -71,6 +71,7 @@ namespace pxl
             uint32_t MeshVertexCount = 0;
             uint32_t MeshIndexCount  = 0;
             uint32_t TextureBinds    = 0;
+            uint32_t PipelineBinds   = 0;
             
             uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshVertexCount / 3); }
             uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }
@@ -80,7 +81,7 @@ namespace pxl
         static void ResetStats()
         { 
             auto fps = s_Stats.FPS;
-            memset(&s_Stats, 0, sizeof(Statistics));
+            memset(&s_Stats, 0, sizeof(Statistics)); // TODO: try &s_Stats * sizeof(float)
             s_Stats.FPS = fps;
         }
 

@@ -39,6 +39,7 @@ add_library(pxlFramework STATIC
     src/Renderer/Framebuffer.h
     src/Renderer/GraphicsDevice.h
     src/Renderer/Image.h
+    src/Renderer/Vertices.h
 
     # PRIMITIVES
     src/Renderer/Primitives/Primitive.h
@@ -89,26 +90,6 @@ add_library(pxlFramework STATIC
 # Set project c++ standard
 target_compile_features(pxlFramework PRIVATE cxx_std_20)
 
-# Set GLFW settings
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-# Set GLM settings
-set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
-
-# Set ASSIMP settings
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
-set(ASSIMP_NO_EXPORT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-
-# Set YAMLCPP settings
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
-
 # Enable logging if desired
 if (PXL_ENABLE_LOGGING)
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
@@ -149,6 +130,26 @@ if (MSVC)
     target_link_options(pxlFramework PUBLIC "/ignore:4099")
 endif()
 
+# Set GLFW settings
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+# Set GLM settings
+set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
+
+# Set ASSIMP settings
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+
+# Set YAMLCPP settings
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+
 # Add Dependencies (CMake projects)
 add_subdirectory(deps/GLFW)
 add_subdirectory(deps/Glad)
@@ -174,8 +175,7 @@ if (MSVC)
     target_compile_options(yaml-cpp PUBLIC "/MP")
 endif()
 
-# Find Vulkan SDK using its environment variable
-set(CMAKE_MODULE_PATH $ENV{VULKAN_SDK})
+# Find Vulkan SDK
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 # Add Vulkan include directory

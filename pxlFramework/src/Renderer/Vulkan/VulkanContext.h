@@ -30,9 +30,9 @@ namespace pxl
 
         VkCommandPool GetCommandPool() const { return m_CommandPool; }
 
-        VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+        VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; } // move this to device class?
 
-        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence = nullptr); // TODO: move this elsewhere or possibly nuke it
+        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence = nullptr); // TODO: move this to the device class
 
         // TEMP (I think)
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?

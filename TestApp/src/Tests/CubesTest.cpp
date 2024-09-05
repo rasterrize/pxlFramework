@@ -21,11 +21,11 @@ namespace TestApp
         s_Camera = pxl::PerspectiveCamera::Create({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
-            .NearClip = -10.0f,
-            .FarClip = 10.0f,
+            .NearClip = 0.1f,
+            .FarClip = 1000.0f,
         });
 
-        s_Camera->SetPosition({0.0f, 0.0f, 0.0f});
+        s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetClearColour(s_ClearColour);
     }
@@ -99,7 +99,7 @@ namespace TestApp
             cameraFOV += cameraSpeed * 0.5f;
         }
 
-        s_Camera->SetPosition({cameraPosition.x, cameraPosition.y, cameraPosition.z});
+        s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
         s_Camera->SetFOV(cameraFOV);
     }
 

@@ -92,18 +92,20 @@ namespace pxl
 
         static const std::vector<Monitor>& GetMonitors() { return s_Monitors; }
 
-        static const Monitor& GetPrimaryMonitor() { for (const auto& monitor : s_Monitors) { if (monitor.IsPrimary) return monitor; } return s_Monitors[0]; }
+        static const Monitor& GetPrimaryMonitor();
 
         static std::vector<const char*> GetVKRequiredInstanceExtensions();
         
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
+        static void CloseAll();
+        static void Shutdown();
     private:
         void CreateGLFWWindow(const WindowSpecs& windowSpecs);
         void Update() const;
 
         void SetGLFWCallbacks();
         static void SetStaticGLFWCallbacks();
-        
+
         // Per-window GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
@@ -117,8 +119,6 @@ namespace pxl
     private:
         friend class Application; // for UpdateAll()
         static void UpdateAll();
-
-        static void Shutdown();
 
         static void UpdateMonitors();
     private:

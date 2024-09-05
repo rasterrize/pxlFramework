@@ -75,7 +75,7 @@ namespace pxl
 
         if (queueFamilyCount < 1)
         {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Physical device has no queue families");
+            PXL_LOG_ERROR(LogArea::Vulkan, "Physical device has no queue families"); // TODO: remove this since a physical device MUST always have at least 1 queue family
             return std::vector<VkQueueFamilyProperties>();
         }
 

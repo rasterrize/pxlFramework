@@ -57,6 +57,8 @@ namespace pxl
 
     void OpenGLGraphicsPipeline::Bind()
     {
+        // TODO: Set state such as cull mode and polygon mode
+        
         glUseProgram(m_ShaderProgramID);
     }
 

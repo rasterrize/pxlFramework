@@ -20,15 +20,13 @@ namespace pxl
         int width, height, channels;
         unsigned char* bytes = stbi_load(stringPath.c_str(), &width, &height, &channels, 0);
 
-        if (bytes)
+        if (!bytes)
         {
-            PXL_LOG_INFO(LogArea::Other, "Loaded texture: '{}'", stringPath);
-        }
-        else
-        {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load texture: '{}'", stringPath);
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load image: '{}'", stringPath);
             return nullptr;
         }
+
+        PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", stringPath);
 
         Image spec;
 
