@@ -30,7 +30,7 @@ namespace TestApp
 
         s_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
-        pxl::Renderer::SetQuadsCamera(s_Camera);
+        pxl::Renderer::SetQuadCamera(s_Camera);
 
         auto rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
@@ -134,7 +134,7 @@ namespace TestApp
         // }
     }
 
-    void OGLVK::OnGuiRender()
+    void OGLVK::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
 

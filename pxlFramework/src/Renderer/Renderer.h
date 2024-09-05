@@ -39,7 +39,8 @@ namespace pxl
         static void AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
         static void AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
         static void StaticGeometryReady();
-        static void SetQuadsCamera(const std::shared_ptr<Camera>& camera) { s_QuadsCamera = camera; }
+
+        static void SetQuadCamera(const std::shared_ptr<Camera>& camera) { s_QuadCamera = camera; }
         
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
         static void AddQuad(const Quad& quad);
@@ -100,7 +101,7 @@ namespace pxl
         static std::unique_ptr<RendererAPI> s_RendererAPI;
         static std::shared_ptr<GraphicsContext> s_ContextHandle;
 
-        static std::shared_ptr<Camera> s_QuadsCamera;
+        static inline std::shared_ptr<Camera> s_QuadCamera;
 
         static uint32_t s_FrameCount;
         static float s_TimeAtLastFrame;

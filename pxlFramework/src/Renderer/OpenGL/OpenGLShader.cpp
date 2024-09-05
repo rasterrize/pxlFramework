@@ -24,7 +24,7 @@ namespace pxl
     void OpenGLShader::Compile(const std::string& glslSrc)
     {
         // Create an empty vertex shader handle
-        m_RendererID = glCreateShader(ShaderStageToOGLShaderStage(m_ShaderStage));
+        m_RendererID = glCreateShader(ShaderStageToGLShaderStage(m_ShaderStage));
 
         // Send the vertex shader source code to GL
         // Note that std::string's .c_str is NULL character terminated.
@@ -55,7 +55,7 @@ namespace pxl
         }
     }
 
-    uint32_t OpenGLShader::ShaderStageToOGLShaderStage(ShaderStage stage)
+    uint32_t OpenGLShader::ShaderStageToGLShaderStage(ShaderStage stage)
     {
         switch (stage)
         {

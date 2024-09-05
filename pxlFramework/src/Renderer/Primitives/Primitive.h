@@ -2,7 +2,7 @@
 
 namespace pxl
 {
-    enum class Origin
+    enum class Origin2D
     {
         TopLeft,
         TopRight,

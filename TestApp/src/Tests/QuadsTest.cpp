@@ -43,7 +43,7 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour(s_ClearColour);
 
-        pxl::Renderer::SetQuadsCamera(s_Camera);
+        pxl::Renderer::SetQuadCamera(s_Camera);
 
         s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png");
 
@@ -154,7 +154,7 @@ namespace TestApp
         //pxl::Renderer::AddQuad(glm::vec3(0.0f));
     }
 
-    void QuadsTest::OnGuiRender()
+    void QuadsTest::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
 

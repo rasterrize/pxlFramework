@@ -14,7 +14,7 @@ namespace pxl
         glm::vec3 Rotation;
         glm::vec2 Size;
         glm::vec4 Colour;
-        Origin Origin;
+        Origin2D Origin = Origin2D::Center;
 
         bool Contains(const glm::vec2& position)
         {
@@ -23,23 +23,23 @@ namespace pxl
             // Move position opposite of origin
             switch (Origin)
             {
-                case Origin::TopLeft:
+                case Origin2D::TopLeft:
                     newPosition.x += Size.x / 2.0f;
                     newPosition.y -= Size.y / 2.0f;
                     break;
-                case Origin::TopRight:
+                case Origin2D::TopRight:
                     newPosition.x -= Size.x / 2.0f;
                     newPosition.y -= Size.y / 2.0f;
                     break;
-                case Origin::BottomLeft:
+                case Origin2D::BottomLeft:
                     newPosition.x += Size.x / 2.0f;
                     newPosition.y += Size.y / 2.0f;
                     break;
-                case Origin::BottomRight:
+                case Origin2D::BottomRight:
                     newPosition.x -= Size.x / 2.0f;
                     newPosition.y += Size.y / 2.0f;
                     break;
-                case Origin::Center: break;
+                case Origin2D::Center: break;
             }
 
             auto left = Position.x - Size.x / 2.0f;

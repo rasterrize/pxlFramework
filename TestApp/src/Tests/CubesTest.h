@@ -11,6 +11,6 @@ namespace TestApp
         static void OnClose();
         static void OnUpdate(float dt);
         static void OnRender();
-        static void OnGuiRender();
+        static void OnGUIRender();
     };
 }

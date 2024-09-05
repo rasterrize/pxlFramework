@@ -112,7 +112,7 @@ namespace TestApp
     {
     }
 
-    void CubesTest::OnGuiRender()
+    void CubesTest::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
         

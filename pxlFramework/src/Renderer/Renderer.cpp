@@ -88,8 +88,8 @@ namespace pxl
 
     // Texture Data
     static uint32_t s_TextureUnitIndex = 0;
-    static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureSlots;
     static std::shared_ptr<Texture> s_WhitePixelTexture;
+    static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureUnits;
 
     // For OpenGL
     static std::shared_ptr<VertexArray> s_QuadVAO;
@@ -513,7 +513,7 @@ namespace pxl
 
         s_RendererAPI->Begin();
 
-        s_TextureSlots[0] = s_WhitePixelTexture;
+        s_TextureUnits[0] = s_WhitePixelTexture;
         s_TextureUnitIndex++;
     }
 
@@ -674,7 +674,7 @@ namespace pxl
         bool foundTexture = false;
         for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
         {
-            if (texture == s_TextureSlots[i])
+            if (texture == s_TextureUnits[i])
             {
                 textureIndex = static_cast<float>(i);
                 foundTexture = true;
@@ -685,7 +685,7 @@ namespace pxl
         if (!foundTexture)
         {
             textureIndex = static_cast<float>(s_TextureUnitIndex);
-			s_TextureSlots[s_TextureUnitIndex] = texture;
+			s_TextureUnits[s_TextureUnitIndex] = texture;
 			s_TextureUnitIndex++;
         }
 
@@ -833,7 +833,7 @@ namespace pxl
 
         s_MeshBindFunc();
 
-        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadsCamera->GetViewProjectionMatrix());
+        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
 
@@ -859,7 +859,7 @@ namespace pxl
             // Bind textures
             for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
             {
-                s_TextureSlots[i]->Bind(i);
+                s_TextureUnits[i]->Bind(i);
                 s_Stats.TextureBinds++;
             }
 
@@ -878,7 +878,7 @@ namespace pxl
 
             s_QuadPipeline->Bind();
 
-            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadsCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
             s_QuadCount = 0;
@@ -895,7 +895,7 @@ namespace pxl
 
             s_QuadPipeline->Bind();
 
-            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadsCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_StaticQuadCount * 6); // TODO: use a cached s_StaticQuadIndexCount variable so it doesnt have to math everytime
         }

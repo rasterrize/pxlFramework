@@ -33,7 +33,7 @@ namespace TestApp
         });
         s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-        pxl::Renderer::SetQuadsCamera(s_Camera);
+        pxl::Renderer::SetQuadCamera(s_Camera);
 
         s_CurrentMesh = pxl::FileSystem::LoadOBJ("assets/models/golf_ball.obj");
 
@@ -78,7 +78,7 @@ namespace TestApp
         pxl::Renderer::DrawMesh(s_CurrentMesh, glm::vec3(0.0f), s_MeshRotation, glm::vec3(1.0f));
     }
 
-    void ModelViewer::OnGuiRender()
+    void ModelViewer::OnGUIRender()
     {
         auto rendererStats = pxl::Renderer::GetStats();
 

@@ -18,7 +18,7 @@ namespace pxl
     private:
         void Compile(const std::string& glslSrc);
 
-        static uint32_t ShaderStageToOGLShaderStage(ShaderStage stage);
+        static uint32_t ShaderStageToGLShaderStage(ShaderStage stage);
     private:
         uint32_t m_RendererID = 0;
         ShaderStage m_ShaderStage;

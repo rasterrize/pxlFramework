@@ -10,7 +10,7 @@ namespace TestApp
 
         virtual void OnUpdate(float dt) override;
         virtual void OnRender() override;
-        virtual void OnGuiRender() override;
+        virtual void OnGUIRender() override;
     private:
         std::function<void(pxl::WindowSpecs&)> m_OnStartFunc;
         std::function<void(float dt)> m_OnUpdateFunc;
