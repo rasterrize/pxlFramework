@@ -96,16 +96,18 @@ namespace pxl
 
         static glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
     private:
-        static bool s_Enabled;
-        static RendererAPIType s_RendererAPIType;
-        static std::unique_ptr<RendererAPI> s_RendererAPI;
-        static std::shared_ptr<GraphicsContext> s_ContextHandle;
+        static inline bool s_Enabled;
+        static inline RendererAPIType s_RendererAPIType;
+        static inline std::unique_ptr<RendererAPI> s_RendererAPI;
+        static inline std::shared_ptr<GraphicsContext> s_ContextHandle;
 
         static inline std::shared_ptr<Camera> s_QuadCamera;
+        static inline std::shared_ptr<Camera> s_CubeCamera;
+        static inline std::shared_ptr<Camera> s_LineCamera;
 
-        static uint32_t s_FrameCount;
-        static float s_TimeAtLastFrame;
+        static inline uint32_t s_FrameCount;
+        static inline float s_TimeAtLastFrame;
 
-        static Statistics s_Stats;
+        static inline Statistics s_Stats;
     };
 }   

@@ -14,28 +14,20 @@
 
 namespace pxl
 {
-    bool Renderer::s_Enabled = false;
-    RendererAPIType Renderer::s_RendererAPIType = RendererAPIType::None;
-    std::unique_ptr<RendererAPI> Renderer::s_RendererAPI = nullptr;
-    std::shared_ptr<GraphicsContext> Renderer::s_ContextHandle = nullptr;
-
-    uint32_t Renderer::s_FrameCount = 0;
-    float Renderer::s_TimeAtLastFrame = 0.0f;
-
     /* VERY IMPORTANT NOTE: Setting these max values to higher counts significantly increases compile times.
        TODO: Find some good values for these that are good for performance and don't kill the compiler */
-    constexpr uint32_t s_MaxQuadCount = 100;
-    constexpr uint32_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
-    constexpr uint32_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
+    static constexpr uint32_t s_MaxQuadCount = 100;
+    static constexpr uint32_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
+    static constexpr uint32_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
 
-    constexpr uint32_t s_MaxCubeCount = 100;
-    constexpr uint32_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
-    constexpr uint32_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
+    static constexpr uint32_t s_MaxCubeCount = 100;
+    static constexpr uint32_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
+    static constexpr uint32_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
 
-    constexpr uint32_t s_MaxLineCount = 100;
-    constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2;
+    static constexpr uint32_t s_MaxLineCount = 100;
+    static constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2;
 
-    constexpr uint32_t s_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
+    static constexpr uint32_t s_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
 
     // Static Quad Data
     static uint32_t s_StaticQuadCount = 0;
@@ -52,9 +44,7 @@ namespace pxl
     static std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
     static std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     static std::function<void()> s_QuadUniformFunc = nullptr;
-    static UniformLayout s_QuadUniformLayout;
     static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
-    std::shared_ptr<Camera> Renderer::s_QuadsCamera = nullptr;
 
     // Dynamic Cube Data
     static uint32_t s_CubeCount = 0;
@@ -92,14 +82,12 @@ namespace pxl
     static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureUnits;
 
     // For OpenGL
-    static std::shared_ptr<VertexArray> s_QuadVAO;
-    static std::shared_ptr<VertexArray> s_CubeVAO;
-    static std::shared_ptr<VertexArray> s_LineVAO;
-    static std::shared_ptr<VertexArray> s_MeshVAO;
+    static std::shared_ptr<VertexArray> s_QuadVAO = nullptr;
+    static std::shared_ptr<VertexArray> s_CubeVAO = nullptr;
+    static std::shared_ptr<VertexArray> s_LineVAO = nullptr;
+    static std::shared_ptr<VertexArray> s_MeshVAO = nullptr;
     
     static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
-    
-    Renderer::Statistics Renderer::s_Stats;
 
     void Renderer::Init(const std::shared_ptr<Window>& window)
     {   
@@ -230,8 +218,6 @@ namespace pxl
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
-
-            pipelineSpecs.UniformLayout = s_QuadUniformLayout;
 
             s_QuadPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }

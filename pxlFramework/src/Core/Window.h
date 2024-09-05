@@ -131,9 +131,9 @@ namespace pxl
         uint32_t m_LastWindowedWidth = DEFAULT_WINDOW_WIDTH; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
         uint32_t m_LastWindowedHeight = DEFAULT_WINDOW_HEIGHT;
 
-        static std::vector<std::shared_ptr<Window>> s_Windows;
-        static std::vector<Monitor> s_Monitors;
+        static inline std::vector<std::shared_ptr<Window>> s_Windows;
+        static inline std::vector<Monitor> s_Monitors;
 
-        static std::function<void()> s_EventProcessFunc;
+        static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;
     };
 }
