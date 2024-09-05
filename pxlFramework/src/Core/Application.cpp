@@ -12,19 +12,21 @@
 
 namespace pxl
 {
-    Application* Application::s_Instance = nullptr;
-
     Application::Application()
     {
+        PXL_PROFILE_SCOPE;
+        
         if (s_Instance)
-        {
-            PXL_LOG_ERROR(LogArea::Core, "Can't create application, one already exists");
             throw std::runtime_error("Failed to create application object because one already exists. This likely indicates a bug within the application.");
-        }
 
         s_Instance = this;
 
         FrameworkConfig::Init();
+    }
+
+    Application::~Application()
+    {
+        Close();
     }
 
     void Application::Run()
@@ -40,7 +42,7 @@ namespace pxl
             if (!m_Minimized)
             {
                 OnUpdate(deltaTime);
-                
+
                 if (!m_Running)
                     break;
 
@@ -62,6 +64,10 @@ namespace pxl
 
     void Application::Close()
     {
+        // Don't want to close if we already have
+        if (!m_Running)
+            return;
+        
         m_Running = false;
         
         GUI::Shutdown();
