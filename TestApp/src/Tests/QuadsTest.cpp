@@ -65,13 +65,13 @@ namespace TestApp
         auto cameraSpeed = 2.0f;
 
         auto windowSize = s_Window->GetSize();
-        s_Camera->SetRight(static_cast<float>(windowSize.x));
-        s_Camera->SetTop(static_cast<float>(windowSize.y));
+        s_Camera->SetRight(static_cast<float>(windowSize.Width));
+        s_Camera->SetTop(static_cast<float>(windowSize.Height));
         
         s_CursorPosition = pxl::Input::GetCursorPosition();
 
         // Flip cursor position to align with pxlFramework cartesian plane
-        s_CursorPosition.y = windowSize.y - s_CursorPosition.y;
+        s_CursorPosition.y = windowSize.Height - s_CursorPosition.y;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5.0)
 project(pxlFramework VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(pxlFramework STATIC
+    # PCH
+    src/PCH.h
+
     # CORE
     src/Core/Application.h src/Core/Application.cpp
     src/Core/Window.h src/Core/Window.cpp
@@ -14,6 +17,7 @@ add_library(pxlFramework STATIC
     src/Core/Platform.h
     src/Core/Stopwatch.h
     src/Core/Config.h src/Core/Config.cpp
+    src/Core/Size.h
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -191,27 +195,7 @@ target_link_libraries(pxlFramework
     Vulkan::shaderc_combined
 )
 
-target_precompile_headers(pxlFramework PUBLIC 
-    # pxlFramework
-    src/Core/Logging/FrameworkLog.h
-    src/Core/Assert.h
-    src/Debug/Profiler.h
-
-    # std
-    <string>
-    <string_view>
-    <vector>
-    <memory>
-    <unordered_map>
-    <map>
-    <algorithm>
-    <optional>
-    <functional>
-    <array>
-    <filesystem>
-    <chrono>
-    <stdexcept>
-)
+target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
 
 target_compile_definitions(pxlFramework PRIVATE 
     GLFW_EXPOSE_NATIVE_WIN32

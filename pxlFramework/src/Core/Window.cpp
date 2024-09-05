@@ -269,16 +269,12 @@ namespace pxl
 	    return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
     }
 
-    glm::u32vec2 Window::GetFramebufferSize() const
+    Size2D Window::GetFramebufferSize() const
     {
         int width, height;
         glfwGetFramebufferSize(m_GLFWWindow, &width, &height);
-
-        glm::u32vec2 fb;
-        fb.x = static_cast<uint32_t>(width);
-        fb.y = static_cast<uint32_t>(height);
         
-        return fb;
+        return Size2D(width, height);
     }
 
     VkSurfaceKHR Window::CreateVKWindowSurface(VkInstance instance)

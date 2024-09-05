@@ -63,7 +63,7 @@ namespace pxl
 
         const WindowSpecs& GetWindowSpecs() const { return m_Specs; }
 
-        glm::u32vec2 GetSize() { return { m_Specs.Width, m_Specs.Height }; }
+        Size2D GetSize() const { return { m_Specs.Width, m_Specs.Height }; }
 
         uint32_t GetWidth() const { return m_Specs.Width; }
 
@@ -73,7 +73,7 @@ namespace pxl
 
         float GetAspectRatio() const { return static_cast<float>(m_Specs.Width) / static_cast<float>(m_Specs.Height); } // should this be cached in a variable? | could be updated every window resize callback
         
-        glm::u32vec2 GetFramebufferSize() const;
+        Size2D GetFramebufferSize() const;
 
         VkSurfaceKHR CreateVKWindowSurface(VkInstance instance); // Keeping vulkan here for now but obviously not ideal because it shouldnt be tied to window class
 
