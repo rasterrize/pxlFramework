@@ -292,7 +292,7 @@ namespace pxl
         return surface;
     }
 
-    void Window::GLFWErrorCallback(int error, const char* description)
+    void Window::GLFWErrorCallback([[maybe_unused]] int error, [[maybe_unused]] const char* description)
     {
         PXL_LOG_ERROR(LogArea::Window, "GLFW ERROR: {} - {}", error, description);
     }

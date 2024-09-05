@@ -103,7 +103,7 @@ namespace pxl
         // TODO: expand this
     }
 
-    int32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    [[deprecated]] int32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         // Find correct memory type
         VkPhysicalDeviceMemoryProperties memProps;

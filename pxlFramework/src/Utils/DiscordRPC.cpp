@@ -5,12 +5,12 @@ namespace pxl
     bool DiscordRPC::s_Enabled = false;
     std::unique_ptr<discord::Core> DiscordRPC::s_DiscordAPI;
 
-    static void LogCallback([[maybe_unused]] discord::LogLevel minLevel, const char* message)
+    static void LogCallback([[maybe_unused]] discord::LogLevel minLevel, [[maybe_unused]] const char* message)
     {
         PXL_LOG_ERROR(LogArea::Other, "Discord Error: {}", message);
     }
 
-    static void ActivityCallback(discord::Result result)
+    static void ActivityCallback([[maybe_unused]] discord::Result result)
     {
     #ifdef PXL_ENABLE_LOGGING
         if (result == discord::Result::Ok)
