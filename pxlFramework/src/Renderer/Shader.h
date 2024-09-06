@@ -4,7 +4,11 @@ namespace pxl
 {
     enum class ShaderStage
     {
-        None = 0, Vertex, Fragment, Geometry, Tessellation
+        None,
+        Vertex,
+        Fragment,
+        Geometry,
+        Tessellation,
     };
     
     class Shader

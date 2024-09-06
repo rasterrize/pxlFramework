@@ -8,12 +8,26 @@ namespace pxl
 {
     enum class LogLevel
     {
-        Info, Warn, Error, Critical
+        Info,
+        Warn,
+        Error,
+        Critical,
     };
 
     enum class LogArea
     {
-        None, Core, Window, Input, Renderer, OpenGL, Vulkan, FileSystem, Audio, Physics, Assert, Other
+        None,
+        Core,
+        Window,
+        Input,
+        Renderer,
+        OpenGL,
+        Vulkan,
+        FileSystem,
+        Audio,
+        Physics,
+        Assert,
+        Other,
     };
 
     class Logger

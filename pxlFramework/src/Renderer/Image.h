@@ -6,16 +6,16 @@ namespace pxl
 {
     enum class ImageFormat
     {
-        Undefined = 0,
+        Undefined,
         RGB8,
-        RGBA8
+        RGBA8,
     };
 
     enum class ImageFilter
     {
-        Undefined = 0,
+        Undefined,
         Nearest,           // Should nearest be default?
-        Linear
+        Linear,
     };
 
     struct Image

@@ -7,7 +7,7 @@ namespace pxl
         Playing,
         Streaming,
         Listening,
-        Watching
+        Watching,
     };
 
     struct DiscordRPCSettings

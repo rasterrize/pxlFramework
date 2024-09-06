@@ -11,7 +11,9 @@ namespace pxl
 {
     enum class CursorMode
     {
-        Normal = 0, Hidden, Disabled
+        Normal,
+        Hidden,
+        Disabled
     };
 
     class Input

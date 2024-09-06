@@ -4,10 +4,10 @@ namespace pxl
 {
     enum class Origin2D
     {
+        Center,
         TopLeft,
         TopRight,
         BottomLeft,
         BottomRight,
-        Center,
     };
 }

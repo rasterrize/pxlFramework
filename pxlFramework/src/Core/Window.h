@@ -14,7 +14,7 @@ namespace pxl
 
     enum class WindowMode
     {
-        Windowed = 0,
+        Windowed,
         Borderless,
         Fullscreen
     };

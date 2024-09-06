@@ -9,7 +9,9 @@ namespace pxl
 {   
     // enum class ProjectionType
     // {
-    //     None = 0, Orthographic, Perspective
+    //     None,
+    //     Orthographic,
+    //     Perspective,
     // };
 
     class Camera

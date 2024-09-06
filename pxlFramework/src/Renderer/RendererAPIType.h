@@ -6,6 +6,6 @@ namespace pxl
     {
         None,
         OpenGL,
-        Vulkan
+        Vulkan,
     };
 }

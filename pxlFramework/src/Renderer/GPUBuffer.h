@@ -4,7 +4,10 @@ namespace pxl
 {
     enum class GPUBufferUsage
     {
-        None, Vertex, Index, Uniform
+        None,
+        Vertex,
+        Index,
+        Uniform,
     };
 
     class GPUBuffer

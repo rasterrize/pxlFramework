@@ -8,7 +8,7 @@ namespace pxl
 {
     enum class PrimitiveTopology
     {
-        None = 0,
+        None,
         Triangle,
         TriangleStrip,
         TriangleFan,
@@ -19,12 +19,12 @@ namespace pxl
 
     enum class PolygonFillMode
     {
-        Fill = 0,
+        Fill,
     };
 
     enum class CullMode
     {
-        None = 0,
+        None,
         Front,
         Back,
     };
