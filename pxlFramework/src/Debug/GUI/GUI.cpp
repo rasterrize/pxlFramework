@@ -23,7 +23,7 @@ namespace pxl
         
         s_WindowHandle = window;
         
-        const char* fontFilename = "assets/fonts/Roboto-Medium.ttf";
+        const char* fontFilename = "resources/fonts/Roboto-Medium.ttf";
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
