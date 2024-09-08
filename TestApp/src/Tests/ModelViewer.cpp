@@ -33,7 +33,7 @@ namespace TestApp
         });
         s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-        pxl::Renderer::SetQuadCamera(s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Mesh, s_Camera);
 
         s_CurrentMesh = pxl::FileSystem::LoadOBJ("assets/models/golf_ball.obj");
 
@@ -73,25 +73,12 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
         
-        pxl::Renderer::Clear();
-
         pxl::Renderer::DrawMesh(s_CurrentMesh, glm::vec3(0.0f), s_MeshRotation, glm::vec3(1.0f));
     }
 
     void ModelViewer::OnGUIRender()
     {
-        auto rendererStats = pxl::Renderer::GetStats();
-
-        ImGui::Begin("Renderer Stats");
-
-        ImGui::Text("FPS: %.2f", pxl::Renderer::GetFPS());
-        ImGui::Text("Frame Time (MS): %.3f", pxl::Renderer::GetFrameTimeMS());
-        ImGui::Text("Draw Calls: %u", rendererStats.DrawCalls);
-        ImGui::Text("Total Triangle Count: %u", rendererStats.GetTotalTriangleCount());
-        ImGui::Text("Total Vertex Count: %u", rendererStats.GetTotalVertexCount());
-        ImGui::Text("Total Index Count: %u", rendererStats.GetTotalIndexCount());
-
-        ImGui::End();
+        PXL_PROFILE_SCOPE;
     }
 
     void ModelViewer::OnClose()

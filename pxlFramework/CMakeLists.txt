@@ -18,6 +18,7 @@ add_library(pxlFramework STATIC
     src/Core/Stopwatch.h
     src/Core/Config.h src/Core/Config.cpp
     src/Core/Size.h
+    src/Core/Colour.h
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -44,6 +45,7 @@ add_library(pxlFramework STATIC
     # PRIMITIVES
     src/Renderer/Primitives/Primitive.h
     src/Renderer/Primitives/Quad.h
+    src/Renderer/Primitives/Cube.h
 
     # OPENGL
     src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp

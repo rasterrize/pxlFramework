@@ -81,6 +81,20 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
         
+        auto rendererStats = pxl::Renderer::GetStats();
+        ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
+        ImGui::Begin("TestApp Renderer Stats");
+
+        ImGui::Text("FPS: %.2f", pxl::Renderer::GetFPS());
+        ImGui::Text("Frame Time (MS): %.3f", pxl::Renderer::GetFrameTimeMS());
+        ImGui::Text("Draw Calls: %u", rendererStats.DrawCalls);
+        ImGui::Text("Texture Binds: %u", rendererStats.TextureBinds);
+        ImGui::Text("Total Triangle Count: %u", rendererStats.GetTotalTriangleCount());
+        ImGui::Text("Total Vertex Count: %u", rendererStats.GetTotalVertexCount());
+        ImGui::Text("Total Index Count: %u", rendererStats.GetTotalIndexCount());
+
+        ImGui::End();
+
         m_OnGuiRender();
     }
 }

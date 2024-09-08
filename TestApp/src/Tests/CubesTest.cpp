@@ -5,11 +5,13 @@ namespace TestApp
     static std::shared_ptr<pxl::Window> s_Window = nullptr;
     static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
 
-    static glm::vec4 s_ClearColour = glm::vec4(glm::vec3(0.0f), 1.0f);
+    static glm::vec4 s_ClearColour = glm::vec4(0.5f, 0.3f, 0.6f, 1.0f);
 
     static glm::vec3 s_PlayerPosition = glm::vec3(0.0f);
 
     static bool s_ControllingCamera = true;
+
+    static glm::vec3 s_CubeRotation = glm::vec3(0.0f);
 
     void CubesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
@@ -28,6 +30,12 @@ namespace TestApp
         s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetClearColour(s_ClearColour);
+
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Cube, s_Camera);
+
+        s_Window->SetVSync(false);
+
+        pxl::GUI::Init(s_Window);
     }
 
     void CubesTest::OnUpdate(float dt)
@@ -90,6 +98,16 @@ namespace TestApp
             }
         }
 
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
+        {
+            cameraPosition.z -= cameraSpeed * dt;
+        }
+
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
+        {
+            cameraPosition.z += cameraSpeed * dt;
+        }
+
         if (pxl::Input::IsMouseScrolledUp())
         {
             cameraFOV -= cameraSpeed * 0.5f;
@@ -101,15 +119,28 @@ namespace TestApp
 
         s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
         s_Camera->SetFOV(cameraFOV);
+
+        s_CubeRotation.x += 60.0f * dt;
+        s_CubeRotation.y += 60.0f * dt;
+        s_CubeRotation.z += 60.0f * dt;
     }
 
     void CubesTest::OnRender()
     {
         PXL_PROFILE_SCOPE;
-    }
 
-    void CubesTest::OnClose()
-    {
+        for (int32_t x = -5; x < 10; x += 2)
+        {
+            for (int32_t y = -5; y < 10; y += 2)
+            {
+                for (int32_t z = -5; z < 10; z += 2)
+                {
+                    pxl::Renderer::AddCube(glm::vec3(x, y, z), s_CubeRotation, glm::vec3(1.0f), glm::vec4(0.8f, 0.5f, 0.3f, 1.0f));
+                }
+            }
+        }
+
+        //pxl::Renderer::AddCube(glm::vec3(0.0f), s_CubeRotation, glm::vec3(1.0f), glm::vec4(0.8f, 0.5f, 0.3f, 1.0f));
     }
 
     void CubesTest::OnGUIRender()
@@ -294,5 +325,9 @@ namespace TestApp
 
         ImGui::End();
     #endif
+    }
+
+    void CubesTest::OnClose()
+    {
     }
 }

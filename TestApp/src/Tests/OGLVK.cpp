@@ -30,7 +30,7 @@ namespace TestApp
 
         s_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
-        pxl::Renderer::SetQuadCamera(s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::All, s_Camera);
 
         auto rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
@@ -103,8 +103,6 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
         
-        pxl::Renderer::Clear();
-
         constexpr uint32_t objectCount = 10;
         constexpr uint32_t gridSize = 5;
 

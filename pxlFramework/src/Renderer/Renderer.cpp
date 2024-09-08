@@ -16,29 +16,30 @@ namespace pxl
 {
     /* VERY IMPORTANT NOTE: Setting these max values to higher counts significantly increases compile times.
        TODO: Find some good values for these that are good for performance and don't kill the compiler */
-    static constexpr uint32_t s_MaxQuadCount = 100;
-    static constexpr uint32_t s_MaxQuadVertexCount = s_MaxQuadCount * 4;
-    static constexpr uint32_t s_MaxQuadIndexCount = s_MaxQuadCount * 6;
+    static constexpr uint32_t k_MaxQuadCount = 100;
+    static constexpr uint32_t k_MaxQuadVertexCount = k_MaxQuadCount * 4;
+    static constexpr uint32_t k_MaxQuadIndexCount = k_MaxQuadCount * 6;
 
-    static constexpr uint32_t s_MaxCubeCount = 100;
-    static constexpr uint32_t s_MaxCubeVertexCount = s_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
-    static constexpr uint32_t s_MaxCubeIndexCount = s_MaxCubeCount * 36;
+    static constexpr uint32_t k_MaxCubeCount = 100;
+    static constexpr uint32_t k_MaxCubeVertexCount = k_MaxCubeCount * 24; // textures break on 8 vertex cubes, need to look into how this can be solved
+    static constexpr uint32_t k_MaxCubeIndexCount = k_MaxCubeCount * 36;
 
-    static constexpr uint32_t s_MaxLineCount = 100;
-    static constexpr uint32_t s_MaxLineVertexCount = s_MaxLineCount * 2;
+    static constexpr uint32_t k_MaxLineCount = 100;
+    static constexpr uint32_t k_MaxLineVertexCount = k_MaxLineCount * 2;
 
-    static constexpr uint32_t s_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
+    static constexpr uint32_t k_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
 
     // Static Quad Data
-    static uint32_t s_StaticQuadCount = 0;
     static std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
+    static std::shared_ptr<GPUBuffer> s_StaticQuadIBO = nullptr;
     static std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
-    static std::array<QuadVertex, s_MaxQuadVertexCount> s_StaticQuadVertices;
+    static std::vector<QuadVertex> s_StaticQuadVertices;
+    static std::vector<uint32_t> s_StaticQuadIndices;
 
     // Dynamic Quad Data
     static uint32_t s_QuadCount = 0;
-    static std::array<QuadVertex, s_MaxQuadVertexCount> s_QuadVertices;
-    static std::array<uint32_t, s_MaxQuadIndexCount> s_QuadIndices; // NOTE: currently also used by static quads
+    static std::array<QuadVertex, k_MaxQuadVertexCount> s_QuadVertices;
+    static std::array<uint32_t, k_MaxQuadIndexCount> s_QuadIndices; // NOTE: currently also used by static quads
     static std::shared_ptr<GPUBuffer> s_QuadVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
     static std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
@@ -46,14 +47,16 @@ namespace pxl
     static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
 
     // Static Cube Data
-    static uint32_t s_StaticCubeCount = 0;
+    static uint32_t s_StaticQuadIndexOffset = 0;
     static std::shared_ptr<GPUBuffer> s_StaticCubeVBO = nullptr;
-    static std::array<CubeVertex, s_MaxCubeVertexCount> s_StaticCubeVertices;
+    static std::shared_ptr<GPUBuffer> s_StaticCubeIBO = nullptr;
+    static std::vector<CubeVertex> s_StaticCubeVertices;
+    static std::vector<uint32_t> s_StaticCubeIndices;
 
     // Dynamic Cube Data
     static uint32_t s_CubeCount = 0;
-    static std::array<CubeVertex, s_MaxCubeVertexCount> s_CubeVertices;
-    static std::array<uint32_t, s_MaxCubeIndexCount> s_CubeIndices;
+    static std::array<CubeVertex, k_MaxCubeVertexCount> s_CubeVertices;
+    static std::array<uint32_t, k_MaxCubeIndexCount> s_CubeIndices;
     static std::shared_ptr<GPUBuffer> s_CubeVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_CubeIBO = nullptr;
     static std::function<void()> s_CubeBindFunc = nullptr;
@@ -61,13 +64,13 @@ namespace pxl
 
     // Line Data
     static uint32_t s_LineCount = 0;
-    static std::array<LineVertex, s_MaxLineVertexCount> s_LineVertices;
+    static std::array<LineVertex, k_MaxLineVertexCount> s_LineVertices;
     static std::shared_ptr<GPUBuffer> s_LineVBO = nullptr;
     static std::function<void()> s_LineBindFunc = nullptr;
     static std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
     // Mesh Data
-    static std::array<MeshVertex, 1000> s_MeshVertices;
+    static std::vector<MeshVertex> s_MeshVertices;
     static std::shared_ptr<GPUBuffer> s_MeshVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_MeshIBO = nullptr;
     static std::function<void()> s_MeshBindFunc = nullptr;
@@ -75,8 +78,8 @@ namespace pxl
 
     // Texture Data
     static uint32_t s_TextureUnitIndex = 0;
-    static std::array<std::shared_ptr<Texture>, s_MaxTextureUnits> s_TextureUnits;
-    static std::array<int32_t, s_MaxTextureUnits> s_Samplers;
+    static std::array<std::shared_ptr<Texture>, k_MaxTextureUnits> s_TextureUnits;
+    static std::array<int32_t, k_MaxTextureUnits> s_Samplers;
     static std::shared_ptr<Texture> s_WhitePixelTexture = nullptr;
 
     // For OpenGL
@@ -107,10 +110,12 @@ namespace pxl
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api");    
                 return;
+
             case RendererAPIType::OpenGL:
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
                 PXL_ASSERT_MSG(s_RendererAPI, "Failed to create OpenGL renderer api object");
                 break;
+
             case RendererAPIType::Vulkan:
                 auto vulkanContext = static_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
                 PXL_ASSERT_MSG(vulkanContext, "Failed to retrieve VulkanGraphicsContext");
@@ -129,7 +134,7 @@ namespace pxl
                 constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
 
                 uint32_t offset = 0;
-                for (size_t i = 0; i < s_MaxQuadIndexCount; i += 6)
+                for (size_t i = 0; i < k_MaxQuadIndexCount; i += 6)
                 {
                     for (uint32_t j = 0; j < 6; j++)
                     {
@@ -143,9 +148,9 @@ namespace pxl
             const auto bufferLayout = QuadVertex::GetLayout();
 
             // Prepare Buffers
-            s_QuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
-            s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, s_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
-            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxQuadVertexCount * sizeof(QuadVertex));
+            s_QuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxQuadVertexCount * sizeof(QuadVertex));
+            s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, k_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxQuadVertexCount * sizeof(QuadVertex));
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -222,65 +227,25 @@ namespace pxl
         {
             // Prepare Cube Indices
             {
-                uint32_t offset = 0;
-                for (size_t i = 0; i < s_MaxCubeIndexCount; i += 6) // All this assumes the cube is made of 6 quads
-                {
-                    s_CubeIndices[i + 0] = 0 + offset;
-                    s_CubeIndices[i + 1] = 1 + offset;
-                    s_CubeIndices[i + 2] = 2 + offset;
+                constexpr std::array<uint32_t, 6> defaultIndices = Cube::GetDefaultIndices();
 
-                    s_CubeIndices[i + 3] = 2 + offset;
-                    s_CubeIndices[i + 4] = 3 + offset;
-                    s_CubeIndices[i + 5] = 0 + offset;
+                uint32_t offset = 0;
+                for (size_t i = 0; i < k_MaxCubeIndexCount; i += 6)
+                {
+                    for (uint32_t j = 0; j < 6; j++)
+                    {
+                        s_CubeIndices[i + j] = defaultIndices[j] + offset;
+                    }
 
                     offset += 4;
                 }
             }
 
-            // Assign default cube positions
-            {
-                // Front
-                s_DefaultCubePositions[0] = { -0.5, -0.5f, 0.5f, 1.0f };
-                s_DefaultCubePositions[1] = {  0.5, -0.5f, 0.5f, 1.0f };
-                s_DefaultCubePositions[2] = {  0.5,  0.5f, 0.5f, 1.0f };
-                s_DefaultCubePositions[3] = { -0.5,  0.5f, 0.5f, 1.0f };
-
-                // Back
-                s_DefaultCubePositions[4] = { -0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[5] = {  0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[6] = {  0.5,  0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[7] = { -0.5,  0.5f, -0.5f, 1.0f };
-
-                // Left
-                s_DefaultCubePositions[8]  = { -0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[9]  = { -0.5, -0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[10] = { -0.5,  0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[11] = { -0.5,  0.5f, -0.5f, 1.0f };
-
-                // Top
-                s_DefaultCubePositions[12] = { -0.5, 0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[13] = {  0.5, 0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[14] = {  0.5, 0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[15] = { -0.5, 0.5f, -0.5f, 1.0f };
-
-                // Right
-                s_DefaultCubePositions[16] = { 0.5, -0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[17] = { 0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[18] = { 0.5,  0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[19] = { 0.5,  0.5f,  0.5f, 1.0f };
-
-                // Bottom
-                s_DefaultCubePositions[20] = { -0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[21] = {  0.5, -0.5f, -0.5f, 1.0f };
-                s_DefaultCubePositions[22] = {  0.5, -0.5f,  0.5f, 1.0f };
-                s_DefaultCubePositions[23] = { -0.5, -0.5f,  0.5f, 1.0f };
-            }
-
             const auto bufferLayout = CubeVertex::GetLayout();
 
             // Prepare Buffers
-            s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxCubeVertexCount * sizeof(CubeVertex));
-            s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, s_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
+            s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxCubeVertexCount * sizeof(CubeVertex));
+            s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, k_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
 
             // Shader storage    
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -336,7 +301,7 @@ namespace pxl
             const auto bufferLayout = LineVertex::GetLayout();
 
             // Prepare Buffers
-            s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_MaxLineVertexCount * sizeof(LineVertex));
+            s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxLineVertexCount * sizeof(LineVertex));
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -443,7 +408,7 @@ namespace pxl
         s_WhitePixelTexture = FileSystem::LoadTextureFromImage("resources/textures/whiteTexture.bmp");
         
         // Set samplers
-        for (int32_t i = 0; i < s_MaxTextureUnits; i++)
+        for (int32_t i = 0; i < k_MaxTextureUnits; i++)
             s_Samplers[i] = i;
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
@@ -465,18 +430,14 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Renderer, "Renderer shutdown");
     }
 
-    void Renderer::Clear()
-    {
-        PXL_PROFILE_SCOPE;
-
-        PXL_ASSERT_MSG(s_Enabled, "Renderer isn't initialized")
-        
-        s_RendererAPI->Clear();
-    }
-
     void Renderer::SetClearColour(const glm::vec4& colour)
     {
         s_RendererAPI->SetClearColour(colour);
+    }
+
+    void Renderer::SetClearColour(ColourName colour)
+    {
+        s_RendererAPI->SetClearColour(Colour::GetColourAsVec4(colour));
     }
 
 #if CUSTOMRENDERING
@@ -504,6 +465,10 @@ namespace pxl
 
         s_RendererAPI->Begin();
 
+        // Clear the screen
+        s_RendererAPI->Clear();
+
+        // Set first texture unit as white pixel texture
         s_TextureUnits[0] = s_WhitePixelTexture;
         s_TextureUnitIndex++;
     }
@@ -529,185 +494,113 @@ namespace pxl
         ResetStats();
     }
 
-    void Renderer::AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
+    void Renderer::SetCamera(RendererGeometryTarget target, const std::shared_ptr<Camera>& camera)
+    {
+        PXL_ASSERT(camera);
+        
+        switch (target)
+        {
+            case RendererGeometryTarget::All:
+                s_QuadCamera = camera;
+                s_CubeCamera = camera;
+                s_LineCamera = camera;
+                return;
+            case RendererGeometryTarget::Quad: s_QuadCamera = camera; return;
+            case RendererGeometryTarget::Cube: s_CubeCamera = camera; return;
+            case RendererGeometryTarget::Line: s_LineCamera = camera; return;
+            case RendererGeometryTarget::Mesh: PXL_LOG_WARN(LogArea::Renderer, "Mesh cameras aren't supported yet"); return;
+        }
+    }
+
+    void Renderer::SetPipeline(RendererGeometryTarget target, const std::shared_ptr<GraphicsPipeline>& pipeline)
+    {
+        PXL_ASSERT(pipeline);
+        
+        switch (target)
+        {
+            case RendererGeometryTarget::All:
+                s_QuadPipeline = pipeline;
+                s_CubePipeline = pipeline;
+                s_LinePipeline = pipeline;
+                return;
+            case RendererGeometryTarget::Quad: s_QuadPipeline = pipeline; return;
+            case RendererGeometryTarget::Cube: s_CubePipeline = pipeline; return;
+            case RendererGeometryTarget::Line: s_LinePipeline = pipeline; return;
+            case RendererGeometryTarget::Mesh: s_MeshPipeline = pipeline; return;
+        }
+    }
+
+    void Renderer::AddQuad(const Quad& quad)
     {
         PXL_PROFILE_SCOPE;
-        
-        const auto vertexCount = s_StaticQuadCount * 4;
 
-        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
-        
+        if (s_QuadCount >= k_MaxQuadCount)
+            Flush();
+
+        float texIndex = 0.0f;
+        if (quad.Texture.has_value())
+        {
+            PXL_ASSERT(quad.Texture.value());
+            texIndex = GetTextureIndex(quad.Texture.value());
+        }
+
         std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
 
-        for (uint32_t i = 0; i < 4; i++)
-        {
-            s_StaticQuadVertices[vertexCount + i] = { 
-                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = colour, 
-                .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = -1.0f,
-            };
-        }
-
-        s_StaticQuadCount++;
-    }
-
-    void Renderer::AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
-    {
-        PXL_PROFILE_SCOPE;
-
-        const auto vertexCount = s_StaticCubeCount * 24;
-
-        glm::mat4 transform = CalculateTransform(position, rotation, scale);
-
-        for (uint32_t i = 0; i < 4; i++)
-            s_StaticCubeVertices[vertexCount + i] = { transform * s_DefaultCubePositions[i], colour, glm::vec2(0.0f) };
-
-        s_StaticCubeCount++;
-
-    #ifdef PXL_DEBUG
-        s_Stats.CubeVertexCount += 4;
-        s_Stats.CubeIndexCount += 6;
-    #endif
-    }
-
-    void Renderer::StaticGeometryReady()
-    {
-        PXL_PROFILE_SCOPE;
-        
-        if (s_StaticQuadCount > 0)
-            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticQuadCount * 4 * sizeof(QuadVertex), s_StaticQuadVertices.data());
-        
-        if (s_StaticCubeCount > 0)
-            s_StaticCubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, s_StaticCubeCount * 24 * sizeof(CubeVertex), s_StaticCubeVertices.data());
-
-        const auto layout = QuadVertex::GetLayout();
-
-        if (s_RendererAPIType == RendererAPIType::OpenGL)
-        {
-            s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, layout);
-            s_StaticQuadVAO->SetIndexBuffer(s_QuadIBO);
-        }
-    }
-
-    void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
-    {
-        PXL_PROFILE_SCOPE;
-
-        if (s_QuadCount >= s_MaxQuadCount)
-            Flush();
+        std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();    
+        if (quad.TextureUV.has_value())
+            texCoords = quad.TextureUV.value();
 
         const auto vertexCount = s_QuadCount * 4;
 
-        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
-
-        constexpr std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
+        glm::mat4 transform = CalculateTransform(quad.Position, quad.Rotation, glm::vec3(quad.Size, 1.0f));
 
         for (uint32_t i = 0; i < 4; i++)
         {
             s_QuadVertices[vertexCount + i] = {
                 .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = colour, 
-                .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = 0.0f,
+                .Colour = quad.Colour, 
+                .TexCoords = texCoords[i],
+                .TexIndex = texIndex,
             };
         }
 
         s_QuadCount++;
-
-    #ifdef PXL_DEBUG
-        s_Stats.QuadVertexCount += 4;
-        s_Stats.QuadIndexCount += 6;
-    #endif
     }
 
-    void Renderer::AddQuad(const Quad& quad)
+    void Renderer::AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
     {
-        AddQuad(quad.GetPositionWithOrigin(), quad.Rotation, quad.Size, quad.Colour);
+        AddQuad({ position, rotation, scale, colour });
     }
 
-    void Renderer::AddTexturedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const std::shared_ptr<Texture>& texture)
-    {
-        PXL_PROFILE_SCOPE;
-
-        PXL_ASSERT_MSG(texture, "Texture is invalid");
-        
-        if (s_QuadCount >= s_MaxQuadCount)
-            Flush();
-
-        if (s_TextureUnitIndex >= s_MaxTextureUnits)
-            Flush();
-
-        float textureIndex = -1.0f;
-
-        bool foundTexture = false;
-        for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
-        {
-            if (texture == s_TextureUnits[i])
-            {
-                textureIndex = static_cast<float>(i);
-                foundTexture = true;
-                break;
-            }
-        }
-
-        if (!foundTexture)
-        {
-            textureIndex = static_cast<float>(s_TextureUnitIndex);
-			s_TextureUnits[s_TextureUnitIndex] = texture;
-			s_TextureUnitIndex++;
-        }
-
-        constexpr glm::vec4 vertexColor(1.0f);
-        const auto vertexCount = s_QuadCount * 4;
-
-        glm::mat4 transform = CalculateTransform(position, rotation, { scale.x, scale.y, 1.0f });
-
-        constexpr std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
-
-        for (uint32_t i = 0; i < 4; i++)
-        {
-            s_QuadVertices[vertexCount + i] = { 
-                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = vertexColor, 
-                .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = textureIndex,
-            };
-        }
-
-        s_QuadCount++;
-
-    #ifdef PXL_DEBUG
-        s_Stats.QuadVertexCount += 4;
-        s_Stats.QuadIndexCount += 6;
-    #endif
-    }
-
-    void Renderer::AddTexturedQuad(const Quad& quad, const std::shared_ptr<Texture>& texture)
-    {  
-        AddTexturedQuad(quad.GetPositionWithOrigin(), quad.Rotation, quad.Size, texture);
-    }
-
-    void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    void Renderer::AddCube(const Cube& cube)
     {
         PXL_PROFILE_SCOPE;
         
-        if (s_CubeCount >= s_MaxCubeCount)
+        if (s_CubeCount >= k_MaxCubeCount)
             Flush();
 
         const auto vertexCount = s_CubeCount * 24;
 
-        glm::mat4 transform = CalculateTransform(position, rotation, scale);
+        glm::mat4 transform = CalculateTransform(cube.Position, cube.Rotation, cube.Size);
+
+        constexpr std::array<CubeVertex, 24> defaultVertices = Cube::GetDefaultVertices();
 
         for (uint32_t i = 0; i < 24; i++)
-            s_CubeVertices[vertexCount + i] = { transform * s_DefaultCubePositions[i], colour, { 0.0f, 0.0f }}; // NOTE: TexCoords are incorrect here
+        {
+            s_CubeVertices[vertexCount + i] = {
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = cube.Colour,
+                .TexCoords = { 0.0f, 0.0f }, // NOTE: TexCoords are incorrect here
+                .TexIndex = 0.0f,
+            };
+        }
 
         s_CubeCount++;
+    }
 
-    #ifdef PXL_DEBUG
-        s_Stats.CubeVertexCount += 4;
-        s_Stats.CubeIndexCount += 6;
-    #endif
+    void Renderer::AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    {
+        AddCube({ position, rotation, scale, colour });
     }
 
 #ifdef TEXTUREDCUBE
@@ -739,7 +632,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
         
-        if (s_LineCount >= s_MaxLineCount)
+        if (s_LineCount >= k_MaxLineCount)
             Flush();
 
         const auto vertexCount = s_LineCount * 2;
@@ -748,10 +641,6 @@ namespace pxl
         s_LineVertices[vertexCount + 1] = {{ position2.x * scale.x, position2.y * scale.y, position2.z * scale.z }, colour };
 
         s_LineCount++;
-
-    #ifdef PXL_DEBUG
-        s_Stats.LineVertexCount += 2;
-    #endif
     }
 
     void Renderer::DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
@@ -766,11 +655,9 @@ namespace pxl
 
         glm::mat4 transform = CalculateTransform(position, rotation, scale);
 
-        uint32_t vertexOffset = 0;
         for (auto& vertex : mesh->Vertices)
         {
-            s_MeshVertices[vertexOffset] = { transform * glm::vec4(vertex.Position, 1.0f), vertex.Colour, vertex.TexCoords, vertex.TexIndex };
-            vertexOffset++;
+            s_MeshVertices.push_back({ transform * glm::vec4(vertex.Position, 1.0f), vertex.Colour, vertex.TexCoords, vertex.TexIndex });
         }
         
         s_MeshPipeline->Bind();
@@ -784,12 +671,142 @@ namespace pxl
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
 
-    #ifdef PXL_DEBUG
+        s_Stats.PipelineBinds++;
         s_Stats.DrawCalls++;
         s_Stats.MeshCount++;
         s_Stats.MeshVertexCount += static_cast<uint32_t>(s_MeshVertices.size());
         s_Stats.MeshIndexCount += static_cast<uint32_t>(mesh->Indices.size());
-    #endif
+
+        s_MeshVertices.clear();
+    }
+
+    void Renderer::ResetStaticGeometry(RendererGeometryTarget target)
+    { 
+        switch (target)
+        {
+            case RendererGeometryTarget::All:
+                s_StaticQuadVertices.clear();
+                s_StaticCubeVertices.clear();
+                return;
+            case RendererGeometryTarget::Quad: s_StaticQuadVertices.clear(); return;
+            case RendererGeometryTarget::Cube: s_StaticCubeVertices.clear(); return;
+            case RendererGeometryTarget::Line: PXL_LOG_ERROR(LogArea::Renderer, "Static Lines aren't supported"); return;
+            case RendererGeometryTarget::Mesh: PXL_LOG_ERROR(LogArea::Renderer, "Static Meshes aren't supported"); return;
+        }
+    }
+
+    void Renderer::AddStaticQuad(const Quad& quad)
+    {
+        PXL_PROFILE_SCOPE;
+
+        if (quad.Texture.has_value())
+            PXL_LOG_WARN(LogArea::Renderer, "Static geometry doesn't support textures yet");
+
+        constexpr std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
+        constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
+
+        glm::mat4 transform = CalculateTransform(quad.Position, quad.Rotation, glm::vec3(quad.Size, 1.0f));
+
+        // Add vertices
+        for (uint32_t i = 0; i < 4; i++)
+        {
+            s_StaticQuadVertices.push_back({
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = quad.Colour,
+                .TexCoords = defaultVertices[i].TexCoords,
+                .TexIndex = 0.0f,
+            });
+        }
+
+        // Add indices
+        for (uint32_t j = 0; j < 6; j++)
+            s_StaticQuadIndices.push_back(s_StaticQuadIndexOffset + defaultIndices[j]);
+
+        s_StaticQuadIndexOffset += 4;
+    }
+
+    void Renderer::AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour)
+    {
+        AddStaticQuad({ position, rotation, scale, colour });
+    }
+
+    void Renderer::AddStaticCube(const Cube& cube)
+    {
+        PXL_PROFILE_SCOPE;
+
+        glm::mat4 transform = CalculateTransform(cube.Position, cube.Rotation, cube.Size);
+
+        constexpr std::array<CubeVertex, 24> defaultVertices = Cube::GetDefaultVertices();
+
+        for (uint32_t i = 0; i < 24; i++)
+        {
+            s_StaticCubeVertices.push_back({
+                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                .Colour = cube.Colour, 
+                .TexCoords = defaultVertices[i].TexCoords,
+                .TexIndex = 0.0f,
+            });
+        }
+    }
+
+    void Renderer::AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    {
+        AddStaticCube({ position, rotation, scale, colour });
+    }
+
+    void Renderer::StaticGeometryReady()
+    {
+        PXL_PROFILE_SCOPE;
+        
+        if (!s_StaticQuadVertices.empty())
+        {
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, static_cast<uint32_t>(s_StaticQuadVertices.size() * sizeof(QuadVertex)), s_StaticQuadVertices.data());
+            s_StaticQuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, static_cast<uint32_t>(s_StaticQuadIndices.size() * sizeof(uint32_t)), s_StaticQuadIndices.data());
+        }
+
+        if (!s_StaticCubeVertices.empty())
+        {
+            s_StaticCubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, static_cast<uint32_t>(s_StaticCubeVertices.size() * sizeof(CubeVertex)), s_StaticCubeVertices.data());
+            s_StaticCubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, static_cast<uint32_t>(s_StaticCubeIndices.size() * sizeof(uint32_t)), s_StaticCubeIndices.data());
+        }
+
+        const auto layout = QuadVertex::GetLayout();
+
+        if (s_RendererAPIType == RendererAPIType::OpenGL)
+        {
+            s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, layout);
+            s_StaticQuadVAO->SetIndexBuffer(s_StaticQuadIBO);
+        }
+    }
+
+    float Renderer::GetTextureIndex(const std::shared_ptr<Texture>& texture)
+    {
+        if (s_TextureUnitIndex >= k_MaxTextureUnits)
+            Flush();
+
+        float textureIndex = -1.0f;
+        bool foundTexture = false;
+
+        // Find the texture in texture storage
+        for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
+        {
+            if (texture == s_TextureUnits[i])
+            {
+                textureIndex = static_cast<float>(i);
+                foundTexture = true;
+                break;
+            }
+        }
+
+        // If the texture wasn't found, add it to the next texture unit
+        if (!foundTexture)
+        {
+            textureIndex = static_cast<float>(s_TextureUnitIndex);
+			s_TextureUnits[s_TextureUnitIndex] = texture;
+			s_TextureUnitIndex++;
+        }
+
+        return textureIndex;
     }
 
     void Renderer::Flush()
@@ -798,6 +815,8 @@ namespace pxl
 
         if (s_RendererAPIType == RendererAPIType::OpenGL)
         {
+            PXL_PROFILE_SCOPE_NAMED("Bind Textures");
+
             // Bind textures
             for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
             {
@@ -811,31 +830,43 @@ namespace pxl
         // Flush quads if necessary
         if (s_QuadCount > 0)
         {
+            PXL_PROFILE_SCOPE_NAMED("Flush Dynamic Quads");
+            
             PXL_ASSERT_MSG(s_QuadCamera, "Quad Camera isn't set");
+            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
             
             s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
             s_QuadBufferBindFunc();
 
             if (s_RendererAPIType == RendererAPIType::OpenGL)
-                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_MaxTextureUnits, s_Samplers.data());
+                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, k_MaxTextureUnits, s_Samplers.data());
 
             s_QuadPipeline->Bind();
 
             s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
-            s_QuadCount = 0;
 
-        #ifdef PXL_DEBUG
+            s_Stats.PipelineBinds++;
             s_Stats.DrawCalls++;
-        #endif
+            s_Stats.QuadCount += s_QuadCount;
+            s_Stats.QuadVertexCount += s_QuadCount * 4;
+            s_Stats.QuadIndexCount += s_QuadCount * 6;
+
+            s_QuadCount = 0;
         }
 
         // Flush static quads if necessary
-        if (s_StaticQuadCount > 0)
+        if (!s_StaticQuadVertices.empty())
         {
+            PXL_PROFILE_SCOPE_NAMED("Flush Static Quads");
+
+            PXL_ASSERT_MSG(s_StaticQuadVBO, "Static quad VBO is invalid, make sure you call StaticGeometryReady()");
+
             PXL_ASSERT_MSG(s_QuadCamera, "Quad camera isn't set");
+            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
+            PXL_ASSERT_MSG(s_StaticQuadIBO, "Static quad IBO is invalid");
 
             s_StaticQuadBindFunc();
 
@@ -843,34 +874,53 @@ namespace pxl
 
             s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
-            s_RendererAPI->DrawIndexed(s_StaticQuadCount * 6); // TODO: use a cached s_StaticQuadIndexCount variable so it doesnt have to math everytime
+            s_RendererAPI->DrawIndexed(static_cast<uint32_t>(s_StaticQuadIndices.size()));
+
+            s_Stats.PipelineBinds++;
+            s_Stats.DrawCalls++;
+            s_Stats.QuadCount += static_cast<uint32_t>(s_StaticQuadIndices.size()) / 3;
+            s_Stats.QuadVertexCount += static_cast<uint32_t>(s_StaticQuadVertices.size());
+            s_Stats.QuadIndexCount += static_cast<uint32_t>(s_StaticQuadIndices.size());
         }
 
         // Flush cubes if necessary
         if (s_CubeCount > 0)
         {
             PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
+            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
 
             s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
             
-            s_CubeBindFunc();
+            {
+                PXL_PROFILE_SCOPE_NAMED("s_CubeBindFunc()");
+                s_CubeBindFunc();
+            }
 
             s_CubePipeline->Bind();
             
-            s_SetViewProjectionFunc(s_CubePipeline, s_QuadsCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_CubeCount * 36);
-            s_CubeCount = 0;
 
-        #ifdef PXL_DEBUG
+            s_Stats.PipelineBinds++;
             s_Stats.DrawCalls++;
-        #endif
+            s_Stats.CubeCount += s_CubeCount;
+            s_Stats.CubeVertexCount += s_CubeCount * 24;
+            s_Stats.CubeIndexCount += s_CubeCount * 36;
+
+            s_CubeCount = 0;
         }
         
         // Flush static cubes if necessary
-        if (s_StaticCubeCount > 0)
+        if (!s_StaticCubeVertices.empty())
         {
+            PXL_PROFILE_SCOPE_NAMED("Flush Static Cubes");
+
+            PXL_ASSERT_MSG(s_StaticCubeVBO, "Static cube VBO is invalid, make sure you call StaticGeometryReady()");
+            
             PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
+            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
+            PXL_ASSERT_MSG(s_StaticCubeIBO, "Static cube IBO is invalid");
 
             // TODO: Move this into a StaticCubeBind lambda
             s_StaticCubeVBO->Bind();
@@ -878,28 +928,41 @@ namespace pxl
 
             s_CubePipeline->Bind();
 
-            s_SetViewProjectionFunc(s_CubePipeline, s_QuadsCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
 
-            s_RendererAPI->DrawIndexed(s_StaticCubeCount * 36);
+            s_RendererAPI->DrawIndexed(static_cast<uint32_t>(s_StaticCubeIndices.size()));
+
+            s_Stats.PipelineBinds++;
+            s_Stats.DrawCalls++;
+            s_Stats.CubeCount += static_cast<uint32_t>(s_StaticCubeIndices.size()) / 36;
+            s_Stats.CubeVertexCount += static_cast<uint32_t>(s_StaticCubeVertices.size());
+            s_Stats.CubeIndexCount += static_cast<uint32_t>(s_StaticCubeIndices.size());
         }
 
         // Flush lines if necessary
         if (s_LineCount > 0)
         {
+            PXL_PROFILE_SCOPE_NAMED("Flush Lines");
+
+            PXL_ASSERT_MSG(s_LineCamera, "Line camera isn't set");            
+            PXL_ASSERT_MSG(s_LinePipeline, "Line pipeline isn't set");
+
             s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
             
             s_LineBindFunc();
 
             s_LinePipeline->Bind();
 
-            s_SetViewProjectionFunc(s_LinePipeline, s_QuadsCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(s_LinePipeline, s_LineCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawLines(s_LineCount * 2);
-            s_LineCount = 0;
-        
-        #ifdef PXL_DEBUG
+
+            s_Stats.PipelineBinds++;
             s_Stats.DrawCalls++;
-        #endif
+            s_Stats.LineCount += s_LineCount;
+            s_Stats.LineVertexCount += s_LineCount * 2;
+
+            s_LineCount = 0;
         }
     }
 

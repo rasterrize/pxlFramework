@@ -4,6 +4,7 @@
 
 #include "Primitive.h"
 #include "Renderer/Vertices.h"
+#include "Renderer/Texture.h"
 
 namespace pxl
 {
@@ -14,6 +15,8 @@ namespace pxl
         glm::vec2 Size = glm::vec3(1.0f);
         glm::vec4 Colour = glm::vec4(1.0f);
         Origin2D Origin = Origin2D::Center;
+        std::optional<std::shared_ptr<Texture>> Texture;
+        std::optional<std::array<glm::vec2, 4>> TextureUV;
 
         glm::vec3 GetPositionWithOrigin() const
         {
@@ -89,9 +92,53 @@ namespace pxl
             };
         }
 
+        static std::array<QuadVertex, 4> GetDefaultVerticesWithOrigin(Origin2D origin)
+        {
+            float xOffset = 0.0f;
+            float yOffset = 0.0f;
+            
+            switch (origin)
+            {
+                case Origin2D::Center: break;
+                case Origin2D::TopLeft:
+                    xOffset = 0.5f;
+                    yOffset = -0.5f;
+                    break;
+                case Origin2D::TopRight:
+                    xOffset = -0.5f;
+                    yOffset = -0.5f;
+                    break;
+                case Origin2D::BottomLeft:
+                    xOffset = 0.5f;
+                    yOffset = 0.5f;
+                    break;
+                case Origin2D::BottomRight:
+                    xOffset = -0.5f;
+                    yOffset = 0.5f;
+                    break;
+            }
+            
+            return {
+                QuadVertex({ -0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
+                QuadVertex({ -0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
+                QuadVertex({  0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
+                QuadVertex({  0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
+            };
+        }
+
         static constexpr std::array<uint32_t, 6> GetDefaultIndices()
         {
             return { 0, 1, 2, 2, 3, 0 };
+        }
+
+        static constexpr std::array<glm::vec2, 4> GetDefaultTexCoords()
+        {
+            return {
+                glm::vec2(0.0f, 1.0f),
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(1.0f, 0.0f),
+                glm::vec2(1.0f, 1.0f),
+            };
         }
     };
 }

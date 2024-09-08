@@ -15,19 +15,29 @@ namespace TestApp
     static uint32_t s_OrangeQuadAmount = 10;
 
     static std::shared_ptr<pxl::Texture> s_StoneTexture = nullptr;
+    static std::shared_ptr<pxl::Texture> s_CursorTexture = nullptr;
+    static std::shared_ptr<pxl::Texture> s_TextureAtlas = nullptr;
 
-    static pxl::Quad s_MainQuad;
+    static pxl::Quad s_StaticQuad;
+    static pxl::Quad s_TexturedStaticQuad;
+    static pxl::Quad s_DynamicQuad;
+    static pxl::Quad s_TexturedDynamicQuad;
+    static pxl::Quad s_CursorQuad;
 
-    static glm::dvec2 s_CursorPosition = glm::dvec2(0.0f);
+    static glm::vec2 s_CursorPosition = glm::vec2(0.0f);
 
     void QuadsTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         windowSpecs.Title += " - Running Test 'QuadsTest'";
+        windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
 
         s_Window = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_Window);
         pxl::Input::Init(s_Window);
+        pxl::GUI::Init(s_Window);
+
+        pxl::Renderer::SetClearColour(s_ClearColour);
         
         s_Camera = pxl::OrthographicCamera::Create({
             .AspectRatio = 16.0f / 9.0f,
@@ -41,21 +51,63 @@ namespace TestApp
             .UseAspectRatio = false,
         });
 
-        pxl::Renderer::SetClearColour(s_ClearColour);
-
-        pxl::Renderer::SetQuadCamera(s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, s_Camera);
 
         s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png");
+        s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png");
+        s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/atlas.png");
 
-        s_MainQuad = {
-            .Position = { 150.0f, 150.0f, 0.0f },
-            .Rotation = glm::vec3(0.0f),
-            .Size = glm::vec2(150.0f),
-            .Colour = { 1.0f, 1.0f, 0.0f, 1.0f },
-            .Origin = pxl::Origin::BottomLeft,
+        s_StaticQuad = {
+            .Position = { 200.0f, 450.0f, 0.0f },
+            .Rotation = { 0.0f, 0.0, 45.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = pxl::Colour::GetColourAsVec4(pxl::ColourName::Yellow),
+            .Origin   = pxl::Origin2D::BottomRight,
         };
 
-        pxl::GUI::Init(s_Window);
+        s_TexturedStaticQuad = {
+            .Position = { 400.0f, 450.0f, 0.0f },
+            .Rotation = { 0.0f, 0.0, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::TopLeft,
+            //.Texture = s_StoneTexture,
+        };
+
+        s_DynamicQuad = {
+            .Position = { 600.0f, 450.0f, 0.0f },
+            .Rotation = { 0.0f, 0.0f, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
+            .Origin   = pxl::Origin2D::Center,
+        };
+
+        s_TexturedDynamicQuad = {
+            .Position = { 800.0f, 450.0f, 0.0f },
+            .Rotation = { 0.0f, 0.0f, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::Center,
+            .Texture  = s_TextureAtlas,
+        };
+
+        s_CursorQuad = {
+            .Position = { 0.0f, 0.0f, 1.0f },
+            .Rotation = glm::vec3(0.0f),
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::Center,
+            .Texture = s_CursorTexture,
+        };
+
+        pxl::Renderer::AddStaticQuad(s_StaticQuad);
+
+        pxl::Renderer::AddStaticQuad(s_TexturedStaticQuad);
+
+        pxl::Renderer::StaticGeometryReady();
+
+        //pxl::Input::SetCursorVisibility(false);
+
     }
 
     void QuadsTest::OnUpdate(float dt)
@@ -73,70 +125,59 @@ namespace TestApp
         // Flip cursor position to align with pxlFramework cartesian plane
         s_CursorPosition.y = windowSize.Height - s_CursorPosition.y;
 
+        s_CursorQuad.Position = glm::vec3(s_CursorPosition, 1.0f);
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             pxl::Application::Get().Close();
             return;
         }
 
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+            s_Window->NextWindowMode();
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
             s_Window->ToggleVSync();
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
-            cameraSpeed *= 3.0f;
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
-            cameraPosition.y += cameraSpeed * dt;
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
-            cameraPosition.x -= cameraSpeed * dt;
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
-            cameraPosition.y -= cameraSpeed * dt;
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
-            cameraPosition.x += cameraSpeed * dt;
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
-            cameraPosition.z += cameraSpeed * dt;
-            
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
-            cameraPosition.z -= cameraSpeed * dt;
-
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
-            s_MainQuad.Origin = pxl::Origin::TopLeft;
+            s_DynamicQuad.Origin = pxl::Origin2D::TopLeft;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
-            s_MainQuad.Origin = pxl::Origin::TopRight;
+            s_DynamicQuad.Origin = pxl::Origin2D::TopRight;
         
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_3))
-            s_MainQuad.Origin = pxl::Origin::BottomLeft;
+            s_DynamicQuad.Origin = pxl::Origin2D::BottomLeft;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_4))
-            s_MainQuad.Origin = pxl::Origin::BottomRight;
+            s_DynamicQuad.Origin = pxl::Origin2D::BottomRight;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_5))
-            s_MainQuad.Origin = pxl::Origin::Center;
+            s_DynamicQuad.Origin = pxl::Origin2D::Center;
 
-        if (s_MainQuad.Contains(glm::vec2(s_CursorPosition)) && pxl::Input::IsMouseButtonPressed(pxl::MouseCode::PXL_MOUSE_BUTTON_LEFT))
+        if (pxl::Input::IsMouseButtonPressed(pxl::MouseCode::PXL_MOUSE_BUTTON_LEFT))
         {
-            APP_LOG_INFO("Quad pressed!");
+            if (s_DynamicQuad.Contains(s_CursorPosition))
+                APP_LOG_INFO("Dynamic quad pressed!");
+
+            if (s_TexturedDynamicQuad.Contains(s_CursorPosition))
+                APP_LOG_INFO("Textured dynamic quad pressed!");
         }
 
-        // if (pxl::Input::IsMouseScrolledUp())
-        //     cameraZoom -= cameraSpeed * 0.5f;
-
-        // if (pxl::Input::IsMouseScrolledDown())
-        //     cameraZoom += cameraSpeed * 0.5f;
-
         s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
+
+        s_DynamicQuad.Rotation.z += 25.0f * dt;
+        s_TexturedDynamicQuad.Rotation.z -= 25.0f * dt;
     }
 
     void QuadsTest::OnRender()
     {
-        pxl::Renderer::Clear();
+        // Draw other quads
+        pxl::Renderer::AddQuad(s_DynamicQuad);
+        pxl::Renderer::AddQuad(s_TexturedDynamicQuad);
 
-        pxl::Renderer::AddQuad(s_MainQuad);
+        // Draw cursor quad
+        // NOTE: this must be done last
+        pxl::Renderer::AddQuad(s_CursorQuad);
 
         // for (uint32_t x = 0; x < s_BlueQuadAmount; x += 2)
         // {

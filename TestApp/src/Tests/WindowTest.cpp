@@ -20,15 +20,19 @@ namespace TestApp
         s_TestWindowB = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_TestWindowB);
-        pxl::Renderer::SetClearColour({ 0.5f, 0.5f, 0.7f, 1.0f });
-
         pxl::Input::Init(s_TestWindowB);
+        pxl::GUI::Init(s_TestWindowB);
+
+        pxl::Renderer::SetClearColour({ 0.5f, 0.5f, 0.7f, 1.0f });
     }
 
     void WindowTest::OnUpdate(float dt)
     {
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        {
             pxl::Application::Get().Close();
+            return;
+        }
         
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
             s_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
@@ -39,7 +43,6 @@ namespace TestApp
 
     void WindowTest::OnRender()
     {
-        pxl::Renderer::Clear();
     }
 
     void WindowTest::OnGUIRender()

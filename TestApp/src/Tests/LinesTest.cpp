@@ -27,7 +27,7 @@ namespace TestApp
 
         s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-        pxl::Renderer::SetQuadCamera(s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Line, s_Camera);
 
         //std::string rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
 
@@ -112,8 +112,6 @@ namespace TestApp
     void LinesTest::OnRender()
     {
         PXL_PROFILE_SCOPE;
-        
-        pxl::Renderer::Clear();
 
         pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
     }
