@@ -23,7 +23,7 @@ namespace pxl
     };
 
     // Returns size of type in bytes
-    static uint32_t SizeOfUniformDataType(UniformDataType type)
+    static constexpr uint32_t SizeOfUniformDataType(UniformDataType type)
     {
         switch (type)
         {

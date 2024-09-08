@@ -19,7 +19,7 @@ namespace pxl
     };
 
     // Returns size of type in bytes
-    static uint32_t SizeOfBufferDataType(BufferDataType type)
+    static constexpr uint32_t SizeOfBufferDataType(BufferDataType type)
     {
         switch (type)
         {

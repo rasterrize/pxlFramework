@@ -9,8 +9,8 @@
 
 namespace pxl
 {
-    static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 640;
-    static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 480;
+    static constexpr uint32_t k_DefaultWindowWidth = 640;
+    static constexpr uint32_t k_DefaultWindowHeight = 480;
 
     enum class WindowMode
     {
@@ -21,8 +21,8 @@ namespace pxl
 
     struct WindowSpecs
     {
-        uint32_t Width = DEFAULT_WINDOW_WIDTH;
-        uint32_t Height = DEFAULT_WINDOW_HEIGHT;
+        uint32_t Width = k_DefaultWindowWidth;
+        uint32_t Height = k_DefaultWindowHeight;
         std::string Title;
         WindowMode WindowMode = WindowMode::Windowed;
         RendererAPIType RendererAPI = RendererAPIType::None;
@@ -128,8 +128,8 @@ namespace pxl
 
         WindowSpecs m_Specs = {};
 
-        uint32_t m_LastWindowedWidth = DEFAULT_WINDOW_WIDTH; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
-        uint32_t m_LastWindowedHeight = DEFAULT_WINDOW_HEIGHT;
+        uint32_t m_LastWindowedWidth = k_DefaultWindowWidth; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
+        uint32_t m_LastWindowedHeight = k_DefaultWindowHeight;
 
         static inline std::vector<std::shared_ptr<Window>> s_Windows;
         static inline std::vector<Monitor> s_Monitors;

@@ -15,8 +15,8 @@ namespace pxl
 
         virtual void Present() = 0;
         
-        virtual void SetVSync(bool value) = 0;
         virtual bool GetVSync() const = 0;
+        virtual void SetVSync(bool value) = 0;
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const = 0;
 

@@ -16,15 +16,17 @@ namespace pxl
 
         virtual void Present() override;
 
-        virtual void SetVSync(bool value) override;
         virtual bool GetVSync() const override { return m_VSync; }
+        virtual void SetVSync(bool value) override;
 
-        virtual std::shared_ptr<GraphicsDevice> GetDevice() const override { return nullptr; }
-        
+        virtual std::shared_ptr<GraphicsDevice> GetDevice() const override
+        { 
+            PXL_LOG_ERROR(LogArea::OpenGL, "OpenGLContexts don't have devices, returning nullptr"); 
+            return nullptr; 
+        }
+
     private:
-        void Init();
-    private:
-        GLFWwindow* m_WindowHandle = nullptr;
+        GLFWwindow* m_GLFWWindowHandle = nullptr;
         bool m_VSync = true;
     };
 }

@@ -19,7 +19,7 @@ namespace pxl
 
         virtual void WaitIdle() const override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
 
-        virtual const DeviceLimits& GetDeviceLimits() const override { return m_DeviceLimits; } // TODO
+        virtual const DeviceLimits& GetDeviceLimits() const override { return m_DeviceLimits; }
 
         void Destroy();
 

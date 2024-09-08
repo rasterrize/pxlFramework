@@ -20,8 +20,8 @@ namespace pxl
 
         virtual void Present() override;
 
-        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); }
         virtual bool GetVSync() const override { return m_Swapchain->GetVSync(); }
+        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); }
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const override { return m_Device; }
 

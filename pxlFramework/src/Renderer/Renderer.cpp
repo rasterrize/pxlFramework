@@ -443,21 +443,6 @@ namespace pxl
         s_RendererAPI->SetClearColour(Colour::GetColourAsVec4(colour));
     }
 
-#if CUSTOMRENDERING
-    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<Camera>& camera)
-    {
-        shader->Bind();
-        shader->SetUniformMat4("u_VP", camera->GetViewProjectionMatrix());
-    }
-
-    void Renderer::Submit(const std::shared_ptr<GraphicsPipeline>& pipeline)
-    {
-        //auto vp = s_QuadsCamera->GetViewProjectionMatrix();
-        pipeline->Bind();
-        // TODO: set uniform variables
-    }
-#endif
-
     void Renderer::Begin()
     {
         PXL_PROFILE_SCOPE;
