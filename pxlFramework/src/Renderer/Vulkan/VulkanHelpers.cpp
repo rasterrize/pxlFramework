@@ -1,9 +1,9 @@
 #include "VulkanHelpers.h"
 
+#include "VulkanDevice.h"
+
 namespace pxl
 {
-    std::vector<std::function<void()>> VulkanDeletionQueue::s_Queue;
-
     uint32_t VulkanHelpers::GetVulkanAPIVersion()
     {
         uint32_t apiVersion;
@@ -24,29 +24,24 @@ namespace pxl
         return availableLayers;
     }
 
-    std::vector<const char*> VulkanHelpers::GetValidationLayers(const std::vector<VkLayerProperties>& availableLayers)
+    const char* VulkanHelpers::GetValidationLayer(const std::vector<VkLayerProperties>& availableLayers)
     {
         const char* validationLayers[] = {
             "VK_LAYER_KHRONOS_validation" // TODO: implement a system that selects the correct validation layers in a priority
         };
-
-        std::vector<const char*> selectedValidationLayers;
             
-        // Find enabled layers and throw errors if any are not found
-        for (const auto& layer : validationLayers) // idk if this should be const auto&
+        // Find validation layer
+        for (const auto& layer : validationLayers)
         {
-            bool layerFound = false;
             for (const auto& layerProperties : availableLayers)
             {
                 if (strcmp(layer, layerProperties.layerName) == 0)
-                    layerFound = true;
+                    return layer;
             }
-
-            if (layerFound)
-                selectedValidationLayers.push_back(layer);
         }
 
-        return selectedValidationLayers;
+        PXL_LOG_WARN(LogArea::Vulkan, "Failed to find Vulkan validation layer");
+        return "";
     }
 
     std::vector<VkPhysicalDevice> VulkanHelpers::GetAvailablePhysicalDevices(VkInstance instance)
@@ -254,5 +249,15 @@ namespace pxl
         VK_CHECK(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()));
 
         return commandBuffers;
+    }
+
+    void VulkanDeletionQueue::Flush()
+    {
+        s_Device->WaitIdle();
+
+        for (auto it = s_Queue.end() - 1; it != s_Queue.begin(); it--)
+            (*(it))();
+
+        s_Queue.clear();
     }
 }

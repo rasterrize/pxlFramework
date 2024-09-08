@@ -4,8 +4,6 @@
 
 namespace pxl
 {
-    VkInstance VulkanInstance::s_Instance = nullptr;
-
     void VulkanInstance::Init(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
     {
         if (s_Instance)

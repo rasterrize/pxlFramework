@@ -5,6 +5,7 @@
 #include "Core/Platform.h"
 #include "OpenGL/OpenGLRenderer.h"
 #include "Vulkan/VulkanRenderer.h"
+#include "Vulkan/VulkanInstance.h"
 #include "Vulkan/VulkanContext.h"
 #include "Utils/FileSystem.h"
 #include "BufferLayout.h"
@@ -119,6 +120,8 @@ namespace pxl
             case RendererAPIType::Vulkan:
                 auto vulkanContext = static_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
                 PXL_ASSERT_MSG(vulkanContext, "Failed to retrieve VulkanGraphicsContext");
+
+                VulkanDeletionQueue::Init(static_pointer_cast<VulkanDevice>(window->GetGraphicsContext()->GetDevice()));
 
                 s_RendererAPI = std::make_unique<VulkanRenderer>(vulkanContext);
                 PXL_ASSERT_MSG(s_RendererAPI, "Failed to create Vulkan renderer api object");

@@ -11,6 +11,6 @@ namespace pxl
 
         static VkInstance Get() { return s_Instance; }
     private:
-        static VkInstance s_Instance;
+        static inline VkInstance s_Instance;
     };
 }

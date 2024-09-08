@@ -8,30 +8,8 @@ namespace pxl
 {
     VulkanGraphicsContext::VulkanGraphicsContext(const std::shared_ptr<Window>& window)
     {
-        // Get the extensions required for Vulkan to work with GLFW (should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE))
-        auto glfwExtensions = Window::GetVKRequiredInstanceExtensions();
-
-        // Select from available layers
-        auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
-        auto selectedLayers = std::vector<const char*>();
-
-        #ifdef PXL_DEBUG
-            auto validationLayers = VulkanHelpers::GetValidationLayers(availableLayers);
-            selectedLayers = validationLayers;
-        #endif
-
-        // Create Vulkan instance with specified extensions and layers
-        VkInstance vulkanInstance = VulkanInstance::Get();
-        if (!vulkanInstance)
-        {
-            VulkanInstance::Init(glfwExtensions, selectedLayers);
-            vulkanInstance = VulkanInstance::Get();
-        }
-        else
-        {
-            PXL_LOG_WARN(LogArea::Vulkan, "Vulkan instance already initialized possibly with incorrect extensions/layers");
-        }
-
+        auto vulkanInstance = VulkanInstance::Get();
+        
         // Get the window surface from the window
         m_Surface = window->CreateVKWindowSurface(vulkanInstance);
 

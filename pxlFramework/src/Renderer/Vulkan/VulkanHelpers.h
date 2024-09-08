@@ -5,13 +5,16 @@
 
 namespace pxl
 {
+    // Forward declare to avoid cyclic include
+    class VulkanDevice;
+
     class VulkanHelpers
     {
     public:
         static uint32_t GetVulkanAPIVersion();
 
         static std::vector<VkLayerProperties> GetAvailableInstanceLayers();
-        static std::vector<const char*> GetValidationLayers(const std::vector<VkLayerProperties>& availableLayers);
+        static const char* GetValidationLayer(const std::vector<VkLayerProperties>& availableLayers);
 
         static std::vector<VkPhysicalDevice> GetAvailablePhysicalDevices(VkInstance instance);
         static std::vector<VkQueueFamilyProperties> GetQueueFamilies(VkPhysicalDevice physicalDevice);
@@ -34,16 +37,17 @@ namespace pxl
     class VulkanDeletionQueue
     {
     public:
+        static void Init(const std::shared_ptr<VulkanDevice>& device)
+        {
+            s_Device = device;
+        }
+
         static void Add(std::function<void()> function) { s_Queue.push_back(function); }
 
-        static void Flush() {
-            for (auto it = s_Queue.end() - 1; it != s_Queue.begin(); it--)
-                (*(it))();
-
-            s_Queue.clear();
-        }
+        static void Flush();
     private:
-        static std::vector<std::function<void()>> s_Queue;
+        static inline std::shared_ptr<VulkanDevice> s_Device = nullptr;
+        static inline std::vector<std::function<void()>> s_Queue;
     };
     
 #ifdef PXL_DEBUG

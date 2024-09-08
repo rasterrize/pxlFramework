@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "Renderer/Vulkan/VulkanHelpers.h"
 #include "Renderer/Vulkan/VulkanContext.h"
+#include "Renderer/Vulkan/VulkanInstance.h"
 
 namespace pxl
 {
@@ -446,23 +447,44 @@ namespace pxl
 
         PXL_ASSERT(window);
 
-        if (window)
-        {
-            window->m_Handle = window;
-            if (windowSpecs.RendererAPI != RendererAPIType::None)
-            {
-                window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window); // Automatically create a graphics context for the window
+        window->m_Handle = window;
 
-                PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", window->GetWindowSpecs().Title);
+        if (windowSpecs.RendererAPI != RendererAPIType::None)
+        {
+            if (windowSpecs.RendererAPI == RendererAPIType::Vulkan)
+            {
+                // Initialize the Vulkan instance if necessary
+                if (!VulkanInstance::Get())
+                {
+                    std::vector<const char*> selectedExtensions;
+                    std::vector<const char*> selectedLayers;
+
+                    // We are only using the required extensions by glfw for now
+                    // Should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE)
+                    selectedExtensions = Window::GetVKRequiredInstanceExtensions();
+
+                    // Get available instance layers
+                    auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
+
+                    #ifdef PXL_DEBUG
+                        // Get validation layer (Vulkan debugging)
+                        selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
+                    #endif
+
+                    VulkanInstance::Init(selectedExtensions, selectedLayers);
+                }
             }
 
-            // Set the visibility now since we have a valid context
-            window->SetVisibility(true);
+            // Automatically create a graphics context for the window
+            window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window);
 
-            s_Windows.push_back(window);
-            return window;
+            PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", window->GetWindowSpecs().Title);
         }
 
-        return nullptr;
+        // Set the visibility now since we have a valid context
+        window->SetVisibility(true);
+
+        s_Windows.push_back(window);
+        return window;
     }
 }
