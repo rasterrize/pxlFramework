@@ -471,10 +471,10 @@ namespace pxl
                     // Get available instance layers
                     auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
 
-/*           */ #ifdef PXL_DEBUG
+                #ifdef PXL_DEBUG
                     // Get validation layer (Vulkan debugging)
                     selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
-/*           */ #endif
+                #endif
 
                     VulkanInstance::Init(selectedExtensions, selectedLayers);
                 }

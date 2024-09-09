@@ -80,15 +80,13 @@ namespace pxl
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-#ifdef PXL_ENABLE_LOGGING
-
+    #ifdef PXL_ENABLE_LOGGING
         for (uint32_t i = 0; i < queueFamilyCount; i++)
         {
             PXL_LOG_INFO(LogArea::Vulkan, "Queue Family {}:", i);
             PXL_LOG_INFO(LogArea::Vulkan, " - {}", string_VkQueueFlags(queueFamilies[i].queueFlags));
         }
-
-#endif
+    #endif
 
         return queueFamilies;
     }

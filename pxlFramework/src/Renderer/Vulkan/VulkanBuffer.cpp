@@ -11,8 +11,8 @@ namespace pxl
     VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
-#define STAGING_BUFFER 1
-#if STAGING_BUFFER
+    #define STAGING_BUFFER 1
+    #if STAGING_BUFFER
         // Staging buffer
         {
             VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -44,7 +44,7 @@ namespace pxl
             // Create buffer and its associated memory
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
         }
-#else
+    #else
         // Dedicated Buffer (actual buffer)
         {
             VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -59,7 +59,7 @@ namespace pxl
             // Create buffer and its associated memory
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, &m_StagingAllocationInfo));
         }
-#endif
+    #endif
 
         VulkanDeletionQueue::Add([&]() {
                 Destroy();
@@ -119,7 +119,7 @@ namespace pxl
         auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
-#if STAGING_BUFFER
+    #if STAGING_BUFFER
 
         // Fill the vertex buffer with the data
         {
@@ -155,13 +155,13 @@ namespace pxl
             vkResetFences(device, 1, &m_UploadFence);
         }
 
-#else
+    #else
         {
             PXL_PROFILE_SCOPE_NAMED("Mapped memory copy WITHOUT MapMemory");
             memcpy(m_StagingAllocationInfo.pMappedData, data, (size_t)size);
         }
 
-#endif
+    #endif
     }
 
     void VulkanBuffer::Destroy()

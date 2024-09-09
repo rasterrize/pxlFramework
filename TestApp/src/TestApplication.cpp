@@ -21,13 +21,13 @@ namespace TestApp
         pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
         pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
-#ifdef TA_DEBUG
+    #ifdef TA_DEBUG
         buildType = "Debug x64";
-#elif TA_RELEASE
+    #elif TA_RELEASE
         buildType = "Release x64";
-#elif TA_DIST
+    #elif TA_DIST
         buildType = "Distribute x64";
-#endif
+    #endif
 
         rendererAPIType = pxl::EnumStringHelper::RendererAPITypeToString(windowRendererAPI);
 
@@ -40,7 +40,7 @@ namespace TestApp
         windowSpecs.RendererAPI = windowRendererAPI;
         windowSpecs.WindowMode = windowMode;
 
-#define TEST_NAME QuadsTest
+    #define TEST_NAME QuadsTest
 
         m_OnStartFunc = TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
@@ -59,7 +59,7 @@ namespace TestApp
         frameworkSettings.WindowMode = m_Window->GetWindowMode();
         frameworkSettings.RendererAPI // TODO
 
-            pxl::FrameworkConfig::SetSettings(frameworkSettings);
+        pxl::FrameworkConfig::SetSettings(frameworkSettings);
 #endif
     }
 

@@ -36,8 +36,8 @@ namespace pxl
             s_Instance = VK_NULL_HANDLE;
         });
 
+    #ifdef PXL_ENABLE_LOGGING
         // Logging
-#ifdef PXL_ENABLE_LOGGING
         std::string apiVersionString;
         switch (appInfo.apiVersion)
         {
@@ -69,6 +69,6 @@ namespace pxl
         {
             PXL_LOG_INFO(LogArea::Vulkan, "   - {}", layer);
         }
-#endif
+    #endif
     }
 }

@@ -37,9 +37,9 @@ namespace TestApp
         // pxl::DiscordRPC::Init(RPCCLIENT_ID);
         // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
 
-#ifdef TA_DEBUG
+    #ifdef TA_DEBUG
         //pxl::GUI::Init(m_Window);
-#endif
+    #endif
     }
 
     void OGLVK::OnUpdate(float dt)
