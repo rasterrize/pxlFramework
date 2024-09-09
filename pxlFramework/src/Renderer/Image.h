@@ -20,8 +20,8 @@ namespace pxl
 
     struct Image
     {
-        unsigned char* Buffer;
-        glm::vec2 Size; // ivec?
-        ImageFormat Format;
+        unsigned char* Buffer = nullptr;
+        glm::vec2 Size = glm::vec2(0.0f); // ivec?
+        ImageFormat Format = ImageFormat::Undefined;
     };
 }

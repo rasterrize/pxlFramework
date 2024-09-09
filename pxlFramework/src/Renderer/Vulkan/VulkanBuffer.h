@@ -31,18 +31,18 @@ namespace pxl
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
         static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(GPUBufferUsage usage);
     private:
-        std::shared_ptr<VulkanDevice> m_Device;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = nullptr;
-        VkBufferUsageFlagBits m_Usage;
+        VkBufferUsageFlagBits m_Usage = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
+        std::function<void(VkCommandBuffer)> m_BindFunc = nullptr;
 
+        // Staging data
         VkBuffer m_StagingBuffer = VK_NULL_HANDLE;
         VmaAllocation m_StagingAllocation = nullptr;
-        VmaAllocationInfo m_StagingAllocationInfo;
+        VmaAllocationInfo m_StagingAllocationInfo = {};
         VkFence m_UploadFence = VK_NULL_HANDLE;
         VkCommandBuffer m_UploadCommandBuffer = VK_NULL_HANDLE;
-
-        std::function<void(VkCommandBuffer)> m_BindFunc;
     };
 }

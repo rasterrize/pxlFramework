@@ -30,6 +30,6 @@ namespace pxl
     protected:
         virtual void RecalculateProjection() override;
     private:
-        PerspectiveCameraSettings m_Settings;
+        PerspectiveCameraSettings m_Settings = {};
     };
 }

@@ -21,6 +21,6 @@ namespace pxl
         static GLenum GetGLUsageEnumOfBufferUsage(GPUBufferUsage usage);
     private:
         uint32_t m_RendererID = 0;
-        GLenum m_Usage;
+        GLenum m_Usage = GL_INVALID_ENUM;
     };
 }

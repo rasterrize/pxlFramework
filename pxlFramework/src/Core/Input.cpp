@@ -2,23 +2,6 @@
 
 namespace pxl
 {
-    bool Input::s_Enabled = false;
-
-    GLFWwindow* Input::s_WindowHandle = nullptr;
-
-    std::unordered_map<int, int> Input::s_CurrentKeyStates;
-    std::unordered_map<int, int> Input::s_PreviousKeyStates;
-
-    std::unordered_map<int, int> Input::s_CurrentMBStates;
-    std::unordered_map<int, int> Input::s_PreviousMBStates;
-
-    double Input::s_VerticalScrollOffset = 0.0f;
-    double Input::s_HorizontalScrollOffset = 0.0f;
-
-    glm::dvec2 Input::s_CursorPosition = glm::dvec2(0.0f);
-
-    bool Input::s_RawInputSupported = false;
-
     void Input::Init(const std::shared_ptr<Window>& window)
     {
         PXL_ASSERT_MSG(window, "Can't initialize input since window was invalid");

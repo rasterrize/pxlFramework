@@ -114,7 +114,7 @@ namespace pxl
             for (const auto& element : specs.PushConstantLayout->GetElements())
             {
                 VkPushConstantRange range = {};
-                range.stageFlags = ToVkShaderStage(element.PushConstantShaderStage);
+                range.stageFlags = ToVkShaderStage(element.ShaderStage);
                 range.offset = 0; // TODO: implement correct offsets
                 range.size = SizeOfUniformDataType(element.Type);
 

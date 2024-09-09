@@ -45,8 +45,8 @@ namespace pxl
     struct UniformElement
     {
         std::string Name;
-        UniformDataType Type;
-        ShaderStage ShaderStage;
+        UniformDataType Type = UniformDataType::None;
+        ShaderStage ShaderStage = ShaderStage::None;
     };
 
     class UniformLayout
@@ -73,23 +73,16 @@ namespace pxl
         std::vector<UniformElement> m_Elements;
     };
 
-    struct PushConstantElement
-    {
-        std::string Name;
-        UniformDataType Type;
-        ShaderStage PushConstantShaderStage;
-    };
-
     class PushConstantLayout
     {
     public:
-        const std::vector<PushConstantElement> GetElements() const { return m_Elements; }
+        const std::vector<UniformElement> GetElements() const { return m_Elements; }
 
-        void Add(const PushConstantElement& pc)
+        void Add(const UniformElement& pc)
         {
             m_Elements.push_back(pc);
         }
     private:
-        std::vector<PushConstantElement> m_Elements;
+        std::vector<UniformElement> m_Elements;
     };
 }

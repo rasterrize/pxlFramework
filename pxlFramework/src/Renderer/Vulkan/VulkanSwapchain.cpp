@@ -34,11 +34,10 @@ namespace pxl
             m_Frames[i] = frame;
         }
 
-        VulkanDeletionQueue::Add([&]()
-            {
-                DestroyFrameData();
-                Destroy();
-            });
+        VulkanDeletionQueue::Add([&]() {
+            DestroyFrameData();
+            Destroy();
+        });
     }
 
     VulkanSwapchain::~VulkanSwapchain()

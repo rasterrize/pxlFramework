@@ -20,6 +20,6 @@ namespace pxl
     private:
         static GLenum GetOpenGLTypeOfBufferDataType(BufferDataType type);
     private:
-        uint32_t m_RendererID;
+        uint32_t m_RendererID = 0;
     };
 }

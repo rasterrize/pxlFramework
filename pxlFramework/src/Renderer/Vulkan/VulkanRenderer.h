@@ -41,10 +41,10 @@ namespace pxl
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
-        VulkanFrame m_CurrentFrame;
+        VulkanFrame m_CurrentFrame = {};
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
 
-        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass;
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass = nullptr;
     };
 }

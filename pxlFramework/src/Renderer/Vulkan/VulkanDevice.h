@@ -32,7 +32,7 @@ namespace pxl
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
-        DeviceLimits m_DeviceLimits;
+        DeviceLimits m_DeviceLimits = {};
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
     };

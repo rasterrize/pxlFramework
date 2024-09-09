@@ -27,8 +27,8 @@ namespace pxl
 
         static std::vector<uint32_t> CompileToSPIRV(const std::string& glslSrc, ShaderStage stage);
     private:
-        VkDevice m_Device;
-        VkShaderModule m_ShaderModule;
+        VkDevice m_Device = VK_NULL_HANDLE;
+        VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
         ShaderStage m_ShaderStage = ShaderStage::None;
     };
 }

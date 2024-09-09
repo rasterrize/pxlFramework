@@ -21,6 +21,6 @@ namespace pxl
         static uint32_t ShaderStageToGLShaderStage(ShaderStage stage);
     private:
         uint32_t m_RendererID = 0;
-        ShaderStage m_ShaderStage;
+        ShaderStage m_ShaderStage = ShaderStage::None;
     };
 }

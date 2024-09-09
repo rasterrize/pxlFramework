@@ -64,7 +64,7 @@ namespace pxl
         uint32_t GetSuitableImageCount();
         bool CheckExtentSupport(VkExtent2D extent);
     private:
-        const std::shared_ptr<VulkanDevice> m_Device;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;

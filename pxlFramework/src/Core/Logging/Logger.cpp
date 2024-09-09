@@ -2,11 +2,6 @@
 
 namespace pxl
 {
-    std::unique_ptr<spdlog::logger> Logger::s_FrameworkLogger; // uses special flag for system areas
-    std::unique_ptr<spdlog::logger> Logger::s_ApplicationLogger;
-
-    LogArea Logger::s_CurrentArea = LogArea::None;
-
     void Logger::Init()
     {
         // Must be shared_ptr, but it's okay since spdlog's example uses it this way

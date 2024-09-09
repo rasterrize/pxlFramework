@@ -42,8 +42,8 @@ namespace pxl
     private:
         VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices); // TODO: put this in vulkan helpers
     private:
-        std::shared_ptr<VulkanDevice> m_Device;
-        std::shared_ptr<VulkanSwapchain> m_Swapchain;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
+        std::shared_ptr<VulkanSwapchain> m_Swapchain = nullptr;
 
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
         VkSurfaceFormatKHR m_SurfaceFormat = {};
@@ -54,6 +54,6 @@ namespace pxl
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
 
         // IDK
-        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass; // should a default renderpass exist? could this be a geometry renderpass instead? // also, this should probably be apart of the renderer?
+        std::shared_ptr<VulkanRenderPass> m_DefaultRenderPass = nullptr; // should a default renderpass exist? could this be a geometry renderpass instead? // also, this should probably be apart of the renderer?
     };
 }

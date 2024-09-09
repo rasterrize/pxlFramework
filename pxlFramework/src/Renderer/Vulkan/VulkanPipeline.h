@@ -12,13 +12,13 @@ namespace pxl
     struct PushConstantData
     {
         std::string Name;
-        const void* Data;
+        const void* Data = nullptr;
     };
 
     struct PushConstantRange
     {
         std::string Name;
-        VkPushConstantRange Range;
+        VkPushConstantRange Range = {};
     };
 
     class VulkanGraphicsPipeline : public GraphicsPipeline

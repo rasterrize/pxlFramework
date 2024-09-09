@@ -65,6 +65,6 @@ namespace pxl
         void RecalculateSides();
         void RecalculateSidesWithAspectRatio();
     private:
-        OrthographicCameraSettings m_Settings;
+        OrthographicCameraSettings m_Settings = {};
     };
 }

@@ -51,20 +51,20 @@ namespace pxl
     private:
         friend class Window; // for callbacks
 
-        static bool s_Enabled;
-        static GLFWwindow* s_WindowHandle;
+        static inline bool s_Enabled = false;
+        static inline GLFWwindow* s_WindowHandle = nullptr;
 
-        static std::unordered_map<int, int> s_CurrentKeyStates;
-        static std::unordered_map<int, int> s_PreviousKeyStates;
+        static inline std::unordered_map<int, int> s_CurrentKeyStates;
+        static inline std::unordered_map<int, int> s_PreviousKeyStates;
 
-        static std::unordered_map<int, int> s_CurrentMBStates;
-        static std::unordered_map<int, int> s_PreviousMBStates;
+        static inline std::unordered_map<int, int> s_CurrentMBStates;
+        static inline std::unordered_map<int, int> s_PreviousMBStates;
 
-        static double s_VerticalScrollOffset;
-        static double s_HorizontalScrollOffset;
+        static inline double s_VerticalScrollOffset = 0.0f;
+        static inline double s_HorizontalScrollOffset = 0.0f;
 
-        static glm::dvec2 s_CursorPosition;
+        static inline glm::dvec2 s_CursorPosition = glm::dvec2(0.0f);
 
-        static bool s_RawInputSupported;
+        static inline bool s_RawInputSupported = false;
     };
 }

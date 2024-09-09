@@ -4,8 +4,6 @@
 
 namespace pxl
 {
-    FrameworkSettings FrameworkConfig::s_FrameworkSettings = {};
-
     void FrameworkConfig::Init()
     {
         // TODO: Check if FrameworkConfig.yaml exists, if not, create it (Then implement a way to turn this feature off)

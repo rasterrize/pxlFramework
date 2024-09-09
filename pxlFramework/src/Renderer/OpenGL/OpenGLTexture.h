@@ -19,10 +19,10 @@ namespace pxl
 
         static GLenum ImageFormatToGLFormat(ImageFormat format);
     private:
-        unsigned char* m_ImageBuffer;
-        glm::u32vec2 m_ImageSize;
-        GLenum m_GLFormat;
+        unsigned char* m_ImageBuffer = nullptr;
+        glm::u32vec2 m_ImageSize = glm::u32vec2(0);
 
-        uint32_t m_RendererID;
+        GLenum m_GLFormat = GL_INVALID_ENUM;
+        uint32_t m_RendererID = 0;
     };
 }

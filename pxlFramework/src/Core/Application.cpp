@@ -26,7 +26,9 @@ namespace pxl
 
     Application::~Application()
     {
-        Close();
+        s_Instance = nullptr;
+
+        PXL_LOG_INFO(LogArea::Core, "Application destroyed");
     }
 
     void Application::Run()
@@ -64,19 +66,13 @@ namespace pxl
 
     void Application::Close()
     {
-        // Don't want to close if we already have
-        if (!m_Running)
-            return;
-
         m_Running = false;
 
+        PXL_LOG_INFO(LogArea::Core, "Application closing...");
+
         GUI::Shutdown();
-        Input::Shutdown();
         Renderer::Shutdown();
+        Input::Shutdown();
         Window::Shutdown();
-
-        s_Instance = nullptr;
-
-        PXL_LOG_INFO(LogArea::Core, "Application closed");
     }
 }

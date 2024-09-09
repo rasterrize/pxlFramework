@@ -2,8 +2,6 @@
 
 namespace pxl
 {
-    std::unordered_map<std::string, std::shared_ptr<Shader>> ShaderLibrary::s_Shaders;
-
     void ShaderLibrary::Add(const std::string& filename, const std::shared_ptr<Shader> shader) // could this be a reference
     {
         s_Shaders[filename] = shader;
