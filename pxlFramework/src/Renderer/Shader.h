@@ -10,7 +10,7 @@ namespace pxl
         Geometry,
         Tessellation,
     };
-    
+
     class Shader
     {
     public:
@@ -18,7 +18,7 @@ namespace pxl
 
         virtual void Reload() = 0;
 
-        virtual ShaderStage GetShaderStage() const = 0; 
+        virtual ShaderStage GetShaderStage() const = 0;
 
         static std::shared_ptr<Shader> Create(ShaderStage stage, const std::string& glslSrc);
         static std::shared_ptr<Shader> Create(ShaderStage stage, const std::vector<char>& sprvBin);

@@ -4,7 +4,7 @@ namespace pxl
 {
     OpenGLVertexArray::OpenGLVertexArray()
     {
-        glCreateVertexArrays(1, &m_RendererID); 
+        glCreateVertexArrays(1, &m_RendererID);
     }
 
     OpenGLVertexArray::~OpenGLVertexArray()
@@ -25,10 +25,10 @@ namespace pxl
     void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<GPUBuffer>& vertexBuffer, const BufferLayout& layout)
     {
         glBindVertexArray(m_RendererID); // Ensure this vertex array is the one currently bound
-        vertexBuffer->Bind(); // Sets the global vertex buffer bound so glVertexAttribPointer can grab it and store it in the VAO
-        
+        vertexBuffer->Bind();            // Sets the global vertex buffer bound so glVertexAttribPointer can grab it and store it in the VAO
+
         uint32_t index = 0; // attribute number (location in shader)
-        size_t offset = 0; // amount of bytes currently allocated
+        size_t offset = 0;  // amount of bytes currently allocated
         for (const BufferElement& element : layout.GetElements())
         {
             glEnableVertexAttribArray(index);
@@ -48,7 +48,7 @@ namespace pxl
             // Mat type checking
             if (element.Type == BufferDataType::Mat3 || element.Type == BufferDataType::Mat4)
                 glVertexAttribPointer(index, element.CountOfBufferDataType(), GetOpenGLTypeOfBufferDataType(element.Type), element.Normalized, layout.GetStride(), reinterpret_cast<void*>(offset));
-                            
+
             offset += SizeOfBufferDataType(element.Type);
             index++;
         }

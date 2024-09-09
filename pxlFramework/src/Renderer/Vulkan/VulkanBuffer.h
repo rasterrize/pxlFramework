@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Renderer/GPUBuffer.h"
-
-#include <vulkan/vulkan.h>
 #include <vma/vk_mem_alloc.h>
+#include <vulkan/vulkan.h>
 
 #include "Renderer/BufferLayout.h"
-#include "VulkanDevice.h"
+#include "Renderer/GPUBuffer.h"
 #include "VulkanAllocator.h"
+#include "VulkanDevice.h"
 
 namespace pxl
 {
@@ -28,7 +27,6 @@ namespace pxl
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);                   // }   Could these be Helper functions?
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout); // }
-
     private:
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
         static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(GPUBufferUsage usage);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RendererAPIType.h"
 #include "GraphicsDevice.h"
+#include "RendererAPIType.h"
 
 namespace pxl
 {
@@ -14,7 +14,7 @@ namespace pxl
         virtual ~GraphicsContext() = default;
 
         virtual void Present() = 0;
-        
+
         virtual bool GetVSync() const = 0;
         virtual void SetVSync(bool value) = 0;
 

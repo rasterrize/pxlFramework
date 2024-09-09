@@ -1,15 +1,15 @@
 #include "Window.h"
 
-#include "Renderer/Renderer.h"
 #include "Application.h"
 #include "Input.h"
-#include "Renderer/Vulkan/VulkanHelpers.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/Vulkan/VulkanContext.h"
+#include "Renderer/Vulkan/VulkanHelpers.h"
 #include "Renderer/Vulkan/VulkanInstance.h"
 
 namespace pxl
 {
-    static constexpr uint8_t MAX_WINDOW_COUNT = 5; // TODO: Use different naming convention
+    static constexpr uint8_t k_MaxWindowCount = 5;
 
     Window::Window(const WindowSpecs& windowSpecs)
         : m_Specs(windowSpecs), m_LastWindowedWidth(m_Specs.Width), m_LastWindowedHeight(m_Specs.Height)
@@ -21,7 +21,7 @@ namespace pxl
     void Window::CreateGLFWWindow(const WindowSpecs& windowSpecs)
     {
         glfwSetErrorCallback(GLFWErrorCallback); // Shouldn't be set everytime window is created
-        
+
         if (s_Windows.empty())
         {
             if (glfwInit())
@@ -50,12 +50,14 @@ namespace pxl
                 PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'None' specified! Creating a GLFW window with no renderer api...");
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
                 break;
+
             case RendererAPIType::OpenGL:
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
                 break;
+
             case RendererAPIType::Vulkan:
                 PXL_ASSERT_MSG(glfwVulkanSupported(), "Vulkan loader wasn't found by GLFW");
 
@@ -68,7 +70,7 @@ namespace pxl
         PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", windowSpecs.Title);
 
         PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
-        
+
         // Set window to the center of the display
         auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.
         glfwSetWindowPos(m_GLFWWindow, vidMode->width / 2 - windowSpecs.Width / 2, vidMode->height / 2 - windowSpecs.Height / 2);
@@ -81,7 +83,7 @@ namespace pxl
     void Window::Update() const
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (m_GraphicsContext)
             m_GraphicsContext->Present();
     }
@@ -122,7 +124,7 @@ namespace pxl
         int monitorWidth, monitorHeight;
 
         for (int i = 0; i < s_Monitors.size(); i++)
-        {   
+        {
             glfwGetMonitorWorkarea(s_Monitors[i].GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
             if ((windowX >= monitorX && windowX < (monitorX + monitorWidth)) && (windowY >= monitorY && windowY < (monitorY + monitorHeight)))
@@ -140,7 +142,7 @@ namespace pxl
         // Check for successful window size change
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
-        
+
         PXL_ASSERT_MSG(windowWidth != static_cast<int>(width) || windowHeight != static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 
@@ -154,7 +156,7 @@ namespace pxl
     }
 
     void Window::SetWindowMode(WindowMode winMode)
-    { 
+    {
         if (winMode == m_Specs.WindowMode)
             return;
 
@@ -231,14 +233,16 @@ namespace pxl
 
     void Window::NextWindowMode()
     {
-        switch(m_Specs.WindowMode)
+        switch (m_Specs.WindowMode)
         {
             case WindowMode::Windowed:
                 SetWindowMode(WindowMode::Borderless);
                 return;
+
             case WindowMode::Borderless:
                 SetWindowMode(WindowMode::Fullscreen);
                 return;
+
             case WindowMode::Fullscreen:
                 SetWindowMode(WindowMode::Windowed);
                 return;
@@ -262,7 +266,7 @@ namespace pxl
     {
         for (const auto& monitor : s_Monitors)
         {
-            if (monitor.IsPrimary)  
+            if (monitor.IsPrimary)
                 return monitor;
         }
 
@@ -271,18 +275,18 @@ namespace pxl
         return s_Monitors[0];
     }
 
-    std::vector<const char *> Window::GetVKRequiredInstanceExtensions()
+    std::vector<const char*> Window::GetVKRequiredInstanceExtensions()
     {
         uint32_t glfwExtensionCount = 0;
-	    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-	    return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
+        const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
     }
 
     Size2D Window::GetFramebufferSize() const
     {
         int width, height;
         glfwGetFramebufferSize(m_GLFWWindow, &width, &height);
-        
+
         return Size2D(width, height);
     }
 
@@ -348,7 +352,7 @@ namespace pxl
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
         iconified ? windowInstance->m_Specs.Minimized = true : windowInstance->m_Specs.Minimized = false;
-        
+
         // Check if all windows are minimized
         bool allWindowsIconified = true;
         for (const auto& windowHandle : s_Windows)
@@ -383,8 +387,9 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        if (s_Windows.empty()) return;
-        
+        if (s_Windows.empty())
+            return;
+
         for (const auto& window : s_Windows)
             window->Update();
 
@@ -427,22 +432,22 @@ namespace pxl
     void Window::Shutdown()
     {
         CloseAll();
-        
+
         // TODO: Check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
-        
+
         PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
         PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
     }
 
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
     {
-        if (s_Windows.size() >= MAX_WINDOW_COUNT)
+        if (s_Windows.size() >= k_MaxWindowCount)
         {
             PXL_LOG_WARN(LogArea::Window, "Failed to create window, the max window count has been reached");
             return nullptr;
         }
-        
+
         auto window = std::make_shared<Window>(windowSpecs);
 
         PXL_ASSERT(window);
@@ -466,10 +471,10 @@ namespace pxl
                     // Get available instance layers
                     auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
 
-                    #ifdef PXL_DEBUG
-                        // Get validation layer (Vulkan debugging)
-                        selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
-                    #endif
+/*           */ #ifdef PXL_DEBUG
+                    // Get validation layer (Vulkan debugging)
+                    selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
+/*           */ #endif
 
                     VulkanInstance::Init(selectedExtensions, selectedLayers);
                 }

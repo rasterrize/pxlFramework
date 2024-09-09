@@ -8,8 +8,8 @@ namespace pxl
 {
     struct QuadVertex
     {
-        glm::vec3 Position  = glm::vec3(0.0f); // Position of vertex in NDC
-        glm::vec4 Colour    = glm::vec4(1.0f); // Colour of the vertex. Passed to the fragment shader
+        glm::vec3 Position = glm::vec3(0.0f);  // Position of vertex in NDC
+        glm::vec4 Colour = glm::vec4(1.0f);    // Colour of the vertex. Passed to the fragment shader
         glm::vec2 TexCoords = glm::vec2(0.0f); // UV coords to use when sampling the TexIndex slot texture
         float TexIndex = 0.0f;                 // The texture slot to sample from in the fragment shader
 
@@ -27,11 +27,11 @@ namespace pxl
 
     struct CubeVertex
     {
-        glm::vec3 Position  = glm::vec3(0.0f);
-        glm::vec4 Colour    = glm::vec4(1.0f);
+        glm::vec3 Position = glm::vec3(0.0f);
+        glm::vec4 Colour = glm::vec4(1.0f);
         glm::vec2 TexCoords = glm::vec2(0.0f);
         float TexIndex = -1.0f;
-        
+
         static BufferLayout GetLayout()
         {
             BufferLayout layout;
@@ -47,7 +47,7 @@ namespace pxl
     struct LineVertex
     {
         glm::vec3 Position = glm::vec3(0.0f);
-        glm::vec4 Colour   = glm::vec4(1.0f);
+        glm::vec4 Colour = glm::vec4(1.0f);
 
         static BufferLayout GetLayout()
         {
@@ -61,8 +61,8 @@ namespace pxl
 
     struct MeshVertex
     {
-        glm::vec3 Position  = glm::vec3(0.0f);
-        glm::vec4 Colour    = glm::vec4(1.0f);
+        glm::vec3 Position = glm::vec3(0.0f);
+        glm::vec4 Colour = glm::vec4(1.0f);
         glm::vec2 TexCoords = glm::vec2(0.0f);
         float TexIndex = -1.0f;
 

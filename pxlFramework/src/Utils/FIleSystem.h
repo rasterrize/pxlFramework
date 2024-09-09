@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Renderer/Texture.h"
-#include "../Renderer/Shader.h"
-#include "../Renderer/RendererData.h"
+#include "Renderer/RendererData.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Texture.h"
 
-//#include "../Audio/AudioTrack.h"
+//#include "Audio/AudioTrack.h"
 
 namespace pxl
 {

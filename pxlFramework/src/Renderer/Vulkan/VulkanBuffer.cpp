@@ -2,17 +2,17 @@
 
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Renderer.h"
-#include "VulkanHelpers.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
+#include "VulkanHelpers.h"
 
 namespace pxl
 {
     VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
-    #define STAGING_BUFFER 1
-    #if STAGING_BUFFER
+#define STAGING_BUFFER 1
+#if STAGING_BUFFER
         // Staging buffer
         {
             VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -44,7 +44,7 @@ namespace pxl
             // Create buffer and its associated memory
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
         }
-    #else
+#else
         // Dedicated Buffer (actual buffer)
         {
             VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -59,10 +59,10 @@ namespace pxl
             // Create buffer and its associated memory
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, &m_StagingAllocationInfo));
         }
-    #endif
-        
+#endif
+
         VulkanDeletionQueue::Add([&]() {
-            Destroy();
+                Destroy();
         });
 
         // Set the data inside the memory of the buffer
@@ -71,19 +71,23 @@ namespace pxl
 
         // Set appropriate bind function
         if (m_Usage == VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) // also could this be a AND (&&) bit operation, would that be faster?
-            m_BindFunc = [&](VkCommandBuffer commandBuffer) { 
+            m_BindFunc = [&](VkCommandBuffer commandBuffer)
+            {
                 VkBuffer buffers[] = { m_Buffer };
                 VkDeviceSize offsets[] = { 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
             };
         else if (m_Usage == VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
-            m_BindFunc = [&](VkCommandBuffer commandBuffer) { 
+            m_BindFunc = [&](VkCommandBuffer commandBuffer)
+            {
                 VkDeviceSize offset = 0;
                 vkCmdBindIndexBuffer(commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
             };
-        else if (m_Usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) {}
-            //m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
-        else    
+        else if (m_Usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        {
+        }
+        //m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
+        else
             PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
     }
 
@@ -95,7 +99,7 @@ namespace pxl
     void VulkanBuffer::Bind()
     {
         PXL_PROFILE_SCOPE;
-        
+
         auto commandBuffer = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         m_BindFunc(commandBuffer);
@@ -104,7 +108,7 @@ namespace pxl
     void VulkanBuffer::Bind(VkCommandBuffer commandBuffer)
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_BindFunc(commandBuffer);
     }
 
@@ -115,7 +119,7 @@ namespace pxl
         auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
-    #if STAGING_BUFFER
+#if STAGING_BUFFER
 
         // Fill the vertex buffer with the data
         {
@@ -151,13 +155,13 @@ namespace pxl
             vkResetFences(device, 1, &m_UploadFence);
         }
 
-    #else
+#else
         {
             PXL_PROFILE_SCOPE_NAMED("Mapped memory copy WITHOUT MapMemory");
             memcpy(m_StagingAllocationInfo.pMappedData, data, (size_t)size);
         }
 
-    #endif
+#endif
     }
 
     void VulkanBuffer::Destroy()
@@ -196,14 +200,14 @@ namespace pxl
     std::vector<VkVertexInputAttributeDescription> VulkanBuffer::GetAttributeDescriptions(const BufferLayout& layout)
     {
         auto elements = layout.GetElements();
-        
+
         std::vector<VkVertexInputAttributeDescription> vertexAttributes(elements.size());
 
         uint32_t offset = 0;
         for (size_t i = 0; i < elements.size(); i++)
         {
             auto element = elements[i];
-            
+
             vertexAttributes[i].binding = 0;
             vertexAttributes[i].format = GetVkFormatOfBufferDataType(element.Type);
             vertexAttributes[i].location = static_cast<uint32_t>(i);
@@ -242,7 +246,7 @@ namespace pxl
             case GPUBufferUsage::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
             case GPUBufferUsage::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         }
-        
+
         return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
     }
 }

@@ -29,7 +29,7 @@ namespace pxl
         const char* validationLayers[] = {
             "VK_LAYER_KHRONOS_validation" // TODO: implement a system that selects the correct validation layers in a priority
         };
-            
+
         // Find validation layer
         for (const auto& layer : validationLayers)
         {
@@ -80,15 +80,15 @@ namespace pxl
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        #ifdef PXL_ENABLE_LOGGING
+#ifdef PXL_ENABLE_LOGGING
 
-            for (uint32_t i = 0; i < queueFamilyCount; i++)
-            {
-                PXL_LOG_INFO(LogArea::Vulkan, "Queue Family {}:", i);
-                PXL_LOG_INFO(LogArea::Vulkan, " - {}", string_VkQueueFlags(queueFamilies[i].queueFlags));
-            }
+        for (uint32_t i = 0; i < queueFamilyCount; i++)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "Queue Family {}:", i);
+            PXL_LOG_INFO(LogArea::Vulkan, " - {}", string_VkQueueFlags(queueFamilies[i].queueFlags));
+        }
 
-        #endif
+#endif
 
         return queueFamilies;
     }
@@ -116,7 +116,7 @@ namespace pxl
     }
 
     std::vector<VkPresentModeKHR> VulkanHelpers::GetSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
-    {   
+    {
         uint32_t presentModeCount = 0;
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
@@ -127,10 +127,10 @@ namespace pxl
     }
 
     VkSurfaceCapabilitiesKHR VulkanHelpers::GetSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
-    {   
+    {
         VkSurfaceCapabilitiesKHR capabilities = {};
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
-        
+
         return capabilities;
     }
 
@@ -208,13 +208,13 @@ namespace pxl
         // TODO: flags
 
         VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore));
-        
+
         if (semaphore == VK_NULL_HANDLE)
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Vulkan semaphore");
             return VK_NULL_HANDLE;
         }
-        
+
         return semaphore;
     }
 

@@ -17,7 +17,7 @@ namespace pxl
     void GUIOpenGL::Render()
     {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }  
+    }
 
     void GUIOpenGL::Shutdown()
     {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GUIBase.h"
 #include "Core/Window.h"
+#include "GUIBase.h"
 #include "Renderer/RendererAPIType.h"
 
 namespace pxl
@@ -18,9 +18,10 @@ namespace pxl
 
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
     private:
-        static std::unique_ptr<GUIBase> s_ImGuiRenderer;
-        static std::shared_ptr<Window> s_WindowHandle;
-        static RendererAPIType s_RendererAPI;
-        static bool s_Enabled;
+        static inline bool s_Enabled = true;
+
+        static inline std::unique_ptr<GUIBase> s_ImGuiRenderer = nullptr;
+
+        static inline std::shared_ptr<Window> s_WindowHandle = nullptr;
     };
 }

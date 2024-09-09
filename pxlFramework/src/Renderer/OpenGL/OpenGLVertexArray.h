@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Renderer/VertexArray.h"
-
 #include <glad/glad.h>
+
+#include "Renderer/VertexArray.h"
 
 namespace pxl
 {
-    class  OpenGLVertexArray : public VertexArray
+    class OpenGLVertexArray : public VertexArray
     {
     public:
         OpenGLVertexArray();

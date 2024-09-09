@@ -1,6 +1,7 @@
 #include "OpenGLShader.h"
 
 #include <glad/glad.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace pxl
@@ -37,21 +38,21 @@ namespace pxl
         GLint isCompiled = 0;
         glGetShaderiv(m_RendererID, GL_COMPILE_STATUS, &isCompiled);
 
-        if(isCompiled == GL_FALSE)
+        if (isCompiled == GL_FALSE)
         {
-        	GLint maxLength = 0;
-        	glGetShaderiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
+            GLint maxLength = 0;
+            glGetShaderiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
 
-        	// The maxLength includes the NULL character
-        	std::vector<GLchar> infoLog(maxLength);
-        	glGetShaderInfoLog(m_RendererID, maxLength, &maxLength, &infoLog[0]);
+            // The maxLength includes the NULL character
+            std::vector<GLchar> infoLog(maxLength);
+            glGetShaderInfoLog(m_RendererID, maxLength, &maxLength, &infoLog[0]);
 
-        	// We don't need the shader anymore.
-        	glDeleteShader(m_RendererID);
+            // We don't need the shader anymore.
+            glDeleteShader(m_RendererID);
 
             PXL_LOG_ERROR(LogArea::OpenGL, infoLog.data());
-            
-        	return;
+
+            return;
         }
     }
 

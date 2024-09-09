@@ -17,10 +17,10 @@ namespace pxl
     void VulkanFramebuffer::Destroy()
     {
         for (auto attachment : m_Attachments)
-		{
-			// TODO: figure out
-		}
-        
+        {
+            // TODO: figure out
+        }
+
         if (m_Framebuffer)
         {
             vkDestroyFramebuffer(m_Device, m_Framebuffer, nullptr);
@@ -34,8 +34,8 @@ namespace pxl
     }
 
     void VulkanFramebuffer::AddAttachment(VkImageView view, VkFormat format)
-    { 
-        m_Attachments.push_back({view, format});
+    {
+        m_Attachments.push_back({ view, format });
     }
 
     void VulkanFramebuffer::Create()
@@ -43,7 +43,7 @@ namespace pxl
         std::vector<VkImageView> attachments;
         for (auto attachment : m_Attachments)
             attachments.push_back(attachment.ImageView);
-        
+
         VkFramebufferCreateInfo framebufferInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         framebufferInfo.renderPass = m_RenderPass;
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());

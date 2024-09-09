@@ -1,7 +1,7 @@
 #include "VulkanContext.h"
 
-#include "VulkanHelpers.h"
 #include "VulkanAllocator.h"
+#include "VulkanHelpers.h"
 #include "VulkanInstance.h"
 
 namespace pxl
@@ -9,7 +9,7 @@ namespace pxl
     VulkanGraphicsContext::VulkanGraphicsContext(const std::shared_ptr<Window>& window)
     {
         auto vulkanInstance = VulkanInstance::Get();
-        
+
         // Get the window surface from the window
         m_Surface = window->CreateVKWindowSurface(vulkanInstance);
 
@@ -23,7 +23,7 @@ namespace pxl
 
         if (physicalDevices.empty())
             return;
-        
+
         // Select GPU
         VkPhysicalDevice selectedGPU = VK_NULL_HANDLE;
 
@@ -31,7 +31,7 @@ namespace pxl
         if (selectedGPU == VK_NULL_HANDLE)
         {
             selectedGPU = physicalDevices[0];
-            
+
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(selectedGPU, &properties);
             PXL_LOG_INFO(LogArea::Vulkan, "Selected first non-discrete VK capable GPU: {}", properties.deviceName);
@@ -89,14 +89,14 @@ namespace pxl
     void VulkanGraphicsContext::Present()
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_Swapchain->QueuePresent(m_PresentQueue);
     }
 
     void VulkanGraphicsContext::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, VkQueue queue, VkFence signalFence)
     {
         PXL_PROFILE_SCOPE;
-        
+
         VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence));
     }
 
@@ -107,7 +107,7 @@ namespace pxl
         {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(gpu, &properties);
-            
+
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                 return gpu;
         }

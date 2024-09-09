@@ -15,7 +15,7 @@ namespace TestApp
     void ModelViewer::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         PXL_PROFILE_SCOPE;
-        
+
         windowSpecs.Title += " - Running Test 'ModelViewer'";
 
         s_Window = pxl::Window::Create(windowSpecs);
@@ -25,12 +25,11 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour(m_ClearColour);
 
-        s_Camera = pxl::PerspectiveCamera::Create({
+        s_Camera = pxl::PerspectiveCamera::Create({ 
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 0.01f,
-            .FarClip = 1000.0f 
-        });
+            .FarClip = 1000.0f });
         s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Mesh, s_Camera);
@@ -43,7 +42,7 @@ namespace TestApp
     void ModelViewer::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             pxl::Application::Get().Close();
@@ -68,11 +67,11 @@ namespace TestApp
         s_MeshRotation.x += 10.0f * dt;
         s_MeshRotation.y += 10.0f * dt;
     }
-        
+
     void ModelViewer::OnRender()
     {
         PXL_PROFILE_SCOPE;
-        
+
         pxl::Renderer::DrawMesh(s_CurrentMesh, glm::vec3(0.0f), s_MeshRotation, glm::vec3(1.0f));
     }
 
@@ -83,6 +82,5 @@ namespace TestApp
 
     void ModelViewer::OnClose()
     {
-
     }
 }

@@ -31,23 +31,23 @@ namespace pxl
         glGetProgramiv(m_ShaderProgramID, GL_LINK_STATUS, (int*)&isLinked);
         if (isLinked == GL_FALSE)
         {
-        	GLint maxLength = 0;
-        	glGetProgramiv(m_ShaderProgramID, GL_INFO_LOG_LENGTH, &maxLength);
+            GLint maxLength = 0;
+            glGetProgramiv(m_ShaderProgramID, GL_INFO_LOG_LENGTH, &maxLength);
 
-        	// The maxLength includes the NULL character
-        	std::vector<GLchar> infoLog(maxLength);
-        	glGetProgramInfoLog(m_ShaderProgramID, maxLength, &maxLength, &infoLog[0]);
+            // The maxLength includes the NULL character
+            std::vector<GLchar> infoLog(maxLength);
+            glGetProgramInfoLog(m_ShaderProgramID, maxLength, &maxLength, &infoLog[0]);
 
-        	// We don't need the program anymore.
-        	glDeleteProgram(m_ShaderProgramID);
-        	// Don't leak shaders either.
-        	glDeleteShader(vertexShaderID);
-        	glDeleteShader(fragmentShaderID);
+            // We don't need the program anymore.
+            glDeleteProgram(m_ShaderProgramID);
+            // Don't leak shaders either.
+            glDeleteShader(vertexShaderID);
+            glDeleteShader(fragmentShaderID);
 
             PXL_LOG_ERROR(LogArea::OpenGL, infoLog.data());
 
-        	// In this simple program, we'll just leave
-        	return;
+            // In this simple program, we'll just leave
+            return;
         }
 
         // Always detach shaders after a successful link.
@@ -58,7 +58,7 @@ namespace pxl
     void OpenGLGraphicsPipeline::Bind()
     {
         // TODO: Set state such as cull mode and polygon mode
-        
+
         glUseProgram(m_ShaderProgramID);
     }
 

@@ -1,13 +1,13 @@
 #include "TestApplication.h"
 
 // Tests
+#include "Tests/CubesTest.h"
+#include "Tests/EmptyApp.h"
+#include "Tests/LinesTest.h"
 #include "Tests/ModelViewer.h"
 #include "Tests/OGLVK.h"
 #include "Tests/QuadsTest.h"
-#include "Tests/EmptyApp.h"
 #include "Tests/WindowTest.h"
-#include "Tests/LinesTest.h"
-#include "Tests/CubesTest.h"
 
 namespace TestApp
 {
@@ -21,13 +21,13 @@ namespace TestApp
         pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
         pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
-    #ifdef TA_DEBUG
+#ifdef TA_DEBUG
         buildType = "Debug x64";
-    #elif TA_RELEASE
+#elif TA_RELEASE
         buildType = "Release x64";
-    #elif TA_DIST
+#elif TA_DIST
         buildType = "Distribute x64";
-    #endif
+#endif
 
         rendererAPIType = pxl::EnumStringHelper::RendererAPITypeToString(windowRendererAPI);
 
@@ -40,47 +40,47 @@ namespace TestApp
         windowSpecs.RendererAPI = windowRendererAPI;
         windowSpecs.WindowMode = windowMode;
 
-        #define TEST_NAME OGLVK
+#define TEST_NAME QuadsTest
 
-        m_OnStartFunc =  TEST_NAME::OnStart;
+        m_OnStartFunc = TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
         m_OnRenderFunc = TEST_NAME::OnRender;
         m_OnGuiRender = TEST_NAME::OnGUIRender;
-        
+
         m_OnStartFunc(windowSpecs);
     }
 
     TestApplication::~TestApplication()
     {
-    #if SAVEFRAMEWORKSETTINGS
+#if SAVEFRAMEWORKSETTINGS
         // Save framework settings // TODO: this should be semi-automatic and handled by the application class
         auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
         frameworkSettings.WindowMode = m_Window->GetWindowMode();
         frameworkSettings.RendererAPI // TODO
 
-        pxl::FrameworkConfig::SetSettings(frameworkSettings);
-    #endif
+            pxl::FrameworkConfig::SetSettings(frameworkSettings);
+#endif
     }
 
     void TestApplication::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_OnUpdateFunc(dt);
     }
 
     void TestApplication::OnRender()
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_OnRenderFunc();
     }
 
     void TestApplication::OnGUIRender() // Function only gets called if ImGui is initialized
     {
         PXL_PROFILE_SCOPE;
-        
+
         auto rendererStats = pxl::Renderer::GetStats();
         ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
         ImGui::Begin("TestApp Renderer Stats");

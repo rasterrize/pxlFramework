@@ -28,14 +28,14 @@ namespace pxl
 
         // Renderer API
         auto rendererAPI = config["RendererAPI"].as<std::string>();
-        if (rendererAPI == "OpenGL")  // TODO: Custom data types with yaml-cpp
+        if (rendererAPI == "OpenGL") // TODO: Custom data types with yaml-cpp
             s_FrameworkSettings.RendererAPI = RendererAPIType::OpenGL;
         else if (rendererAPI == "Vulkan")
             s_FrameworkSettings.RendererAPI = RendererAPIType::Vulkan;
 
         // Window Mode
         auto windowMode = config["WindowMode"].as<std::string>();
-        if (windowMode == "Windowed")  // TODO: Custom data types with yaml-cpp
+        if (windowMode == "Windowed") // TODO: Custom data types with yaml-cpp
             s_FrameworkSettings.WindowMode = WindowMode::Windowed;
         else if (windowMode == "Borderless")
             s_FrameworkSettings.WindowMode = WindowMode::Borderless;
@@ -45,6 +45,5 @@ namespace pxl
 
     void FrameworkConfig::SaveToFile()
     {
-
     }
 }

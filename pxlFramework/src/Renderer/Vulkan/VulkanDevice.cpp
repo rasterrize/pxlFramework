@@ -8,7 +8,7 @@ namespace pxl
         : m_PhysicalDevice(physicalDevice), m_GraphicsQueueFamilyIndex(graphicsQueueFamily)
     {
         CreateLogicalDevice(m_PhysicalDevice);
-        
+
         VulkanDeletionQueue::Add([&]() {
             Destroy();
         });
@@ -58,9 +58,9 @@ namespace pxl
         // Check support
         for (const auto& extension : deviceExtensions)
         {
-           for (const auto& availableExtension : availableExtensions)
+            for (const auto& availableExtension : availableExtensions)
             {
-                if (strcmp(extension, availableExtension.extensionName) == 0) 
+                if (strcmp(extension, availableExtension.extensionName) == 0)
                 {
                     enabledExtensionCount++;
                     break;
@@ -87,15 +87,15 @@ namespace pxl
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create logical device");
         }
-        
+
         PXL_LOG_INFO(LogArea::Vulkan, "Logical Device successfully created:");
         PXL_LOG_INFO(LogArea::Vulkan, "   {} enabled extensions: ", enabledExtensionCount);
-        
+
         for (uint32_t i = 0; i < enabledExtensionCount; i++)
         {
             PXL_LOG_INFO(LogArea::Vulkan, "   - {}", deviceExtensions[i]);
         }
-        
+
         // TODO: expand this
     }
 

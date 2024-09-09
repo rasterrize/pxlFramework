@@ -1,7 +1,7 @@
 #include "Shader.h"
 
-#include "Renderer.h"
 #include "OpenGL/OpenGLShader.h"
+#include "Renderer.h"
 #include "Vulkan/VulkanShader.h"
 
 namespace pxl
@@ -13,12 +13,14 @@ namespace pxl
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
+
             case RendererAPIType::OpenGL:
                 return std::make_shared<OpenGLShader>(stage, glslSrc);
+
             case RendererAPIType::Vulkan:
                 return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, glslSrc);
         }
-        
+
         return nullptr;
     }
 
@@ -29,13 +31,15 @@ namespace pxl
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Shader for no renderer api.");
                 break;
+
             case RendererAPIType::OpenGL:
                 PXL_LOG_ERROR(LogArea::Renderer, "OpenGL implementation doesn't support shaders from binary.");
                 break;
+
             case RendererAPIType::Vulkan:
                 return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, sprvBin);
         }
-        
+
         return nullptr;
     }
 }

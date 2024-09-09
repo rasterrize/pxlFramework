@@ -1,10 +1,8 @@
 #pragma once
-
-#include "Renderer/GraphicsContext.h"
-
 #include <GLFW/glfw3.h>
 
 #include "Core/Window.h"
+#include "Renderer/GraphicsContext.h"
 
 namespace pxl
 {
@@ -20,11 +18,10 @@ namespace pxl
         virtual void SetVSync(bool value) override;
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const override
-        { 
-            PXL_LOG_ERROR(LogArea::OpenGL, "OpenGLContexts don't have devices, returning nullptr"); 
-            return nullptr; 
+        {
+            PXL_LOG_ERROR(LogArea::OpenGL, "OpenGLContexts don't have devices, returning nullptr");
+            return nullptr;
         }
-
     private:
         GLFWwindow* m_GLFWWindowHandle = nullptr;
         bool m_VSync = true;

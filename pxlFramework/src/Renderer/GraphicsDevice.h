@@ -8,7 +8,7 @@ namespace pxl
         // VRAM limit
         // ...
     };
-    
+
     class GraphicsDevice
     {
     public:

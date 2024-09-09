@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Renderer/Texture.h"
+#include <glad/glad.h>
 
 #include <glm/vec2.hpp>
-#include <glad/glad.h>
+
+#include "Renderer/Texture.h"
 
 namespace pxl
 {

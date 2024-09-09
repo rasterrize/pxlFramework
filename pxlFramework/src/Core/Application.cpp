@@ -1,21 +1,21 @@
 #include "Application.h"
 
-#include "Window.h"
+#include "Config.h"
+#include "Debug/GUI/GUI.h"
 #include "Input.h"
 #include "Platform.h"
-#include "Stopwatch.h"
-#include "Config.h"
-#include "Utils/DiscordRPC.h"
-#include "Renderer/Renderer.h"
 #include "Renderer/Camera.h"
-#include "Debug/GUI/GUI.h"
+#include "Renderer/Renderer.h"
+#include "Stopwatch.h"
+#include "Utils/DiscordRPC.h"
+#include "Window.h"
 
 namespace pxl
 {
     Application::Application()
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (s_Instance)
             throw std::runtime_error("Failed to create application object because one already exists. This likely indicates a bug within the application.");
 
@@ -54,7 +54,7 @@ namespace pxl
             }
 
             Window::UpdateAll();
-            
+
             Renderer::s_FrameCount++;
             Renderer::CalculateFPS();
 
@@ -67,9 +67,9 @@ namespace pxl
         // Don't want to close if we already have
         if (!m_Running)
             return;
-        
+
         m_Running = false;
-        
+
         GUI::Shutdown();
         Input::Shutdown();
         Renderer::Shutdown();

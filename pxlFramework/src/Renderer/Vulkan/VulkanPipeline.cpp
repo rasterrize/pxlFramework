@@ -1,10 +1,9 @@
 #include "VulkanPipeline.h"
 
-#include "VulkanContext.h"
+#include "Renderer/Renderer.h"
 #include "VulkanBuffer.h"
+#include "VulkanContext.h"
 #include "VulkanHelpers.h"
-
-#include "../Renderer.h"
 
 namespace pxl
 {
@@ -19,9 +18,9 @@ namespace pxl
             VkPipelineShaderStageCreateInfo shaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
             shaderStageInfo.stage = ToVkShaderStage(shader.first); // What stage in the graphics pipeline (vertex, geometry, fragment, etc)
             shaderStageInfo.module = static_pointer_cast<VulkanShader>(shader.second)->GetShaderModule();
-            shaderStageInfo.pName = "main"; // name of the entrypoint function in the shader
+            shaderStageInfo.pName = "main";                // name of the entrypoint function in the shader
             shaderStageInfo.pSpecializationInfo = nullptr; // this is used to specify values for constants in the shader, so it can perform optimizations such as removing unnecessary if statements
-        
+
             shaderStages.push_back(shaderStageInfo);
         }
 
@@ -57,12 +56,12 @@ namespace pxl
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-        rasterizationInfo.depthClampEnable = VK_FALSE; // requires enabling a gpu feature
-        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // disables geometry passing this stage, we don't want that
+        rasterizationInfo.depthClampEnable = VK_FALSE;                          // requires enabling a gpu feature
+        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;                   // disables geometry passing this stage, we don't want that
         rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonFillMode); // Can be lines and points, but requires enabling a gpu feature
-        rasterizationInfo.lineWidth = 1.0f; // 1.0f is a good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode); // specify different types of culling here
-        rasterizationInfo.frontFace = m_FrontFace; // This is counter clockwise in OpenGL
+        rasterizationInfo.lineWidth = 1.0f;                                     // 1.0f is a good default, any higher requires enabling a gpu feature
+        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode);              // specify different types of culling here
+        rasterizationInfo.frontFace = m_FrontFace;                              // This is counter clockwise in OpenGL
         // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -83,12 +82,12 @@ namespace pxl
         // Colour Blending
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // ColorBlendAttachment is per framebuffer, and ColorBlendState is global // no sType for this struct
         colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
         colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;                            // Optional
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;                 // Optional
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;                // Optional
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;                            // Optional
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
         VkPipelineColorBlendStateCreateInfo colorBlending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
@@ -103,9 +102,9 @@ namespace pxl
 
         // Pipeline layout (uniforms, etc)
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+        pipelineLayoutInfo.setLayoutCount = 0;            // Optional
+        pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
         // Create push constant ranges if a pc layout has been provided
@@ -144,12 +143,12 @@ namespace pxl
         graphicsPipelineInfo.pDynamicState = &dynamicStateInfo;
         graphicsPipelineInfo.layout = m_Layout;
         graphicsPipelineInfo.renderPass = renderPass->GetVKRenderPass();
-        graphicsPipelineInfo.subpass = 0; // index of sub pass
+        graphicsPipelineInfo.subpass = 0;                         // index of sub pass
         graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // } Used for deriving off previous graphics pipelines, which is less expensive.
         graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
 
         VK_CHECK(vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline)); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
-    
+
         VulkanDeletionQueue::Add([&]() {
             Destroy();
         });
@@ -163,7 +162,7 @@ namespace pxl
     void VulkanGraphicsPipeline::Bind()
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_CurrentCommandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
 
         // Bind Pipeline
@@ -175,12 +174,12 @@ namespace pxl
         PXL_PROFILE_SCOPE;
     }
 
-    void VulkanGraphicsPipeline::SetUniformData([[maybe_unused]] const std::string& name, [[maybe_unused]] UniformDataType type, [[maybe_unused]] uint32_t count, [[maybe_unused]] const void *data)
+    void VulkanGraphicsPipeline::SetUniformData([[maybe_unused]] const std::string& name, [[maybe_unused]] UniformDataType type, [[maybe_unused]] uint32_t count, [[maybe_unused]] const void* data)
     {
     }
 
     void VulkanGraphicsPipeline::SetPushConstantData(const std::string& name, const void* data)
-    {    
+    {
         auto range = m_PushConstantRanges.at(name);
         vkCmdPushConstants(m_CurrentCommandBuffer, m_Layout, range.stageFlags, range.offset, range.size, data);
     }
@@ -222,6 +221,7 @@ namespace pxl
             case PrimitiveTopology::None:
                 PXL_LOG_ERROR(LogArea::Vulkan, "Can't convert to VkPrimitiveTopology, topology is 'None'");
                 return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+
             case PrimitiveTopology::Triangle:      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             case PrimitiveTopology::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
             case PrimitiveTopology::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
@@ -229,7 +229,7 @@ namespace pxl
             case PrimitiveTopology::LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
             case PrimitiveTopology::Point:         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
         }
-        
+
         PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkPrimitiveTopology");
         return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
     }
@@ -242,7 +242,7 @@ namespace pxl
         }
 
         PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonFillMode for Vulkan");
-        
+
         return VK_POLYGON_MODE_MAX_ENUM;
     }
 
@@ -250,13 +250,13 @@ namespace pxl
     {
         switch (mode)
         {
-            case CullMode::None: return VK_CULL_MODE_NONE;
+            case CullMode::None:  return VK_CULL_MODE_NONE;
             case CullMode::Front: return VK_CULL_MODE_FRONT_BIT;
-            case CullMode::Back: return VK_CULL_MODE_BACK_BIT;
+            case CullMode::Back:  return VK_CULL_MODE_BACK_BIT;
         }
 
         PXL_LOG_WARN(LogArea::Vulkan, "Invalid CullMode for Vulkan");
-        
+
         return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
     }
 }

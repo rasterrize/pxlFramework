@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Renderer/RendererAPIType.h"
+#include "Renderer/RendererAPIType.h"
 
 namespace pxl
 {

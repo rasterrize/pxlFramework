@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Renderer/GPUBuffer.h"
-
 #include <glad/glad.h>
+
+#include "Renderer/GPUBuffer.h"
 
 namespace pxl
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include <vma/vk_mem_alloc.h>
+#include <vulkan/vulkan.h>
 
 #include "VulkanDevice.h"
 
@@ -14,6 +14,6 @@ namespace pxl
         static VmaAllocator Get() { return s_Allocator; }
         static void Shutdown();
     private:
-        static VmaAllocator s_Allocator;
+        static inline VmaAllocator s_Allocator = nullptr;
     };
 }

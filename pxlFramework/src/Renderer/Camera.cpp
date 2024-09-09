@@ -5,7 +5,6 @@
 #include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
 
-
 namespace pxl
 {
     std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
@@ -14,8 +13,9 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        if (s_Cameras.empty()) return;
-        
+        if (s_Cameras.empty())
+            return;
+
         for (auto& camera : s_Cameras)
             camera->Update();
     }
@@ -49,8 +49,8 @@ namespace pxl
     {
         glm::vec3 right;
 
-        right.x =  cos(m_Rotation.y);
-        right.z =  0;
+        right.x = cos(m_Rotation.y);
+        right.z = 0;
         right.y = -sin(m_Rotation.y);
 
         right = glm::normalize(right); // Unit Vector

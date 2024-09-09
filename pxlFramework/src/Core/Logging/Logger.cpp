@@ -12,7 +12,7 @@ namespace pxl
         // Must be shared_ptr, but it's okay since spdlog's example uses it this way
         auto frameworkSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         auto applicationSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        
+
         s_FrameworkLogger = std::make_unique<spdlog::logger>("FRAMEWORK", frameworkSink);
         PXL_ASSERT(s_FrameworkLogger);
 
@@ -43,7 +43,7 @@ namespace pxl
             case LogArea::Audio:      return "Audio";
             case LogArea::Physics:    return "Physics";
             case LogArea::Assert:     return "Assert";
-            case LogArea::Other:      return "Other"; 
+            case LogArea::Other:      return "Other";
         }
 
         return std::string_view();

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Core/Window.h"
-#include "RendererAPIType.h"
-#include "RendererAPI.h"
-#include "RendererData.h"
-#include "Texture.h"
 #include "Camera.h"
+#include "Core/Colour.h"
+#include "Core/Window.h"
 #include "GraphicsContext.h"
 #include "Pipeline.h"
-#include "Shader.h"
-#include "Primitives/Quad.h"
 #include "Primitives/Cube.h"
-#include "Core/Colour.h"
+#include "Primitives/Quad.h"
+#include "RendererAPI.h"
+#include "RendererAPIType.h"
+#include "RendererData.h"
+#include "Shader.h"
+#include "Texture.h"
 
 namespace pxl
 {
@@ -40,7 +40,7 @@ namespace pxl
 
         static void ResizeViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(x, y, width, height); }
         static void ResizeScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(x, y, width, height); }
-    
+
         // Set the camera for the given GeometryTarget
         static void SetCamera(RendererGeometryTarget target, const std::shared_ptr<Camera>& camera);
 
@@ -54,7 +54,7 @@ namespace pxl
         static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
 
         static void AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
-        
+
         static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         // Reset the static geometry data of the give GeometryTarget
@@ -69,7 +69,7 @@ namespace pxl
         static void AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
 
         struct Statistics
-        {
+        { // clang-format off
             float FPS                = 0.0f;
             uint32_t DrawCalls       = 0;
             uint32_t QuadCount       = 0;
@@ -89,7 +89,7 @@ namespace pxl
             uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshIndexCount / 3); }
             uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }
             uint32_t GetTotalIndexCount() { return QuadIndexCount + CubeIndexCount + MeshIndexCount; }
-        };
+        }; // clang-format on
 
         // Gets the statistics of the current frame
         static const Statistics& GetStats() { return s_Stats; }
@@ -109,14 +109,17 @@ namespace pxl
         static glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         static void ResetStats()
-        { 
+        {
             // NOTE: Intentionally avoids setting the FPS value
             memset(&s_Stats.DrawCalls, 0, sizeof(Statistics) - sizeof(float));
         }
     private:
         static inline bool s_Enabled = false;
+
         static inline RendererAPIType s_RendererAPIType = RendererAPIType::None;
+
         static inline std::unique_ptr<RendererAPI> s_RendererAPI = nullptr;
+
         static inline std::shared_ptr<GraphicsContext> s_ContextHandle = nullptr;
 
         static inline std::shared_ptr<Camera> s_QuadCamera = nullptr;
@@ -128,4 +131,4 @@ namespace pxl
 
         static inline Statistics s_Stats = {};
     };
-}   
+}

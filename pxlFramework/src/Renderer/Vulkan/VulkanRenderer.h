@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../RendererAPI.h"
-
 #include <vulkan/vulkan.h>
 
-#include "VulkanRenderPass.h"
+#include "Renderer/RendererAPI.h"
 #include "VulkanContext.h"
+#include "VulkanRenderPass.h"
 
 namespace pxl
 {
@@ -17,7 +16,7 @@ namespace pxl
 
         virtual void Begin() override;
         virtual void End() override;
-        
+
         virtual void Clear() override {};
         virtual void SetClearColour(const glm::vec4& colour) override { m_ClearValue.color = { colour.r, colour.g, colour.b, colour.a }; }
 

@@ -4,7 +4,7 @@ namespace pxl
 {
     // from glfw
     enum MouseCode
-    {
+    { // clang-format off
         PXL_MOUSE_BUTTON_1        = 0,
         PXL_MOUSE_BUTTON_2        = 1,
         PXL_MOUSE_BUTTON_3        = 2,
@@ -17,5 +17,5 @@ namespace pxl
         PXL_MOUSE_BUTTON_LEFT     = PXL_MOUSE_BUTTON_1,
         PXL_MOUSE_BUTTON_RIGHT    = PXL_MOUSE_BUTTON_2,
         PXL_MOUSE_BUTTON_MIDDLE   = PXL_MOUSE_BUTTON_3,
-    };
+    }; // clang-format on
 }

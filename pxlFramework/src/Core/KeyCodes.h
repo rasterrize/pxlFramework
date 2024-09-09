@@ -4,7 +4,7 @@ namespace pxl
 {
     // from glfw
     enum KeyCode
-    {
+    { // clang-format off
         PXL_KEY_SPACE             = 32,
         PXL_KEY_APOSTROPHE        = 39,  /* ' */
         PXL_KEY_COMMA             = 44,  /* , */
@@ -127,5 +127,5 @@ namespace pxl
         PXL_KEY_RIGHT_ALT         = 346,
         PXL_KEY_RIGHT_SUPER       = 347,
         PXL_KEY_MENU              = 348,
-    };
+    }; // clang-format on
 }

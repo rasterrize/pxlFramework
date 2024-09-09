@@ -2,9 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "VulkanImage.h"
-#include "VulkanFramebuffer.h"
 #include "VulkanDevice.h"
+#include "VulkanFramebuffer.h"
+#include "VulkanImage.h"
 
 namespace pxl
 {
@@ -44,7 +44,7 @@ namespace pxl
 
         VkSwapchainKHR GetVKSwapchain() const { return m_Swapchain; }
         VulkanSwapchainSpecs GetSwapchainSpecs() const { return m_SwapchainSpecs; }
-        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); } // Get Current Frame Image?
+        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); }                // Get Current Frame Image?
         std::shared_ptr<VulkanFramebuffer> GetFramebuffer(uint32_t index) const { return m_Framebuffers[index]; } // Get Current Frame Framebuffer?
         VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; }
 
@@ -63,14 +63,13 @@ namespace pxl
         VkPresentModeKHR GetSuitablePresentMode();
         uint32_t GetSuitableImageCount();
         bool CheckExtentSupport(VkExtent2D extent);
-    
     private:
         const std::shared_ptr<VulkanDevice> m_Device;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 
-        uint32_t m_CurrentImageIndex = 0; // for VkSwapchain images
+        uint32_t m_CurrentImageIndex = 0;                   // for VkSwapchain images
         std::vector<std::shared_ptr<VulkanImage>> m_Images; // holds the image views
         std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
 

@@ -4,7 +4,7 @@
 
 // platform specific utilities (getting time or date from operating system, etc)
 namespace pxl
-{ 
+{
     class Platform
     {
     public:

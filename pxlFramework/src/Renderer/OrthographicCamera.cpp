@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    OrthographicCamera::OrthographicCamera(const OrthographicCameraSettings& settings) 
+    OrthographicCamera::OrthographicCamera(const OrthographicCameraSettings& settings)
         : m_Settings(settings)
     {
         m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
@@ -14,9 +14,11 @@ namespace pxl
     void OrthographicCamera::Update()
     {
         PXL_PROFILE_SCOPE;
-        
+
+        // clang-format off
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) 
-        * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(0, 0, 1)); // TODO: add rotation with quaternions
+            * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(0, 0, 1)); // TODO: add rotation with quaternions
+        // clang-format off
 
         m_ViewMatrix = glm::inverse(transform);
     }

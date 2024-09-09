@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Renderer/GraphicsDevice.h"
-
 #include <vulkan/vulkan.h>
 
+#include "Renderer/GraphicsDevice.h"
 #include "VulkanHelpers.h"
 
 namespace pxl
@@ -27,13 +26,12 @@ namespace pxl
         int32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
-
     private:
         void CreateLogicalDevice(VkPhysicalDevice gpu);
     private:
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
-        
+
         DeviceLimits m_DeviceLimits;
 
         std::optional<uint32_t> m_GraphicsQueueFamilyIndex;

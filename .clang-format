@@ -5,7 +5,7 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignArrayOfStructures: Right
 AlignConsecutiveAssignments:
-  Enabled:         true
+  Enabled:         false
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
@@ -96,7 +96,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: AfterComma
 BreakStringLiterals: false
-ColumnLimit: 2000
+ColumnLimit: 0
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
@@ -110,10 +110,8 @@ ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: false
 # ForEachMacros:
 #   - foreach
-#   - Q_FOREACH
-#   - BOOST_FOREACH
 # IfMacros:
-#   - KJ_IF_MAYBE
+#   - MACRO
 IncludeBlocks:   Regroup
 IncludeCategories:
   - Regex:           '^<ext/.*\.h>'
@@ -155,8 +153,8 @@ IntegerLiteralSeparator:
   HexMinDigits:    0
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
-KeepEmptyLinesAtEOF: false
-KeepEmptyLinesAtTheStartOfBlocks: false
+KeepEmptyLinesAtEOF: false # deprecated
+KeepEmptyLinesAtTheStartOfBlocks: false # deprecated
 LambdaBodyIndentation: Signature
 LineEnding:      DeriveLF
 MacroBlockBegin: ''
@@ -275,9 +273,7 @@ StatementMacros:
 TabWidth:        8
 UseTab:          Never
 VerilogBreakBetweenInstancePorts: true
-WhitespaceSensitiveMacros:
+WhitespaceSensitiveMacros: [PXL_DEBUG, PXL_RELEASE, PXL_ENABLE_LOGGING]
   # - BOOST_PP_STRINGIZE
-  # - CF_SWIFT_NAME
-  # - NS_SWIFT_NAME
   # - PP_STRINGIZE
   # - STRINGIZE

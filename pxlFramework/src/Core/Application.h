@@ -24,7 +24,11 @@ namespace pxl
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 
-        static Application& Get() { PXL_ASSERT(s_Instance); return *s_Instance; }
+        static Application& Get()
+        {
+            PXL_ASSERT(s_Instance);
+            return *s_Instance;
+        }
     private:
         bool m_Running = true;
         bool m_Minimized = false;

@@ -6,7 +6,6 @@ namespace TestApp
 {
     void EmptyApp::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-
     }
 
     void EmptyApp::OnUpdate(float dt)
@@ -28,6 +27,5 @@ namespace TestApp
 
     void EmptyApp::OnClose()
     {
-
     }
 }

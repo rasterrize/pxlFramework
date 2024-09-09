@@ -15,7 +15,7 @@ namespace pxl
             return s_Shaders[filename];
         else
             PXL_LOG_ERROR(LogArea::Renderer, "Failed to find shader '{}' in Shader Library", filename);
-        
-        return nullptr; 
+
+        return nullptr;
     }
 }

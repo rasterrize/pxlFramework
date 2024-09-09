@@ -6,13 +6,13 @@ namespace TestApp
     static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
-    
+
     void LinesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         windowSpecs.Title += " - Running Test 'LinesTest'";
-        
+
         s_Window = pxl::Window::Create(windowSpecs);
-        
+
         pxl::Renderer::Init(s_Window);
         pxl::Input::Init(s_Window);
 
@@ -38,11 +38,11 @@ namespace TestApp
     void LinesTest::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
+
         auto cameraPosition = s_Camera->GetPosition();
         auto cameraFOV = s_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
-        
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             pxl::Application::Get().Close();

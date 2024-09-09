@@ -1,11 +1,12 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+
 #include <glm/vec2.hpp>
 
-#include "Window.h"
 #include "KeyCodes.h"
 #include "MouseCodes.h"
+#include "Window.h"
 
 namespace pxl
 {
@@ -23,7 +24,7 @@ namespace pxl
         static void Shutdown();
 
         static bool IsInitialized() { return s_Enabled; }
-    
+
         static bool IsKeyPressed(KeyCode keyCode);
         static bool IsKeyHeld(KeyCode keyCode);
 

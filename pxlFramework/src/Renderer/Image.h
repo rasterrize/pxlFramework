@@ -14,7 +14,7 @@ namespace pxl
     enum class ImageFilter
     {
         Undefined,
-        Nearest,           // Should nearest be default?
+        Nearest, // Should nearest be default?
         Linear,
     };
 

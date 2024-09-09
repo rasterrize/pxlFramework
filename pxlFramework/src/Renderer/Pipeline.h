@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Shader.h"
 #include "BufferLayout.h"
+#include "Shader.h"
 #include "UniformLayout.h"
 
 namespace pxl
@@ -50,6 +50,7 @@ namespace pxl
 
         virtual void SetUniformData(const std::string& name, UniformDataType type, const void* data) = 0;
         virtual void SetUniformData(const std::string& name, UniformDataType type, uint32_t count, const void* data) = 0;
+
         virtual void SetPushConstantData(const std::string& name, const void* data) = 0;
 
         virtual void* GetPipelineLayout() = 0;

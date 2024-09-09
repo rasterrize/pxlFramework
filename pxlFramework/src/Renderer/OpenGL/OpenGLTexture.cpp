@@ -7,7 +7,7 @@ namespace pxl
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
-        
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -40,7 +40,7 @@ namespace pxl
             case ImageFormat::RGB8:      return GL_RGB;
             case ImageFormat::RGBA8:     return GL_RGBA;
         }
-        
+
         return GL_INVALID_ENUM;
     }
 }

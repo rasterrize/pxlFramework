@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Renderer/Pipeline.h"
-
 #include "OpenGLShader.h"
+#include "Renderer/Pipeline.h"
 
 namespace pxl
 {
@@ -18,9 +17,9 @@ namespace pxl
         virtual void SetUniformData(const std::string& name, UniformDataType type, const void* data) override;
         virtual void SetUniformData(const std::string& name, UniformDataType type, uint32_t count, const void* data) override;
         virtual void SetPushConstantData([[maybe_unused]] const std::string& name, [[maybe_unused]] const void* data) override
-        { 
+        {
             PXL_LOG_WARN(LogArea::OpenGL, "Can't set push constant data, OpenGL doesn't support push constants");
-        };
+        }
 
         virtual void* GetPipelineLayout() override { return nullptr; }
     private:

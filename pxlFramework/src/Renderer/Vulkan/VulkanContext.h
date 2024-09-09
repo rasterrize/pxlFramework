@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Renderer/GraphicsContext.h"
-
 #include <vulkan/vulkan.h>
 
 #include "Core/Window.h"
-#include "VulkanRenderPass.h"
-#include "VulkanSwapchain.h"
+#include "Renderer/GraphicsContext.h"
 #include "VulkanDevice.h"
 #include "VulkanHelpers.h"
+#include "VulkanRenderPass.h"
+#include "VulkanSwapchain.h"
 
 namespace pxl
 {
@@ -21,7 +20,11 @@ namespace pxl
         virtual void Present() override;
 
         virtual bool GetVSync() const override { return m_Swapchain->GetVSync(); }
-        virtual void SetVSync(bool value) override { m_Swapchain->SetVSync(value); m_Swapchain->Recreate(); }
+        virtual void SetVSync(bool value) override
+        {
+            m_Swapchain->SetVSync(value);
+            m_Swapchain->Recreate();
+        }
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const override { return m_Device; }
 
@@ -36,7 +39,6 @@ namespace pxl
 
         // TEMP (I think)
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
-
     private:
         VkPhysicalDevice GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices); // TODO: put this in vulkan helpers
     private:
@@ -47,7 +49,7 @@ namespace pxl
         VkSurfaceFormatKHR m_SurfaceFormat = {};
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
-        VkQueue m_PresentQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
+        VkQueue m_PresentQueue = VK_NULL_HANDLE;  // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
 
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
 

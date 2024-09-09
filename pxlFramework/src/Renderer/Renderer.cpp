@@ -1,17 +1,17 @@
 #include "Renderer.h"
 
-#include "VertexArray.h"
-#include "GPUBuffer.h"
-#include "Core/Platform.h"
-#include "OpenGL/OpenGLRenderer.h"
-#include "Vulkan/VulkanRenderer.h"
-#include "Vulkan/VulkanInstance.h"
-#include "Vulkan/VulkanContext.h"
-#include "Utils/FileSystem.h"
 #include "BufferLayout.h"
-#include "UniformLayout.h"
+#include "Core/Platform.h"
 #include "Debug/GUI/GUI.h"
+#include "GPUBuffer.h"
+#include "OpenGL/OpenGLRenderer.h"
+#include "UniformLayout.h"
+#include "Utils/FileSystem.h"
+#include "VertexArray.h"
 #include "Vertices.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanInstance.h"
+#include "Vulkan/VulkanRenderer.h"
 
 namespace pxl
 {
@@ -33,54 +33,75 @@ namespace pxl
     // Static Quad Data
     static std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_StaticQuadIBO = nullptr;
+
     static std::function<void()> s_StaticQuadBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
+
     static std::vector<QuadVertex> s_StaticQuadVertices;
     static std::vector<uint32_t> s_StaticQuadIndices;
 
     // Dynamic Quad Data
     static uint32_t s_QuadCount = 0;
+
     static std::array<QuadVertex, k_MaxQuadVertexCount> s_QuadVertices;
     static std::array<uint32_t, k_MaxQuadIndexCount> s_QuadIndices; // NOTE: currently also used by static quads
+
     static std::shared_ptr<GPUBuffer> s_QuadVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_QuadIBO = nullptr;
+
     static std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     static std::function<void()> s_QuadUniformFunc = nullptr;
+
     static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
 
     // Static Cube Data
     static uint32_t s_StaticQuadIndexOffset = 0;
+
     static std::shared_ptr<GPUBuffer> s_StaticCubeVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_StaticCubeIBO = nullptr;
+
     static std::vector<CubeVertex> s_StaticCubeVertices;
     static std::vector<uint32_t> s_StaticCubeIndices;
 
     // Dynamic Cube Data
     static uint32_t s_CubeCount = 0;
+
     static std::array<CubeVertex, k_MaxCubeVertexCount> s_CubeVertices;
     static std::array<uint32_t, k_MaxCubeIndexCount> s_CubeIndices;
+
     static std::shared_ptr<GPUBuffer> s_CubeVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_CubeIBO = nullptr;
+
     static std::function<void()> s_CubeBindFunc = nullptr;
+
     static std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
 
     // Line Data
     static uint32_t s_LineCount = 0;
+
     static std::array<LineVertex, k_MaxLineVertexCount> s_LineVertices;
+
     static std::shared_ptr<GPUBuffer> s_LineVBO = nullptr;
+
     static std::function<void()> s_LineBindFunc = nullptr;
+
     static std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
     // Mesh Data
     static std::vector<MeshVertex> s_MeshVertices;
+
     static std::shared_ptr<GPUBuffer> s_MeshVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_MeshIBO = nullptr;
+
     static std::function<void()> s_MeshBindFunc = nullptr;
+
     static std::shared_ptr<GraphicsPipeline> s_MeshPipeline = nullptr;
 
     // Texture Data
     static uint32_t s_TextureUnitIndex = 0;
+
     static std::array<std::shared_ptr<Texture>, k_MaxTextureUnits> s_TextureUnits;
     static std::array<int32_t, k_MaxTextureUnits> s_Samplers;
+
     static std::shared_ptr<Texture> s_WhitePixelTexture = nullptr;
 
     // For OpenGL
@@ -89,13 +110,13 @@ namespace pxl
     static std::shared_ptr<VertexArray> s_LineVAO = nullptr;
     static std::shared_ptr<VertexArray> s_MeshVAO = nullptr;
     static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
-    
+
     static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
 
     void Renderer::Init(const std::shared_ptr<Window>& window)
-    {   
+    {
         PXL_PROFILE_SCOPE;
-        
+
         if (s_Enabled)
         {
             PXL_LOG_WARN(LogArea::Renderer, "Renderer already initialized");
@@ -108,9 +129,7 @@ namespace pxl
         // Create renderer API object
         switch (s_RendererAPIType)
         {
-            case RendererAPIType::None:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api");    
-                return;
+            case RendererAPIType::None: PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api"); return;
 
             case RendererAPIType::OpenGL:
                 s_RendererAPI = std::make_unique<OpenGLRenderer>();
@@ -147,7 +166,7 @@ namespace pxl
                     offset += 4;
                 }
             }
-            
+
             const auto bufferLayout = QuadVertex::GetLayout();
 
             // Prepare Buffers
@@ -175,15 +194,18 @@ namespace pxl
                 s_StaticQuadVAO->AddVertexBuffer(s_StaticQuadVBO, bufferLayout);
                 s_StaticQuadVAO->SetIndexBuffer(s_QuadIBO); // Use the quad index buffer since it's also static
 
-                s_QuadBufferBindFunc = [&]() {
+                s_QuadBufferBindFunc = [&]()
+                {
                     s_QuadVAO->Bind();
                 };
 
-                s_StaticQuadBindFunc = [&]() {
+                s_StaticQuadBindFunc = [&]()
+                {
                     s_StaticQuadVAO->Bind();
                 };
 
-                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp) {
+                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp)
+                {
                     pipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
                 };
 
@@ -195,17 +217,20 @@ namespace pxl
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_QuadBufferBindFunc = [&]() {
+                s_QuadBufferBindFunc = [&]()
+                {
                     s_QuadVBO->Bind();
                     s_QuadIBO->Bind();
                 };
 
-                s_StaticQuadBindFunc = [&]() {
+                s_StaticQuadBindFunc = [&]()
+                {
                     s_StaticQuadVBO->Bind();
                     s_QuadIBO->Bind();
                 };
 
-                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp) {
+                s_SetViewProjectionFunc = [&](const std::shared_ptr<GraphicsPipeline>& pipeline, const glm::mat4& vp)
+                {
                     pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
@@ -223,7 +248,7 @@ namespace pxl
 
             s_QuadPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }
-        
+
         // --------------------
         // Prepare Cube Data
         // --------------------
@@ -250,7 +275,7 @@ namespace pxl
             s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxCubeVertexCount * sizeof(CubeVertex));
             s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, k_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
 
-            // Shader storage    
+            // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
 
             GraphicsPipelineSpecs pipelineSpecs;
@@ -265,7 +290,8 @@ namespace pxl
                 s_CubeVAO->AddVertexBuffer(s_CubeVBO, bufferLayout);
                 s_CubeVAO->SetIndexBuffer(s_CubeIBO);
 
-                s_CubeBindFunc = [&]() {
+                s_CubeBindFunc = [&]()
+                {
                     s_CubeVAO->Bind();
                 };
 
@@ -277,7 +303,8 @@ namespace pxl
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_CubeBindFunc = [&]() {
+                s_CubeBindFunc = [&]()
+                {
                     s_CubeVBO->Bind();
                     s_CubeIBO->Bind();
                 };
@@ -319,7 +346,8 @@ namespace pxl
                 s_LineVAO = VertexArray::Create();
                 s_LineVAO->AddVertexBuffer(s_LineVBO, bufferLayout);
 
-                s_LineBindFunc = [&]() {
+                s_LineBindFunc = [&]()
+                {
                     s_LineVAO->Bind();
                 };
 
@@ -331,7 +359,8 @@ namespace pxl
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_LineBindFunc = [&]() {
+                s_LineBindFunc = [&]()
+                {
                     s_LineVBO->Bind();
                 };
 
@@ -374,7 +403,8 @@ namespace pxl
                 s_MeshVAO->AddVertexBuffer(s_MeshVBO, bufferLayout);
                 s_MeshVAO->SetIndexBuffer(s_MeshIBO);
 
-                s_MeshBindFunc = [&]() {
+                s_MeshBindFunc = [&]()
+                {
                     s_MeshVAO->Bind();
                 };
 
@@ -386,7 +416,8 @@ namespace pxl
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_MeshBindFunc = [&]() {
+                s_MeshBindFunc = [&]()
+                {
                     s_MeshVBO->Bind();
                     s_MeshIBO->Bind();
                 };
@@ -409,7 +440,7 @@ namespace pxl
         // Prepare texture data
         // TODO: hard code this
         s_WhitePixelTexture = FileSystem::LoadTextureFromImage("resources/textures/whiteTexture.bmp");
-        
+
         // Set samplers
         for (int32_t i = 0; i < k_MaxTextureUnits; i++)
             s_Samplers[i] = i;
@@ -446,7 +477,7 @@ namespace pxl
     void Renderer::Begin()
     {
         PXL_PROFILE_SCOPE;
-        
+
         // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
         if (!s_Enabled)
             return;
@@ -468,7 +499,7 @@ namespace pxl
         // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
         if (!s_Enabled)
             return;
-        
+
         Flush();
 
         if (GUI::IsInitialized())
@@ -485,7 +516,7 @@ namespace pxl
     void Renderer::SetCamera(RendererGeometryTarget target, const std::shared_ptr<Camera>& camera)
     {
         PXL_ASSERT(camera);
-        
+
         switch (target)
         {
             case RendererGeometryTarget::All:
@@ -503,7 +534,7 @@ namespace pxl
     void Renderer::SetPipeline(RendererGeometryTarget target, const std::shared_ptr<GraphicsPipeline>& pipeline)
     {
         PXL_ASSERT(pipeline);
-        
+
         switch (target)
         {
             case RendererGeometryTarget::All:
@@ -534,7 +565,7 @@ namespace pxl
 
         std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
 
-        std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();    
+        std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();
         if (quad.TextureUV.has_value())
             texCoords = quad.TextureUV.value();
 
@@ -546,7 +577,7 @@ namespace pxl
         {
             s_QuadVertices[vertexCount + i] = {
                 .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = quad.Colour, 
+                .Colour = quad.Colour,
                 .TexCoords = texCoords[i],
                 .TexIndex = texIndex,
             };
@@ -563,7 +594,7 @@ namespace pxl
     void Renderer::AddCube(const Cube& cube)
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (s_CubeCount >= k_MaxCubeCount)
             Flush();
 
@@ -598,18 +629,18 @@ namespace pxl
         constexpr float sheetSize = 256.0f;
         constexpr float textureSize = 16.0f;
         glm::vec2 texCoords[] = {
-            { (textureIndex * textureSize) / sheetSize, (y * textureSize) / sheetSize },
-            { ((textureIndex + 1) * textureSize) / sheetSize, (y * textureSize) / sheetSize },
+            {       (textureIndex * textureSize) / sheetSize,       (y * textureSize) / sheetSize },
+            { ((textureIndex + 1) * textureSize) / sheetSize,       (y * textureSize) / sheetSize },
             { ((textureIndex + 1) * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
-            { (textureIndex * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
+            {       (textureIndex * textureSize) / sheetSize, ((y + 1) * textureSize) / sheetSize },
         };
-        
+
         for (int i = 0; i < 24; i += 4)
         {
-            s_CubeMesh.Vertices[0 + i].TexCoords = texCoords[0]; 
-            s_CubeMesh.Vertices[1 + i].TexCoords = texCoords[1]; 
-            s_CubeMesh.Vertices[2 + i].TexCoords = texCoords[2]; 
-            s_CubeMesh.Vertices[3 + i].TexCoords = texCoords[3]; 
+            s_CubeMesh.Vertices[0 + i].TexCoords = texCoords[0];
+            s_CubeMesh.Vertices[1 + i].TexCoords = texCoords[1];
+            s_CubeMesh.Vertices[2 + i].TexCoords = texCoords[2];
+            s_CubeMesh.Vertices[3 + i].TexCoords = texCoords[3];
         }
         s_CubeMesh.Translate(position.x, position.y, position.z);
         s_Meshes.push_back(s_CubeMesh);
@@ -619,14 +650,20 @@ namespace pxl
     void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, [[maybe_unused]] const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (s_LineCount >= k_MaxLineCount)
             Flush();
 
         const auto vertexCount = s_LineCount * 2;
-        
-        s_LineVertices[vertexCount + 0] = {{ position1.x * scale.x, position1.y * scale.y, position1.z * scale.z }, colour };
-        s_LineVertices[vertexCount + 1] = {{ position2.x * scale.x, position2.y * scale.y, position2.z * scale.z }, colour };
+
+        s_LineVertices[vertexCount + 0] = {
+            .Position = { position1.x * scale.x, position1.y * scale.y, position1.z * scale.z },
+            .Colour = colour,
+        };
+        s_LineVertices[vertexCount + 1] = {
+            .Position = { position2.x * scale.x, position2.y * scale.y, position2.z * scale.z },
+            .Colour = colour,
+        };
 
         s_LineCount++;
     }
@@ -634,7 +671,7 @@ namespace pxl
     void Renderer::DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (!mesh)
         {
             PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh as it was invalid");
@@ -647,7 +684,7 @@ namespace pxl
         {
             s_MeshVertices.push_back({ transform * glm::vec4(vertex.Position, 1.0f), vertex.Colour, vertex.TexCoords, vertex.TexIndex });
         }
-        
+
         s_MeshPipeline->Bind();
 
         s_MeshVBO->SetData(static_cast<uint32_t>(mesh->Vertices.size() * sizeof(MeshVertex)), s_MeshVertices.data());
@@ -669,13 +706,14 @@ namespace pxl
     }
 
     void Renderer::ResetStaticGeometry(RendererGeometryTarget target)
-    { 
+    {
         switch (target)
         {
             case RendererGeometryTarget::All:
                 s_StaticQuadVertices.clear();
                 s_StaticCubeVertices.clear();
                 return;
+
             case RendererGeometryTarget::Quad: s_StaticQuadVertices.clear(); return;
             case RendererGeometryTarget::Cube: s_StaticCubeVertices.clear(); return;
             case RendererGeometryTarget::Line: PXL_LOG_ERROR(LogArea::Renderer, "Static Lines aren't supported"); return;
@@ -730,7 +768,7 @@ namespace pxl
         {
             s_StaticCubeVertices.push_back({
                 .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = cube.Colour, 
+                .Colour = cube.Colour,
                 .TexCoords = defaultVertices[i].TexCoords,
                 .TexIndex = 0.0f,
             });
@@ -745,7 +783,7 @@ namespace pxl
     void Renderer::StaticGeometryReady()
     {
         PXL_PROFILE_SCOPE;
-        
+
         if (!s_StaticQuadVertices.empty())
         {
             s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, static_cast<uint32_t>(s_StaticQuadVertices.size() * sizeof(QuadVertex)), s_StaticQuadVertices.data());
@@ -790,8 +828,8 @@ namespace pxl
         if (!foundTexture)
         {
             textureIndex = static_cast<float>(s_TextureUnitIndex);
-			s_TextureUnits[s_TextureUnitIndex] = texture;
-			s_TextureUnitIndex++;
+            s_TextureUnits[s_TextureUnitIndex] = texture;
+            s_TextureUnitIndex++;
         }
 
         return textureIndex;
@@ -819,10 +857,10 @@ namespace pxl
         if (s_QuadCount > 0)
         {
             PXL_PROFILE_SCOPE_NAMED("Flush Dynamic Quads");
-            
+
             PXL_ASSERT_MSG(s_QuadCamera, "Quad Camera isn't set");
             PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
-            
+
             s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
             s_QuadBufferBindFunc();
@@ -878,14 +916,14 @@ namespace pxl
             PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
 
             s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
-            
+
             {
                 PXL_PROFILE_SCOPE_NAMED("s_CubeBindFunc()");
                 s_CubeBindFunc();
             }
 
             s_CubePipeline->Bind();
-            
+
             s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_CubeCount * 36);
@@ -898,14 +936,14 @@ namespace pxl
 
             s_CubeCount = 0;
         }
-        
+
         // Flush static cubes if necessary
         if (!s_StaticCubeVertices.empty())
         {
             PXL_PROFILE_SCOPE_NAMED("Flush Static Cubes");
 
             PXL_ASSERT_MSG(s_StaticCubeVBO, "Static cube VBO is invalid, make sure you call StaticGeometryReady()");
-            
+
             PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
             PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
             PXL_ASSERT_MSG(s_StaticCubeIBO, "Static cube IBO is invalid");
@@ -932,11 +970,11 @@ namespace pxl
         {
             PXL_PROFILE_SCOPE_NAMED("Flush Lines");
 
-            PXL_ASSERT_MSG(s_LineCamera, "Line camera isn't set");            
+            PXL_ASSERT_MSG(s_LineCamera, "Line camera isn't set");
             PXL_ASSERT_MSG(s_LinePipeline, "Line pipeline isn't set");
 
             s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
-            
+
             s_LineBindFunc();
 
             s_LinePipeline->Bind();
@@ -956,11 +994,13 @@ namespace pxl
 
     glm::mat4 Renderer::CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
+        // clang-format off
         return glm::translate(glm::mat4(1.0f), position)
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
             * glm::scale(glm::mat4(1.0f), { scale.x, scale.y, scale.z });
+        // clang-format on
     }
 
     void Renderer::CalculateFPS()

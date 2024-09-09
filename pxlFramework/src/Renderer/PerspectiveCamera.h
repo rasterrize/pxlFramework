@@ -11,15 +11,19 @@ namespace pxl
         float NearClip;
         float FarClip;
     };
-    
+
     class PerspectiveCamera : public Camera
     {
     public:
         PerspectiveCamera(const PerspectiveCameraSettings& settings);
 
-        void SetFOV(float fov) { m_Settings.FOV = fov; RecalculateProjection(); }
+        void SetFOV(float fov)
+        {
+            m_Settings.FOV = fov;
+            RecalculateProjection();
+        }
         float GetFOV() const { return m_Settings.FOV; }
-        
+
         virtual void Update() override;
 
         static std::shared_ptr<PerspectiveCamera> Create(const PerspectiveCameraSettings& settings);

@@ -38,7 +38,7 @@ namespace TestApp
         pxl::GUI::Init(s_Window);
 
         pxl::Renderer::SetClearColour(s_ClearColour);
-        
+
         s_Camera = pxl::OrthographicCamera::Create({
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = -10.0f,
@@ -58,45 +58,45 @@ namespace TestApp
         s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/atlas.png");
 
         s_StaticQuad = {
-            .Position = { 200.0f, 450.0f, 0.0f },
-            .Rotation = { 0.0f, 0.0, 45.0f },
-            .Size     = glm::vec2(75.0f),
-            .Colour   = pxl::Colour::GetColourAsVec4(pxl::ColourName::Yellow),
-            .Origin   = pxl::Origin2D::BottomRight,
+            .Position = { 200.0f, 450.0f,  0.0f },
+            .Rotation = {   0.0f,    0.0, 45.0f },
+            .Size = glm::vec2(75.0f),
+            .Colour = pxl::Colour::GetColourAsVec4(pxl::ColourName::Yellow),
+            .Origin = pxl::Origin2D::BottomRight,
         };
 
         s_TexturedStaticQuad = {
             .Position = { 400.0f, 450.0f, 0.0f },
-            .Rotation = { 0.0f, 0.0, 0.0f },
-            .Size     = glm::vec2(75.0f),
-            .Colour   = glm::vec4(1.0f),
-            .Origin   = pxl::Origin2D::TopLeft,
+            .Rotation = {   0.0f,    0.0, 0.0f },
+            .Size = glm::vec2(75.0f),
+            .Colour = glm::vec4(1.0f),
+            .Origin = pxl::Origin2D::TopLeft,
             //.Texture = s_StoneTexture,
         };
 
         s_DynamicQuad = {
             .Position = { 600.0f, 450.0f, 0.0f },
-            .Rotation = { 0.0f, 0.0f, 0.0f },
-            .Size     = glm::vec2(75.0f),
-            .Colour   = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
-            .Origin   = pxl::Origin2D::Center,
+            .Rotation = {   0.0f,   0.0f, 0.0f },
+            .Size = glm::vec2(75.0f),
+            .Colour = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
+            .Origin = pxl::Origin2D::Center,
         };
 
         s_TexturedDynamicQuad = {
             .Position = { 800.0f, 450.0f, 0.0f },
-            .Rotation = { 0.0f, 0.0f, 0.0f },
-            .Size     = glm::vec2(75.0f),
-            .Colour   = glm::vec4(1.0f),
-            .Origin   = pxl::Origin2D::Center,
-            .Texture  = s_TextureAtlas,
+            .Rotation = {   0.0f,   0.0f, 0.0f },
+            .Size = glm::vec2(75.0f),
+            .Colour = glm::vec4(1.0f),
+            .Origin = pxl::Origin2D::Center,
+            .Texture = s_TextureAtlas,
         };
 
         s_CursorQuad = {
             .Position = { 0.0f, 0.0f, 1.0f },
             .Rotation = glm::vec3(0.0f),
-            .Size     = glm::vec2(75.0f),
-            .Colour   = glm::vec4(1.0f),
-            .Origin   = pxl::Origin2D::Center,
+            .Size = glm::vec2(75.0f),
+            .Colour = glm::vec4(1.0f),
+            .Origin = pxl::Origin2D::Center,
             .Texture = s_CursorTexture,
         };
 
@@ -107,7 +107,6 @@ namespace TestApp
         pxl::Renderer::StaticGeometryReady();
 
         //pxl::Input::SetCursorVisibility(false);
-
     }
 
     void QuadsTest::OnUpdate(float dt)
@@ -119,7 +118,7 @@ namespace TestApp
         auto windowSize = s_Window->GetSize();
         s_Camera->SetRight(static_cast<float>(windowSize.Width));
         s_Camera->SetTop(static_cast<float>(windowSize.Height));
-        
+
         s_CursorPosition = pxl::Input::GetCursorPosition();
 
         // Flip cursor position to align with pxlFramework cartesian plane
@@ -144,7 +143,7 @@ namespace TestApp
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
             s_DynamicQuad.Origin = pxl::Origin2D::TopRight;
-        
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_3))
             s_DynamicQuad.Origin = pxl::Origin2D::BottomLeft;
 

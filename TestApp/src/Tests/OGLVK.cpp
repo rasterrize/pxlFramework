@@ -13,9 +13,9 @@ namespace TestApp
     void OGLVK::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         windowSpecs.Title += " - Running Test 'OGLVK'";
-        
+
         s_Window = pxl::Window::Create(windowSpecs);
-        
+
         pxl::Renderer::Init(s_Window);
         pxl::Input::Init(s_Window);
 
@@ -37,19 +37,19 @@ namespace TestApp
         // pxl::DiscordRPC::Init(RPCCLIENT_ID);
         // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
 
-    #ifdef TA_DEBUG
+#ifdef TA_DEBUG
         //pxl::GUI::Init(m_Window);
-    #endif
+#endif
     }
 
     void OGLVK::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
+
         auto cameraPosition = s_Camera->GetPosition();
         auto cameraFOV = s_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
-        
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
         {
             pxl::Application::Get().Close();
@@ -98,11 +98,11 @@ namespace TestApp
         rotation += 20.0f * dt;
         rotation2 -= 20.0f * dt;
     }
-        
+
     void OGLVK::OnRender()
     {
         PXL_PROFILE_SCOPE;
-        
+
         constexpr uint32_t objectCount = 10;
         constexpr uint32_t gridSize = 5;
 

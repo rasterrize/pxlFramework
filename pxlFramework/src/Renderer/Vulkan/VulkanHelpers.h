@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include <vulkan/vk_enum_string_helper.h>
+#include <vulkan/vulkan.h>
 
 namespace pxl
 {
@@ -49,7 +49,7 @@ namespace pxl
         static inline std::shared_ptr<VulkanDevice> s_Device = nullptr;
         static inline std::vector<std::function<void()>> s_Queue;
     };
-    
+
 #ifdef PXL_DEBUG
     static void CheckVkResult(VkResult result)
     {
@@ -58,12 +58,12 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
             __debugbreak();
         }
-    };
+    }
 #endif
 
-    #ifdef PXL_DEBUG
-        #define VK_CHECK(result) CheckVkResult(result)
-    #else
-        #define VK_CHECK(x) x
-    #endif
+#ifdef PXL_DEBUG
+    #define VK_CHECK(result) CheckVkResult(result)
+#else
+    #define VK_CHECK(x) x
+#endif
 }

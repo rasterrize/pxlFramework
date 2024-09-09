@@ -78,13 +78,13 @@ namespace pxl
 
         return shaderModule;
     }
-    
+
     std::vector<uint32_t> VulkanShader::CompileToSPIRV(const std::string& glslSrc, ShaderStage stage)
     {
         // TODO: add SPIRV optimization support
 
         PXL_PROFILE_SCOPE;
-        
+
         shaderc::Compiler compiler;
         shaderc::CompileOptions options;
         shaderc_shader_kind shaderKind = shaderc_shader_kind::shaderc_vertex_shader;
@@ -94,15 +94,19 @@ namespace pxl
             case ShaderStage::None:
                 PXL_LOG_ERROR(LogArea::Vulkan, "Can't select shaderc kind, ShaderStage is none");
                 break;
+
             case ShaderStage::Vertex:
                 shaderKind = shaderc_shader_kind::shaderc_glsl_vertex_shader;
                 break;
+
             case ShaderStage::Fragment:
                 shaderKind = shaderc_shader_kind::shaderc_glsl_fragment_shader;
                 break;
+
             case ShaderStage::Geometry:
                 shaderKind = shaderc_shader_kind::shaderc_glsl_geometry_shader;
                 break;
+
             case ShaderStage::Tessellation:
                 PXL_LOG_ERROR(LogArea::Vulkan, "Can't select shaderc kind, ShaderStage is tessellation");
                 break;

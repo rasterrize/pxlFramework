@@ -19,7 +19,7 @@ namespace pxl
         virtual void Unbind() = 0;
 
         virtual void SetData(uint32_t size, const void* data) = 0;
-    
+
         static std::shared_ptr<GPUBuffer> Create(GPUBufferUsage usage, uint32_t size, const void* data);
         static std::shared_ptr<GPUBuffer> Create(GPUBufferUsage usage, uint32_t size);
     };

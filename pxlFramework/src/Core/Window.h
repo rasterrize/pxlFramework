@@ -1,8 +1,9 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <glm/vec2.hpp> // decided to use glm here since its a good general math library as well
 #include <vulkan/vulkan.h>
+
+#include <glm/vec2.hpp>
 
 #include "Renderer/GraphicsContext.h"
 #include "Renderer/RendererAPIType.h"
@@ -72,7 +73,7 @@ namespace pxl
         WindowMode GetWindowMode() const { return m_Specs.WindowMode; }
 
         float GetAspectRatio() const { return static_cast<float>(m_Specs.Width) / static_cast<float>(m_Specs.Height); } // should this be cached in a variable? | could be updated every window resize callback
-        
+
         Size2D GetFramebufferSize() const;
 
         VkSurfaceKHR CreateVKWindowSurface(VkInstance instance); // Keeping vulkan here for now but obviously not ideal because it shouldnt be tied to window class
@@ -95,7 +96,7 @@ namespace pxl
         static const Monitor& GetPrimaryMonitor();
 
         static std::vector<const char*> GetVKRequiredInstanceExtensions();
-        
+
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
         static void CloseAll();
         static void Shutdown();
@@ -115,7 +116,6 @@ namespace pxl
         // Static GLFW callbacks
         static void GLFWErrorCallback(int error, const char* description);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
-
     private:
         friend class Application; // for UpdateAll()
         static void UpdateAll();

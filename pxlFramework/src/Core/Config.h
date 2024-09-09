@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Window.h"
 #include "Renderer/RendererAPIType.h"
+#include "Window.h"
 
 namespace pxl
 {
@@ -23,7 +23,7 @@ namespace pxl
         static void SaveToFile();
 
         // the settings could be dynamic, but that might too much effort for too little reward
-        static const FrameworkSettings& GetSettings() { return s_FrameworkSettings; }  // return const ref?
+        static const FrameworkSettings& GetSettings() { return s_FrameworkSettings; }
         static void SetSettings(const FrameworkSettings& settings) { s_FrameworkSettings = settings; }
     private:
         static FrameworkSettings s_FrameworkSettings;

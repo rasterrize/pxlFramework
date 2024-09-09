@@ -16,7 +16,7 @@ namespace TestApp
     void CubesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         s_Window = pxl::Window::Create(windowSpecs);
-        
+
         pxl::Renderer::Init(s_Window);
         pxl::Input::Init(s_Window);
 
@@ -41,7 +41,7 @@ namespace TestApp
     void CubesTest::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-        
+
         auto cameraPosition = s_Camera->GetPosition();
         auto cameraRotation = s_Camera->GetRotation();
         auto cameraFOV = s_Camera->GetFOV();
@@ -146,8 +146,8 @@ namespace TestApp
     void CubesTest::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
-        
-    #if IMGUICUBESTEST
+
+#if IMGUICUBESTEST
         ImGui::ShowDemoWindow();
 
         // Main debug window
@@ -179,7 +179,7 @@ namespace TestApp
             ImGui::Text("- Indices: %u", stats.QuadIndexCount);
             ImGui::Text("- Triangles: %u", stats.GetTriangleCount());
 
-            auto cursorPos = pxl::Input::GetCursorPosition(); 
+            auto cursorPos = pxl::Input::GetCursorPosition();
 
             ImGui::Text("Cursor Pos: %f, %f", cursorPos.x, cursorPos.y);
 
@@ -305,9 +305,9 @@ namespace TestApp
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();
             }
-        ImGui::EndListBox();
+            ImGui::EndListBox();
         }
-            
+
         if (ImGui::Button("Play"))
         {
             pxl::AudioManager::Play(selectedAudioName);
@@ -324,7 +324,7 @@ namespace TestApp
         }
 
         ImGui::End();
-    #endif
+#endif
     }
 
     void CubesTest::OnClose()

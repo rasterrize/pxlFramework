@@ -11,7 +11,7 @@ namespace pxl
         ~OpenGLShader();
 
         virtual void Reload() override;
-        
+
         virtual ShaderStage GetShaderStage() const override { return m_ShaderStage; }
 
         uint32_t GetID() const { return m_RendererID; }

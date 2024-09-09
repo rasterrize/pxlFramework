@@ -22,7 +22,7 @@ namespace pxl
     void Input::Init(const std::shared_ptr<Window>& window)
     {
         PXL_ASSERT_MSG(window, "Can't initialize input since window was invalid");
-        
+
         if (s_Enabled)
         {
             PXL_LOG_WARN(LogArea::Input, "Failed to initalize input, it's already initialized");
@@ -48,20 +48,20 @@ namespace pxl
     bool Input::IsKeyPressed(KeyCode keyCode)
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         bool keyPressed = s_CurrentKeyStates[keyCode] == GLFW_PRESS && s_PreviousKeyStates[keyCode] != GLFW_PRESS ? true : false;
 
         s_PreviousKeyStates[keyCode] = s_CurrentKeyStates[keyCode];
-        
+
         return keyPressed;
     }
 
     bool Input::IsKeyHeld(KeyCode keyCode)
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         return glfwGetKey(s_WindowHandle, keyCode) == GLFW_PRESS;
@@ -70,11 +70,11 @@ namespace pxl
     bool Input::IsMouseButtonPressed(MouseCode buttonCode)
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         bool buttonPressed = s_CurrentMBStates[buttonCode] == GLFW_PRESS && s_PreviousMBStates[buttonCode] != GLFW_PRESS ? true : false;
-        
+
         s_PreviousMBStates[buttonCode] = s_CurrentMBStates[buttonCode];
 
         return buttonPressed;
@@ -83,7 +83,7 @@ namespace pxl
     bool Input::IsMouseButtonHeld(MouseCode buttonCode)
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         return glfwGetMouseButton(s_WindowHandle, buttonCode) == GLFW_PRESS;
@@ -92,7 +92,7 @@ namespace pxl
     bool Input::IsMouseScrolledUp()
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         if (s_VerticalScrollOffset == 1.0f)
@@ -107,7 +107,7 @@ namespace pxl
     bool Input::IsMouseScrolledDown()
     {
         PXL_PROFILE_SCOPE;
-        
+
         PXL_ASSERT(s_Enabled);
 
         if (s_VerticalScrollOffset == -1.0f)
@@ -154,7 +154,7 @@ namespace pxl
     void Input::SetRawInput(bool value)
     {
         PXL_ASSERT(s_Enabled);
-        
+
         if (!s_RawInputSupported)
         {
             PXL_LOG_WARN(LogArea::Input, "Can't set Raw Input because it isn't supported");
@@ -180,7 +180,7 @@ namespace pxl
                 : glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 
-    void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]]int mods)
+    void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
     {
         s_CurrentKeyStates[key] = action;
     }

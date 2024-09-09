@@ -13,7 +13,7 @@ namespace pxl
         float Left, Right, Bottom, Top;
         bool UseAspectRatio;
     };
-    
+
     class OrthographicCamera : public Camera
     {
     public:
@@ -25,7 +25,7 @@ namespace pxl
         {
             m_Settings.Zoom = zoom;
             m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
-            RecalculateProjection(); 
+            RecalculateProjection();
         }
         float GetZoom() const { return m_Settings.Zoom; }
 
@@ -37,13 +37,28 @@ namespace pxl
             m_Settings.Top = top;
         }
 
-        void SetLeft(float left)     { m_Settings.Left = left; RecalculateProjection(); }
-        void SetRight(float right)   { m_Settings.Right = right; RecalculateProjection(); }
-        void SetBottom(float bottom) { m_Settings.Bottom = bottom; RecalculateProjection(); }
-        void SetTop(float top)       { m_Settings.Top = top; RecalculateProjection(); }
+        void SetLeft(float left)
+        {
+            m_Settings.Left = left;
+            RecalculateProjection();
+        }
+        void SetRight(float right)
+        {
+            m_Settings.Right = right;
+            RecalculateProjection();
+        }
+        void SetBottom(float bottom)
+        {
+            m_Settings.Bottom = bottom;
+            RecalculateProjection();
+        }
+        void SetTop(float top)
+        {
+            m_Settings.Top = top;
+            RecalculateProjection();
+        }
 
         static std::shared_ptr<OrthographicCamera> Create(const OrthographicCameraSettings& settings);
-
     protected:
         virtual void RecalculateProjection() override;
     private:

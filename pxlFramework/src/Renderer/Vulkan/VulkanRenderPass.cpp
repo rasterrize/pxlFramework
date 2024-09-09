@@ -15,11 +15,11 @@ namespace pxl
         colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE; // currently not using stencil testing
         colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // What the image layout is before the render pass begins
+        colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;     // What the image layout is before the render pass begins
         colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // What the final image will be used for, in this case, presenting to the screen
 
         VkAttachmentReference colourAttachmentRef = {};
-        colourAttachmentRef.attachment = 0; // references an attachment description by index in an array, in this case we have 1 attachment so we specify 0
+        colourAttachmentRef.attachment = 0;                                    // references an attachment description by index in an array, in this case we have 1 attachment so we specify 0
         colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Specifies the layout of the attachment during a subpass that references this
 
         // Specify sub pass
@@ -31,14 +31,14 @@ namespace pxl
         // Specify sub pass dependencies
         VkSubpassDependency subPassDependency = {};
         subPassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        subPassDependency.dstSubpass = 0; // our first and only subpass // must be higher than source pass
+        subPassDependency.dstSubpass = 0;                                               // our first and only subpass // must be higher than source pass
         subPassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // which stage to wait on
-        subPassDependency.srcAccessMask = 0; // does this mean no mask?
+        subPassDependency.srcAccessMask = 0;                                            // does this mean no mask?
         subPassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         subPassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; // involves writing of the color attachment, this prevents the image transition from happening until it's actually necessary. so we wait on the color attachment output stage.
 
         // Specify render pass
-        VkRenderPassCreateInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+        VkRenderPassCreateInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
         renderPassInfo.attachmentCount = 1;
         renderPassInfo.pAttachments = &colourAttachment;
         renderPassInfo.subpassCount = 1;

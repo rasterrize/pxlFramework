@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "Primitive.h"
-#include "Renderer/Vertices.h"
 #include "Renderer/Texture.h"
+#include "Renderer/Vertices.h"
 
 namespace pxl
 {
@@ -27,18 +27,22 @@ namespace pxl
                     position.x += Size.x / 2.0f;
                     position.y -= Size.y / 2.0f;
                     return position;
+
                 case Origin2D::TopRight:
                     position.x -= Size.x / 2.0f;
                     position.y -= Size.y / 2.0f;
                     return position;
+
                 case Origin2D::BottomLeft:
                     position.x += Size.x / 2.0f;
                     position.y += Size.y / 2.0f;
                     return position;
+
                 case Origin2D::BottomRight:
                     position.x -= Size.x / 2.0f;
                     position.y += Size.y / 2.0f;
                     return position;
+
                 case Origin2D::Center: return position;
             }
 
@@ -56,18 +60,22 @@ namespace pxl
                     newPosition.x += Size.x / 2.0f;
                     newPosition.y -= Size.y / 2.0f;
                     break;
+
                 case Origin2D::TopRight:
                     newPosition.x -= Size.x / 2.0f;
                     newPosition.y -= Size.y / 2.0f;
                     break;
+
                 case Origin2D::BottomLeft:
                     newPosition.x += Size.x / 2.0f;
                     newPosition.y += Size.y / 2.0f;
                     break;
+
                 case Origin2D::BottomRight:
                     newPosition.x -= Size.x / 2.0f;
                     newPosition.y += Size.y / 2.0f;
                     break;
+
                 case Origin2D::Center: break;
             }
 
@@ -76,27 +84,25 @@ namespace pxl
             auto bottom = Position.y - Size.y / 2.0f;
             auto top = Position.y + Size.y / 2.0f;
 
-            if (newPosition.x >= left && newPosition.x <= right && newPosition.y >= bottom && newPosition.y <= top)
-                return true;
-
-            return false;
+            return newPosition.x >= left && newPosition.x <= right && newPosition.y >= bottom && newPosition.y <= top;
         }
 
         static constexpr std::array<QuadVertex, 4> GetDefaultVertices()
         {
             return {
+                // clang-format off
                 QuadVertex({ -0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
                 QuadVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
                 QuadVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
                 QuadVertex({  0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
-            };
+            }; // clang-format on
         }
 
         static std::array<QuadVertex, 4> GetDefaultVerticesWithOrigin(Origin2D origin)
         {
             float xOffset = 0.0f;
             float yOffset = 0.0f;
-            
+
             switch (origin)
             {
                 case Origin2D::Center: break;
@@ -104,26 +110,30 @@ namespace pxl
                     xOffset = 0.5f;
                     yOffset = -0.5f;
                     break;
+
                 case Origin2D::TopRight:
                     xOffset = -0.5f;
                     yOffset = -0.5f;
                     break;
+
                 case Origin2D::BottomLeft:
                     xOffset = 0.5f;
                     yOffset = 0.5f;
                     break;
+
                 case Origin2D::BottomRight:
                     xOffset = -0.5f;
                     yOffset = 0.5f;
                     break;
             }
-            
+
             return {
+                // clang-format off
                 QuadVertex({ -0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
                 QuadVertex({ -0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
                 QuadVertex({  0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
                 QuadVertex({  0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
-            };
+            }; // clang-format on
         }
 
         static constexpr std::array<uint32_t, 6> GetDefaultIndices()

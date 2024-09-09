@@ -13,12 +13,14 @@ namespace pxl
     void PerspectiveCamera::Update()
     {
         PXL_PROFILE_SCOPE;
-        
+
+        // clang-format off
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) 
         * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.y), glm::vec3(0, 1, 0)) 
         * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.z), glm::vec3(0, 0, 1))
         * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(1, 0, 0)); // are these technically quaternion rotations?
-
+        // clang-format off
+        
         m_ViewMatrix = glm::inverse(transform);
     }
 

@@ -34,10 +34,11 @@ namespace pxl
             m_Frames[i] = frame;
         }
 
-        VulkanDeletionQueue::Add([&]() {
-            DestroyFrameData();
-            Destroy();
-        });
+        VulkanDeletionQueue::Add([&]()
+            {
+                DestroyFrameData();
+                Destroy();
+            });
     }
 
     VulkanSwapchain::~VulkanSwapchain()
@@ -47,7 +48,7 @@ namespace pxl
     }
 
     void VulkanSwapchain::CreateSwapchain()
-    {   
+    {
         m_SwapchainSpecs.PresentMode = m_VSync ? VK_PRESENT_MODE_FIFO_KHR : GetSuitablePresentMode();
         m_SwapchainSpecs.ImageCount = GetSuitableImageCount();
 
@@ -66,11 +67,11 @@ namespace pxl
         swapchainInfo.imageFormat = m_SwapchainSpecs.Format;
         swapchainInfo.imageColorSpace = m_SwapchainSpecs.ColorSpace;
         swapchainInfo.imageExtent = m_SwapchainSpecs.Extent;
-        swapchainInfo.imageArrayLayers = 1; // NOTE (from vk spec): For non-stereoscopic-3D applications, this value is 1.
+        swapchainInfo.imageArrayLayers = 1;                             // NOTE (from vk spec): For non-stereoscopic-3D applications, this value is 1.
         swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // The image will be used as a colour attachment. It wouldnt make sense to use anything else here really
-        swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Exclusive = 1 queue family will access the images, Concurrent = multiple queue families will access the images
-        swapchainInfo.queueFamilyIndexCount = 0; // Only required when imageSharingMode is concurrent
-        swapchainInfo.pQueueFamilyIndices = VK_NULL_HANDLE; // Only required when imageSharingMode is concurrent
+        swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;     // Exclusive = 1 queue family will access the images, Concurrent = multiple queue families will access the images
+        swapchainInfo.queueFamilyIndexCount = 0;                        // Only required when imageSharingMode is concurrent
+        swapchainInfo.pQueueFamilyIndices = VK_NULL_HANDLE;             // Only required when imageSharingMode is concurrent
         swapchainInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
         swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // Specifies how the operating system will use the surfaces alpha value
         swapchainInfo.presentMode = m_SwapchainSpecs.PresentMode;
@@ -104,7 +105,7 @@ namespace pxl
     void VulkanSwapchain::Recreate()
     {
         PXL_PROFILE_SCOPE;
-        
+
         m_Device->WaitIdle();
 
         CreateSwapchain();
@@ -130,7 +131,7 @@ namespace pxl
     void VulkanSwapchain::DestroyFrameData()
     {
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
-        
+
         for (auto& frame : m_Frames)
         {
             if (frame.ImageAvailableSemaphore)
@@ -154,10 +155,10 @@ namespace pxl
     }
 
     void VulkanSwapchain::AcquireNextAvailableImageIndex()
-    { 
+    {
         if (m_Suspend)
             return;
-        
+
         auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetLogical()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -172,10 +173,10 @@ namespace pxl
 
         if (m_Suspend)
             return;
-        
+
         VkSwapchainKHR swapChains[] = { m_Swapchain };
         VkSemaphore waitSemaphores[] = { m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore }; // wait for the command buffers to finish executing (rendering) to finish before presenting
-        
+
         VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = waitSemaphores;
@@ -186,13 +187,13 @@ namespace pxl
 
         // Queue presentation
         VkResult result = vkQueuePresentKHR(queue, &presentInfo);
-        
+
         // Update current frame index to the next frame
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
             Recreate();
-        else if (result != VK_SUCCESS) 
+        else if (result != VK_SUCCESS)
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
     }
 
@@ -201,7 +202,7 @@ namespace pxl
         m_Images.resize(m_SwapchainSpecs.ImageCount);
 
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
-        
+
         // Get swapchain image count
         uint32_t swapchainImageCount = 0;
         vkGetSwapchainImagesKHR(device, m_Swapchain, &swapchainImageCount, nullptr);
@@ -255,11 +256,11 @@ namespace pxl
             }
 
             if (!m_VSync && presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-		    {
-			    suitablePresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+            {
+                suitablePresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
                 foundSuitablePresentMode = true;
                 break;
-		    }
+            }
         }
 
         if (!foundSuitablePresentMode)
@@ -280,10 +281,7 @@ namespace pxl
         // Select most suitable number of images for swapchain
         if (surfaceCapabilities.minImageCount >= 2)
         {
-            if (surfaceCapabilities.maxImageCount >= 3)
-                suitableImageCount = 3; // Triple buffering
-            else
-                suitableImageCount = 2; // Double buffering
+            suitableImageCount = surfaceCapabilities.maxImageCount >= 3 ? 3 : 2; // Triple/Double buffering
         }
         else
         {
@@ -297,8 +295,7 @@ namespace pxl
     {
         auto surfaceCapabilities = VulkanHelpers::GetSurfaceCapabilities(static_cast<VkPhysicalDevice>(m_Device->GetPhysical()), m_Surface);
 
-        if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height)
-            && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))
+        if ((extent.width >= surfaceCapabilities.minImageExtent.width && extent.height >= surfaceCapabilities.minImageExtent.height) && (extent.width <= surfaceCapabilities.maxImageExtent.width && extent.height <= surfaceCapabilities.maxImageExtent.height))
             return true;
         else
             PXL_LOG_ERROR(LogArea::Vulkan, "Specified swapchain extent isnt supported by the surface");

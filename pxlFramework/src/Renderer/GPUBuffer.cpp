@@ -1,7 +1,7 @@
 #include "GPUBuffer.h"
 
-#include "Renderer.h"
 #include "OpenGL/OpenGLBuffer.h"
+#include "Renderer.h"
 #include "Vulkan/VulkanBuffer.h"
 
 namespace pxl
@@ -38,7 +38,7 @@ namespace pxl
                 auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
                 return std::make_shared<VulkanBuffer>(vulkanDevice, usage, size, nullptr);
         }
-        
+
         return nullptr;
     }
 }

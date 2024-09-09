@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../Framebuffer.h"
-
 #include <vulkan/vulkan.h>
 
+#include "Renderer/Framebuffer.h"
 #include "VulkanRenderPass.h"
 
 namespace pxl
@@ -22,12 +21,17 @@ namespace pxl
         ~VulkanFramebuffer();
 
         virtual void Destroy() override;
-        virtual void Resize(uint32_t width, uint32_t height) override { m_Extent.width = width; m_Extent.height = height; Create(); }
+        virtual void Resize(uint32_t width, uint32_t height) override
+        {
+            m_Extent.width = width;
+            m_Extent.height = height;
+            Create();
+        }
 
         VkFramebuffer GetVKFramebuffer() const { return m_Framebuffer; }
-        
+
         void Recreate() { Create(); }
-        
+
         void AddAttachment(const VulkanFramebufferAttachment& attachment); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
         //void AddAttachment(VkImageUsageFlags usage, VkFormat format); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
         void AddAttachment(VkImageView imageView, VkFormat format); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
@@ -38,8 +42,7 @@ namespace pxl
         VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
         VkRenderPass m_RenderPass = VK_NULL_HANDLE;
         VkExtent2D m_Extent = {};
-        
-        std::vector<VulkanFramebufferAttachment> m_Attachments;
 
+        std::vector<VulkanFramebufferAttachment> m_Attachments;
     };
 }
