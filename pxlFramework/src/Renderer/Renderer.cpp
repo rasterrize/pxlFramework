@@ -109,7 +109,7 @@ namespace pxl
     static std::shared_ptr<VertexArray> s_CubeVAO = nullptr;
     static std::shared_ptr<VertexArray> s_LineVAO = nullptr;
     static std::shared_ptr<VertexArray> s_MeshVAO = nullptr;
-    static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr; // TODO: remove this? it feels unnecessary when the buffer layout is the same.
+    static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr;
 
     static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
 

@@ -13,7 +13,6 @@ namespace pxl
         Blue,
         Pink,
         Yellow,
-        // TODO: more
     };
 
     class Colour
@@ -28,6 +27,7 @@ namespace pxl
                 case ColourName::Red:    return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
                 case ColourName::Green:  return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
                 case ColourName::Blue:   return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+                case ColourName::Pink:   return glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
                 case ColourName::Yellow: return glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
             }
 

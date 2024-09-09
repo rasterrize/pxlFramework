@@ -27,7 +27,7 @@ namespace pxl
         // Select GPU
         VkPhysicalDevice selectedGPU = VK_NULL_HANDLE;
 
-        selectedGPU = GetFirstDiscreteGPU(physicalDevices);
+        selectedGPU = VulkanHelpers::GetFirstDiscreteGPU(physicalDevices);
         if (selectedGPU == VK_NULL_HANDLE)
         {
             selectedGPU = physicalDevices[0];
@@ -98,20 +98,5 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence));
-    }
-
-    VkPhysicalDevice VulkanGraphicsContext::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
-    {
-        // Find a suitable discrete gpu physical device from the given physical devices
-        for (const auto& gpu : physicalDevices)
-        {
-            VkPhysicalDeviceProperties properties;
-            vkGetPhysicalDeviceProperties(gpu, &properties);
-
-            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-                return gpu;
-        }
-
-        return VK_NULL_HANDLE;
     }
 }

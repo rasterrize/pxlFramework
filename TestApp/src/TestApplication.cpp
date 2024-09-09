@@ -52,15 +52,15 @@ namespace TestApp
 
     TestApplication::~TestApplication()
     {
-#if SAVEFRAMEWORKSETTINGS
-        // Save framework settings // TODO: this should be semi-automatic and handled by the application class
+    #if SAVEFRAMEWORKSETTINGS
+        // Save framework settings // TODO: this should be automatically handled by the application class
         auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
 
         frameworkSettings.WindowMode = m_Window->GetWindowMode();
         frameworkSettings.RendererAPI // TODO
 
         pxl::FrameworkConfig::SetSettings(frameworkSettings);
-#endif
+    #endif
     }
 
     void TestApplication::OnUpdate(float dt)

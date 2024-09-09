@@ -206,8 +206,10 @@ namespace TestApp
             int step = 1;
             int monitorCount = pxl::Window::GetMonitorCount();
             ImGui::SliderInt("Monitor", &monitorIndex, 1, monitorCount);
+
+            // TODO: Write this a better way
             if (monitorIndex <= 0)
-                monitorIndex++; // TODO: turn this into lambda function
+                monitorIndex++;
             if (monitorIndex > monitorCount)
                 monitorIndex--;
 

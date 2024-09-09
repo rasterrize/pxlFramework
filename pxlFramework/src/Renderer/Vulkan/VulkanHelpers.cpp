@@ -198,6 +198,20 @@ namespace pxl
         return queue;
     }
 
+    VkPhysicalDevice VulkanHelpers::GetFirstDiscreteGPU(const std::vector<VkPhysicalDevice>& physicalDevices)
+    {
+        for (const auto& gpu : physicalDevices)
+        {
+            VkPhysicalDeviceProperties properties;
+            vkGetPhysicalDeviceProperties(gpu, &properties);
+
+            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                return gpu;
+        }
+
+        return VK_NULL_HANDLE;
+    }
+
     VkSemaphore VulkanHelpers::CreateSemaphore(VkDevice device)
     {
         VkSemaphore semaphore;

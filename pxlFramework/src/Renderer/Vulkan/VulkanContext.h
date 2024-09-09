@@ -45,7 +45,7 @@ namespace pxl
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
         std::shared_ptr<VulkanSwapchain> m_Swapchain = nullptr;
 
-        VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // TODO: Not sure if these should stay here. They could be in window class but that would put vulkan code in window class
+        VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkSurfaceFormatKHR m_SurfaceFormat = {};
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE; // TODO: either create swapchain with this or have the swapchain get it. I dont think it should be here
