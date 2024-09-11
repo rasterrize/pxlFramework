@@ -13,7 +13,8 @@ namespace pxl
         // Get the window surface from the window
         m_Surface = window->CreateVKWindowSurface(vulkanInstance);
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             vkDestroySurfaceKHR(VulkanInstance::Get(), m_Surface, nullptr);
             m_Surface = VK_NULL_HANDLE;
         });
@@ -59,7 +60,8 @@ namespace pxl
 
         VK_CHECK(vkCreateCommandPool(logicalDevice, &commandPoolInfo, nullptr, &m_CommandPool));
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             vkDestroyCommandPool(static_cast<VkDevice>(m_Device->GetLogical()), m_CommandPool, nullptr);
             m_CommandPool = VK_NULL_HANDLE;
         });

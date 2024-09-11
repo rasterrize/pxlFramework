@@ -49,7 +49,8 @@ namespace pxl
         // Create render pass
         VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             Destroy();
         });
     }

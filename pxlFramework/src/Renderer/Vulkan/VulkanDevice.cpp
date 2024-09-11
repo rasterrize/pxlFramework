@@ -9,7 +9,8 @@ namespace pxl
     {
         CreateLogicalDevice(m_PhysicalDevice);
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             Destroy();
         });
     }

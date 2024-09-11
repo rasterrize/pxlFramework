@@ -9,7 +9,8 @@ namespace pxl
     {
         m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             Destroy();
         });
     }
@@ -22,7 +23,8 @@ namespace pxl
 
         m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             Destroy();
         });
     }

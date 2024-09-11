@@ -12,12 +12,12 @@ namespace pxl
 
     static void ActivityCallback([[maybe_unused]] discord::Result result)
     {
-    #ifdef PXL_ENABLE_LOGGING
+#ifdef PXL_ENABLE_LOGGING
         if (result == discord::Result::Ok)
             PXL_LOG_INFO(LogArea::Other, "Discord activity updated")
         else
             PXL_LOG_WARN(LogArea::Other, "Discord activity failed to update");
-    #endif
+#endif
     }
 
     void DiscordRPC::Init(int64_t clientID)
@@ -69,7 +69,7 @@ namespace pxl
     {
         if (!s_Enabled)
             return;
-        
+
         discord::Activity activity = {};
         activity.SetApplicationId(settings.ClientID);
         activity.SetName(settings.AppName.c_str());

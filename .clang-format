@@ -76,7 +76,7 @@ BraceWrapping:
   AfterUnion:      true
   BeforeCatch:     false
   BeforeElse:      true
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
   BeforeWhile:     true
   IndentBraces:    false
   SplitEmptyFunction: true
@@ -155,7 +155,7 @@ JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtEOF: false # deprecated
 KeepEmptyLinesAtTheStartOfBlocks: false # deprecated
-LambdaBodyIndentation: Signature
+LambdaBodyIndentation: OuterScope
 LineEnding:      DeriveLF
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
@@ -183,35 +183,6 @@ PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
 QualifierAlignment: Leave # Might change this to custom later
 RawStringFormats: # I dont understnad this so im just gonna leave it
-  - Language:        Cpp
-    Delimiters:
-      - cc
-      - CC
-      - cpp
-      - Cpp
-      - CPP
-      - 'c++'
-      - 'C++'
-    CanonicalDelimiter: ''
-    BasedOnStyle:    google
-  - Language:        TextProto
-    Delimiters:
-      - pb
-      - PB
-      - proto
-      - PROTO
-    EnclosingFunctions:
-      - EqualsProto
-      - EquivToProto
-      - PARSE_PARTIAL_TEXT_PROTO
-      - PARSE_TEST_PROTO
-      - PARSE_TEXT_PROTO
-      - ParseTextOrDie
-      - ParseTextProtoOrDie
-      - ParseTestProto
-      - ParsePartialTestProto
-    CanonicalDelimiter: pb
-    BasedOnStyle:    google
 ReferenceAlignment: Pointer
 ReflowComments:  false
 RemoveBracesLLVM: false
@@ -264,16 +235,9 @@ SpacesInParensOptions:
   Other:           false
 SpacesInSquareBrackets: false
 Standard:        Auto
-StatementAttributeLikeMacros:
-  # - Q_EMIT
-StatementMacros:
-  # - PXL_ENABLE_LOGGING
-  # - PXL_DEBUG
-  # - PXL_RELEASE
+StatementAttributeLikeMacros: []
+StatementMacros: []
 TabWidth:        8
 UseTab:          Never
 VerilogBreakBetweenInstancePorts: true
-WhitespaceSensitiveMacros: [PXL_DEBUG, PXL_RELEASE, PXL_ENABLE_LOGGING]
-  # - BOOST_PP_STRINGIZE
-  # - PP_STRINGIZE
-  # - STRINGIZE
+WhitespaceSensitiveMacros: ['PXL_ENABLE_LOGGING', PXL_RELEASE, PXL_ENABLE_LOGGING]

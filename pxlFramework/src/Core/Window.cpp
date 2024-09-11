@@ -448,9 +448,11 @@ namespace pxl
             return nullptr;
         }
 
+        // clang-format off
         struct shared_window_enabler : public Window {
             shared_window_enabler(const WindowSpecs& specs) : Window(specs) {}
         };
+        // clang-format on
 
         auto window = std::make_shared<shared_window_enabler>(windowSpecs);
 

@@ -149,7 +149,8 @@ namespace pxl
 
         VK_CHECK(vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline)); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             Destroy();
         });
     }

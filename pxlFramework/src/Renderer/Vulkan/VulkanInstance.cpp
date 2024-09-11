@@ -31,12 +31,13 @@ namespace pxl
 
         PXL_ASSERT_MSG(s_Instance, "Failed to create Vulkan instance");
 
-        VulkanDeletionQueue::Add([&]() {
+        VulkanDeletionQueue::Add([&]()
+        {
             vkDestroyInstance(s_Instance, nullptr);
             s_Instance = VK_NULL_HANDLE;
         });
 
-    #ifdef PXL_ENABLE_LOGGING
+#ifdef PXL_ENABLE_LOGGING
         // Logging
         std::string apiVersionString;
         switch (appInfo.apiVersion)
@@ -69,6 +70,6 @@ namespace pxl
         {
             PXL_LOG_INFO(LogArea::Vulkan, "   - {}", layer);
         }
-    #endif
+#endif
     }
 }
