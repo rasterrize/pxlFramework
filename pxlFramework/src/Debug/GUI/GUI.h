@@ -18,7 +18,7 @@ namespace pxl
 
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
     private:
-        static inline bool s_Enabled = true;
+        static inline bool s_Enabled = false;
 
         static inline std::unique_ptr<GUIBase> s_ImGuiRenderer = nullptr;
 
