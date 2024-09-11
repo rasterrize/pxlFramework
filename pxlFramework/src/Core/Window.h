@@ -45,8 +45,6 @@ namespace pxl
     class Window
     {
     public:
-        Window(const WindowSpecs& windowSpecs);
-
         void Close() const;
 
         void SetSize(uint32_t width, uint32_t height);
@@ -98,10 +96,13 @@ namespace pxl
         static std::vector<const char*> GetVKRequiredInstanceExtensions();
 
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
+
         static void CloseAll();
         static void Shutdown();
     private:
         void CreateGLFWWindow(const WindowSpecs& windowSpecs);
+        Window(const WindowSpecs& windowSpecs);
+
         void Update() const;
 
         void SetGLFWCallbacks();

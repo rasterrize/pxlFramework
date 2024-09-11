@@ -448,7 +448,11 @@ namespace pxl
             return nullptr;
         }
 
-        auto window = std::make_shared<Window>(windowSpecs);
+        struct shared_window_enabler : public Window {
+            shared_window_enabler(const WindowSpecs& specs) : Window(specs) {}
+        };
+
+        auto window = std::make_shared<shared_window_enabler>(windowSpecs);
 
         PXL_ASSERT(window);
 
