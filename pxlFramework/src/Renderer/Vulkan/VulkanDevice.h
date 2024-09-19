@@ -7,33 +7,61 @@
 
 namespace pxl
 {
+    enum class QueueType
+    {
+        Graphics,
+        Compute,
+    };
+
     class VulkanDevice : public GraphicsDevice
     {
     public:
-        VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily);
-        virtual ~VulkanDevice() override;
+        VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 
         virtual void* GetLogical() const override { return m_LogicalDevice; }
         virtual void* GetPhysical() const override { return m_PhysicalDevice; }
 
         virtual void WaitIdle() const override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
 
-        virtual const DeviceLimits& GetDeviceLimits() const override { return m_DeviceLimits; }
+        virtual const GraphicsDeviceLimits& GetLimits() const override { return m_DeviceLimits; }
 
-        void Destroy();
+        std::vector<VkCommandBuffer> AllocateCommandBuffers(QueueType queueType, VkCommandBufferLevel level, uint32_t count);
 
-        uint32_t GetGraphicsQueueIndex() const { return m_GraphicsQueueFamilyIndex.value(); }
+        void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, QueueType queueType, VkFence signalFence = VK_NULL_HANDLE);
+        void SubmitCommandBuffers(const std::vector<VkSubmitInfo>& submitInfos, QueueType queueType, VkFence signalFence);
+
+        void SubmitPresent(const VkPresentInfoKHR& presentInfo);
+
+        VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+        VkQueue GetComputeQueue() const { return VK_NULL_HANDLE; }
+
+        uint32_t GetGraphicsQueueFamily() const { return m_GraphicsQueueFamily.value(); }
+        uint32_t GetComputeQueueFamily() const { return 0; }
+
+        [[deprecated]]
         int32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
     private:
         void CreateLogicalDevice(VkPhysicalDevice gpu);
+
+        VkQueue GetQueueFromQueueType(QueueType type);
+        VkCommandPool GetCommandPoolFromQueueType(QueueType type);
     private:
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
-        DeviceLimits m_DeviceLimits = {};
+        GraphicsDeviceLimits m_DeviceLimits = {};
 
-        std::optional<uint32_t> m_GraphicsQueueFamilyIndex;
+        std::optional<uint32_t> m_GraphicsQueueFamily;
+        std::optional<uint32_t> m_ComputeQueueFamily; // TODO: unused
+
+        VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
+        VkQueue m_ComputeQueue = VK_NULL_HANDLE; // TODO: unused
+
+        VkCommandPool m_GraphicsCommandPool = VK_NULL_HANDLE;
+        VkCommandPool m_ComputeCommandPool = VK_NULL_HANDLE; // TODO: unused
+
+        // std::vector<VkShaderModule> modules;
     };
 }

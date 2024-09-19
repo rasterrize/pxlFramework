@@ -31,23 +31,15 @@ namespace pxl
 
         static VkSemaphore CreateSemaphore(VkDevice device);
         static VkFence CreateFence(VkDevice device, bool signaled = false);
-
-        static std::vector<VkCommandBuffer> AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count);
     };
 
     class VulkanDeletionQueue
     {
     public:
-        static void Init(const std::shared_ptr<VulkanDevice>& device)
-        {
-            s_Device = device;
-        }
-
         static void Add(std::function<void()> function) { s_Queue.push_back(function); }
 
         static void Flush();
     private:
-        static inline std::shared_ptr<VulkanDevice> s_Device = nullptr;
         static inline std::vector<std::function<void()>> s_Queue;
     };
 

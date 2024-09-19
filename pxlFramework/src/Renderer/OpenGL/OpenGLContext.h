@@ -17,6 +17,8 @@ namespace pxl
         virtual bool GetVSync() const override { return m_VSync; }
         virtual void SetVSync(bool value) override;
 
+        virtual void SetAsCurrent() override;
+
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const override
         {
             PXL_LOG_ERROR(LogArea::OpenGL, "OpenGLContexts don't have devices, returning nullptr");

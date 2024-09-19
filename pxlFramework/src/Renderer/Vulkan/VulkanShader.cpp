@@ -29,11 +29,6 @@ namespace pxl
         });
     }
 
-    VulkanShader::~VulkanShader()
-    {
-        Destroy();
-    }
-
     void VulkanShader::Reload()
     {
     }
@@ -93,10 +88,6 @@ namespace pxl
 
         switch (stage)
         {
-            case ShaderStage::None:
-                PXL_LOG_ERROR(LogArea::Vulkan, "Can't select shaderc kind, ShaderStage is none");
-                break;
-
             case ShaderStage::Vertex:
                 shaderKind = shaderc_shader_kind::shaderc_glsl_vertex_shader;
                 break;

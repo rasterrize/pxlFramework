@@ -4,24 +4,19 @@
 
 namespace pxl
 {
-    VulkanImage::VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format)
-        : m_Device(device), m_Width(width), m_Height(height), m_Format(format)
+    VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format)
+        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_Width(width), m_Height(height), m_Format(format)
     {
         // Create a vulkan image AND image view
         CreateImage(m_Width, m_Height, m_Format);
         CreateImageView(m_Format, m_Image);
     }
 
-    VulkanImage::VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
-        : m_Device(device), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
+    VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
+        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
     {
         // Create just a vulkan image view for the supplied image
         CreateImageView(m_Format, swapchainImage);
-    }
-
-    VulkanImage::~VulkanImage()
-    {
-        Destroy();
     }
 
     void VulkanImage::Destroy()

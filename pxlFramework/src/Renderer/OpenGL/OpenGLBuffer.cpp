@@ -13,15 +13,15 @@ namespace pxl
         switch (usage)
         {
             case GPUBufferUsage::None:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing {} bytes of data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created static OpenGL buffer with no specified usage containing {} bytes of data", size);
                 break;
 
             case GPUBufferUsage::Vertex:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing {} bytes of data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created static OpenGL vertex buffer containing {} bytes of data", size);
                 break;
 
             case GPUBufferUsage::Index:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing {} bytes of data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created static OpenGL index buffer containing {} bytes of data", size);
                 break;
         }
 #endif
@@ -38,15 +38,15 @@ namespace pxl
         switch (usage)
         {
             case GPUBufferUsage::None:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL buffer with no specified usage containing no data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created dynamic OpenGL buffer with no specified usage containing no data", size);
                 break;
 
             case GPUBufferUsage::Vertex:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL vertex buffer containing no data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created dynamic OpenGL vertex buffer containing no data", size);
                 break;
 
             case GPUBufferUsage::Index:
-                PXL_LOG_INFO(LogArea::OpenGL, "Created OpenGL index buffer containing no data", size);
+                PXL_LOG_INFO(LogArea::OpenGL, "Created dynamic OpenGL index buffer containing no data", size);
                 break;
         }
 #endif

@@ -40,8 +40,8 @@ namespace pxl
         initInfo.Instance = VulkanInstance::Get();
         initInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(m_Device->GetPhysical());
         initInfo.Device = static_cast<VkDevice>(m_Device->GetLogical());
-        initInfo.QueueFamily = m_Device->GetGraphicsQueueIndex();
-        initInfo.Queue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetLogical()), m_Device->GetGraphicsQueueIndex());
+        initInfo.QueueFamily = m_Device->GetGraphicsQueueFamily();
+        initInfo.Queue = m_Device->GetGraphicsQueue();
         initInfo.Subpass = 0; // unsure
         initInfo.DescriptorPool = m_ImGuiDescriptorPool;
         initInfo.MinImageCount = 3;

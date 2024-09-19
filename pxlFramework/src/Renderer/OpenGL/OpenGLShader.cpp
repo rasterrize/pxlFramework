@@ -60,7 +60,6 @@ namespace pxl
     {
         switch (stage)
         {
-            case ShaderStage::None:         return GL_INVALID_ENUM;
             case ShaderStage::Vertex:       return GL_VERTEX_SHADER;
             case ShaderStage::Fragment:     return GL_FRAGMENT_SHADER;
             case ShaderStage::Geometry:     return GL_GEOMETRY_SHADER;

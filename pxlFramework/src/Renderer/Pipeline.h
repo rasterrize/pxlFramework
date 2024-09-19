@@ -8,7 +8,6 @@ namespace pxl
 {
     enum class PrimitiveTopology
     {
-        None,
         Triangle,
         TriangleStrip,
         TriangleFan,
@@ -29,13 +28,20 @@ namespace pxl
         Back,
     };
 
+    enum class FrontFace
+    {
+        CW,  // Clockwise
+        CCW, // Counter-clockwise
+    };
+
     // NOTE: Most of these members aren't even necessary for OpenGL
     struct GraphicsPipelineSpecs
     {
+        BufferLayout VertexLayout;
         PrimitiveTopology PrimitiveType = PrimitiveTopology::Triangle;
         PolygonFillMode PolygonFillMode = PolygonFillMode::Fill;
         CullMode CullMode = CullMode::None;
-        BufferLayout VertexLayout;
+        FrontFace FrontFace = FrontFace::CCW;
         std::optional<UniformLayout> UniformLayout;
         std::optional<PushConstantLayout> PushConstantLayout;
     };

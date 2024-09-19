@@ -1,14 +1,17 @@
 #include "VulkanRenderer.h"
 
+#include "VulkanAllocator.h"
 #include "VulkanHelpers.h"
+#include "VulkanInstance.h"
 
 namespace pxl
 {
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanGraphicsContext>& context)
-        : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice())), m_GraphicsQueueFamilyIndex(m_Device->GetGraphicsQueueIndex())
+        : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice()))
     {
-        // Get the graphics queue from the given queue family index
-        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(static_cast<VkDevice>(m_Device->GetLogical()), m_GraphicsQueueFamilyIndex);
+        // Initialise VMA (Vulkan Memory Allocator)
+        if (!VulkanAllocator::Get())
+            VulkanAllocator::Init(VulkanInstance::Get(), m_Device);
 
         m_DefaultRenderPass = m_ContextHandle->GetDefaultRenderPass();
 
@@ -29,18 +32,9 @@ namespace pxl
         m_Scissor.extent = { swapchainExtent.width, swapchainExtent.height };
     }
 
-    VulkanRenderer::~VulkanRenderer()
-    {
-        Destroy();
-    }
-
-    void VulkanRenderer::Destroy()
-    {
-    }
-
     void VulkanRenderer::SetViewport(uint32_t x, [[maybe_unused]] uint32_t y, uint32_t width, uint32_t height)
     {
-        // Invert the given viewport values
+        // Invert the given viewport values to match OpenGL
         m_Viewport.x = static_cast<float>(x);
         m_Viewport.y = static_cast<float>(height);
         m_Viewport.width = static_cast<float>(width);
@@ -76,7 +70,7 @@ namespace pxl
         vkCmdDrawIndexed(m_CurrentFrame.CommandBuffer, indexCount, 1, 0, 0, 0);
     }
 
-    void VulkanRenderer::Begin()
+    void VulkanRenderer::BeginFrame()
     {
         PXL_PROFILE_SCOPE;
 
@@ -120,7 +114,7 @@ namespace pxl
         vkCmdSetScissor(m_CurrentFrame.CommandBuffer, 0, 1, &m_Scissor);
     }
 
-    void VulkanRenderer::End()
+    void VulkanRenderer::EndFrame()
     {
         PXL_PROFILE_SCOPE;
 
@@ -145,6 +139,6 @@ namespace pxl
         commandBufferSubmitInfo.signalSemaphoreCount = 1;
         commandBufferSubmitInfo.pSignalSemaphores = signalSemaphores; // semaphores to signal when finished
 
-        m_ContextHandle->SubmitCommandBuffer(commandBufferSubmitInfo, m_GraphicsQueue, m_CurrentFrame.InFlightFence);
+        m_Device->SubmitCommandBuffer(commandBufferSubmitInfo, QueueType::Graphics, m_CurrentFrame.InFlightFence);
     }
 }

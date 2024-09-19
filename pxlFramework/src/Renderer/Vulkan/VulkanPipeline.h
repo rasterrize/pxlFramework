@@ -24,8 +24,7 @@ namespace pxl
     class VulkanGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass);
-        virtual ~VulkanGraphicsPipeline() override;
+        VulkanGraphicsPipeline(const std::shared_ptr<VulkanDevice>& device, const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass);
 
         virtual void Bind() override;
         virtual void Unbind() override {};
@@ -44,6 +43,7 @@ namespace pxl
         static VkPrimitiveTopology ToVkPrimitiveTopology(PrimitiveTopology topology);
         static VkPolygonMode ToVkPolygonMode(PolygonFillMode mode);
         static VkCullModeFlagBits ToVkCullMode(CullMode mode);
+        static VkFrontFace ToVkFrontFace(FrontFace face);
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
@@ -52,9 +52,5 @@ namespace pxl
 
         std::unordered_map<ShaderStage, std::shared_ptr<Shader>> m_Shaders; // NOTE: currently holds on to them so they don't immediately get destroyed
         std::unordered_map<std::string, VkPushConstantRange> m_PushConstantRanges;
-
-        VkPolygonMode m_PolygonMode = VK_POLYGON_MODE_FILL;
-        VkFrontFace m_FrontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // like OpenGL
-        VkCullModeFlags m_CullMode = VK_CULL_MODE_BACK_BIT;
     };
 }

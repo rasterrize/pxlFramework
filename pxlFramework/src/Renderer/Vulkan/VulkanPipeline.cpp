@@ -7,8 +7,8 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass)
-        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_Shaders(shaders)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanDevice>& device, const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass)
+        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_Shaders(shaders)
     {
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation
 
@@ -61,7 +61,7 @@ namespace pxl
         rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonFillMode); // Can be lines and points, but requires enabling a gpu feature
         rasterizationInfo.lineWidth = 1.0f;                                     // 1.0f is a good default, any higher requires enabling a gpu feature
         rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode);              // specify different types of culling here
-        rasterizationInfo.frontFace = m_FrontFace;                              // This is counter clockwise in OpenGL
+        rasterizationInfo.frontFace = ToVkFrontFace(specs.FrontFace);           // This is counter clockwise in OpenGL
         // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -155,11 +155,6 @@ namespace pxl
         });
     }
 
-    VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
-    {
-        Destroy();
-    }
-
     void VulkanGraphicsPipeline::Bind()
     {
         PXL_PROFILE_SCOPE;
@@ -204,14 +199,14 @@ namespace pxl
     {
         switch (stage)
         {
-            case ShaderStage::None:         return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
             case ShaderStage::Vertex:       return VK_SHADER_STAGE_VERTEX_BIT;
             case ShaderStage::Fragment:     return VK_SHADER_STAGE_FRAGMENT_BIT;
             case ShaderStage::Geometry:     return VK_SHADER_STAGE_GEOMETRY_BIT;
             case ShaderStage::Tessellation: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT; // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT
         }
 
-        PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkShaderStage");
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid VkShaderStage");
+
         return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
     }
 
@@ -219,10 +214,6 @@ namespace pxl
     {
         switch (topology)
         {
-            case PrimitiveTopology::None:
-                PXL_LOG_ERROR(LogArea::Vulkan, "Can't convert to VkPrimitiveTopology, topology is 'None'");
-                return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
-
             case PrimitiveTopology::Triangle:      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             case PrimitiveTopology::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
             case PrimitiveTopology::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
@@ -231,7 +222,8 @@ namespace pxl
             case PrimitiveTopology::Point:         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
         }
 
-        PXL_LOG_WARN(LogArea::Vulkan, "Returning invalid VkPrimitiveTopology");
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PrimitiveTopology");
+
         return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
     }
 
@@ -242,7 +234,7 @@ namespace pxl
             case PolygonFillMode::Fill: return VK_POLYGON_MODE_FILL;
         }
 
-        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonFillMode for Vulkan");
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonFillMode");
 
         return VK_POLYGON_MODE_MAX_ENUM;
     }
@@ -256,8 +248,21 @@ namespace pxl
             case CullMode::Back:  return VK_CULL_MODE_BACK_BIT;
         }
 
-        PXL_LOG_WARN(LogArea::Vulkan, "Invalid CullMode for Vulkan");
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid CullMode");
 
         return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
+    }
+
+    VkFrontFace VulkanGraphicsPipeline::ToVkFrontFace(FrontFace face)
+    {
+        switch (face)
+        {
+            case FrontFace::CW:  return VK_FRONT_FACE_CLOCKWISE;
+            case FrontFace::CCW: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        }
+
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid FrontFace");
+
+        return VK_FRONT_FACE_MAX_ENUM;
     }
 }

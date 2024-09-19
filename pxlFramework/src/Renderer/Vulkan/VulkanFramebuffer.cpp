@@ -4,14 +4,9 @@
 
 namespace pxl
 {
-    VulkanFramebuffer::VulkanFramebuffer(VkDevice device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
-        : m_Device(device), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
+    VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
+        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
     {
-    }
-
-    VulkanFramebuffer::~VulkanFramebuffer()
-    {
-        Destroy();
     }
 
     void VulkanFramebuffer::Destroy()

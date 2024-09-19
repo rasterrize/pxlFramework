@@ -93,6 +93,9 @@ namespace pxl
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
 
+        if (Renderer::IsInitialized() && Renderer::GetGraphicsContext() == m_GraphicsContext)
+            Renderer::Shutdown();
+
         if (s_Windows.empty() && Application::Get().IsRunning())
             Application::Get().Close();
     }
@@ -288,17 +291,6 @@ namespace pxl
         glfwGetFramebufferSize(m_GLFWWindow, &width, &height);
 
         return Size2D(width, height);
-    }
-
-    VkSurfaceKHR Window::CreateVKWindowSurface(VkInstance instance)
-    {
-        // Create VkSurfaceKHR for glfw window
-        VkSurfaceKHR surface = VK_NULL_HANDLE;
-        VK_CHECK(glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface)); // could learn to do this myself https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
-
-        PXL_ASSERT(surface)
-
-        return surface;
     }
 
     void Window::GLFWErrorCallback([[maybe_unused]] int error, [[maybe_unused]] const char* description)

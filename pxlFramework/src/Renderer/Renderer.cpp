@@ -127,25 +127,9 @@ namespace pxl
         s_RendererAPIType = window->GetWindowSpecs().RendererAPI;
 
         // Create renderer API object
-        switch (s_RendererAPIType)
-        {
-            case RendererAPIType::None: PXL_LOG_ERROR(LogArea::Renderer, "Can't initialize renderer since window specified no renderer api"); return;
+        s_RendererAPI = RendererAPI::Create(s_RendererAPIType, window);
 
-            case RendererAPIType::OpenGL:
-                s_RendererAPI = std::make_unique<OpenGLRenderer>();
-                PXL_ASSERT_MSG(s_RendererAPI, "Failed to create OpenGL renderer api object");
-                break;
-
-            case RendererAPIType::Vulkan:
-                auto vulkanContext = static_pointer_cast<VulkanGraphicsContext>(window->GetGraphicsContext());
-                PXL_ASSERT_MSG(vulkanContext, "Failed to retrieve VulkanGraphicsContext");
-
-                VulkanDeletionQueue::Init(static_pointer_cast<VulkanDevice>(window->GetGraphicsContext()->GetDevice()));
-
-                s_RendererAPI = std::make_unique<VulkanRenderer>(vulkanContext);
-                PXL_ASSERT_MSG(s_RendererAPI, "Failed to create Vulkan renderer api object");
-                break;
-        }
+        PXL_ASSERT_MSG(s_RendererAPI, "Failed to create renderer api object");
 
         // --------------------
         // Prepare Quad Data
@@ -482,7 +466,7 @@ namespace pxl
         if (!s_Enabled)
             return;
 
-        s_RendererAPI->Begin();
+        s_RendererAPI->BeginFrame();
 
         // Clear the screen
         s_RendererAPI->Clear();
@@ -508,7 +492,7 @@ namespace pxl
             GUI::Render();
         }
 
-        s_RendererAPI->End();
+        s_RendererAPI->EndFrame();
 
         ResetStats();
     }

@@ -4,29 +4,77 @@
 
 namespace pxl
 {
-    VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, uint32_t graphicsQueueFamily)
-        : m_PhysicalDevice(physicalDevice), m_GraphicsQueueFamilyIndex(graphicsQueueFamily)
+    VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+        : m_PhysicalDevice(physicalDevice)
     {
+        // Get required queue families from the device
+        auto queueFamilies = VulkanHelpers::GetQueueFamilies(physicalDevice);
+
+        m_GraphicsQueueFamily = VulkanHelpers::GetSuitableGraphicsQueueFamily(queueFamilies, physicalDevice, surface);
+
+        // Create the logical device
         CreateLogicalDevice(m_PhysicalDevice);
 
         VulkanDeletionQueue::Add([&]()
         {
-            Destroy();
+            vkDestroyDevice(m_LogicalDevice, nullptr);
+            m_LogicalDevice = VK_NULL_HANDLE;
+        });
+
+        // Get graphics/present queue from device
+        m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_LogicalDevice, m_GraphicsQueueFamily);
+
+        // Create graphics command pool
+        VkCommandPoolCreateInfo commandPoolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        commandPoolInfo.queueFamilyIndex = m_GraphicsQueueFamily.value();
+
+        VK_CHECK(vkCreateCommandPool(m_LogicalDevice, &commandPoolInfo, nullptr, &m_GraphicsCommandPool));
+
+        VulkanDeletionQueue::Add([&]()
+        {
+            vkDestroyCommandPool(m_LogicalDevice, m_GraphicsCommandPool, nullptr);
+            m_GraphicsCommandPool = VK_NULL_HANDLE;
         });
     }
 
-    VulkanDevice::~VulkanDevice()
+    std::vector<VkCommandBuffer> VulkanDevice::AllocateCommandBuffers(QueueType queueType, VkCommandBufferLevel level, uint32_t count)
     {
-        Destroy();
+        std::vector<VkCommandBuffer> commandBuffers(count);
+
+        VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        commandBufferAllocInfo.commandPool = GetCommandPoolFromQueueType(queueType);
+        commandBufferAllocInfo.level = level;
+        commandBufferAllocInfo.commandBufferCount = count;
+
+        VK_CHECK(vkAllocateCommandBuffers(m_LogicalDevice, &commandBufferAllocInfo, commandBuffers.data()));
+
+        return commandBuffers;
     }
 
-    void VulkanDevice::Destroy()
+    void VulkanDevice::SubmitCommandBuffer(const VkSubmitInfo& submitInfo, QueueType queueType, VkFence signalFence)
     {
-        if (m_LogicalDevice)
-        {
-            vkDestroyDevice(m_LogicalDevice, nullptr);
-            m_LogicalDevice = VK_NULL_HANDLE;
-        }
+        PXL_PROFILE_SCOPE;
+
+        auto queue = GetQueueFromQueueType(queueType);
+
+        VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, signalFence));
+    }
+
+    void VulkanDevice::SubmitCommandBuffers(const std::vector<VkSubmitInfo>& submitInfos, QueueType queueType, VkFence signalFence)
+    {
+        PXL_PROFILE_SCOPE;
+
+        auto queue = GetQueueFromQueueType(queueType);
+
+        VK_CHECK(vkQueueSubmit(queue, 1, submitInfos.data(), signalFence));
+    }
+
+    void VulkanDevice::SubmitPresent(const VkPresentInfoKHR& presentInfo)
+    {
+        PXL_PROFILE_SCOPE;
+
+        VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
     }
 
     void VulkanDevice::CreateLogicalDevice(VkPhysicalDevice gpu)
@@ -36,11 +84,11 @@ namespace pxl
         // Specify Device Queue Create Infos
         std::vector<VkDeviceQueueCreateInfo> queueInfos;
 
-        if (m_GraphicsQueueFamilyIndex.has_value())
+        if (m_GraphicsQueueFamily.has_value())
         {
             float queuePriority = 1.0f;
             VkDeviceQueueCreateInfo graphicsQueueCreateInfo = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO };
-            graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex.value();
+            graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueFamily.value();
             graphicsQueueCreateInfo.queueCount = 1;
             graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
             queueInfos.push_back(graphicsQueueCreateInfo);
@@ -98,6 +146,28 @@ namespace pxl
         }
 
         // TODO: expand this
+    }
+
+    VkQueue VulkanDevice::GetQueueFromQueueType(QueueType type)
+    {
+        switch (type)
+        {
+            case QueueType::Graphics: return m_GraphicsQueue;
+            case QueueType::Compute:  PXL_LOG_ERROR(LogArea::Vulkan, "Compute queues are unsupported");
+        }
+
+        return VK_NULL_HANDLE;
+    }
+
+    VkCommandPool VulkanDevice::GetCommandPoolFromQueueType(QueueType type)
+    {
+        switch (type)
+        {
+            case QueueType::Graphics: return m_GraphicsCommandPool;
+            case QueueType::Compute:  PXL_LOG_ERROR(LogArea::Vulkan, "Compute command pools are unsupported");
+        }
+
+        return VK_NULL_HANDLE;
     }
 
     [[deprecated]] int32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

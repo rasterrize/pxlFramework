@@ -12,7 +12,6 @@ namespace pxl
     public:
         VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin);
         VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::string& glslSrc);
-        ~VulkanShader();
 
         virtual void Reload() override;
 
@@ -29,6 +28,6 @@ namespace pxl
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
-        ShaderStage m_ShaderStage = ShaderStage::None;
+        ShaderStage m_ShaderStage = ShaderStage::Vertex;
     };
 }

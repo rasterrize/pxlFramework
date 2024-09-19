@@ -22,7 +22,7 @@ add_library(pxlFramework STATIC
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
-    src/Renderer/RendererAPI.h
+    src/Renderer/RendererAPI.h src/Renderer/RendererAPI.cpp
     src/Renderer/RendererAPIType.h
     src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
     src/Renderer/GPUBuffer.h src/Renderer/GPUBuffer.cpp
