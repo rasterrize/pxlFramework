@@ -24,6 +24,13 @@ namespace pxl
         }
         float GetFOV() const { return m_Settings.FOV; }
 
+        void SetAspectRatio(float aspect)
+        {
+            m_Settings.AspectRatio = aspect;
+            RecalculateProjection();
+        }
+        float GetAspectRatio() const { return m_Settings.AspectRatio; }
+
         virtual void Update() override;
 
         static std::shared_ptr<PerspectiveCamera> Create(const PerspectiveCameraSettings& settings);

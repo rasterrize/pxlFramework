@@ -94,6 +94,7 @@ namespace TestApp
 
         s_Camera->SetPosition(cameraPosition);
         s_Camera->SetFOV(cameraFOV);
+        s_Camera->SetAspectRatio(s_Window->GetAspectRatio());
 
         rotation += 20.0f * dt;
         rotation2 -= 20.0f * dt;
