@@ -57,48 +57,50 @@ namespace TestApp
         s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png");
         s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/atlas.png");
 
+        // clang-format off
         s_StaticQuad = {
-            .Position = { 200.0f, 450.0f,  0.0f },
-            .Rotation = {   0.0f,    0.0, 45.0f },
-            .Size = glm::vec2(75.0f),
-            .Colour = pxl::Colour::GetColourAsVec4(pxl::ColourName::Yellow),
-            .Origin = pxl::Origin2D::BottomRight,
+            .Position = { 200.0f, 450.0f, 0.0f },
+            .Rotation = { 0.0f, 0.0, 45.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = pxl::Colour::GetColourAsVec4(pxl::ColourName::Pink),
+            .Origin   = pxl::Origin2D::BottomRight,
         };
 
         s_TexturedStaticQuad = {
             .Position = { 400.0f, 450.0f, 0.0f },
-            .Rotation = {   0.0f,    0.0, 0.0f },
-            .Size = glm::vec2(75.0f),
-            .Colour = glm::vec4(1.0f),
-            .Origin = pxl::Origin2D::TopLeft,
+            .Rotation = { 0.0f, 0.0, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::TopLeft,
             //.Texture = s_StoneTexture,
         };
 
         s_DynamicQuad = {
             .Position = { 600.0f, 450.0f, 0.0f },
-            .Rotation = {   0.0f,   0.0f, 0.0f },
-            .Size = glm::vec2(75.0f),
-            .Colour = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
-            .Origin = pxl::Origin2D::Center,
+            .Rotation = { 0.0f, 0.0f, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
+            .Origin   = pxl::Origin2D::Center,
         };
 
         s_TexturedDynamicQuad = {
             .Position = { 800.0f, 450.0f, 0.0f },
-            .Rotation = {   0.0f,   0.0f, 0.0f },
-            .Size = glm::vec2(75.0f),
-            .Colour = glm::vec4(1.0f),
-            .Origin = pxl::Origin2D::Center,
-            .Texture = s_TextureAtlas,
+            .Rotation = { 0.0f, 0.0f, 0.0f },
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::Center,
+            .Texture  = s_TextureAtlas,
         };
 
         s_CursorQuad = {
             .Position = { 0.0f, 0.0f, 1.0f },
             .Rotation = glm::vec3(0.0f),
-            .Size = glm::vec2(75.0f),
-            .Colour = glm::vec4(1.0f),
-            .Origin = pxl::Origin2D::Center,
+            .Size     = glm::vec2(75.0f),
+            .Colour   = glm::vec4(1.0f),
+            .Origin   = pxl::Origin2D::Center,
             .Texture = s_CursorTexture,
         };
+        // clang-format on
 
         pxl::Renderer::AddStaticQuad(s_StaticQuad);
 
