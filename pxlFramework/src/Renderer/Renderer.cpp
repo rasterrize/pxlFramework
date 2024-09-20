@@ -547,7 +547,7 @@ namespace pxl
             texIndex = GetTextureIndex(quad.Texture.value());
         }
 
-        std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVertices();
+        std::array<QuadVertex, 4> defaultVertices = Quad::GetDefaultVerticesWithOrigin(quad.Origin);
 
         std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();
         if (quad.TextureUV.has_value())
