@@ -74,8 +74,6 @@ namespace pxl
 
         Size2D GetFramebufferSize() const;
 
-        VkSurfaceKHR CreateVKWindowSurface(VkInstance instance); // Keeping vulkan here for now but obviously not ideal because it shouldnt be tied to window class
-
         void NextWindowMode();
         void ToggleFullscreen();
 

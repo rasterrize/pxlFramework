@@ -50,12 +50,6 @@ namespace pxl
         uint32_t deviceCount = 0;
         VK_CHECK(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr));
 
-        if (deviceCount == 0)
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to find any vulkan supported GPU");
-            return std::vector<VkPhysicalDevice>();
-        }
-
         // Get Vulkan supported physical devices (GPUs)
         std::vector<VkPhysicalDevice> devices(deviceCount);
         VK_CHECK(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()));
@@ -249,24 +243,8 @@ namespace pxl
         return fence;
     }
 
-    std::vector<VkCommandBuffer> VulkanHelpers::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count)
-    {
-        std::vector<VkCommandBuffer> commandBuffers(count);
-
-        VkCommandBufferAllocateInfo commandBufferAllocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-        commandBufferAllocInfo.commandPool = commandPool;
-        commandBufferAllocInfo.level = level;
-        commandBufferAllocInfo.commandBufferCount = count;
-
-        VK_CHECK(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()));
-
-        return commandBuffers;
-    }
-
     void VulkanDeletionQueue::Flush()
     {
-        s_Device->WaitIdle();
-
         for (auto it = s_Queue.end() - 1; it != s_Queue.begin(); it--)
             (*(it))();
 

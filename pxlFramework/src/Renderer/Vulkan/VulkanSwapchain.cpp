@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    VulkanSwapchain::VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass, VkCommandPool commandPool)
+    VulkanSwapchain::VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass)
         : m_Device(device), m_Surface(surface), m_DefaultRenderPass(renderPass)
     {
         m_SwapchainSpecs.Extent = imageExtent;
@@ -22,7 +22,7 @@ namespace pxl
         m_Frames.resize(m_MaxFramesInFlight);
 
         auto vkDevice = static_cast<VkDevice>(m_Device->GetLogical());
-        auto commandBuffers = VulkanHelpers::AllocateCommandBuffers(vkDevice, commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
+        auto commandBuffers = m_Device->AllocateCommandBuffers(QueueType::Graphics, VK_COMMAND_BUFFER_LEVEL_PRIMARY, static_cast<uint32_t>(m_Frames.size()));
 
         for (size_t i = 0; i < m_Frames.size(); i++)
         {
@@ -39,12 +39,6 @@ namespace pxl
             DestroyFrameData();
             Destroy();
         });
-    }
-
-    VulkanSwapchain::~VulkanSwapchain()
-    {
-        DestroyFrameData();
-        Destroy();
     }
 
     void VulkanSwapchain::CreateSwapchain()
@@ -167,7 +161,7 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to retrieve next available image in the swapchain");
     }
 
-    void VulkanSwapchain::QueuePresent(VkQueue queue)
+    void VulkanSwapchain::QueuePresent()
     {
         PXL_PROFILE_SCOPE;
 
@@ -186,15 +180,16 @@ namespace pxl
         presentInfo.pImageIndices = &m_CurrentImageIndex;
 
         // Queue presentation
-        VkResult result = vkQueuePresentKHR(queue, &presentInfo);
+        m_Device->SubmitPresent(presentInfo);
 
         // Update current frame index to the next frame
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-            Recreate();
-        else if (result != VK_SUCCESS)
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
+        // TODO: Check if this is necessary
+        // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+        //     Recreate();
+        // else if (result != VK_SUCCESS)
+        //     PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
     }
 
     void VulkanSwapchain::PrepareImages()
@@ -220,7 +215,7 @@ namespace pxl
 
         // Create an imageless image object containing an image view for each swapchain image
         for (uint32_t i = 0; i < swapchainImageCount; i++)
-            m_Images[i] = std::make_shared<VulkanImage>(device, m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
+            m_Images[i] = std::make_shared<VulkanImage>(m_Device, m_SwapchainSpecs.Extent.width, m_SwapchainSpecs.Extent.height, m_SwapchainSpecs.Format, images[i]);
     }
 
     void VulkanSwapchain::PrepareFramebuffers(const std::shared_ptr<VulkanRenderPass>& renderPass)
@@ -231,7 +226,7 @@ namespace pxl
         for (uint32_t i = 0; i < m_SwapchainSpecs.ImageCount; i++)
         {
             std::shared_ptr<VulkanFramebuffer> framebuffer;
-            framebuffer = std::make_shared<VulkanFramebuffer>(static_cast<VkDevice>(m_Device->GetLogical()), renderPass, m_SwapchainSpecs.Extent);
+            framebuffer = std::make_shared<VulkanFramebuffer>(m_Device, renderPass, m_SwapchainSpecs.Extent);
             framebuffer->AddAttachment(m_Images[i]->GetImageView(), m_SwapchainSpecs.Format);
             framebuffer->Recreate();
             m_Framebuffers[i] = framebuffer;

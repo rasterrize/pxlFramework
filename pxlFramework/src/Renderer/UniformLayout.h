@@ -46,7 +46,7 @@ namespace pxl
     {
         std::string Name;
         UniformDataType Type = UniformDataType::None;
-        ShaderStage ShaderStage = ShaderStage::None;
+        ShaderStage ShaderStage = ShaderStage::Vertex;
     };
 
     class UniformLayout

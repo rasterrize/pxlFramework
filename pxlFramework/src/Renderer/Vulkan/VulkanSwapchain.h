@@ -28,8 +28,7 @@ namespace pxl
     class VulkanSwapchain
     {
     public:
-        VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass, VkCommandPool commandPool);
-        ~VulkanSwapchain();
+        VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass);
 
         void Recreate(uint32_t width, uint32_t height);
         void Recreate();
@@ -40,12 +39,16 @@ namespace pxl
         void AcquireNextAvailableImageIndex();
         uint32_t GetCurrentImageIndex() const { return m_CurrentImageIndex; }
 
-        void QueuePresent(VkQueue queue);
+        void QueuePresent();
 
         VkSwapchainKHR GetVKSwapchain() const { return m_Swapchain; }
+
         VulkanSwapchainSpecs GetSwapchainSpecs() const { return m_SwapchainSpecs; }
-        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); }                // Get Current Frame Image?
+
+        VkImageView GetImageView(uint32_t index) const { return m_Images[index]->GetImageView(); } // Get Current Frame Image?
+
         std::shared_ptr<VulkanFramebuffer> GetFramebuffer(uint32_t index) const { return m_Framebuffers[index]; } // Get Current Frame Framebuffer?
+
         VulkanFrame GetCurrentFrame() const { return m_Frames[m_CurrentFrameIndex]; }
 
         void SetVSync(bool value) { m_VSync = value; }

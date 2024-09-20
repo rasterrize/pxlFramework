@@ -14,7 +14,6 @@ namespace pxl
     {
     public:
         VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data);
-        virtual ~VulkanBuffer() override;
 
         virtual void Bind() override;
         virtual void Unbind() override {}

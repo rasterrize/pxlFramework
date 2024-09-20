@@ -4,8 +4,8 @@
 
 namespace pxl
 {
-    VulkanRenderPass::VulkanRenderPass(VkDevice device, VkFormat format)
-        : m_Device(device)
+    VulkanRenderPass::VulkanRenderPass(const std::shared_ptr<VulkanDevice>& device, VkFormat format)
+        : m_Device(static_cast<VkDevice>(device->GetLogical()))
     {
         // Specify colour attachment/ref
         VkAttachmentDescription colourAttachment = {};
@@ -53,11 +53,6 @@ namespace pxl
         {
             Destroy();
         });
-    }
-
-    VulkanRenderPass::~VulkanRenderPass()
-    {
-        Destroy();
     }
 
     void VulkanRenderPass::Destroy()

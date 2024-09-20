@@ -2,13 +2,13 @@
 
 namespace pxl
 {
-    struct DeviceLimits
+    struct GraphicsDeviceLimits
     {
-        // MaxTextureSlots
-        // VRAM limit
-        // ...
+        uint32_t MaxTextureSlots = 32;
+        float VRAMLimit = 128.0f; // VRAM limit in megabytes
     };
 
+    // Represents a Graphics Processing Device (GPU)
     class GraphicsDevice
     {
     public:
@@ -19,6 +19,6 @@ namespace pxl
 
         virtual void WaitIdle() const = 0;
 
-        virtual const DeviceLimits& GetDeviceLimits() const = 0;
+        virtual const GraphicsDeviceLimits& GetLimits() const = 0;
     };
 }

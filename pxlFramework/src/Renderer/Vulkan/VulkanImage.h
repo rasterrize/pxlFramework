@@ -2,15 +2,16 @@
 
 #include <vulkan/vulkan.h>
 
+#include "VulkanDevice.h"
+
 namespace pxl
 {
     // TODO: abstracted
     class VulkanImage
     {
     public:
-        VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format);
-        VulkanImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage);
-        ~VulkanImage();
+        VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format);
+        VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage);
 
         void Destroy();
 

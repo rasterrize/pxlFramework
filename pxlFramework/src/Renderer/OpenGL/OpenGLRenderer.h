@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Window.h"
 #include "Renderer/RendererAPI.h"
 
 namespace pxl
@@ -9,8 +10,8 @@ namespace pxl
     public:
         OpenGLRenderer();
 
-        virtual void Begin() override {};
-        virtual void End() override {};
+        virtual void BeginFrame() override {};
+        virtual void EndFrame() override {};
 
         virtual void Clear() override;
         virtual void SetClearColour(const glm::vec4& colour) override;

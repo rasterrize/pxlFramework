@@ -27,7 +27,7 @@ namespace pxl
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_StagingBuffer, &m_StagingAllocation, &m_StagingAllocationInfo));
 
             m_UploadFence = VulkanHelpers::CreateFence(static_cast<VkDevice>(m_Device->GetLogical()), false);
-            m_UploadCommandBuffer = VulkanHelpers::AllocateCommandBuffers(static_cast<VkDevice>(m_Device->GetLogical()), std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetCommandPool(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
+            m_UploadCommandBuffer = m_Device->AllocateCommandBuffers(QueueType::Graphics, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
         }
 
         // Dedicated Buffer (actual buffer)
@@ -92,11 +92,6 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
     }
 
-    VulkanBuffer::~VulkanBuffer()
-    {
-        Destroy();
-    }
-
     void VulkanBuffer::Bind()
     {
         PXL_PROFILE_SCOPE;
@@ -148,7 +143,7 @@ namespace pxl
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_UploadCommandBuffer;
 
-        context->SubmitCommandBuffer(submitInfo, context->GetGraphicsQueue(), m_UploadFence);
+        m_Device->SubmitCommandBuffer(submitInfo, QueueType::Graphics, m_UploadFence);
 
         {
             PXL_PROFILE_SCOPE_NAMED("vkWaitForFence(m_UploadFence)");
@@ -161,7 +156,6 @@ namespace pxl
             PXL_PROFILE_SCOPE_NAMED("Mapped memory copy WITHOUT MapMemory");
             memcpy(m_StagingAllocationInfo.pMappedData, data, (size_t)size);
         }
-
 #endif
     }
 

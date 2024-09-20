@@ -17,10 +17,10 @@ namespace pxl
     class VulkanFramebuffer : public Framebuffer
     {
     public:
-        VulkanFramebuffer(VkDevice device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
-        ~VulkanFramebuffer();
+        VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
 
-        virtual void Destroy() override;
+        void Destroy();
+
         virtual void Resize(uint32_t width, uint32_t height) override
         {
             m_Extent.width = width;

@@ -13,7 +13,7 @@ namespace pxl
     OpenGLGraphicsContext::OpenGLGraphicsContext(const std::shared_ptr<Window>& window)
         : m_GLFWWindowHandle(window->GetNativeWindow())
     {
-        glfwMakeContextCurrent(m_GLFWWindowHandle);
+        SetAsCurrent();
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
             PXL_LOG_ERROR(LogArea::OpenGL, "Failed to initialize Glad");
@@ -37,5 +37,10 @@ namespace pxl
     {
         value ? glfwSwapInterval(1) : glfwSwapInterval(0);
         m_VSync = value;
+    }
+
+    void OpenGLGraphicsContext::SetAsCurrent()
+    {
+        glfwMakeContextCurrent(m_GLFWWindowHandle);
     }
 }

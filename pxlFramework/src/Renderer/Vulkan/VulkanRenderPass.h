@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "VulkanDevice.h"
+
 namespace pxl
 {
     class VulkanGraphicsContext;
@@ -9,8 +11,7 @@ namespace pxl
     class VulkanRenderPass
     {
     public:
-        VulkanRenderPass(VkDevice device, VkFormat format);
-        ~VulkanRenderPass();
+        VulkanRenderPass(const std::shared_ptr<VulkanDevice>& device, VkFormat format);
 
         void Destroy();
 
