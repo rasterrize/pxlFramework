@@ -631,7 +631,7 @@ namespace pxl
     }
 #endif
 
-    void Renderer::AddLine(const glm::vec3& position1, const glm::vec3& position2, [[maybe_unused]] const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour)
+    void Renderer::AddLine(const Line& line)
     {
         PXL_PROFILE_SCOPE;
 
@@ -640,16 +640,25 @@ namespace pxl
 
         const auto vertexCount = s_LineCount * 2;
 
+        glm::vec3 centerPos = (line.StartPosition + line.EndPosition) / 2.0f;
+
+        glm::mat4 transform = CalculateTransform(centerPos, line.Rotation, glm::vec3(1.0f));
+
         s_LineVertices[vertexCount + 0] = {
-            .Position = { position1.x * scale.x, position1.y * scale.y, position1.z * scale.z },
-            .Colour = colour,
+            .Position = transform * glm::vec4(line.StartPosition, 1.0f),
+            .Colour = line.Colour,
         };
         s_LineVertices[vertexCount + 1] = {
-            .Position = { position2.x * scale.x, position2.y * scale.y, position2.z * scale.z },
-            .Colour = colour,
+            .Position = transform * glm::vec4(line.EndPosition, 1.0f),
+            .Colour = line.Colour,
         };
 
         s_LineCount++;
+    }
+
+    void Renderer::AddLine(const glm::vec3& startPos, const glm::vec3& endPos, const glm::vec3& rotation, const glm::vec4& colour)
+    {
+        AddLine({ startPos, endPos, rotation, colour });
     }
 
     void Renderer::DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)

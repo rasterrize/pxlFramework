@@ -46,6 +46,7 @@ add_library(pxlFramework STATIC
     src/Renderer/Primitives/Primitive.h
     src/Renderer/Primitives/Quad.h
     src/Renderer/Primitives/Cube.h
+    src/Renderer/Primitives/Line.h
 
     # OPENGL
     src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp

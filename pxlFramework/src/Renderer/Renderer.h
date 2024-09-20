@@ -6,6 +6,7 @@
 #include "GraphicsContext.h"
 #include "Pipeline.h"
 #include "Primitives/Cube.h"
+#include "Primitives/Line.h"
 #include "Primitives/Quad.h"
 #include "RendererAPI.h"
 #include "RendererAPIType.h"
@@ -53,7 +54,8 @@ namespace pxl
         static void AddCube(const Cube& cube);
         static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
 
-        static void AddLine(const glm::vec3& position1, const glm::vec3& position2, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
+        static void AddLine(const Line& line);
+        static void AddLine(const glm::vec3& startPos, const glm::vec3& endPos, const glm::vec3& rotation, const glm::vec4& colour);
 
         static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 

@@ -7,6 +7,8 @@ namespace TestApp
 
     static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
 
+    static glm::vec3 s_LineRotation = glm::vec3(0.0f);
+
     void LinesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         windowSpecs.Title += " - Running Test 'LinesTest'";
@@ -105,6 +107,8 @@ namespace TestApp
             cameraFOV += cameraSpeed * 0.5f;
         }
 
+        s_LineRotation.z += dt * 20.0f;
+
         s_Camera->SetPosition(cameraPosition);
         s_Camera->SetFOV(cameraFOV);
     }
@@ -113,7 +117,7 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-        pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 0.4f, 0.8f, 0.2f, 1.0f });
+        pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, s_LineRotation, { 0.4f, 0.8f, 0.2f, 1.0f });
     }
 
     void LinesTest::OnGUIRender()
