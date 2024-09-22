@@ -28,6 +28,7 @@ namespace pxl
 
         VkViewport GetViewport() const { return m_Viewport; }
         VkRect2D GetScissor() const { return m_Scissor; }
+
     private:
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
         std::shared_ptr<VulkanGraphicsContext> m_ContextHandle = nullptr;

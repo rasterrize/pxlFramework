@@ -69,6 +69,7 @@ namespace pxl
 
             return bytes;
         }
+
     private:
         std::vector<UniformElement> m_Elements;
     };
@@ -82,6 +83,7 @@ namespace pxl
         {
             m_Elements.push_back(pc);
         }
+
     private:
         std::vector<UniformElement> m_Elements;
     };

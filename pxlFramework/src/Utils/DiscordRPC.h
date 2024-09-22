@@ -28,6 +28,7 @@ namespace pxl
         static void SetPresence(const DiscordRPCSettings& settings);
 
         static const DiscordRPCSettings& GetCurrentSettings() { return s_Settings; }
+
     private:
         static bool s_Enabled;
 

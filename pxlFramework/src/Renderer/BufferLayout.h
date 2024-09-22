@@ -36,6 +36,7 @@ namespace pxl
             case BufferDataType::Mat4:   return 4 * 4 * 4;
             case BufferDataType::Bool:   return 4;
         }
+
         return 0;
     }
 
@@ -59,6 +60,7 @@ namespace pxl
                 case BufferDataType::Mat3:   return 3; // } unsure about these bottom two
                 case BufferDataType::Mat4:   return 4;
             }
+
             return 0;
         }
     };
@@ -69,11 +71,12 @@ namespace pxl
         const std::vector<BufferElement>& GetElements() const { return m_Elements; }
         uint32_t GetStride() const { return m_Stride; }
 
-        void Add(const BufferElement& element)
+        constexpr void Add(const BufferElement& element)
         {
             m_Elements.push_back(element);
             m_Stride += SizeOfBufferDataType(element.Type);
         }
+
     private:
         std::vector<BufferElement> m_Elements;
         uint32_t m_Stride = 0; // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))

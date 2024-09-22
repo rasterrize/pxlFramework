@@ -35,10 +35,10 @@
 //#include "../src/Audio/AudioManager.h"
 
 // Debug
+#include <imgui.h> // so applications can use ImGui functions
+
 #include "../src/Debug/GUI/GUI.h"
 #include "../src/Debug/Profiler.h"
 #include "../src/Utils/DiscordRPC.h"
 #include "../src/Utils/EnumStringHelper.h"
 #include "../src/Utils/FileSystem.h"
-
-#include <imgui.h> // so applications can use ImGui functions

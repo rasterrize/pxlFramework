@@ -24,12 +24,14 @@ namespace pxl
         }
 
         virtual void* GetPipelineLayout() override { return nullptr; }
+
     private:
         int GetUniformLocation(const std::string& name) const;
 
         GLenum ToGLCullMode(CullMode mode);
         GLenum ToGLPolygonMode(PolygonMode mode);
         GLenum ToGLFrontFace(FrontFace face);
+
     private:
         uint32_t m_ShaderProgramID = 0;
         mutable std::unordered_map<std::string, int> m_UniformCache;

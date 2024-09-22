@@ -37,6 +37,7 @@ namespace pxl
 
         // TODO: move
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
+
     private:
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
         std::shared_ptr<VulkanSwapchain> m_Swapchain = nullptr;

@@ -36,7 +36,7 @@ AlignConsecutiveShortCaseStatements:
   Enabled:         true
   AcrossEmptyLines: false
   AcrossComments:  false
-  AlignCaseArrows: true
+  # AlignCaseArrows: true
   AlignCaseColons: false
 AlignEscapedNewlines: Left
 AlignOperands:   DontAlign
@@ -86,7 +86,7 @@ BracedInitializerIndentWidth: 4
 BreakAdjacentStringLiterals: true
 BreakAfterAttributes: Leave
 BreakAfterJavaFieldAnnotations: false
-BreakAfterReturnType: Automatic
+# BreakAfterReturnType: Automatic
 BreakArrays:     false
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: Always
@@ -105,7 +105,7 @@ Cpp11BracedListStyle: false
 DerivePointerAlignment: true
 DisableFormat:   false
 EmptyLineAfterAccessModifier: Never
-EmptyLineBeforeAccessModifier: Never
+EmptyLineBeforeAccessModifier: Always
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: false
 # ForEachMacros:
@@ -159,7 +159,7 @@ LambdaBodyIndentation: OuterScope
 LineEnding:      DeriveLF
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
-MainIncludeChar: Quote
+# MainIncludeChar: Quote
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 ObjCBinPackProtocolList: Never

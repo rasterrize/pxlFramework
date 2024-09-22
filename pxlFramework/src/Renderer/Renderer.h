@@ -98,6 +98,7 @@ namespace pxl
 
         static float GetFPS() { return s_Stats.FPS; }
         static float GetFrameTimeMS() { return 1 / s_Stats.FPS * 1000.0f; }
+
     private:
         friend class Application;
         static void CalculateFPS();
@@ -115,6 +116,7 @@ namespace pxl
             // NOTE: Intentionally avoids setting the FPS value
             memset(&s_Stats.DrawCalls, 0, sizeof(Statistics) - sizeof(float));
         }
+
     private:
         static inline bool s_Enabled = false;
 

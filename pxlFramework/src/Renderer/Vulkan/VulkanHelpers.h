@@ -39,6 +39,7 @@ namespace pxl
         static void Add(std::function<void()> function) { s_Queue.push_back(function); }
 
         static void Flush();
+
     private:
         static inline std::vector<std::function<void()>> s_Queue;
     };

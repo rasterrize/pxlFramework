@@ -60,6 +60,7 @@ namespace pxl
         void Continue() { m_Suspend = false; }
 
         void FramebufferResized() { m_FramebufferResized = true; }
+
     private:
         void CreateSwapchain();
         void PrepareImages();
@@ -68,6 +69,7 @@ namespace pxl
         VkPresentModeKHR GetSuitablePresentMode();
         uint32_t GetSuitableImageCount();
         bool CheckExtentSupport(VkExtent2D extent);
+
     private:
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
 

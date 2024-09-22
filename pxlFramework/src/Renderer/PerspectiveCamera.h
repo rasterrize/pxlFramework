@@ -34,8 +34,10 @@ namespace pxl
         virtual void Update() override;
 
         static std::shared_ptr<PerspectiveCamera> Create(const PerspectiveCameraSettings& settings);
+
     protected:
         virtual void RecalculateProjection() override;
+
     private:
         PerspectiveCameraSettings m_Settings = {};
     };

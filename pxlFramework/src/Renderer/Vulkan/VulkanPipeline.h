@@ -38,12 +38,14 @@ namespace pxl
         void Destroy();
 
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
+
     private:
         static VkShaderStageFlagBits ToVkShaderStage(ShaderStage stage);
         static VkPrimitiveTopology ToVkPrimitiveTopology(PrimitiveTopology topology);
         static VkPolygonMode ToVkPolygonMode(PolygonMode mode);
         static VkCullModeFlagBits ToVkCullMode(CullMode mode);
         static VkFrontFace ToVkFrontFace(FrontFace face);
+
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;

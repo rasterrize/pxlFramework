@@ -46,7 +46,7 @@ namespace TestApp
         m_OnStartFunc = TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
         m_OnRenderFunc = TEST_NAME::OnRender;
-        m_OnGuiRender = TEST_NAME::OnGUIRender;
+        m_OnGUIRenderFunc = TEST_NAME::OnGUIRender;
 
         m_OnStartFunc(windowSpecs);
     }
@@ -99,6 +99,6 @@ namespace TestApp
 
         ImGui::End();
 
-        m_OnGuiRender();
+        m_OnGUIRenderFunc();
     }
 }

@@ -16,9 +16,11 @@ namespace pxl
         virtual void Unbind() override;
 
         virtual void SetData(uint32_t size, const void* data) override;
+
     private:
         static GLenum ToGLUsageEnum(GPUBufferUsage usage);
         static GLenum ToGLDrawHint(GPUBufferDrawHint usage);
+
     private:
         uint32_t m_RendererID = 0;
         GLenum m_Usage = GL_INVALID_ENUM;

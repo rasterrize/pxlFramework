@@ -59,11 +59,14 @@ namespace pxl
         }
 
         static std::shared_ptr<OrthographicCamera> Create(const OrthographicCameraSettings& settings);
+
     protected:
         virtual void RecalculateProjection() override;
+
     private:
         void RecalculateSides();
         void RecalculateSidesWithAspectRatio();
+
     private:
         OrthographicCameraSettings m_Settings = {};
     };

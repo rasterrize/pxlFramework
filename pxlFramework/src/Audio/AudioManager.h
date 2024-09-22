@@ -18,6 +18,7 @@ namespace pxl
         static void Stop(const std::string& trackName);
 
         static std::vector<std::string> GetLibrary(); // probably should have a different name
+
     private:
         static bool s_Enabled;
 

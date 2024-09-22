@@ -18,8 +18,10 @@ namespace pxl
         bool IsPlaying() const { return m_Playing; }
 
         const HSTREAM GetStream() const { return m_Stream; }
+
     private:
         void Free();
+
     private:
         HSTREAM m_Stream;
 

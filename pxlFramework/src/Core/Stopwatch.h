@@ -52,11 +52,13 @@ namespace pxl
             CalculateElapsed();
             return static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(m_Elapsed).count());
         }
+
     private:
         void CalculateElapsed()
         {
             m_Elapsed = m_Stopped == true ? m_EndTime - m_StartTime : std::chrono::high_resolution_clock::now() - m_StartTime;
         }
+
     private:
         bool m_Stopped = false;
 

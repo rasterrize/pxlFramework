@@ -18,8 +18,10 @@ namespace pxl
         virtual void Unbind() override;
 
         virtual const ImageMetadata& GetMetadata() const override { return m_Metadata; }
+
     private:
         static GLenum ImageFormatToGLFormat(ImageFormat format);
+
     private:
         ImageMetadata m_Metadata;
 

@@ -16,7 +16,7 @@ namespace pxl
 
         virtual bool GetVSync() const override { return m_VSync; }
         virtual void SetVSync(bool value) override;
-        virtual void ToggleVSync() override { SetVSync(!m_VSync); } 
+        virtual void ToggleVSync() override { SetVSync(!m_VSync); }
 
         virtual void SetAsCurrent() override;
 
@@ -25,6 +25,7 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::OpenGL, "OpenGLContexts don't have devices, returning nullptr");
             return nullptr;
         }
+
     private:
         GLFWwindow* m_GLFWWindowHandle = nullptr;
         bool m_VSync = true;

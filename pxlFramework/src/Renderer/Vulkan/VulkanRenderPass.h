@@ -16,6 +16,7 @@ namespace pxl
         void Destroy();
 
         VkRenderPass GetVKRenderPass() { return m_RenderPass; }
+
     private:
         VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 

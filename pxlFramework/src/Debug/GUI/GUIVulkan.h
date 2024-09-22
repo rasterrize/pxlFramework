@@ -15,6 +15,7 @@ namespace pxl
         virtual void NewFrame() override;
         virtual void Render() override;
         virtual void Shutdown() override;
+
     private:
         std::shared_ptr<VulkanGraphicsContext> m_ContextHandle = nullptr;
         std::shared_ptr<VulkanDevice> m_Device = nullptr;

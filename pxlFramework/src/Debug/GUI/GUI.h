@@ -17,6 +17,7 @@ namespace pxl
         static bool IsInitialized() { return s_Enabled; }
 
         static std::shared_ptr<Window> GetWindowHandle() { return s_WindowHandle; }
+
     private:
         static inline bool s_Enabled = false;
 

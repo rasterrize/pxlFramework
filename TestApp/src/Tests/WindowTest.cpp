@@ -4,7 +4,7 @@ namespace TestApp
 {
     static std::shared_ptr<pxl::Window> s_TestWindowA = nullptr;
     static std::shared_ptr<pxl::Window> s_TestWindowB = nullptr;
-    
+
     void WindowTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         windowSpecs.RendererAPI = pxl::RendererAPIType::None;
@@ -31,7 +31,7 @@ namespace TestApp
             pxl::Application::Get().Close();
             return;
         }
-        
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
             s_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
 

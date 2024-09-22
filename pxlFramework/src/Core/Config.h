@@ -25,6 +25,7 @@ namespace pxl
         // the settings could be dynamic, but that might too much effort for too little reward
         static const FrameworkSettings& GetSettings() { return s_FrameworkSettings; }
         static void SetSettings(const FrameworkSettings& settings) { s_FrameworkSettings = settings; }
+
     private:
         static inline FrameworkSettings s_FrameworkSettings = {};
     };

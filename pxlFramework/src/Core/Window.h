@@ -5,9 +5,9 @@
 
 #include <glm/vec2.hpp>
 
+#include "Core/Image.h"
 #include "Core/Size.h"
 #include "Renderer/GraphicsContext.h"
-#include "Core/Image.h"
 #include "Renderer/RendererAPIType.h"
 
 namespace pxl
@@ -114,6 +114,7 @@ namespace pxl
         static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
 
         static void CloseAll();
+
     private:
         Window(const WindowSpecs& specs);
 
@@ -146,6 +147,7 @@ namespace pxl
         static void Shutdown();
 
         static void UpdateMonitors();
+
     private:
         GLFWwindow* m_GLFWWindow = nullptr;
         std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;

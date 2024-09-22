@@ -20,11 +20,13 @@ namespace pxl
         void Destroy();
 
         VkShaderModule GetShaderModule() const { return m_ShaderModule; }
+
     private:
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
         static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<uint32_t>& code);
 
         static std::vector<uint32_t> CompileToSPIRV(const std::string& glslSrc, ShaderStage stage);
+
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkShaderModule m_ShaderModule = VK_NULL_HANDLE;

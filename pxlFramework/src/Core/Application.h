@@ -29,6 +29,7 @@ namespace pxl
             PXL_ASSERT(s_Instance);
             return *s_Instance;
         }
+
     private:
         bool m_Running = true;
         bool m_Minimized = false;

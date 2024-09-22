@@ -15,10 +15,12 @@ namespace pxl
         virtual ShaderStage GetShaderStage() const override { return m_ShaderStage; }
 
         uint32_t GetID() const { return m_RendererID; }
+
     private:
         void Compile(const std::string& glslSrc);
 
         static uint32_t ShaderStageToGLShaderStage(ShaderStage stage);
+
     private:
         uint32_t m_RendererID = 0;
         ShaderStage m_ShaderStage = ShaderStage::Vertex;

@@ -34,7 +34,7 @@ namespace pxl
 
     void VulkanRenderer::SetViewport(uint32_t x, [[maybe_unused]] uint32_t y, uint32_t width, uint32_t height)
     {
-        // Invert the given viewport values to match OpenGL
+        // Invert the given viewport vertical values to match OpenGL
         m_Viewport.x = static_cast<float>(x);
         m_Viewport.y = static_cast<float>(height);
         m_Viewport.width = static_cast<float>(width);
@@ -60,7 +60,9 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        vkCmdDraw(m_CurrentFrame.CommandBuffer, vertexCount, 1, 0, 0);
+        /* Vulkan doesn't have a DrawLines function and instead uses the bound pipeline to determine primitive topology,
+           so here we can just call DrawArrays() */
+        DrawArrays(vertexCount);
     }
 
     void VulkanRenderer::DrawIndexed(uint32_t indexCount)

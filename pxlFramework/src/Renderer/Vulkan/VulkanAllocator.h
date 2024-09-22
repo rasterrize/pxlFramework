@@ -13,6 +13,7 @@ namespace pxl
         static void Init(VkInstance instance, const std::shared_ptr<VulkanDevice>& device);
         static VmaAllocator Get() { return s_Allocator; }
         static void Shutdown();
+
     private:
         static inline VmaAllocator s_Allocator = nullptr;
     };

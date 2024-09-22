@@ -147,7 +147,7 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-    #if IMGUICUBESTEST
+#if IMGUICUBESTEST
         ImGui::ShowDemoWindow();
 
         // Main debug window
@@ -326,7 +326,7 @@ namespace TestApp
         }
 
         ImGui::End();
-    #endif
+#endif
     }
 
     void CubesTest::OnClose()

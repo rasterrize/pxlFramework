@@ -39,8 +39,10 @@ namespace pxl
         static std::unique_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
 
         static void SetCurrentArea(LogArea area) { s_CurrentArea = area; }
+
     private:
         static std::string_view LogAreaToString(LogArea area);
+
     private:
         class LogAreaFlag : public spdlog::custom_flag_formatter
         {
@@ -56,6 +58,7 @@ namespace pxl
                 return spdlog::details::make_unique<LogAreaFlag>();
             }
         };
+
     private:
         static inline std::unique_ptr<spdlog::logger> s_FrameworkLogger = nullptr; // NOTE: uses special flag for log areas
         static inline std::unique_ptr<spdlog::logger> s_ApplicationLogger = nullptr;

@@ -21,7 +21,7 @@ namespace pxl
             : Vertices(vertices), Indices(indices)
         {
         }
-    
+
         std::vector<MeshVertex> Vertices;
         std::vector<uint32_t> Indices;
     };

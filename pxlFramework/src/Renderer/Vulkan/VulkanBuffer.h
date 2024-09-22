@@ -42,9 +42,11 @@ namespace pxl
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);                   // }   Could these be Helper functions?
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout); // }
+
     private:
         static VkFormat GetVkFormatOfBufferDataType(BufferDataType type);
         static VkBufferUsageFlagBits GetVkBufferUsageOfBufferUsage(GPUBufferUsage usage);
+
     private:
         std::shared_ptr<VulkanDevice> m_Device = nullptr;
 

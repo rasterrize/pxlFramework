@@ -34,11 +34,13 @@ namespace pxl
         uint32_t GetComputeQueueFamily() const { return 0; }
 
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
+
     private:
         void CreateLogicalDevice(VkPhysicalDevice gpu);
 
         VkQueue GetQueueFromQueueType(QueueType type) const;
         VkCommandPool GetCommandPoolFromQueueType(QueueType type) const;
+
     private:
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;

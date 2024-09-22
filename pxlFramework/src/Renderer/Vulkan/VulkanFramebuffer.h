@@ -35,8 +35,10 @@ namespace pxl
         void AddAttachment(const VulkanFramebufferAttachment& attachment); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
         //void AddAttachment(VkImageUsageFlags usage, VkFormat format); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
         void AddAttachment(VkImageView imageView, VkFormat format); // return index of attachment? // could be virtual since OpenGL framebuffers are similar
+
     private:
         void Create();
+
     private:
         VkDevice m_Device = VK_NULL_HANDLE;
         VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
