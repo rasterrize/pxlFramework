@@ -17,10 +17,11 @@ namespace pxl
         virtual void Bind(uint32_t unit) override;
         virtual void Unbind() override;
 
+        virtual const ImageMetadata& GetMetadata() const override { return m_Metadata; }
+    private:
         static GLenum ImageFormatToGLFormat(ImageFormat format);
     private:
-        unsigned char* m_ImageBuffer = nullptr;
-        glm::u32vec2 m_ImageSize = glm::u32vec2(0);
+        ImageMetadata m_Metadata;
 
         GLenum m_GLFormat = GL_INVALID_ENUM;
         uint32_t m_RendererID = 0;

@@ -28,20 +28,19 @@ namespace pxl
 
         PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", stringPath);
 
-        Image spec;
+        Image image;
 
-        spec.Buffer = bytes;
-        spec.Size = { width, height };
+        image.Buffer = bytes;
+        image.Metadata.Size = { (uint32_t)width, (uint32_t)height };
 
         if (channels == 3)
-            spec.Format = ImageFormat::RGB8;
+            image.Metadata.Format = ImageFormat::RGB8;
         else if (channels == 4)
-            spec.Format = ImageFormat::RGBA8;
+            image.Metadata.Format = ImageFormat::RGBA8;
         else
-            spec.Format = ImageFormat::Undefined;
+            image.Metadata.Format = ImageFormat::Undefined;
 
-
-        std::shared_ptr<Texture> texture = Texture::Create(spec); // should glm be used here?
+        std::shared_ptr<Texture> texture = Texture::Create(image);
 
         // stb image requires we manually free the loaded image from memory
         stbi_image_free(bytes);

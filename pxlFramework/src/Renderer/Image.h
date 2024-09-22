@@ -18,10 +18,16 @@ namespace pxl
         Linear,
     };
 
+    struct ImageMetadata
+    {
+        Size2D Size = Size2D(0);
+        ImageFormat Format = ImageFormat::Undefined;
+        uint32_t BitDepth = 8;
+    };
+
     struct Image
     {
         unsigned char* Buffer = nullptr;
-        glm::vec2 Size = glm::vec2(0.0f); // ivec?
-        ImageFormat Format = ImageFormat::Undefined;
+        ImageMetadata Metadata = {};
     };
 }

@@ -3,7 +3,7 @@
 namespace pxl
 {
     OpenGLTexture::OpenGLTexture(const Image& image)
-        : m_ImageBuffer(image.Buffer), m_ImageSize(image.Size), m_GLFormat(ImageFormatToGLFormat(image.Format))
+        : m_Metadata(image.Metadata), m_GLFormat(ImageFormatToGLFormat(image.Metadata.Format))
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
@@ -13,7 +13,7 @@ namespace pxl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<int>(m_ImageSize.x), static_cast<int>(m_ImageSize.y), 0, m_GLFormat, GL_UNSIGNED_BYTE, m_ImageBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<int>(m_Metadata.Size.Width), static_cast<int>(m_Metadata.Size.Height), 0, m_GLFormat, GL_UNSIGNED_BYTE, image.Buffer);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
