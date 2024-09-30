@@ -77,6 +77,8 @@ namespace pxl
         void NextWindowMode();
         void ToggleFullscreen();
 
+        void Minimize();
+
         void SetVSync(bool vsync) const { m_GraphicsContext->SetVSync(vsync); }
         void ToggleVSync() { SetVSync(!m_GraphicsContext->GetVSync()); }
 

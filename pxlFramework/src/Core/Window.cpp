@@ -146,7 +146,7 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
 
-        PXL_ASSERT_MSG(windowWidth != static_cast<int>(width) || windowHeight != static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
+        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
     }
 
     void Window::SetPosition(uint32_t xpos, uint32_t ypos)
@@ -258,6 +258,11 @@ namespace pxl
             SetWindowMode(WindowMode::Fullscreen);
         else if (m_Specs.WindowMode == WindowMode::Fullscreen)
             SetWindowMode(WindowMode::Windowed);
+    }
+
+    void Window::Minimize()
+    {
+        glfwIconifyWindow(m_GLFWWindow);
     }
 
     void Window::SetVisibility(bool value)

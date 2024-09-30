@@ -165,6 +165,13 @@ namespace pxl
 
     void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
     {
+        // Override GLFW's windows key auto iconify so the start menu doesn't immediately disappear
+        if (key == GLFW_KEY_LEFT_SUPER)
+        {
+            if (glfwGetWindowMonitor(window))
+                glfwIconifyWindow(s_WindowHandle);
+        }
+
         s_CurrentKeyStates[key] = action;
     }
 
