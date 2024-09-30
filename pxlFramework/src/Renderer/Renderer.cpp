@@ -154,9 +154,9 @@ namespace pxl
             const auto bufferLayout = QuadVertex::GetLayout();
 
             // Prepare Buffers
-            s_QuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxQuadVertexCount * sizeof(QuadVertex));
-            s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, k_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
-            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxQuadVertexCount * sizeof(QuadVertex));
+            s_QuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxQuadVertexCount * sizeof(QuadVertex), nullptr);
+            s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, k_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Static, k_MaxQuadVertexCount * sizeof(QuadVertex), nullptr);
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -256,8 +256,8 @@ namespace pxl
             const auto bufferLayout = CubeVertex::GetLayout();
 
             // Prepare Buffers
-            s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxCubeVertexCount * sizeof(CubeVertex));
-            s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, k_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
+            s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxCubeVertexCount * sizeof(CubeVertex), nullptr);
+            s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, k_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -315,7 +315,7 @@ namespace pxl
             const auto bufferLayout = LineVertex::GetLayout();
 
             // Prepare Buffers
-            s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, k_MaxLineVertexCount * sizeof(LineVertex));
+            s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxLineVertexCount * sizeof(LineVertex), nullptr);
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -370,8 +370,8 @@ namespace pxl
             const auto bufferLayout = MeshVertex::GetLayout();
 
             // Prepare Buffers
-            s_MeshVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, 1000 * sizeof(MeshVertex));
-            s_MeshIBO = GPUBuffer::Create(GPUBufferUsage::Index, 1000 * sizeof(uint32_t));
+            s_MeshVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, 10000 * sizeof(MeshVertex), nullptr);
+            s_MeshIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Dynamic, 10000 * sizeof(uint32_t), nullptr);
 
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
@@ -436,6 +436,9 @@ namespace pxl
 
     void Renderer::Shutdown()
     {
+        if (!s_Enabled)
+            return;
+
         s_Enabled = false;
 
         // Delete vulkan objects before RAII deletes them in the wrong order
@@ -779,14 +782,14 @@ namespace pxl
 
         if (!s_StaticQuadVertices.empty())
         {
-            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, static_cast<uint32_t>(s_StaticQuadVertices.size() * sizeof(QuadVertex)), s_StaticQuadVertices.data());
-            s_StaticQuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, static_cast<uint32_t>(s_StaticQuadIndices.size() * sizeof(uint32_t)), s_StaticQuadIndices.data());
+            s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Static, static_cast<uint32_t>(s_StaticQuadVertices.size() * sizeof(QuadVertex)), s_StaticQuadVertices.data());
+            s_StaticQuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, static_cast<uint32_t>(s_StaticQuadIndices.size() * sizeof(uint32_t)), s_StaticQuadIndices.data());
         }
 
         if (!s_StaticCubeVertices.empty())
         {
-            s_StaticCubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, static_cast<uint32_t>(s_StaticCubeVertices.size() * sizeof(CubeVertex)), s_StaticCubeVertices.data());
-            s_StaticCubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, static_cast<uint32_t>(s_StaticCubeIndices.size() * sizeof(uint32_t)), s_StaticCubeIndices.data());
+            s_StaticCubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Static, static_cast<uint32_t>(s_StaticCubeVertices.size() * sizeof(CubeVertex)), s_StaticCubeVertices.data());
+            s_StaticCubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, static_cast<uint32_t>(s_StaticCubeIndices.size() * sizeof(uint32_t)), s_StaticCubeIndices.data());
         }
 
         const auto layout = QuadVertex::GetLayout();

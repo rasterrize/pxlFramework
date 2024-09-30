@@ -7,12 +7,6 @@
 
 namespace pxl
 {
-    enum class QueueType
-    {
-        Graphics,
-        Compute,
-    };
-
     class VulkanDevice : public GraphicsDevice
     {
     public:
@@ -22,6 +16,7 @@ namespace pxl
         virtual void* GetPhysical() const override { return m_PhysicalDevice; }
 
         virtual void WaitIdle() const override { VK_CHECK(vkDeviceWaitIdle(m_LogicalDevice)); }
+        virtual void QueueWaitIdle(QueueType queue) const override { VK_CHECK(vkQueueWaitIdle(GetQueueFromQueueType(queue))); }
 
         virtual const GraphicsDeviceLimits& GetLimits() const override { return m_DeviceLimits; }
 
@@ -38,15 +33,12 @@ namespace pxl
         uint32_t GetGraphicsQueueFamily() const { return m_GraphicsQueueFamily.value(); }
         uint32_t GetComputeQueueFamily() const { return 0; }
 
-        [[deprecated]]
-        int32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
     private:
         void CreateLogicalDevice(VkPhysicalDevice gpu);
 
-        VkQueue GetQueueFromQueueType(QueueType type);
-        VkCommandPool GetCommandPoolFromQueueType(QueueType type);
+        VkQueue GetQueueFromQueueType(QueueType type) const;
+        VkCommandPool GetCommandPoolFromQueueType(QueueType type) const;
     private:
         VkDevice m_LogicalDevice = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
@@ -61,7 +53,5 @@ namespace pxl
 
         VkCommandPool m_GraphicsCommandPool = VK_NULL_HANDLE;
         VkCommandPool m_ComputeCommandPool = VK_NULL_HANDLE; // TODO: unused
-
-        // std::vector<VkShaderModule> modules;
     };
 }

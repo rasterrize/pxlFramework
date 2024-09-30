@@ -8,25 +8,25 @@
 
 namespace pxl
 {
-    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data)
+    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data)
         : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
-#define STAGING_BUFFER 1
-#if STAGING_BUFFER
-        // Staging buffer
+        bool useStagingBuffer = false;
+        switch (drawHint)
         {
-            VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-            bufferInfo.size = size;
-            bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            case GPUBufferDrawHint::Static:
+                useStagingBuffer = true;
+                break;
 
-            VmaAllocationCreateInfo allocInfo = {};
-            allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT; // VMA_ALLOCATION_CREATE_MAPPED_BIT so mapping and unmapping is unnecessary?
+            case GPUBufferDrawHint::Dynamic:
+                useStagingBuffer = false;
+                break;
+        }
 
-            VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_StagingBuffer, &m_StagingAllocation, &m_StagingAllocationInfo));
-
-            m_UploadFence = VulkanHelpers::CreateFence(static_cast<VkDevice>(m_Device->GetLogical()), false);
+        // Staging buffer
+        if (useStagingBuffer)
+        {
+            m_StagingBuffer = CreateStagingBuffer(size);
             m_UploadCommandBuffer = m_Device->AllocateCommandBuffers(QueueType::Graphics, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
         }
 
@@ -34,32 +34,17 @@ namespace pxl
         {
             VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
             bufferInfo.size = size;
-            bufferInfo.usage = m_Usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+            bufferInfo.usage = useStagingBuffer ? m_Usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT : m_Usage;
             bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
             VmaAllocationCreateInfo allocInfo = {};
             allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+            allocInfo.flags = useStagingBuffer ? VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT
+                                               : VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
             // Create buffer and its associated memory
             VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
         }
-#else
-        // Dedicated Buffer (actual buffer)
-        {
-            VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-            bufferInfo.size = size;
-            bufferInfo.usage = m_Usage;
-            bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-            VmaAllocationCreateInfo allocInfo = {};
-            allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-
-            // Create buffer and its associated memory
-            VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, &m_StagingAllocationInfo));
-        }
-#endif
 
         VulkanDeletionQueue::Add([&]()
         {
@@ -89,7 +74,9 @@ namespace pxl
         }
         //m_BindFunc = [&](VkCommandBuffer commandBuffer) {};
         else
+        {
             PXL_LOG_ERROR(LogArea::Vulkan, "Invalid Vulkan buffer usage specified");
+        }
     }
 
     void VulkanBuffer::Bind()
@@ -112,51 +99,51 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
+        PXL_ASSERT_MSG(data, "Data invalid");
+        PXL_ASSERT_MSG(size >= 0, "Size invalid");
+
         auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
-        auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
-#if STAGING_BUFFER
-
-        // Fill the vertex buffer with the data
+        // Use staging buffer if it exists
+        if (m_StagingBuffer.Buffer)
         {
-            PXL_PROFILE_SCOPE_NAMED("Mapped memory copy WITHOUT MapMemory");
-            memcpy(m_StagingAllocationInfo.pMappedData, data, (size_t)size);
+            // Fill the vertex buffer with the data
+            PXL_PROFILE_SCOPE_NAMED("Mapped memory copy");
+            memcpy(m_StagingBuffer.AllocInfo.pMappedData, data, static_cast<size_t>(size));
+
+            // Copy staging buffer contents to dedicated buffer contents
+            VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+            beginInfo.flags = 0;
+
+            VK_CHECK(vkBeginCommandBuffer(m_UploadCommandBuffer, &beginInfo));
+
+            VkBufferCopy copyRegion = {};
+            copyRegion.srcOffset = 0;
+            copyRegion.dstOffset = 0;
+            copyRegion.size = size;
+
+            vkCmdCopyBuffer(m_UploadCommandBuffer, m_StagingBuffer.Buffer, m_Buffer, 1, &copyRegion);
+
+            VK_CHECK(vkEndCommandBuffer(m_UploadCommandBuffer));
+
+            VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &m_UploadCommandBuffer;
+
+            m_Device->SubmitCommandBuffer(submitInfo, QueueType::Graphics, nullptr);
+
+            {
+                PXL_PROFILE_SCOPE_NAMED("Wait for buffer staging upload");
+                m_Device->QueueWaitIdle(QueueType::Graphics);
+            }
         }
-
-        // Copy staging buffer contents to dedicated buffer contents
-
-        VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-        beginInfo.flags = 0;
-
-        vkBeginCommandBuffer(m_UploadCommandBuffer, &beginInfo);
-
-        VkBufferCopy copyRegion = {};
-        copyRegion.srcOffset = 0;
-        copyRegion.dstOffset = 0;
-        copyRegion.size = size;
-
-        vkCmdCopyBuffer(m_UploadCommandBuffer, m_StagingBuffer, m_Buffer, 1, &copyRegion);
-
-        vkEndCommandBuffer(m_UploadCommandBuffer);
-
-        VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_UploadCommandBuffer;
-
-        m_Device->SubmitCommandBuffer(submitInfo, QueueType::Graphics, m_UploadFence);
-
+        else
         {
-            PXL_PROFILE_SCOPE_NAMED("vkWaitForFence(m_UploadFence)");
-            vkWaitForFences(device, 1, &m_UploadFence, VK_TRUE, UINT64_MAX);
-            vkResetFences(device, 1, &m_UploadFence);
+            PXL_PROFILE_SCOPE_NAMED("Mapped memory copy");
+            VmaAllocationInfo allocInfo = {};
+            vmaGetAllocationInfo(VulkanAllocator::Get(), m_Allocation, &allocInfo);
+            memcpy(allocInfo.pMappedData, data, (size_t)size);
         }
-
-#else
-        {
-            PXL_PROFILE_SCOPE_NAMED("Mapped memory copy WITHOUT MapMemory");
-            memcpy(m_StagingAllocationInfo.pMappedData, data, (size_t)size);
-        }
-#endif
     }
 
     void VulkanBuffer::Destroy()
@@ -168,18 +155,27 @@ namespace pxl
             m_Allocation = VK_NULL_HANDLE;
         }
 
-        if (m_StagingBuffer)
-        {
-            vmaDestroyBuffer(VulkanAllocator::Get(), m_StagingBuffer, m_StagingAllocation);
-            m_StagingBuffer = VK_NULL_HANDLE;
-            m_StagingAllocation = VK_NULL_HANDLE;
-        }
+        if (m_StagingBuffer.Buffer)
+            m_StagingBuffer.Destroy();
+    }
 
-        if (m_UploadFence)
-        {
-            vkDestroyFence(static_cast<VkDevice>(m_Device->GetLogical()), m_UploadFence, nullptr);
-            m_UploadFence = VK_NULL_HANDLE;
-        }
+    VulkanStagingBuffer VulkanBuffer::CreateStagingBuffer(uint32_t size)
+    {
+        VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        bufferInfo.size = size;
+        bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+        VkBuffer stagingBuffer;
+        VmaAllocation stagingAllocation;
+        VmaAllocationInfo allocationInfo;
+        VK_CHECK(vmaCreateBuffer(VulkanAllocator::Get(), &bufferInfo, &allocInfo, &stagingBuffer, &stagingAllocation, &allocationInfo));
+
+        return { stagingBuffer, stagingAllocation, allocationInfo };
     }
 
     VkVertexInputBindingDescription VulkanBuffer::GetBindingDescription(const BufferLayout& layout)

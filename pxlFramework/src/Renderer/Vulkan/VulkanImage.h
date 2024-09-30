@@ -29,6 +29,6 @@ namespace pxl
         bool m_IsSwapchainImage = false; // Currently unused
 
         // for destruction
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
     };
 }

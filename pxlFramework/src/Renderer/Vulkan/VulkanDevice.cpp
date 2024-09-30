@@ -148,7 +148,7 @@ namespace pxl
         // TODO: expand this
     }
 
-    VkQueue VulkanDevice::GetQueueFromQueueType(QueueType type)
+    VkQueue VulkanDevice::GetQueueFromQueueType(QueueType type) const
     {
         switch (type)
         {
@@ -159,7 +159,7 @@ namespace pxl
         return VK_NULL_HANDLE;
     }
 
-    VkCommandPool VulkanDevice::GetCommandPoolFromQueueType(QueueType type)
+    VkCommandPool VulkanDevice::GetCommandPoolFromQueueType(QueueType type) const
     {
         switch (type)
         {
@@ -168,22 +168,6 @@ namespace pxl
         }
 
         return VK_NULL_HANDLE;
-    }
-
-    [[deprecated]] int32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-    {
-        // Find correct memory type
-        VkPhysicalDeviceMemoryProperties memProps;
-        vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProps);
-
-        // Loop through each type of memory and check if the specified type matches as well as the properties
-        for (uint32_t i = 0; i < memProps.memoryTypeCount; i++)
-        {
-            if ((typeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
-                return i;
-        }
-
-        return -1;
     }
 
     void VulkanDevice::LogDeviceLimits()

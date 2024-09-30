@@ -8,6 +8,12 @@ namespace pxl
         float VRAMLimit = 128.0f; // VRAM limit in megabytes
     };
 
+    enum class QueueType
+    {
+        Graphics,
+        Compute,
+    };
+
     // Represents a Graphics Processing Device (GPU)
     class GraphicsDevice
     {
@@ -18,6 +24,7 @@ namespace pxl
         virtual void* GetPhysical() const = 0;
 
         virtual void WaitIdle() const = 0;
+        virtual void QueueWaitIdle(QueueType queue) const = 0;
 
         virtual const GraphicsDeviceLimits& GetLimits() const = 0;
     };

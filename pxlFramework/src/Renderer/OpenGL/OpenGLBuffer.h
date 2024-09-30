@@ -9,8 +9,7 @@ namespace pxl
     class OpenGLBuffer : public GPUBuffer
     {
     public:
-        OpenGLBuffer(GPUBufferUsage usage, uint32_t size, const void* data);
-        OpenGLBuffer(GPUBufferUsage usage, uint32_t size);
+        OpenGLBuffer(GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data);
         virtual ~OpenGLBuffer() override;
 
         virtual void Bind() override;
@@ -18,9 +17,11 @@ namespace pxl
 
         virtual void SetData(uint32_t size, const void* data) override;
     private:
-        static GLenum GetGLUsageEnumOfBufferUsage(GPUBufferUsage usage);
+        static GLenum ToGLUsageEnum(GPUBufferUsage usage);
+        static GLenum ToGLDrawHint(GPUBufferDrawHint usage);
     private:
         uint32_t m_RendererID = 0;
         GLenum m_Usage = GL_INVALID_ENUM;
+        GLenum m_DrawHint = GL_INVALID_ENUM;
     };
 }

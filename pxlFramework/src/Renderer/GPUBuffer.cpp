@@ -6,8 +6,7 @@
 
 namespace pxl
 {
-    // Static GPUBuffer
-    std::shared_ptr<GPUBuffer> GPUBuffer::Create(GPUBufferUsage usage, uint32_t size, const void* data)
+    std::shared_ptr<GPUBuffer> GPUBuffer::Create(GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data)
     {
         switch (Renderer::GetCurrentAPI())
         {
@@ -15,28 +14,10 @@ namespace pxl
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex GPUBuffer for no renderer api.");
                 break;
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLBuffer>(usage, size, data);
+                return std::make_shared<OpenGLBuffer>(usage, drawHint, size, data);
             case RendererAPIType::Vulkan:
                 auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
-                return std::make_shared<VulkanBuffer>(vulkanDevice, usage, size, data);
-        }
-
-        return nullptr;
-    }
-
-    // Dynamic GPUBuffer
-    std::shared_ptr<GPUBuffer> GPUBuffer::Create(GPUBufferUsage usage, uint32_t size)
-    {
-        switch (Renderer::GetCurrentAPI())
-        {
-            case RendererAPIType::None:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Vertex GPUBuffer for no renderer api.");
-                break;
-            case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLBuffer>(usage, size);
-            case RendererAPIType::Vulkan:
-                auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
-                return std::make_shared<VulkanBuffer>(vulkanDevice, usage, size, nullptr);
+                return std::make_shared<VulkanBuffer>(vulkanDevice, usage, drawHint, size, data);
         }
 
         return nullptr;

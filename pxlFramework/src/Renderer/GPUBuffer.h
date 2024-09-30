@@ -10,6 +10,12 @@ namespace pxl
         Uniform,
     };
 
+    enum class GPUBufferDrawHint
+    {
+        Static,
+        Dynamic,
+    };
+
     class GPUBuffer
     {
     public:
@@ -20,7 +26,6 @@ namespace pxl
 
         virtual void SetData(uint32_t size, const void* data) = 0;
 
-        static std::shared_ptr<GPUBuffer> Create(GPUBufferUsage usage, uint32_t size, const void* data);
-        static std::shared_ptr<GPUBuffer> Create(GPUBufferUsage usage, uint32_t size);
+        static std::shared_ptr<GPUBuffer> Create(GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data);
     };
 }

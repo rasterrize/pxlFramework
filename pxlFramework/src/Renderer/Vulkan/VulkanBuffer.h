@@ -10,10 +10,24 @@
 
 namespace pxl
 {
+    struct VulkanStagingBuffer
+    {
+        VkBuffer Buffer = VK_NULL_HANDLE;
+        VmaAllocation Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo AllocInfo = {};
+
+        void Destroy()
+        {
+            vmaDestroyBuffer(VulkanAllocator::Get(), Buffer, Allocation);
+            Buffer = VK_NULL_HANDLE;
+            Allocation = VK_NULL_HANDLE;
+        }
+    };
+
     class VulkanBuffer : public GPUBuffer
     {
     public:
-        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, uint32_t size, const void* data);
+        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data);
 
         virtual void Bind() override;
         virtual void Unbind() override {}
@@ -23,6 +37,8 @@ namespace pxl
         virtual void SetData(uint32_t size, const void* data) override;
 
         void Destroy();
+
+        static VulkanStagingBuffer CreateStagingBuffer(uint32_t size);
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);                   // }   Could these be Helper functions?
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout); // }
@@ -38,10 +54,7 @@ namespace pxl
         std::function<void(VkCommandBuffer)> m_BindFunc = nullptr;
 
         // Staging data
-        VkBuffer m_StagingBuffer = VK_NULL_HANDLE;
-        VmaAllocation m_StagingAllocation = nullptr;
-        VmaAllocationInfo m_StagingAllocationInfo = {};
-        VkFence m_UploadFence = VK_NULL_HANDLE;
+        VulkanStagingBuffer m_StagingBuffer = {};
         VkCommandBuffer m_UploadCommandBuffer = VK_NULL_HANDLE;
     };
 }
