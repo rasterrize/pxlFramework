@@ -17,6 +17,7 @@ namespace pxl
 
         virtual bool GetVSync() const = 0;
         virtual void SetVSync(bool value) = 0;
+        virtual void ToggleVSync() = 0;
 
         // Required for OpenGL
         virtual void SetAsCurrent() = 0;

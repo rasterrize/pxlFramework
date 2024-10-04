@@ -55,7 +55,7 @@ namespace TestApp
             s_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            s_Window->ToggleVSync();
+            s_Window->GetGraphicsContext()->ToggleVSync();
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
         {

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "glm/vec2.hpp"
+#include <stb_image.h>
+
+#include <glm/vec2.hpp>
 
 namespace pxl
 {
@@ -29,5 +31,11 @@ namespace pxl
     {
         unsigned char* Buffer = nullptr;
         ImageMetadata Metadata = {};
+
+        void Free()
+        {
+            // stb image requires we manually free the loaded image from memory
+            stbi_image_free(Buffer);
+        }
     };
 }

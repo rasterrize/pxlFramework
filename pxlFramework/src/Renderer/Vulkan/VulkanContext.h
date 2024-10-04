@@ -24,6 +24,7 @@ namespace pxl
             m_Swapchain->SetVSync(value);
             m_Swapchain->Recreate();
         }
+        virtual void ToggleVSync() { SetVSync(!m_Swapchain->GetVSync()); }
 
         virtual void SetAsCurrent() override {};
 

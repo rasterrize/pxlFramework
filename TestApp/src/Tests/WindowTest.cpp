@@ -9,14 +9,12 @@ namespace TestApp
     {
         windowSpecs.RendererAPI = pxl::RendererAPIType::None;
         windowSpecs.Title = "pxlFramework Test App - Window Test - Window A";
-        windowSpecs.Width = 1280;
-        windowSpecs.Height = 720;
+        windowSpecs.Size = { 1280, 720 };
         s_TestWindowA = pxl::Window::Create(windowSpecs);
 
         windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
         windowSpecs.Title = "pxlFramework Test App - Window Test - Window B";
-        windowSpecs.Width = 800;
-        windowSpecs.Height = 600;
+        windowSpecs.Size = { 800, 600 };
         s_TestWindowB = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_TestWindowB);

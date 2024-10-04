@@ -1,55 +1,60 @@
 #include "FileSystem.h"
 
 #include <stb_image.h>
+
 #include <fstream>
 //#include <bass.h>
 
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
+#include <assimp/postprocess.h> // Post processing flags
+#include <assimp/scene.h>       // Output data structure
+
+#include <assimp/Importer.hpp> // C++ importer interface
 
 namespace pxl
 {
-    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& filePath)
+    Image FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipOnLoad)
     {
-        auto stringPath = filePath.string();
-        
-        // stb image loads images from bottom to top I guess
-        stbi_set_flip_vertically_on_load(1);
+        // stb image loads images from bottom to top by default so we flip them on load
+        stbi_set_flip_vertically_on_load(flipOnLoad);
 
         int width, height, channels;
-        unsigned char* bytes = stbi_load(stringPath.c_str(), &width, &height, &channels, 0);
+        unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
 
         if (!bytes)
         {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load image: '{}'", stringPath);
-            return nullptr;
+            PXL_LOG_ERROR(LogArea::Other, "Failed to load image: '{}'", path.string());
+            return Image();
         }
 
-        PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", stringPath);
+        PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", path.string());
 
         Image image;
-
         image.Buffer = bytes;
         image.Metadata.Size = { (uint32_t)width, (uint32_t)height };
+        image.Metadata.Format = ImageFormat::Undefined;
 
-        if (channels == 3)
-            image.Metadata.Format = ImageFormat::RGB8;
-        else if (channels == 4)
-            image.Metadata.Format = ImageFormat::RGBA8;
-        else
-            image.Metadata.Format = ImageFormat::Undefined;
+        switch (channels)
+        {
+            case 3: image.Metadata.Format = ImageFormat::RGB8; break;
+            case 4: image.Metadata.Format = ImageFormat::RGBA8; break;
+        }
+
+        return image;
+    }
+
+    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& path)
+    {
+        auto image = LoadImageFile(path, true);
 
         std::shared_ptr<Texture> texture = Texture::Create(image);
 
-        // stb image requires we manually free the loaded image from memory
-        stbi_image_free(bytes);
+        image.Free();
 
         return texture;
     }
 
     std::string FileSystem::LoadGLSL(const std::filesystem::path& path)
-    {    
+    {
         if (!std::filesystem::exists(path))
         {
             PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the shader path doesn't exist '{}'", path.string());
@@ -60,20 +65,20 @@ namespace pxl
 
         if (!file.is_open())
             throw std::runtime_error("Failed to open shader file");
-        
+
         std::string src;
-		std::ifstream in(path, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			size_t size = in.tellg();
-			if (size != -1)
-			{
-				src.resize(size);
-				in.seekg(0, std::ios::beg);
-				in.read(&src[0], size);
-			}
-		}
+        std::ifstream in(path, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
+        if (in)
+        {
+            in.seekg(0, std::ios::end);
+            size_t size = in.tellg();
+            if (size != -1)
+            {
+                src.resize(size);
+                in.seekg(0, std::ios::beg);
+                in.read(&src[0], size);
+            }
+        }
 
         return src;
     }
@@ -84,7 +89,7 @@ namespace pxl
 
         if (!file.is_open())
             throw std::runtime_error("Failed to open shader file");
-        
+
         size_t fileSize = (size_t)file.tellg(); // because we are reading the file from the end, we can tell what size our buffer should be
         std::vector<char> buffer(fileSize);
 

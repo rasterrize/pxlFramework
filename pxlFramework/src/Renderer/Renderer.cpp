@@ -124,7 +124,7 @@ namespace pxl
         }
 
         s_ContextHandle = window->GetGraphicsContext();
-        s_RendererAPIType = window->GetWindowSpecs().RendererAPI;
+        s_RendererAPIType = window->GetRendererAPI();
 
         // Create renderer API object
         s_RendererAPI = RendererAPI::Create(s_RendererAPIType, window);

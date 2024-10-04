@@ -6,45 +6,24 @@
 #include "Renderer/Vulkan/VulkanContext.h"
 #include "Renderer/Vulkan/VulkanHelpers.h"
 #include "Renderer/Vulkan/VulkanInstance.h"
+#include "Utils/EnumStringHelper.h"
+#include "Utils/FileSystem.h"
 
 namespace pxl
 {
     static constexpr uint8_t k_MaxWindowCount = 5;
 
-    Window::Window(const WindowSpecs& windowSpecs)
-        : m_Specs(windowSpecs), m_LastWindowedWidth(m_Specs.Width), m_LastWindowedHeight(m_Specs.Height)
+    Window::Window(const WindowSpecs& specs)
+        : m_Title(specs.Title), m_Size(specs.Size), m_Position(specs.Position), m_WindowMode(specs.WindowMode), m_RendererAPI(specs.RendererAPI)
     {
-        CreateGLFWWindow(windowSpecs);
-        UpdateMonitors(); // NOTE: Safeguard, so the monitors are updated on first window creation
-    }
-
-    void Window::CreateGLFWWindow(const WindowSpecs& windowSpecs)
-    {
-        glfwSetErrorCallback(GLFWErrorCallback); // Shouldn't be set everytime window is created
-
-        if (s_Windows.empty())
-        {
-            if (glfwInit())
-            {
-                int major = 0, minor = 0, rev = 0;
-                glfwGetVersion(&major, &minor, &rev);
-                PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
-            }
-            else
-            {
-                PXL_LOG_ERROR(LogArea::Window, "Failed to initialize GLFW");
-                return;
-            }
-        }
-
-        // Reset window hints so we don't get undefined behaviour
+        // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
 
         // Hide the window on creation as we will still need to prepare it
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
         // Set window hints based on renderer api
-        switch (windowSpecs.RendererAPI)
+        switch (specs.RendererAPI)
         {
             case RendererAPIType::None:
                 PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'None' specified! Creating a GLFW window with no renderer api...");
@@ -65,18 +44,27 @@ namespace pxl
                 break;
         }
 
-        m_GLFWWindow = glfwCreateWindow(static_cast<int>(windowSpecs.Width), static_cast<int>(windowSpecs.Height), windowSpecs.Title.c_str(), nullptr, nullptr);
+        m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), nullptr, nullptr);
 
-        PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", windowSpecs.Title);
+        PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", m_Title);
 
-        PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", windowSpecs.Title, windowSpecs.Width, windowSpecs.Height)
+        PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", m_Title, m_Size.Width, m_Size.Height);
 
+        // TODO: set window mode and monitor that was provided
+        // TODO: use window hints to simplify this process, for eg. Position
         // Set window to the center of the display
         auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.
-        glfwSetWindowPos(m_GLFWWindow, vidMode->width / 2 - windowSpecs.Width / 2, vidMode->height / 2 - windowSpecs.Height / 2);
+        SetPosition(vidMode->width / 2 - m_Size.Width / 2, vidMode->height / 2 - m_Size.Height / 2);
+
+        // Set icon if supplied
+        if (specs.IconPath.has_value())
+        {
+            auto image = FileSystem::LoadImageFile(specs.IconPath.value(), false);
+            SetIcon(image);
+            image.Free();
+        }
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
-        SetStaticGLFWCallbacks();
         SetGLFWCallbacks();
     }
 
@@ -104,8 +92,22 @@ namespace pxl
     {
         glfwSetWindowCloseCallback(m_GLFWWindow, WindowCloseCallback);
         glfwSetWindowSizeCallback(m_GLFWWindow, WindowResizeCallback);
+        glfwSetWindowPosCallback(m_GLFWWindow, WindowPositionCallback);
         glfwSetFramebufferSizeCallback(m_GLFWWindow, FramebufferResizeCallback);
         glfwSetWindowIconifyCallback(m_GLFWWindow, WindowIconifyCallback);
+        glfwSetDropCallback(m_GLFWWindow, [](GLFWwindow* window, int count, const char** paths)
+        {
+            auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+            if (windowInstance->m_UserFileDropCallback)
+            {
+                std::vector<std::string> stringPaths(count);
+                for (int i = 0; i < count; i++)
+                    stringPaths[i] = paths[i];
+
+                windowInstance->m_UserFileDropCallback(stringPaths);
+            }
+        });
 
         glfwSetKeyCallback(m_GLFWWindow, Input::GLFWKeyCallback);
         glfwSetMouseButtonCallback(m_GLFWWindow, Input::GLFWMouseButtonCallback);
@@ -115,27 +117,32 @@ namespace pxl
 
     void Window::SetStaticGLFWCallbacks()
     {
+        glfwSetErrorCallback(GLFWErrorCallback);
         glfwSetMonitorCallback(MonitorCallback);
     }
 
-    GLFWmonitor* Window::GetWindowsCurrentGLFWMonitor()
+    GLFWmonitor* Window::GetPositionRelativeGLFWMonitor()
     {
-        int windowX, windowY;
-        glfwGetWindowPos(m_GLFWWindow, &windowX, &windowY);
+        auto windowCenterX = m_Position.x + static_cast<int32_t>(m_Size.Width / 2);
+        auto windowCenterY = m_Position.y + static_cast<int32_t>(m_Size.Height / 2);
 
-        int monitorX, monitorY;
-        int monitorWidth, monitorHeight;
-
-        for (int i = 0; i < s_Monitors.size(); i++)
+        for (size_t i = 0; i < s_Monitors.size(); i++)
         {
+            int monitorX, monitorY;
+            int monitorWidth, monitorHeight;
             glfwGetMonitorWorkarea(s_Monitors[i].GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
-            if ((windowX >= monitorX && windowX < (monitorX + monitorWidth)) && (windowY >= monitorY && windowY < (monitorY + monitorHeight)))
+            auto left = monitorX;
+            auto right = monitorX + monitorWidth;
+            auto top = monitorY;
+            auto bottom = monitorY + monitorHeight;
+
+            if ((windowCenterX >= left && windowCenterX < right) && (windowCenterY >= top && windowCenterY < bottom))
                 return s_Monitors[i].GLFWMonitor;
         }
 
-        PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor");
-        return nullptr;
+        PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor, returning primary monitor");
+        return glfwGetPrimaryMonitor();
     }
 
     void Window::SetSize(uint32_t width, uint32_t height)
@@ -146,59 +153,63 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
 
-        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Specs.Title, width, height);
+        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Title, width, height);
     }
 
-    void Window::SetPosition(uint32_t xpos, uint32_t ypos)
+    void Window::SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight)
+    {
+        glfwSetWindowSizeLimits(m_GLFWWindow, minWidth, minHeight, maxWidth, maxHeight);
+    }
+
+    void Window::SetPosition(int32_t xpos, int32_t ypos)
     {
         // TODO: check if the position is inbounds and maybe check monitor properties before setting windows pos
+        // TODO: test this function to see how it behaves with odd values
 
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
 
         PXL_LOG_INFO(LogArea::Window, "Manually set window position to {}, {}", xpos, ypos);
     }
 
-    void Window::SetWindowMode(WindowMode winMode)
+    void Window::SetWindowMode(WindowMode mode)
     {
-        if (winMode == m_Specs.WindowMode)
+        if (mode == m_WindowMode)
             return;
 
-        auto currentMonitor = GetWindowsCurrentGLFWMonitor();
-        if (!currentMonitor)
-        {
-            currentMonitor = glfwGetPrimaryMonitor();
-            PXL_LOG_WARN(LogArea::Window, "Current monitor was null, so the primary monitor was used");
-        }
-
+        auto currentMonitor = GetPositionRelativeGLFWMonitor();
         const GLFWvidmode* vidmode = glfwGetVideoMode(currentMonitor);
 
         int monitorX, monitorY, monitorWidth, monitorHeight;
         glfwGetMonitorWorkarea(currentMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
-        switch (winMode)
+        switch (mode)
         {
             case WindowMode::Windowed:
+                m_WindowMode = WindowMode::Windowed;
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_TRUE);
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedWidth / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedHeight / 2), m_LastWindowedWidth, m_LastWindowedHeight, GLFW_DONT_CARE); // TODO: store the windowed window size so it can be restored instead of fixed 1280x720
-                m_Specs.WindowMode = WindowMode::Windowed;
-                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Windowed window mode", m_Specs.Title);
-                return;
+                // TODO: Set to window pos and size before window was fullscreen
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedSize.Width / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedSize.Height / 2), m_LastWindowedSize.Width, m_LastWindowedSize.Height, GLFW_DONT_CARE);
+                break;
+
             case WindowMode::Borderless:
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_FALSE);
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidmode->width, vidmode->height, GLFW_DONT_CARE);
-                m_Specs.WindowMode = WindowMode::Borderless;
-                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Borderless window mode", m_Specs.Title);
-                return;
+                m_WindowMode = WindowMode::Borderless;
+
+                /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
+                    This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
+                    Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidmode->width + 1, vidmode->height, GLFW_DONT_CARE);
+                break;
+
             case WindowMode::Fullscreen:
+                m_WindowMode = WindowMode::Fullscreen;
                 glfwSetWindowMonitor(m_GLFWWindow, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
-                m_Specs.WindowMode = WindowMode::Fullscreen;
-                PXL_LOG_INFO(LogArea::Window, "Switched '{}' to Fullscreen window mode", m_Specs.Title);
-                return;
+                break;
         }
 
-        PXL_LOG_WARN(LogArea::Window, "Failed to switch window mode for window '{}'", m_Specs.Title);
+        PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, EnumStringHelper::ToString(m_WindowMode));
     }
 
     void Window::SetMonitor(uint8_t monitorIndex)
@@ -208,9 +219,10 @@ namespace pxl
 
     void Window::SetMonitor(const Monitor& monitor)
     {
+        // TODO: remove?
         if (!monitor.GLFWMonitor)
         {
-            PXL_LOG_WARN(LogArea::Window, "Can't set specified monitor for window '{}', Monitor doesn't exist", m_Specs.Title);
+            PXL_LOG_WARN(LogArea::Window, "Can't set specified monitor for window '{}', Monitor doesn't exist", m_Title);
             return;
         }
 
@@ -220,10 +232,10 @@ namespace pxl
         int nextMonX, nextMonY;
         glfwGetMonitorWorkarea(monitor.GLFWMonitor, &nextMonX, &nextMonY, NULL, NULL);
 
-        switch (m_Specs.WindowMode)
+        switch (m_WindowMode)
         {
             case WindowMode::Windowed:
-                SetPosition(nextMonX + (vidmode->width / 2) - (m_Specs.Width / 2), nextMonY + (vidmode->height / 2) - (m_Specs.Height / 2));
+                SetPosition(nextMonX + (vidmode->width / 2) - (m_Size.Width / 2), nextMonY + (vidmode->height / 2) - (m_Size.Height / 2));
                 break;
             case WindowMode::Borderless:
                 SetPosition(nextMonX, nextMonY);
@@ -236,7 +248,7 @@ namespace pxl
 
     void Window::NextWindowMode()
     {
-        switch (m_Specs.WindowMode)
+        switch (m_WindowMode)
         {
             case WindowMode::Windowed:
                 SetWindowMode(WindowMode::Borderless);
@@ -254,9 +266,9 @@ namespace pxl
 
     void Window::ToggleFullscreen()
     {
-        if (m_Specs.WindowMode == WindowMode::Windowed || m_Specs.WindowMode == WindowMode::Borderless)
+        if (m_WindowMode == WindowMode::Windowed || m_WindowMode == WindowMode::Borderless)
             SetWindowMode(WindowMode::Fullscreen);
-        else if (m_Specs.WindowMode == WindowMode::Fullscreen)
+        else if (m_WindowMode == WindowMode::Fullscreen)
             SetWindowMode(WindowMode::Windowed);
     }
 
@@ -265,9 +277,39 @@ namespace pxl
         glfwIconifyWindow(m_GLFWWindow);
     }
 
+    void Window::Maximize()
+    {
+        glfwMaximizeWindow(m_GLFWWindow);
+    }
+
+    void Window::Restore()
+    {
+        glfwRestoreWindow(m_GLFWWindow);
+    }
+
     void Window::SetVisibility(bool value)
     {
         value ? glfwShowWindow(m_GLFWWindow) : glfwHideWindow(m_GLFWWindow);
+    }
+
+    void Window::SetIcon(const Image& image)
+    {
+        GLFWimage glfwImage;
+        glfwImage.width = image.Metadata.Size.Width;
+        glfwImage.height = image.Metadata.Size.Height;
+        glfwImage.pixels = image.Buffer;
+
+        glfwSetWindowIcon(m_GLFWWindow, 1, &glfwImage);
+    }
+
+    void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator)
+    {
+        glfwSetWindowAspectRatio(m_GLFWWindow, numerator, denominator);
+    }
+
+    void Window::RequestUserAttention()
+    {
+        glfwRequestWindowAttention(m_GLFWWindow);
     }
 
     const Monitor& Window::GetPrimaryMonitor()
@@ -312,8 +354,15 @@ namespace pxl
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        windowInstance->m_Specs.Width = width;
-        windowInstance->m_Specs.Height = height;
+        if (width == 0 && height == 0)
+            return;
+
+        windowInstance->m_Size.Width = windowInstance->m_WindowMode == WindowMode::Borderless ? width - 1 : width;
+        windowInstance->m_Size.Height = height;
+        windowInstance->UpdateAspectRatio();
+
+        if (windowInstance->m_UserResizeCallback)
+            windowInstance->m_UserResizeCallback({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
     }
 
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -322,7 +371,8 @@ namespace pxl
 
         if (Renderer::IsInitialized())
         {
-            Renderer::ResizeViewport(0, 0, width, height);
+            windowInstance->m_WindowMode == WindowMode::Borderless ? Renderer::ResizeViewport(0, 0, width - 1, height)
+                                                                   : Renderer::ResizeViewport(0, 0, width, height);
             Renderer::ResizeScissor(0, 0, width, height);
         }
 
@@ -339,22 +389,25 @@ namespace pxl
 
             swapchain->Continue();
 
-            if (static_cast<int32_t>(swapchainSpecs.Extent.width) != width || static_cast<int32_t>(swapchainSpecs.Extent.height) != height)
-                swapchain->Recreate(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            // Only recreate the swapchain if the fb size has actually changed
+            if (static_cast<uint32_t>(width) != swapchainSpecs.Extent.width || static_cast<uint32_t>(height) != swapchainSpecs.Extent.height)
+            {
+                swapchain->SetExtent({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
+                swapchain->FramebufferResized();
+            }
         }
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-        iconified ? windowInstance->m_Specs.Minimized = true : windowInstance->m_Specs.Minimized = false;
+        windowInstance->m_Minimized = iconified;
 
         // Check if all windows are minimized
         bool allWindowsIconified = true;
         for (const auto& windowHandle : s_Windows)
         {
-            if (windowHandle->m_Specs.Minimized == false)
+            if (windowHandle->m_Minimized == false)
                 allWindowsIconified = false;
         }
 
@@ -370,12 +423,51 @@ namespace pxl
         }
     }
 
+    void Window::WindowPositionCallback(GLFWwindow* window, int xpos, int ypos)
+    {
+        auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        windowInstance->m_Position.x = xpos;
+        windowInstance->m_Position.y = ypos;
+    }
+
+    void Window::WindowDropCallback(GLFWwindow* window, int count, const char** paths)
+    {
+        auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        if (windowInstance->m_UserFileDropCallback)
+        {
+            std::vector<std::string> stringPaths(count);
+            for (int i = 0; i < count; i++)
+                stringPaths[i] = paths[i];
+
+            windowInstance->m_UserFileDropCallback(stringPaths);
+        }
+    }
+
     void Window::MonitorCallback([[maybe_unused]] GLFWmonitor* monitor, int event)
     {
         if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
         {
             // TODO: Dynamically add and remove the specified monitor from s_Monitors
         }
+
+        UpdateMonitors();
+    }
+
+    void Window::Init()
+    {
+        if (!glfwInit())
+        {
+            PXL_LOG_ERROR(LogArea::Window, "Failed to initialize GLFW");
+            return;
+        }
+
+        int major = 0, minor = 0, rev = 0;
+        glfwGetVersion(&major, &minor, &rev);
+        PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
+
+        SetStaticGLFWCallbacks();
 
         UpdateMonitors();
     }
@@ -389,8 +481,6 @@ namespace pxl
 
         for (const auto& window : s_Windows)
             window->Update();
-
-        s_EventProcessFunc(); // NOTE: this must be done second (on vulkan atleast) otherwise vulkan breaks (need to look into this)
     }
 
     void Window::UpdateMonitors()
@@ -430,7 +520,6 @@ namespace pxl
     {
         CloseAll();
 
-        // TODO: Check if GLFW is in use by other systems first before terminating it.
         glfwTerminate();
 
         PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
@@ -474,10 +563,10 @@ namespace pxl
                     // Get available instance layers
                     auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
 
-                #ifdef PXL_DEBUG
+#ifdef PXL_DEBUG
                     // Get validation layer (Vulkan debugging)
                     selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
-                #endif
+#endif
 
                     VulkanInstance::Init(selectedExtensions, selectedLayers);
                 }
@@ -486,7 +575,7 @@ namespace pxl
             // Automatically create a graphics context for the window
             window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window);
 
-            PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", window->GetWindowSpecs().Title);
+            PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", windowSpecs.Title);
         }
 
         // Set the visibility now since we have a valid context

@@ -33,7 +33,7 @@ namespace TestApp
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Cube, s_Camera);
 
-        s_Window->SetVSync(false);
+        s_Window->GetGraphicsContext()->SetVSync(false);
 
         pxl::GUI::Init(s_Window);
     }

@@ -22,6 +22,7 @@ namespace pxl
         s_Instance = this;
 
         FrameworkConfig::Init();
+        Window::Init();
     }
 
     Application::~Application()
@@ -40,6 +41,12 @@ namespace pxl
             float time = static_cast<float>(Platform::GetTime());
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
+
+            Window::ProcessEvents();
+
+            // If all windows are closed after window processes close events, stop running
+            if (!m_Running)
+                break;
 
             if (!m_Minimized)
             {

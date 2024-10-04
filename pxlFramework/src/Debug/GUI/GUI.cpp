@@ -36,7 +36,7 @@ namespace pxl
         auto glfwWindow = window->GetNativeWindow();
 
         // Create ImGui instance based on renderer API of the window
-        switch (window->GetWindowSpecs().RendererAPI)
+        switch (window->GetRendererAPI())
         {
             case RendererAPIType::None:
                 PXL_LOG_ERROR(LogArea::Other, "Can't initialize ImGui because RendererAPI::None was specified");

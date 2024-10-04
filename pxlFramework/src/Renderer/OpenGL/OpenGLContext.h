@@ -16,6 +16,7 @@ namespace pxl
 
         virtual bool GetVSync() const override { return m_VSync; }
         virtual void SetVSync(bool value) override;
+        virtual void ToggleVSync() override { SetVSync(!m_VSync); } 
 
         virtual void SetAsCurrent() override;
 

@@ -34,11 +34,11 @@ namespace TestApp
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
 
         pxl::WindowSpecs windowSpecs = {};
-        windowSpecs.Width = 1600;
-        windowSpecs.Height = 900;
+        windowSpecs.Size = { 1600, 900 };
         windowSpecs.Title = windowTitle;
         windowSpecs.RendererAPI = windowRendererAPI;
         windowSpecs.WindowMode = windowMode;
+        windowSpecs.IconPath = "assets/pxl.png";
 
 #define TEST_NAME QuadsTest
 

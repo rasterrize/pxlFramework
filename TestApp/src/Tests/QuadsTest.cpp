@@ -45,9 +45,9 @@ namespace TestApp
             .FarClip = 10.0f,
             .Zoom = 1.0f,
             .Left = 0.0f,
-            .Right = static_cast<float>(windowSpecs.Width),
+            .Right = static_cast<float>(windowSpecs.Size.Width),
             .Bottom = 0.0f,
-            .Top = static_cast<float>(windowSpecs.Height),
+            .Top = static_cast<float>(windowSpecs.Size.Height),
             .UseAspectRatio = false,
         });
 
@@ -138,7 +138,7 @@ namespace TestApp
             s_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            s_Window->ToggleVSync();
+            s_Window->GetGraphicsContext()->ToggleVSync();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
             s_DynamicQuad.Origin = pxl::Origin2D::TopLeft;

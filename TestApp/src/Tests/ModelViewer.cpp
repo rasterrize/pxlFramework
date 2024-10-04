@@ -53,7 +53,7 @@ namespace TestApp
             s_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            s_Window->ToggleVSync();
+            s_Window->GetGraphicsContext()->SetVSync(!s_Window->GetGraphicsContext()->GetVSync());
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_M))
             std::swap(s_CurrentMesh, s_AltMesh);

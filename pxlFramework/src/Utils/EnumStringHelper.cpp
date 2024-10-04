@@ -13,4 +13,16 @@ namespace pxl
 
         return "Undefined";
     }
+
+    std::string EnumStringHelper::ToString(WindowMode mode)
+    {
+        switch (mode)
+        {
+            case WindowMode::Windowed:   return "Windowed";
+            case WindowMode::Borderless: return "Borderless";
+            case WindowMode::Fullscreen: return "Fullscreen";
+        }
+
+        return "Undefined";
+    }
 }
