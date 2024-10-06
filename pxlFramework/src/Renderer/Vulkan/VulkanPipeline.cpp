@@ -107,10 +107,13 @@ namespace pxl
         pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-        // Create push constant ranges if a pc layout has been provided
         std::vector<VkPushConstantRange> ranges;
+
+        // Create push constant ranges if a pc layout has been provided
         if (specs.PushConstantLayout.has_value())
         {
+            ranges.reserve(specs.PushConstantLayout->GetElements().size());
+
             for (const auto& element : specs.PushConstantLayout->GetElements())
             {
                 VkPushConstantRange range = {};

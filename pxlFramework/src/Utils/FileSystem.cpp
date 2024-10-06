@@ -101,35 +101,41 @@ namespace pxl
         return buffer;
     }
 
-    std::shared_ptr<Mesh> FileSystem::LoadOBJ(const std::filesystem::path& filePath)
+    std::vector<std::shared_ptr<Mesh>> FileSystem::LoadModel(const std::filesystem::path& path)
     {
         Assimp::Importer importer;
 
         // Load file from disk
-        const aiScene* scene = importer.ReadFile(filePath.string(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+        const aiScene* scene = importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
         if (!scene)
         {
-            PXL_LOG_WARN(LogArea::FileSystem, "Failed to load OBJ file from path '{}'", filePath.string());
-            return nullptr;
+            PXL_LOG_WARN(LogArea::FileSystem, "Failed to load model file from path '{}'", path.string());
+            return std::vector<std::shared_ptr<Mesh>>();
         }
 
-        auto mesh = std::make_shared<Mesh>();
+        std::vector<std::shared_ptr<Mesh>> meshes(scene->mNumMeshes);
 
         // Go through all the meshes in the file
         for (uint32_t m = 0; m < scene->mNumMeshes; m++)
         {
+            auto mesh = std::make_shared<Mesh>(scene->mMeshes[m]->mNumVertices, scene->mMeshes[m]->mFaces->mNumIndices);
+
             // Go through all vertices in the current mesh
             for (uint32_t v = 0; v < scene->mMeshes[m]->mNumVertices; v++)
             {
-                // Positions
-                float x = scene->mMeshes[m]->mVertices[v].x;
-                float y = scene->mMeshes[m]->mVertices[v].y;
-                float z = scene->mMeshes[m]->mVertices[v].z;
+                aiVector3D assVertex = scene->mMeshes[m]->mVertices[v];
+                aiColor4D* assColor = scene->mMeshes[m]->mColors[0];
+                glm::vec4 vertexColour = glm::vec4(1.0f);
 
-                // Colours
-                auto vertexColour = scene->mMeshes[m]->mColors[0];
-                mesh->Vertices.push_back({{ x, y, z }, { vertexColour->r, vertexColour->g, vertexColour->b, vertexColour->a }, { 0.0f, 0.0f }});
+                if (assColor)
+                    vertexColour = glm::vec4(assColor->r, assColor->g, assColor->b, assColor->a);
+
+                mesh->Vertices.emplace_back(
+                    glm::vec3(assVertex.x, assVertex.y, assVertex.z),
+                    vertexColour,
+                    glm::vec2(0.0f),
+                    -1.0f);
             }
 
             // Go through all the faces and indices of the current mesh
@@ -137,38 +143,14 @@ namespace pxl
             {
                 for (uint32_t i = 0; i < scene->mMeshes[m]->mFaces[f].mNumIndices; i++)
                 {
-                    mesh->Indices.push_back(scene->mMeshes[m]->mFaces[f].mIndices[i]);
+                    mesh->Indices.emplace_back(scene->mMeshes[m]->mFaces[f].mIndices[i]);
                 }
             }
+
+            meshes[m] = mesh;
         }
 
-        return mesh;
-    }
-
-    std::vector<std::shared_ptr<Mesh>> FileSystem::LoadFBX(const std::filesystem::path& filePath)
-    {
-        Assimp::Importer importer;
-
-        auto meshes = std::vector<std::shared_ptr<Mesh>>();
-
-        auto mesh = std::make_shared<Mesh>();
-
-        const aiScene* scene = importer.ReadFile(filePath.string().c_str(), aiProcess_Triangulate);
-
-        if (!scene)
-            return std::vector<std::shared_ptr<Mesh>>();
-
-        for (uint32_t i = 0; i < scene->mNumMeshes; i++)
-        {
-            for (uint32_t n = 0; n < scene->mMeshes[i]->mNumVertices; n++)
-            {
-                [[maybe_unused]] float x = scene->mMeshes[i]->mVertices[n].x;
-                [[maybe_unused]] float y = scene->mMeshes[i]->mVertices[n].y;
-                [[maybe_unused]] float z = scene->mMeshes[i]->mVertices[n].z;
-            }
-        }
-
-        return std::vector<std::shared_ptr<Mesh>>();
+        return meshes;
     }
 
     // std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::string& filePath)

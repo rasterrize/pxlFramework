@@ -87,12 +87,12 @@ namespace pxl
     static std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
 
     // Mesh Data
-    static std::vector<MeshVertex> s_MeshVertices;
+    static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GPUBuffer>> s_MeshVBOs;
+    static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GPUBuffer>> s_MeshIBOs;
+    static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<VertexArray>> s_MeshVAOs;
 
-    static std::shared_ptr<GPUBuffer> s_MeshVBO = nullptr;
-    static std::shared_ptr<GPUBuffer> s_MeshIBO = nullptr;
-
-    static std::function<void()> s_MeshBindFunc = nullptr;
+    // TEMP
+    static std::unordered_map<std::shared_ptr<Mesh>, std::vector<MeshVertex>> s_MeshVertices;
 
     static std::shared_ptr<GraphicsPipeline> s_MeshPipeline = nullptr;
 
@@ -108,7 +108,6 @@ namespace pxl
     static std::shared_ptr<VertexArray> s_QuadVAO = nullptr;
     static std::shared_ptr<VertexArray> s_CubeVAO = nullptr;
     static std::shared_ptr<VertexArray> s_LineVAO = nullptr;
-    static std::shared_ptr<VertexArray> s_MeshVAO = nullptr;
     static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr;
 
     static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
@@ -130,6 +129,8 @@ namespace pxl
         s_RendererAPI = RendererAPI::Create(s_RendererAPIType, window);
 
         PXL_ASSERT_MSG(s_RendererAPI, "Failed to create renderer api object");
+
+        // TODO: Create/compile all shaders here
 
         // --------------------
         // Prepare Quad Data
@@ -369,10 +370,6 @@ namespace pxl
         {
             const auto bufferLayout = MeshVertex::GetLayout();
 
-            // Prepare Buffers
-            s_MeshVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, 10000 * sizeof(MeshVertex), nullptr);
-            s_MeshIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Dynamic, 10000 * sizeof(uint32_t), nullptr);
-
             // Shader storage
             std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
 
@@ -383,16 +380,7 @@ namespace pxl
             // Prepare other data based on renderer API
             if (s_RendererAPIType == RendererAPIType::OpenGL)
             {
-                s_MeshVAO = VertexArray::Create();
-                s_MeshVAO->AddVertexBuffer(s_MeshVBO, bufferLayout);
-                s_MeshVAO->SetIndexBuffer(s_MeshIBO);
-
-                s_MeshBindFunc = [&]()
-                {
-                    s_MeshVAO->Bind();
-                };
-
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
+                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/mesh_ogl.vert");
                 auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
 
                 shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
@@ -400,12 +388,6 @@ namespace pxl
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                s_MeshBindFunc = [&]()
-                {
-                    s_MeshVBO->Bind();
-                    s_MeshIBO->Bind();
-                };
-
                 auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.vert");
                 auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.frag");
 
@@ -414,6 +396,7 @@ namespace pxl
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
+                // pushConstantLayout.Add({ "u_Transform", UniformDataType::Mat4, ShaderStage::Vertex });
 
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
@@ -676,29 +659,41 @@ namespace pxl
 
         glm::mat4 transform = CalculateTransform(position, rotation, scale);
 
-        for (auto& vertex : mesh->Vertices)
+        s_MeshPipeline->Bind();
+        s_MeshPipeline->SetUniformData("u_Transform", UniformDataType::Mat4, &transform);
+
+        if (!s_MeshVBOs.contains(mesh))
         {
-            s_MeshVertices.push_back({ transform * glm::vec4(vertex.Position, 1.0f), vertex.Colour, vertex.TexCoords, vertex.TexIndex });
+            s_MeshVBOs[mesh] = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, static_cast<uint32_t>(mesh->Vertices.size() * sizeof(MeshVertex)), mesh->Vertices.data());
+            s_MeshIBOs[mesh] = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, static_cast<uint32_t>(mesh->Indices.size() * sizeof(uint32_t)), mesh->Indices.data());
+
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+            {
+                s_MeshVAOs[mesh] = VertexArray::Create();
+                s_MeshVAOs[mesh]->AddVertexBuffer(s_MeshVBOs[mesh], MeshVertex::GetLayout());
+                s_MeshVAOs[mesh]->SetIndexBuffer(s_MeshIBOs[mesh]);
+            }
         }
 
-        s_MeshPipeline->Bind();
+        if (s_RendererAPIType == RendererAPIType::OpenGL)
+        {
+            s_MeshVAOs[mesh]->Bind();
+        }
+        else
+        {
+            s_MeshVBOs[mesh]->Bind();
+            s_MeshIBOs[mesh]->Bind();
+        }
 
-        s_MeshVBO->SetData(static_cast<uint32_t>(mesh->Vertices.size() * sizeof(MeshVertex)), s_MeshVertices.data());
-        s_MeshIBO->SetData(static_cast<uint32_t>(mesh->Indices.size() * sizeof(uint32_t)), mesh->Indices.data());
-
-        s_MeshBindFunc();
-
-        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadCamera->GetViewProjectionMatrix());
+        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadCamera->GetViewProjectionMatrix() * transform);
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
 
         s_Stats.PipelineBinds++;
         s_Stats.DrawCalls++;
         s_Stats.MeshCount++;
-        s_Stats.MeshVertexCount += static_cast<uint32_t>(s_MeshVertices.size());
+        s_Stats.MeshVertexCount += static_cast<uint32_t>(mesh->Vertices.size());
         s_Stats.MeshIndexCount += static_cast<uint32_t>(mesh->Indices.size());
-
-        s_MeshVertices.clear();
     }
 
     void Renderer::ResetStaticGeometry(RendererGeometryTarget target)

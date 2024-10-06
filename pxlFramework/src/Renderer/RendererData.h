@@ -9,14 +9,20 @@ namespace pxl
 {
     struct Mesh
     {
+        Mesh() = delete;
+        Mesh(const Mesh& other) = delete;
+        Mesh(uint32_t vertexCount, uint32_t indexCount)
+        {
+            Vertices.reserve(vertexCount);
+            Indices.reserve(indexCount);
+        }
+
+        Mesh(const std::vector<MeshVertex>& vertices, const std::vector<uint32_t>& indices)
+            : Vertices(vertices), Indices(indices)
+        {
+        }
+    
         std::vector<MeshVertex> Vertices;
         std::vector<uint32_t> Indices;
-
-        glm::mat4 Transform = glm::mat4(0.0f);
-
-        void Translate(float x, float y, float z)
-        {
-            Transform = glm::translate(glm::mat4(1.0f), { x, y, z });
-        }
     };
 }
