@@ -4,16 +4,16 @@
 
 namespace pxl
 {
-    OpenGLGraphicsPipeline::OpenGLGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders)
+    OpenGLGraphicsPipeline::OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders)
+        : m_PolygonMode(ToGLPolygonMode(specs.PolygonMode)), m_CullMode(ToGLCullMode(specs.CullMode))
     {
-        // Vertex and fragment shaders are successfully compiled.
-        // Now time to link them together into a program.
-        // Get a program object.
-
         if (!(shaders.at(ShaderStage::Vertex) && shaders.at(ShaderStage::Fragment)))
         {
             PXL_LOG_ERROR(LogArea::OpenGL, "OpenGL pipelines require at least a vertex AND fragment shader");
         }
+
+        if (m_CullMode == GL_INVALID_ENUM)
+            m_CullingEnabled = false;
 
         m_ShaderProgramID = glCreateProgram();
         auto vertexShaderID = static_pointer_cast<OpenGLShader>(shaders.at(ShaderStage::Vertex))->GetID();
@@ -57,7 +57,12 @@ namespace pxl
 
     void OpenGLGraphicsPipeline::Bind()
     {
-        // TODO: Set state such as cull mode and polygon mode
+        glPolygonMode(GL_FRONT_AND_BACK, m_PolygonMode);
+
+        m_CullingEnabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+        glCullFace(m_CullMode);
+
+        glFrontFace(m_FrontFace);
 
         glUseProgram(m_ShaderProgramID);
     }
@@ -110,5 +115,40 @@ namespace pxl
         m_UniformCache[name] = location;
 
         return location;
+    }
+
+    GLenum OpenGLGraphicsPipeline::ToGLCullMode(CullMode mode)
+    {
+        switch (mode)
+        {
+            case CullMode::None:  return GL_INVALID_ENUM; // OpenGL requires disabling culling instead of passing a cull mode to glCullFace
+            case CullMode::Front: return GL_FRONT;
+            case CullMode::Back:  return GL_BACK;
+        }
+
+        return GL_INVALID_ENUM;
+    }
+
+    GLenum OpenGLGraphicsPipeline::ToGLPolygonMode(PolygonMode mode)
+    {
+        switch (mode)
+        {
+            case PolygonMode::Fill:  return GL_FILL;
+            case PolygonMode::Line:  return GL_LINE;
+            case PolygonMode::Point: return GL_POINT;
+        }
+
+        return GL_INVALID_ENUM;
+    }
+
+    GLenum OpenGLGraphicsPipeline::ToGLFrontFace(FrontFace face)
+    {
+        switch (face)
+        {
+            case FrontFace::CW:  return GL_CW;
+            case FrontFace::CCW: return GL_CCW;
+        }
+
+        return GL_INVALID_ENUM;
     }
 }

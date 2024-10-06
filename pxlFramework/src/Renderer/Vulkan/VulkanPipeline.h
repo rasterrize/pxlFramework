@@ -41,7 +41,7 @@ namespace pxl
     private:
         static VkShaderStageFlagBits ToVkShaderStage(ShaderStage stage);
         static VkPrimitiveTopology ToVkPrimitiveTopology(PrimitiveTopology topology);
-        static VkPolygonMode ToVkPolygonMode(PolygonFillMode mode);
+        static VkPolygonMode ToVkPolygonMode(PolygonMode mode);
         static VkCullModeFlagBits ToVkCullMode(CullMode mode);
         static VkFrontFace ToVkFrontFace(FrontFace face);
     private:

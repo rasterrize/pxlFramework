@@ -56,12 +56,12 @@ namespace pxl
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-        rasterizationInfo.depthClampEnable = VK_FALSE;                          // requires enabling a gpu feature
-        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;                   // disables geometry passing this stage, we don't want that
-        rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonFillMode); // Can be lines and points, but requires enabling a gpu feature
-        rasterizationInfo.lineWidth = 1.0f;                                     // 1.0f is a good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode);              // specify different types of culling here
-        rasterizationInfo.frontFace = ToVkFrontFace(specs.FrontFace);           // This is counter clockwise in OpenGL
+        rasterizationInfo.depthClampEnable = VK_FALSE;                      // requires enabling a gpu feature
+        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;               // disables geometry passing this stage, we don't want that
+        rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonMode); // Can be lines and points, but requires enabling a gpu feature
+        rasterizationInfo.lineWidth = 1.0f;                                 // 1.0f is a good default, any higher requires enabling a gpu feature
+        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode);          // specify different types of culling here
+        rasterizationInfo.frontFace = ToVkFrontFace(specs.FrontFace);       // This is counter clockwise in OpenGL
         // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -230,14 +230,16 @@ namespace pxl
         return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
     }
 
-    VkPolygonMode VulkanGraphicsPipeline::ToVkPolygonMode(PolygonFillMode mode)
+    VkPolygonMode VulkanGraphicsPipeline::ToVkPolygonMode(PolygonMode mode)
     {
         switch (mode)
         {
-            case PolygonFillMode::Fill: return VK_POLYGON_MODE_FILL;
+            case PolygonMode::Fill:  return VK_POLYGON_MODE_FILL;
+            case PolygonMode::Line:  return VK_POLYGON_MODE_LINE;
+            case PolygonMode::Point: return VK_POLYGON_MODE_POINT;
         }
 
-        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonFillMode");
+        PXL_LOG_WARN(LogArea::Vulkan, "Invalid PolygonMode");
 
         return VK_POLYGON_MODE_MAX_ENUM;
     }

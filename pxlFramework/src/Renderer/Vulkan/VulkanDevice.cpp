@@ -1,5 +1,7 @@
 #include "VulkanDevice.h"
 
+//#include <vulkan/vulkan_win32.h>
+
 #include "VulkanHelpers.h"
 
 namespace pxl
@@ -11,6 +13,8 @@ namespace pxl
         auto queueFamilies = VulkanHelpers::GetQueueFamilies(physicalDevice);
 
         m_GraphicsQueueFamily = VulkanHelpers::GetSuitableGraphicsQueueFamily(queueFamilies, physicalDevice, surface);
+
+        // TODO: Evaluate compatible gpu features
 
         // Create the logical device
         CreateLogicalDevice(m_PhysicalDevice);
@@ -94,17 +98,13 @@ namespace pxl
             queueInfos.push_back(graphicsQueueCreateInfo);
         }
 
-        // TODO: Specify selected device features
-        VkPhysicalDeviceFeatures deviceFeatures = {};
-        // GetGPUFeatures()
-
-        std::vector<const char*> deviceExtensions = { "VK_KHR_swapchain" }; // necessary for games
+        std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
         auto availableExtensions = VulkanHelpers::GetDeviceExtensions(m_PhysicalDevice);
 
         uint32_t enabledExtensionCount = 0;
 
-        // Check support
+        // Check extension support
         for (const auto& extension : deviceExtensions)
         {
             for (const auto& availableExtension : availableExtensions)
@@ -123,12 +123,22 @@ namespace pxl
             return;
         }
 
+        // Get device features
+        VkPhysicalDeviceFeatures deviceFeatures = {};
+        vkGetPhysicalDeviceFeatures(gpu, &deviceFeatures);
+
+        if (!deviceFeatures.fillModeNonSolid)
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Device doesn't support non-solid fill modes");
+        }
+
         // Specify Device Create Info
         VkDeviceCreateInfo deviceInfo = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
         deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueInfos.size());
         deviceInfo.pQueueCreateInfos = queueInfos.data();
         deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
+        deviceInfo.pEnabledFeatures = &deviceFeatures;
 
         VK_CHECK(vkCreateDevice(gpu, &deviceInfo, nullptr, &m_LogicalDevice));
 

@@ -164,7 +164,7 @@ namespace pxl
 
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
-            pipelineSpecs.PolygonFillMode = PolygonFillMode::Fill;
+            pipelineSpecs.PolygonMode = PolygonMode::Fill;
             pipelineSpecs.CullMode = CullMode::None;
             pipelineSpecs.VertexLayout = bufferLayout;
 
@@ -376,6 +376,8 @@ namespace pxl
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
             pipelineSpecs.VertexLayout = bufferLayout;
+            pipelineSpecs.PolygonMode = PolygonMode::Fill;
+            pipelineSpecs.CullMode = CullMode::Back;
 
             // Prepare other data based on renderer API
             if (s_RendererAPIType == RendererAPIType::OpenGL)

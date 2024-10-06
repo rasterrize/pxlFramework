@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glad/glad.h>
+
 #include "OpenGLShader.h"
 #include "Renderer/Pipeline.h"
 
@@ -8,7 +10,7 @@ namespace pxl
     class OpenGLGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        OpenGLGraphicsPipeline(const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders);
+        OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders);
         virtual ~OpenGLGraphicsPipeline() = default;
 
         virtual void Bind() override;
@@ -24,8 +26,17 @@ namespace pxl
         virtual void* GetPipelineLayout() override { return nullptr; }
     private:
         int GetUniformLocation(const std::string& name) const;
+
+        GLenum ToGLCullMode(CullMode mode);
+        GLenum ToGLPolygonMode(PolygonMode mode);
+        GLenum ToGLFrontFace(FrontFace face);
     private:
         uint32_t m_ShaderProgramID = 0;
         mutable std::unordered_map<std::string, int> m_UniformCache;
+
+        bool m_CullingEnabled = true;
+        GLenum m_PolygonMode = GL_FILL;
+        GLenum m_CullMode = GL_BACK;
+        GLenum m_FrontFace = GL_CCW;
     };
 }

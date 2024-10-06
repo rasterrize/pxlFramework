@@ -6,6 +6,8 @@ namespace pxl
     {
         uint32_t MaxTextureSlots = 32;
         float VRAMLimit = 128.0f; // VRAM limit in megabytes
+        float MaxAnisotropicLevel = 1.0f;
+        bool nonSolidFillModesSupport = false; // technically a feature, not a 'limit'
     };
 
     enum class QueueType

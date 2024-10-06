@@ -16,9 +16,11 @@ namespace pxl
         Point,
     };
 
-    enum class PolygonFillMode
+    enum class PolygonMode
     {
         Fill,
+        Line,
+        Point,
     };
 
     enum class CullMode
@@ -39,7 +41,7 @@ namespace pxl
     {
         BufferLayout VertexLayout;
         PrimitiveTopology PrimitiveType = PrimitiveTopology::Triangle;
-        PolygonFillMode PolygonFillMode = PolygonFillMode::Fill;
+        PolygonMode PolygonMode = PolygonMode::Fill;
         CullMode CullMode = CullMode::None;
         FrontFace FrontFace = FrontFace::CCW;
         std::optional<UniformLayout> UniformLayout;
