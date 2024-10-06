@@ -14,13 +14,15 @@ namespace pxl
     {
         Normal,
         Hidden,
-        Disabled
+        Disabled,
+        Captured,
     };
 
     class Input
     {
     public:
         static void Init(const std::shared_ptr<Window>& window);
+        static void Update();
         static void Shutdown();
 
         static bool IsInitialized() { return s_Enabled; }
@@ -39,7 +41,12 @@ namespace pxl
         // NOTE: this functions takes integers but glfw handles cursor positions in screen coordinates
         static void SetCursorPosition(uint32_t x, uint32_t y);
 
+        // Get the cursor distance moved in screen coordinates since last update
+        static glm::vec2 GetCursorDelta() { return s_CursorPosition - s_LastCursorPosition; }
+
         static void SetCursorMode(CursorMode cursorMode);
+
+        static bool GetRawInput();
         static void SetRawInput(bool value);
 
         static void SetCursorVisibility(bool visible);
@@ -64,6 +71,7 @@ namespace pxl
         static inline double s_HorizontalScrollOffset = 0.0f;
 
         static inline glm::dvec2 s_CursorPosition = glm::dvec2(0.0f);
+        static inline glm::dvec2 s_LastCursorPosition = glm::dvec2(0.0f);
 
         static inline bool s_RawInputSupported = false;
     };

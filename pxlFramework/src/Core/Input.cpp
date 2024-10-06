@@ -21,6 +21,15 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Input, "Input initialized");
     }
 
+    void Input::Update()
+    {
+        if (!s_Enabled)
+            return;
+        
+        s_LastCursorPosition = s_CursorPosition;
+        glfwGetCursorPos(s_WindowHandle, &s_CursorPosition.x, &s_CursorPosition.y);
+    }
+
     void Input::Shutdown()
     {
         s_Enabled = false;
@@ -106,8 +115,6 @@ namespace pxl
     {
         PXL_ASSERT(s_Enabled);
 
-        // TODO: check if x and y values are outside the bounds of the window
-
         glfwSetCursorPos(s_WindowHandle, static_cast<double>(x), static_cast<double>(y));
         s_CursorPosition.x = static_cast<double>(x);
         s_CursorPosition.y = static_cast<double>(y);
@@ -131,7 +138,16 @@ namespace pxl
                 glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 PXL_LOG_INFO(LogArea::Input, "Cursor mode set to Disabled");
                 return;
+            case CursorMode::Captured:
+                glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+                PXL_LOG_INFO(LogArea::Input, "Cursor mode set to Captured");
+                return;
         }
+    }
+
+    bool Input::GetRawInput()
+    {
+        return glfwGetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION);
     }
 
     void Input::SetRawInput(bool value)
@@ -144,7 +160,7 @@ namespace pxl
             return;
         }
 
-        if (value && s_RawInputSupported)
+        if (value)
         {
             glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
             PXL_LOG_INFO(LogArea::Input, "Enabled Raw Input");
@@ -180,9 +196,8 @@ namespace pxl
         s_CurrentMBStates[button] = action;
     }
 
-    void Input::GLFWCursorPosCallback([[maybe_unused]] GLFWwindow* window, double xpos, double ypos)
+    void Input::GLFWCursorPosCallback([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xpos, [[maybe_unused]] double ypos)
     {
-        s_CursorPosition = { xpos, ypos };
     }
 
     void Input::GLFWScrollCallback([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xoffset, double yoffset)

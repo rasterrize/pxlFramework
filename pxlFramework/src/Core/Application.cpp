@@ -50,8 +50,10 @@ namespace pxl
 
             if (!m_Minimized)
             {
+                Input::Update();
                 OnUpdate(deltaTime);
 
+                // If user application closes the app manually, stop running
                 if (!m_Running)
                     break;
 
