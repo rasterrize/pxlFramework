@@ -37,7 +37,7 @@ namespace pxl
         VulkanDeletionQueue::Add([&]()
         {
             DestroyFrameData();
-            Destroy();
+            Destroy(m_Swapchain);
         });
     }
 
@@ -48,9 +48,7 @@ namespace pxl
 
         CheckExtentSupport(m_SwapchainSpecs.Extent);
 
-        // Destroy the current swapchain if it exists
-        if (m_Swapchain)
-            Destroy();
+        auto oldSwapchain = m_Swapchain;
 
         // Create Swapchain
         VkSwapchainCreateInfoKHR swapchainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
@@ -70,9 +68,12 @@ namespace pxl
         swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // Specifies how the operating system will use the surfaces alpha value
         swapchainInfo.presentMode = m_SwapchainSpecs.PresentMode;
         swapchainInfo.clipped = VK_TRUE; // NOTE: may cause issues with fragment shaders when enabled
-        swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
+        swapchainInfo.oldSwapchain = oldSwapchain;
 
         VK_CHECK(vkCreateSwapchainKHR(static_cast<VkDevice>(m_Device->GetLogical()), &swapchainInfo, nullptr, &m_Swapchain));
+
+        if (oldSwapchain)
+            Destroy(oldSwapchain);
 
         // Logging
         if (m_Swapchain)
@@ -107,7 +108,7 @@ namespace pxl
         PrepareFramebuffers(m_DefaultRenderPass);
     }
 
-    void VulkanSwapchain::Destroy()
+    void VulkanSwapchain::Destroy(VkSwapchainKHR swapchain)
     {
         for (auto& framebuffer : m_Framebuffers)
             framebuffer->Destroy();
@@ -115,11 +116,11 @@ namespace pxl
         for (auto& image : m_Images)
             image->Destroy();
 
-        if (m_Swapchain)
-        {
-            vkDestroySwapchainKHR(static_cast<VkDevice>(m_Device->GetLogical()), m_Swapchain, nullptr);
+        if (swapchain)
+            vkDestroySwapchainKHR(static_cast<VkDevice>(m_Device->GetLogical()), swapchain, nullptr);
+
+        if (swapchain == m_Swapchain)
             m_Swapchain = VK_NULL_HANDLE;
-        }
     }
 
     void VulkanSwapchain::DestroyFrameData()
@@ -180,16 +181,20 @@ namespace pxl
         presentInfo.pImageIndices = &m_CurrentImageIndex;
 
         // Queue presentation
-        m_Device->SubmitPresent(presentInfo);
+        auto result = m_Device->SubmitPresent(presentInfo);
 
         // Update current frame index to the next frame
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
-        // TODO: Check if this is necessary
-        // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-        //     Recreate();
-        // else if (result != VK_SUCCESS)
-        //     PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
+        {
+            m_FramebufferResized = false;
+            Recreate();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to queue image presentation");
+        }
     }
 
     void VulkanSwapchain::PrepareImages()

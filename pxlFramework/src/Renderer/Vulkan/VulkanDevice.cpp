@@ -74,11 +74,11 @@ namespace pxl
         VK_CHECK(vkQueueSubmit(queue, 1, submitInfos.data(), signalFence));
     }
 
-    void VulkanDevice::SubmitPresent(const VkPresentInfoKHR& presentInfo)
+    VkResult VulkanDevice::SubmitPresent(const VkPresentInfoKHR& presentInfo)
     {
         PXL_PROFILE_SCOPE;
 
-        VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
+        return vkQueuePresentKHR(m_GraphicsQueue, &presentInfo);
     }
 
     void VulkanDevice::CreateLogicalDevice(VkPhysicalDevice gpu)

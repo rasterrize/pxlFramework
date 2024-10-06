@@ -33,7 +33,7 @@ namespace pxl
         void Recreate(uint32_t width, uint32_t height);
         void Recreate();
 
-        void Destroy();
+        void Destroy(VkSwapchainKHR swapchain);
         void DestroyFrameData();
 
         void AcquireNextAvailableImageIndex();
@@ -58,6 +58,8 @@ namespace pxl
 
         void Suspend() { m_Suspend = true; }
         void Continue() { m_Suspend = false; }
+
+        void FramebufferResized() { m_FramebufferResized = true; }
     private:
         void CreateSwapchain();
         void PrepareImages();
@@ -87,5 +89,7 @@ namespace pxl
 
         bool m_VSync = true;
         bool m_Suspend = false;
+
+        bool m_FramebufferResized = false;
     };
 }

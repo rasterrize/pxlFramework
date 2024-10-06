@@ -25,7 +25,7 @@ namespace pxl
         void SubmitCommandBuffer(const VkSubmitInfo& submitInfo, QueueType queueType, VkFence signalFence = VK_NULL_HANDLE);
         void SubmitCommandBuffers(const std::vector<VkSubmitInfo>& submitInfos, QueueType queueType, VkFence signalFence);
 
-        void SubmitPresent(const VkPresentInfoKHR& presentInfo);
+        VkResult SubmitPresent(const VkPresentInfoKHR& presentInfo);
 
         VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         VkQueue GetComputeQueue() const { return VK_NULL_HANDLE; }
