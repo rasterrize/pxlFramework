@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/Image.h"
+#include "Core/Image.h"
 #include "Renderer/RendererData.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"

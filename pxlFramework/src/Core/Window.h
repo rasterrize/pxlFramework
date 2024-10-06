@@ -7,7 +7,7 @@
 
 #include "Core/Size.h"
 #include "Renderer/GraphicsContext.h"
-#include "Renderer/Image.h"
+#include "Core/Image.h"
 #include "Renderer/RendererAPIType.h"
 
 namespace pxl

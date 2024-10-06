@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Image.h"
+#include "Core/Image.h"
 
 namespace pxl
 {

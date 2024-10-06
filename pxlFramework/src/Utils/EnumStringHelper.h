@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Core/Image.h"
 #include "Core/Input.h"
 #include "Core/Window.h"
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Camera.h"
 #include "Renderer/GPUBuffer.h"
-#include "Renderer/Image.h"
 #include "Renderer/Pipeline.h"
 #include "Renderer/RendererAPIType.h"
 #include "Renderer/UniformLayout.h"

@@ -19,6 +19,7 @@ add_library(pxlFramework STATIC
     src/Core/Config.h src/Core/Config.cpp
     src/Core/Size.h
     src/Core/Colour.h
+    src/Core/Image.h
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
@@ -39,7 +40,6 @@ add_library(pxlFramework STATIC
     src/Renderer/Pipeline.h src/Renderer/Pipeline.cpp
     src/Renderer/Framebuffer.h
     src/Renderer/GraphicsDevice.h
-    src/Renderer/Image.h
     src/Renderer/Vertices.h
 
     # PRIMITIVES
