@@ -12,5 +12,8 @@ namespace TestApp
         static void OnRender();
         static void OnGUIRender();
         static void OnClose();
+
+        static void OnFileDrop(const std::vector<std::string>& paths);
+        static void AddModelToList(const std::string& modelName);
     };
 }
