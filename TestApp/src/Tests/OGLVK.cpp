@@ -32,7 +32,7 @@ namespace TestApp
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::All, s_Camera);
 
-        auto rendererAPIString = pxl::EnumStringHelper::RendererAPITypeToString(windowSpecs.RendererAPI);
+        auto rendererAPIString = pxl::EnumStringHelper::ToString(windowSpecs.RendererAPI);
 
         // pxl::DiscordRPC::Init(RPCCLIENT_ID);
         // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'OGLVK' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});

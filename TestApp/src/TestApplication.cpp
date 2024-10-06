@@ -29,7 +29,7 @@ namespace TestApp
         buildType = "Distribute x64";
 #endif
 
-        rendererAPIType = pxl::EnumStringHelper::RendererAPITypeToString(windowRendererAPI);
+        rendererAPIType = pxl::EnumStringHelper::ToString(windowRendererAPI);
 
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
 
