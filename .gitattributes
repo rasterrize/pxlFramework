@@ -1,0 +1,4 @@
+*.h linguist-language=C++
+*.hpp linguist-language=C++
+
+pxlFramework/deps/** linguist-vendored
