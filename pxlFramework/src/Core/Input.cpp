@@ -161,14 +161,11 @@ namespace pxl
         }
 
         if (value)
-        {
-            glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-            PXL_LOG_INFO(LogArea::Input, "Enabled Raw Input");
-        }
+            PXL_LOG_INFO(LogArea::Input, "Enabled Raw Input")
         else
-        {
             PXL_LOG_INFO(LogArea::Input, "Disabled Raw Input");
-        }
+
+        glfwSetInputMode(s_WindowHandle, GLFW_RAW_MOUSE_MOTION, value);
     }
 
     void Input::SetCursorVisibility(bool visible)
