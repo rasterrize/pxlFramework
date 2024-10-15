@@ -23,9 +23,6 @@ namespace pxl
 
     void Input::Update()
     {
-        if (!s_Enabled)
-            return;
-        
         s_LastCursorPosition = s_CursorPosition;
         glfwGetCursorPos(s_WindowHandle, &s_CursorPosition.x, &s_CursorPosition.y);
     }
