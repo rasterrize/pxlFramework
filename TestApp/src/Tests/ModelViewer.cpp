@@ -20,8 +20,6 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-        windowSpecs.Title += " - Running Test 'ModelViewer'";
-
         s_Window = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_Window);

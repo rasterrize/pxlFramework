@@ -9,6 +9,9 @@
 #include "Tests/QuadsTest.h"
 #include "Tests/WindowTest.h"
 
+#define TEST_NAME ModelViewer
+#define TEST_NAME_STRING "ModelViewer" // TODO: If its possible, set this automatically using TEST_NAME
+
 namespace TestApp
 {
     TestApplication::TestApplication()
@@ -31,7 +34,7 @@ namespace TestApp
 
         rendererAPIType = pxl::EnumStringHelper::ToString(windowRendererAPI);
 
-        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType;
+        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType + " - Running Test '" TEST_NAME_STRING "'";
 
         pxl::WindowSpecs windowSpecs = {};
         windowSpecs.Size = { 1600, 900 };
@@ -39,8 +42,6 @@ namespace TestApp
         windowSpecs.RendererAPI = windowRendererAPI;
         windowSpecs.WindowMode = windowMode;
         windowSpecs.IconPath = "assets/pxl.png";
-
-#define TEST_NAME QuadsTest
 
         m_OnStartFunc = TEST_NAME::OnStart;
         m_OnUpdateFunc = TEST_NAME::OnUpdate;

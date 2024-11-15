@@ -11,8 +11,6 @@ namespace TestApp
 
     void LinesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        windowSpecs.Title += " - Running Test 'LinesTest'";
-
         s_Window = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_Window);

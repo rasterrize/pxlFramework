@@ -28,8 +28,13 @@ namespace TestApp
 
     void QuadsTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        windowSpecs.Title += " - Running Test 'QuadsTest'";
-        windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
+        // Override renderer API
+        if (windowSpecs.RendererAPI != pxl::RendererAPIType::OpenGL)
+        {
+            auto enumString = pxl::EnumStringHelper::ToString(windowSpecs.RendererAPI);
+            windowSpecs.Title.replace(windowSpecs.Title.find(enumString), enumString.size(), std::string("OpenGL"));
+            windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
+        }
 
         s_Window = pxl::Window::Create(windowSpecs);
 

@@ -12,8 +12,6 @@ namespace TestApp
 
     void OGLVK::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        windowSpecs.Title += " - Running Test 'OGLVK'";
-
         s_Window = pxl::Window::Create(windowSpecs);
 
         pxl::Renderer::Init(s_Window);
