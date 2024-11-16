@@ -136,6 +136,7 @@ namespace TestApp
         s_LoadedModels.push_back(pxl::FileSystem::LoadModel(paths.at(0))); // NOTE: currently only uses the first path
         AddModelToList(paths.at(0));
         s_MeshRotation = glm::vec3(0.0f);
+        s_CurrentModelIndex = static_cast<int32_t>(s_LoadedModelNames.size() - 1);
     }
 
     void ModelViewer::AddModelToList(const std::string& modelName)
