@@ -30,7 +30,7 @@ namespace pxl
 
     void VulkanFramebuffer::AddAttachment(VkImageView view, VkFormat format)
     {
-        m_Attachments.push_back({ view, format });
+        m_Attachments.emplace_back(view, format);
     }
 
     void VulkanFramebuffer::Create()

@@ -729,17 +729,16 @@ namespace pxl
         // Add vertices
         for (uint32_t i = 0; i < 4; i++)
         {
-            s_StaticQuadVertices.push_back({
-                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = quad.Colour,
-                .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = 0.0f,
-            });
+            s_StaticQuadVertices.emplace_back(
+                transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                quad.Colour,
+                defaultVertices[i].TexCoords,
+                0.0f);
         }
 
         // Add indices
         for (uint32_t j = 0; j < 6; j++)
-            s_StaticQuadIndices.push_back(s_StaticQuadIndexOffset + defaultIndices[j]);
+            s_StaticQuadIndices.emplace_back(s_StaticQuadIndexOffset + defaultIndices[j]);
 
         s_StaticQuadIndexOffset += 4;
     }
@@ -759,12 +758,11 @@ namespace pxl
 
         for (uint32_t i = 0; i < 24; i++)
         {
-            s_StaticCubeVertices.push_back({
-                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = cube.Colour,
-                .TexCoords = defaultVertices[i].TexCoords,
-                .TexIndex = 0.0f,
-            });
+            s_StaticCubeVertices.emplace_back(
+                transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+                cube.Colour,
+                defaultVertices[i].TexCoords,
+                0.0f);
         }
     }
 
