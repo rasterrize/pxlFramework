@@ -18,9 +18,8 @@
                 "isDefault": true
             },
             "presentation": {
-                "reveal": "always",
-                "focus": true,
-                "clear": true
+                "clear": true,
+                "showReuseMessage": false,
             },
             "problemMatcher": "$msCompile",
         },
@@ -38,9 +37,8 @@
                 "kind": "build",
             },
             "presentation": {
-                "reveal": "always",
-                "focus": true,
-                "clear": true
+                "clear": true,
+                "showReuseMessage": false,
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
@@ -60,9 +58,8 @@
             ],
             "group": "build",
             "presentation": {
-                "reveal": "always",
-                "focus": true,
-                "clear": true
+                "clear": true,
+                "showReuseMessage": false,
             },
             "problemMatcher": "$msCompile",
         },
@@ -78,9 +75,8 @@
             ],
             "group": "build",
             "presentation": {
-                "reveal": "always",
-                "focus": true,
-                "clear": true
+                "clear": true,
+                "showReuseMessage": false,
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
