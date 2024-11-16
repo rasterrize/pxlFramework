@@ -34,6 +34,7 @@ namespace pxl
             case BufferDataType::Int4:   return 4 * 4;
             case BufferDataType::Mat3:   return 4 * 3 * 3;
             case BufferDataType::Mat4:   return 4 * 4 * 4;
+            case BufferDataType::Bool:   return 4;
         }
         return 0;
     }
