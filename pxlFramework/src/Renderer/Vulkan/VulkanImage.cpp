@@ -23,7 +23,7 @@ namespace pxl
     {
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
 
-        if (m_ImageView)
+        if (m_Image)
         {
             vkDestroyImage(device, m_Image, nullptr);
             m_Image = VK_NULL_HANDLE;
