@@ -94,6 +94,9 @@ namespace TestApp
         ImGui::Text("Total Vertex Count: %u", rendererStats.GetTotalVertexCount());
         ImGui::Text("Total Index Count: %u", rendererStats.GetTotalIndexCount());
 
+        if (ImGui::Button("Toggle VSync"))
+            pxl::Renderer::GetGraphicsContext()->ToggleVSync();
+
         ImGui::End();
 
         m_OnGuiRender();
