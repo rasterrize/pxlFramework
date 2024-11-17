@@ -59,7 +59,7 @@ namespace pxl
         // Set icon if supplied
         if (specs.IconPath.has_value())
         {
-            auto image = FileSystem::LoadImageFile(specs.IconPath.value(), false);
+            auto image = FileSystem::LoadImageFile(specs.IconPath.value(), true);
             SetIcon(image);
             image.Free();
         }

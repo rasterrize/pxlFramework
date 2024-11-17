@@ -20,6 +20,13 @@ namespace pxl
         Linear,
     };
 
+    enum class ImageFileFormat
+    {
+        JPG,
+        PNG,
+        BMP,
+    };
+
     struct ImageMetadata
     {
         Size2D Size = Size2D(0);

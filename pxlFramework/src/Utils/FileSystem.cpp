@@ -1,6 +1,7 @@
 #include "FileSystem.h"
 
 #include <stb_image.h>
+#include <stb_image_write.h>
 
 #include <fstream>
 //#include <bass.h>
@@ -12,10 +13,10 @@
 
 namespace pxl
 {
-    Image FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipOnLoad)
+    Image FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipVertical)
     {
         // stb image loads images from bottom to top by default so we flip them on load
-        stbi_set_flip_vertically_on_load(flipOnLoad);
+        stbi_set_flip_vertically_on_load(!flipVertical);
 
         int width, height, channels;
         unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
@@ -151,6 +152,36 @@ namespace pxl
         }
 
         return meshes;
+    }
+
+    bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const Image& image, ImageFileFormat fileFormat, bool flipVertical)
+    {
+        stbi_flip_vertically_on_write(!flipVertical);
+
+        auto size = image.Metadata.Size;
+        auto fileNameString = path.string();
+
+        // TODO: handle trying to write jpg as png (channels don't match)
+
+        switch (fileFormat)
+        {
+            case ImageFileFormat::PNG:
+                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGBA8)
+                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, 4, image.Buffer, 0);
+            case ImageFileFormat::JPG:
+                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGB8)
+                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, 3, image.Buffer, s_JPEGQuality);
+            case ImageFileFormat::BMP:
+                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGB8)
+                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, 3, image.Buffer);
+            default:
+                return false;
+        }
+    }
+
+    void FileSystem::SetPNGCompressionLevel(int32_t level)
+    {
+        stbi_write_png_compression_level = level;
     }
 
     // std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::string& filePath)
