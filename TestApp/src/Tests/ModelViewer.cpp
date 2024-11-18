@@ -84,6 +84,16 @@ namespace TestApp
             s_MeshRotation.x += pxl::Input::GetCursorDelta().y;
         }
 
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F1))
+        {
+            auto filePath = pxl::Platform::OpenFile(s_Window,
+                "OBJ File (*.obj)\0"
+                "*.obj\0");
+
+            if (!filePath.empty())
+                LoadMesh(filePath);
+        }
+
         s_MeshRotation.x = std::fmodf(s_MeshRotation.x, 360.0f);
         s_MeshRotation.y = std::fmodf(s_MeshRotation.y, 360.0f);
         s_MeshRotation.z = std::fmodf(s_MeshRotation.z, 360.0f);
@@ -123,6 +133,16 @@ namespace TestApp
             ImGui::EndListBox();
         }
 
+        if (ImGui::Button("Open File..."))
+        {
+            auto filePath = pxl::Platform::OpenFile(s_Window,
+                "OBJ File (*.obj)\0"
+                "*.obj\0");
+
+            if (!filePath.empty())
+                LoadMesh(filePath);
+        }
+
         ImGui::End();
     }
 
@@ -132,9 +152,14 @@ namespace TestApp
 
     void ModelViewer::OnFileDrop(const std::vector<std::string>& paths)
     {
+        LoadMesh(paths.at(0));
+    }
+
+    void ModelViewer::LoadMesh(const std::filesystem::path& path)
+    {
         // TODO: Check if file is a model file (.obj/.fbx/.gltf)
-        s_LoadedModels.push_back(pxl::FileSystem::LoadModel(paths.at(0))); // NOTE: currently only uses the first path
-        AddModelToList(paths.at(0));
+        s_LoadedModels.push_back(pxl::FileSystem::LoadModel(path)); // NOTE: currently only uses the first path
+        AddModelToList(path.string());
         s_MeshRotation = glm::vec3(0.0f);
         s_CurrentModelIndex = static_cast<int32_t>(s_LoadedModelNames.size() - 1);
     }

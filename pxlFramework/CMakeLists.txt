@@ -14,7 +14,7 @@ add_library(pxlFramework STATIC
     src/Core/Input.h src/Core/Input.cpp
     src/Core/KeyCodes.h
     src/Core/MouseCodes.h
-    src/Core/Platform.h
+    src/Core/Platform.h src/Core/Platform.cpp
     src/Core/Stopwatch.h
     src/Core/Config.h src/Core/Config.cpp
     src/Core/Size.h

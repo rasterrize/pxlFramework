@@ -14,6 +14,7 @@ namespace TestApp
         static void OnClose();
 
         static void OnFileDrop(const std::vector<std::string>& paths);
+        static void LoadMesh(const std::filesystem::path& path);
         static void AddModelToList(const std::string& modelName);
     };
 }
