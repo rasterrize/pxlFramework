@@ -12,6 +12,7 @@ namespace pxl
     {
     public:
         OpenGLTexture(const Image& image);
+        OpenGLTexture(const std::shared_ptr<Image>& image);
         virtual ~OpenGLTexture() override;
 
         virtual void Bind(uint32_t unit) override;

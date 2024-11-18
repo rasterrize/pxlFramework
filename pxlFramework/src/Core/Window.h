@@ -90,7 +90,7 @@ namespace pxl
         const std::string& GetTitle() const { return m_Title; }
         void SetTitle(const std::string_view& title) const { glfwSetWindowTitle(m_GLFWWindow, title.data()); }
 
-        void SetIcon(const Image& image);
+        void SetIcon(const std::shared_ptr<Image>& image);
 
         // Use -1 for both parameters to disable
         void EnforceAspectRatio(uint32_t numerator, uint32_t denominator);

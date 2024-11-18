@@ -407,8 +407,10 @@ namespace pxl
         }
 
         // Prepare texture data
-        // TODO: hard code this
-        s_WhitePixelTexture = FileSystem::LoadTextureFromImage("resources/textures/whiteTexture.bmp");
+        std::vector<uint8_t> pixelBytes;
+        pixelBytes.emplace_back(0xffffffff);
+        Image image(pixelBytes, Size2D(1, 1), ImageFormat::RGBA8);
+        s_WhitePixelTexture = Texture::Create(image);
 
         // Set samplers
         for (int32_t i = 0; i < k_MaxTextureUnits; i++)

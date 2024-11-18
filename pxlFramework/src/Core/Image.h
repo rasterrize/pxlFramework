@@ -36,13 +36,28 @@ namespace pxl
 
     struct Image
     {
-        unsigned char* Buffer = nullptr;
-        ImageMetadata Metadata = {};
+        Image() = default;
 
-        void Free()
+        Image(unsigned char* bytePtr, Size2D size, uint32_t channels)
         {
-            // stb image requires we manually free the loaded image from memory
-            stbi_image_free(Buffer);
+            Buffer = std::vector<uint8_t>(bytePtr, bytePtr + size.Width * size.Height * channels);
+            Metadata.Size = size;
+
+            // Move this to Utils
+            switch (channels)
+            {
+                case 3: Metadata.Format = ImageFormat::RGB8; break;
+                case 4: Metadata.Format = ImageFormat::RGBA8; break;
+            }
         }
+
+        Image(std::vector<uint8_t> pixels, Size2D size, ImageFormat format)
+            : Buffer(pixels), Metadata({ size, format })
+        {
+        }
+
+        /* TODO: It might make more sense to arrange this data in uint32_t's. but then we have to take care of images (jpg's) without alpha values. */
+        std::vector<uint8_t> Buffer;
+        ImageMetadata Metadata = {};
     };
 }

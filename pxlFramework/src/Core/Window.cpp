@@ -61,7 +61,6 @@ namespace pxl
         {
             auto image = FileSystem::LoadImageFile(specs.IconPath.value(), true);
             SetIcon(image);
-            image.Free();
         }
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
@@ -292,12 +291,12 @@ namespace pxl
         value ? glfwShowWindow(m_GLFWWindow) : glfwHideWindow(m_GLFWWindow);
     }
 
-    void Window::SetIcon(const Image& image)
+    void Window::SetIcon(const std::shared_ptr<Image>& image)
     {
         GLFWimage glfwImage;
-        glfwImage.width = image.Metadata.Size.Width;
-        glfwImage.height = image.Metadata.Size.Height;
-        glfwImage.pixels = image.Buffer;
+        glfwImage.width = image->Metadata.Size.Width;
+        glfwImage.height = image->Metadata.Size.Height;
+        glfwImage.pixels = image->Buffer.data();
 
         glfwSetWindowIcon(m_GLFWWindow, 1, &glfwImage);
     }

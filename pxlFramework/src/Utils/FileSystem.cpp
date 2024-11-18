@@ -13,7 +13,7 @@
 
 namespace pxl
 {
-    Image FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipVertical)
+    std::shared_ptr<Image> FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipVertical)
     {
         // stb image loads images from bottom to top by default so we flip them on load
         stbi_set_flip_vertically_on_load(!flipVertical);
@@ -24,21 +24,14 @@ namespace pxl
         if (!bytes)
         {
             PXL_LOG_ERROR(LogArea::Other, "Failed to load image: '{}'", path.string());
-            return Image();
+            return nullptr;
         }
 
         PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", path.string());
 
-        Image image;
-        image.Buffer = bytes;
-        image.Metadata.Size = { (uint32_t)width, (uint32_t)height };
-        image.Metadata.Format = ImageFormat::Undefined;
+        auto image = std::make_shared<Image>(bytes, Size2D(width, height), channels);
 
-        switch (channels)
-        {
-            case 3: image.Metadata.Format = ImageFormat::RGB8; break;
-            case 4: image.Metadata.Format = ImageFormat::RGBA8; break;
-        }
+        stbi_image_free(bytes);
 
         return image;
     }
@@ -48,8 +41,6 @@ namespace pxl
         auto image = LoadImageFile(path, true);
 
         std::shared_ptr<Texture> texture = Texture::Create(image);
-
-        image.Free();
 
         return texture;
     }
@@ -154,11 +145,11 @@ namespace pxl
         return meshes;
     }
 
-    bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const Image& image, ImageFileFormat fileFormat, bool flipVertical)
+    bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical)
     {
         stbi_flip_vertically_on_write(!flipVertical);
 
-        auto size = image.Metadata.Size;
+        auto size = image->Metadata.Size;
         auto fileNameString = path.string();
 
         // TODO: handle trying to write jpg as png (channels don't match)
@@ -166,14 +157,14 @@ namespace pxl
         switch (fileFormat)
         {
             case ImageFileFormat::PNG:
-                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGBA8)
-                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, 4, image.Buffer, 0);
+                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGBA8)
+                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, 4, image->Buffer.data(), 0);
             case ImageFileFormat::JPG:
-                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGB8)
-                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, 3, image.Buffer, s_JPEGQuality);
+                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGB8)
+                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, 3, image->Buffer.data(), s_JPEGQuality);
             case ImageFileFormat::BMP:
-                PXL_ASSERT(image.Metadata.Format == ImageFormat::RGB8)
-                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, 3, image.Buffer);
+                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGB8)
+                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, 3, image->Buffer.data());
             default:
                 return false;
         }
