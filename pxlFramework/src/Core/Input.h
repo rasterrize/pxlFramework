@@ -18,6 +18,35 @@ namespace pxl
         Captured,
     };
 
+    enum class StandardCursor
+    {
+        Arrow,
+        IBeam,
+        Crosshair,
+        Hand,
+        HResize,
+        VResize,
+    };
+
+    class Cursor
+    {
+    public:
+        Cursor(const std::shared_ptr<Image>& image, int32_t hotspotX = 0, int32_t hotspotY = 0)
+        {
+            GLFWimage glfwImage;
+            glfwImage.width = image->Metadata.Size.Width;
+            glfwImage.height = image->Metadata.Size.Height;
+            glfwImage.pixels = image->Buffer.data();
+
+            m_Cursor = glfwCreateCursor(&glfwImage, hotspotX, hotspotY);
+        }
+
+        GLFWcursor* GetNativeCursor() { return m_Cursor; }
+
+    private:
+        GLFWcursor* m_Cursor = nullptr;
+    };
+
     class Input
     {
     public:
@@ -50,6 +79,9 @@ namespace pxl
         static void SetRawInput(bool value);
 
         static void SetCursorVisibility(bool visible);
+
+        static void SetCursor(StandardCursor standardCursor);
+        static void SetCursor(Cursor customCursor);
 
     private:
         static void GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

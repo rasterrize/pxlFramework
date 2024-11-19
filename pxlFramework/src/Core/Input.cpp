@@ -173,6 +173,28 @@ namespace pxl
                 : glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 
+    void Input::SetCursor(StandardCursor standardCursor)
+    {
+        int32_t cursorType = 0;
+
+        switch (standardCursor)
+        {
+            case StandardCursor::Arrow:     cursorType = GLFW_ARROW_CURSOR; break;
+            case StandardCursor::IBeam:     cursorType = GLFW_IBEAM_CURSOR; break;
+            case StandardCursor::Crosshair: cursorType = GLFW_CROSSHAIR_CURSOR; break;
+            case StandardCursor::Hand:      cursorType = GLFW_HAND_CURSOR; break;
+            case StandardCursor::HResize:   cursorType = GLFW_HRESIZE_CURSOR; break;
+            case StandardCursor::VResize:   cursorType = GLFW_VRESIZE_CURSOR; break;
+        }
+
+        glfwSetCursor(s_WindowHandle, glfwCreateStandardCursor(cursorType));
+    }
+
+    void Input::SetCursor(Cursor customCursor)
+    {
+        glfwSetCursor(s_WindowHandle, customCursor.GetNativeCursor());
+    }
+
     void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
     {
         // Override GLFW's windows key auto iconify so the start menu doesn't immediately disappear
