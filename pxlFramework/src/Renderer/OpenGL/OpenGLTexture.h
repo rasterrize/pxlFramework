@@ -15,6 +15,8 @@ namespace pxl
         OpenGLTexture(const std::shared_ptr<Image>& image);
         virtual ~OpenGLTexture() override;
 
+        virtual void SetData(const void* data) override;
+
         virtual void Bind(uint32_t unit) override;
         virtual void Unbind() override;
 

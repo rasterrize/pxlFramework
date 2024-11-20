@@ -37,6 +37,11 @@ namespace pxl
         glDeleteTextures(1, &m_RendererID);
     }
 
+    void OpenGLTexture::SetData(const void* data)
+    {
+        glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Metadata.Size.Width, m_Metadata.Size.Height, m_GLFormat, GL_UNSIGNED_BYTE, data);
+    }
+
     void OpenGLTexture::Bind(uint32_t unit)
     {
         glBindTextureUnit(unit, m_RendererID);
