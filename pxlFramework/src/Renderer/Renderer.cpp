@@ -406,9 +406,8 @@ namespace pxl
             s_MeshPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
         }
 
-        // Prepare texture data
-        std::vector<uint8_t> pixelBytes;
-        pixelBytes.emplace_back(0xffffffff);
+        // Prepare white pixel texture
+        std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
         Image image(pixelBytes, Size2D(1, 1), ImageFormat::RGBA8);
         s_WhitePixelTexture = Texture::Create(image);
 
