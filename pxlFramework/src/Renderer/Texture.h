@@ -16,5 +16,7 @@ namespace pxl
 
         static std::shared_ptr<Texture> Create(const Image& image);
         static std::shared_ptr<Texture> Create(const std::shared_ptr<Image>& image);
+
+        static std::shared_ptr<Texture> CreateErrorTexture(); 
     };
 }
