@@ -86,8 +86,18 @@ namespace TestApp
         ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
         ImGui::Begin("TestApp Renderer Stats");
 
-        ImGui::Text("FPS: %.2f", pxl::Renderer::GetFPS());
-        ImGui::Text("Frame Time (MS): %.3f", pxl::Renderer::GetFrameTimeMS());
+        static float elapsed = 0.0f;
+        static float fps = 0.0f;
+        if (elapsed > 30.0f)
+        {
+            fps = rendererStats.FPS;
+            elapsed = 0.0f;
+        }
+
+        elapsed += rendererStats.FrameTime;
+
+        ImGui::Text("FPS: %.0f", std::round(fps));
+        ImGui::Text("Frame Time (MS): %.3f", rendererStats.FrameTime);
         ImGui::Text("Draw Calls: %u", rendererStats.DrawCalls);
         ImGui::Text("Texture Binds: %u", rendererStats.TextureBinds);
         ImGui::Text("Total Triangle Count: %u", rendererStats.GetTotalTriangleCount());

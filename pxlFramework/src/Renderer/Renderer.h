@@ -72,6 +72,7 @@ namespace pxl
 
         struct Statistics
         { // clang-format off
+            float FrameTime          = 0.0f;
             float FPS                = 0.0f;
             uint32_t DrawCalls       = 0;
             uint32_t QuadCount       = 0;
@@ -97,7 +98,7 @@ namespace pxl
         static const Statistics& GetStats() { return s_Stats; }
 
         static float GetFPS() { return s_Stats.FPS; }
-        static float GetFrameTimeMS() { return 1 / s_Stats.FPS * 1000.0f; }
+        static float GetFrameTimeMS() { return s_Stats.FrameTime; }
 
     private:
         friend class Application;
@@ -113,8 +114,7 @@ namespace pxl
 
         static void ResetStats()
         {
-            // NOTE: Intentionally avoids setting the FPS value
-            memset(&s_Stats.DrawCalls, 0, sizeof(Statistics) - sizeof(float));
+            memset(&s_Stats, 0, sizeof(Statistics));
         }
 
     private:
@@ -131,7 +131,7 @@ namespace pxl
         static inline std::shared_ptr<Camera> s_LineCamera = nullptr;
 
         static inline uint32_t s_FrameCount = 0;
-        static inline float s_TimeAtLastFrame = 0.0f;
+        static inline double s_TimeAtLastFrame = 0.0f;
 
         static inline Statistics s_Stats = {};
     };

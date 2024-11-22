@@ -997,14 +997,10 @@ namespace pxl
 
     void Renderer::CalculateFPS()
     {
-        float currentTime = (float)Platform::GetTime();
-        float elapsedTime = currentTime - s_TimeAtLastFrame;
-
-        if (elapsedTime > 0.05f)
-        {
-            s_Stats.FPS = s_FrameCount / elapsedTime;
-            s_TimeAtLastFrame = currentTime;
-            s_FrameCount = 0;
-        }
+        PXL_PROFILE_SCOPE;
+        double currentTime = Platform::GetTime();
+        s_Stats.FrameTime = static_cast<float>(currentTime - s_TimeAtLastFrame) * 1000.0f;
+        s_Stats.FPS = 1000.0f / s_Stats.FrameTime;
+        s_TimeAtLastFrame = currentTime;
     }
 }
