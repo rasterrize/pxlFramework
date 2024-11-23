@@ -15,10 +15,10 @@ namespace pxl
 {
     std::shared_ptr<Image> FileSystem::LoadImageFile(const std::filesystem::path& path, bool flipVertical)
     {
-        // stb image loads images from bottom to top by default so we flip them on load
+        // NOTE: The renderer expects things to have their y values start at the bottom, but images are stored from top to bottom, so we automatically flip it unless specified not to.
         stbi_set_flip_vertically_on_load(!flipVertical);
 
-        int width, height, channels;
+        int width, height, channels = 0;
         unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
 
         if (!bytes)
@@ -36,11 +36,11 @@ namespace pxl
         return image;
     }
 
-    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& path)
+    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& path, const TextureSpecs& specs, bool flipVertical)
     {
-        auto image = LoadImageFile(path, true);
+        auto image = LoadImageFile(path, flipVertical);
 
-        std::shared_ptr<Texture> texture = Texture::Create(image);
+        std::shared_ptr<Texture> texture = Texture::Create(image, specs);
 
         return texture;
     }
@@ -151,20 +151,28 @@ namespace pxl
 
         auto size = image->Metadata.Size;
         auto fileNameString = path.string();
+        int32_t channels = 0;
+
+        switch (image->Metadata.Format)
+        {
+            case ImageFormat::RGB8:
+                channels = 3;
+                break;
+            case ImageFormat::RGBA8:
+                channels = 4;
+                break;
+        }
 
         // TODO: handle trying to write jpg as png (channels don't match)
 
         switch (fileFormat)
         {
             case ImageFileFormat::PNG:
-                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGBA8)
-                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, 4, image->Buffer.data(), 0);
+                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data(), 0);
             case ImageFileFormat::JPG:
-                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGB8)
-                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, 3, image->Buffer.data(), s_JPEGQuality);
+                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data(), s_JPEGQuality);
             case ImageFileFormat::BMP:
-                PXL_ASSERT(image->Metadata.Format == ImageFormat::RGB8)
-                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, 3, image->Buffer.data());
+                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data());
             default:
                 return false;
         }

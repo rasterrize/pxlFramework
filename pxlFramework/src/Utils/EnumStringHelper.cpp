@@ -129,13 +129,13 @@ namespace pxl
         return "Invalid";
     }
 
-    std::string EnumStringHelper::ToString(ImageFilter filter)
+    std::string EnumStringHelper::ToString(SampleFilter filter)
     {
         switch (filter)
         {
-            case ImageFilter::Undefined: return "Undefined";
-            case ImageFilter::Nearest:   return "Nearest";
-            case ImageFilter::Linear:    return "Linear";
+            case SampleFilter::Undefined: return "Undefined";
+            case SampleFilter::Nearest:   return "Nearest";
+            case SampleFilter::Linear:    return "Linear";
         }
 
         return "Invalid";

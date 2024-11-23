@@ -4,6 +4,29 @@
 
 namespace pxl
 {
+    enum class TextureType
+    {
+        Tex1D,
+        Tex2D,
+        Tex3D,
+        CubeMap,
+    };
+
+    enum class TextureWrapMode
+    {
+        Repeat,
+        MirroredRepeat,
+        ClampToEdge,
+        ClampToBorder,
+    };
+
+    struct TextureSpecs
+    {
+        TextureType Type = TextureType::Tex2D;
+        TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
+        SampleFilter Filter = SampleFilter::Linear;
+    };
+
     class Texture
     {
     public:
@@ -16,9 +39,9 @@ namespace pxl
 
         virtual const ImageMetadata& GetMetadata() const = 0;
 
-        static std::shared_ptr<Texture> Create(const Image& image);
-        static std::shared_ptr<Texture> Create(const std::shared_ptr<Image>& image);
+        static std::shared_ptr<Texture> Create(const Image& image, const TextureSpecs& specs);
+        static std::shared_ptr<Texture> Create(const std::shared_ptr<Image>& image, const TextureSpecs& specs);
 
-        static std::shared_ptr<Texture> CreateErrorTexture(); 
+        static std::shared_ptr<Texture> CreateErrorTexture(const TextureSpecs& specs);
     };
 }

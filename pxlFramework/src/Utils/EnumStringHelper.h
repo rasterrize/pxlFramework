@@ -24,7 +24,7 @@ namespace pxl
         static std::string ToString(UniformDataType type);
         static std::string ToString(QueueType type);
         static std::string ToString(ImageFormat format);
-        static std::string ToString(ImageFilter filter);
+        static std::string ToString(SampleFilter filter);
         static std::string ToString(PrimitiveTopology topology);
         static std::string ToString(PolygonMode mode);
         static std::string ToString(CullMode mode);

@@ -409,7 +409,7 @@ namespace pxl
         // Prepare white pixel texture
         std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
         Image image(pixelBytes, Size2D(1, 1), ImageFormat::RGBA8);
-        s_WhitePixelTexture = Texture::Create(image);
+        s_WhitePixelTexture = Texture::Create(image, { .Filter = SampleFilter::Nearest });
 
         // Set samplers
         for (int32_t i = 0; i < k_MaxTextureUnits; i++)

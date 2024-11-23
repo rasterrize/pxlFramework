@@ -11,8 +11,8 @@ namespace pxl
     class OpenGLTexture : public Texture
     {
     public:
-        OpenGLTexture(const Image& image);
-        OpenGLTexture(const std::shared_ptr<Image>& image);
+        OpenGLTexture(const Image& image, const TextureSpecs& specs);
+        OpenGLTexture(const std::shared_ptr<Image>& image, const TextureSpecs& specs);
         virtual ~OpenGLTexture() override;
 
         virtual void SetData(const void* data) override;
@@ -23,12 +23,18 @@ namespace pxl
         virtual const ImageMetadata& GetMetadata() const override { return m_Metadata; }
 
     private:
-        static GLenum ImageFormatToGLFormat(ImageFormat format);
+        void CreateTexture(const std::vector<uint8_t>& pixels);
+
+    private:
+        static GLenum ToGLFormat(ImageFormat format);
+        static GLenum ToGLFilter(SampleFilter filter);
+        static GLenum ToGLType(TextureType type);
+        static GLenum ToGLWrapMode(TextureWrapMode mode);
 
     private:
         ImageMetadata m_Metadata;
+        TextureSpecs m_Specs;
 
-        GLenum m_GLFormat = GL_INVALID_ENUM;
         uint32_t m_RendererID = 0;
     };
 }

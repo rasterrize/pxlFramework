@@ -13,10 +13,10 @@ namespace pxl
         RGBA8,
     };
 
-    enum class ImageFilter
+    enum class SampleFilter
     {
         Undefined,
-        Nearest, // Should nearest be default?
+        Nearest,
         Linear,
     };
 
@@ -31,7 +31,6 @@ namespace pxl
     {
         Size2D Size = Size2D(0);
         ImageFormat Format = ImageFormat::Undefined;
-        uint32_t BitDepth = 8;
     };
 
     struct Image

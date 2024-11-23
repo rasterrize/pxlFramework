@@ -58,9 +58,9 @@ namespace TestApp
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, s_Camera);
 
-        s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png");
-        s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png");
-        s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/atlas.png");
+        s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png", { .Filter = pxl::SampleFilter::Nearest });
+        s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png", { .Filter = pxl::SampleFilter::Nearest });
+        s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/newcornertest.png", { .Filter = pxl::SampleFilter::Nearest });
 
         // clang-format off
         s_StaticQuad = {
@@ -182,7 +182,7 @@ namespace TestApp
         pxl::Renderer::AddQuad(s_TexturedDynamicQuad);
 
         // Draw cursor quad
-        // NOTE: this must be done last
+        // NOTE: this must be done last for transparency to work
         pxl::Renderer::AddQuad(s_CursorQuad);
 
         // for (uint32_t x = 0; x < s_BlueQuadAmount; x += 2)

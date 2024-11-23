@@ -5,11 +5,11 @@
 
 namespace pxl
 {
-    std::shared_ptr<Texture> Texture::Create(const Image& image)
+    std::shared_ptr<Texture> Texture::Create(const Image& image, const TextureSpecs& specs)
     {
         // If the image is invalid, return a error texture
         if (image.Buffer.empty())
-            return CreateErrorTexture();
+            return CreateErrorTexture(specs);
 
         switch (Renderer::GetCurrentAPI())
         {
@@ -18,7 +18,7 @@ namespace pxl
                 break;
 
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLTexture>(image);
+                return std::make_shared<OpenGLTexture>(image, specs);
 
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
@@ -28,11 +28,11 @@ namespace pxl
         return nullptr;
     }
 
-    std::shared_ptr<Texture> Texture::Create(const std::shared_ptr<Image>& image)
+    std::shared_ptr<Texture> Texture::Create(const std::shared_ptr<Image>& image, const TextureSpecs& specs)
     {
         // If the image is invalid, return a error texture
         if (!image)
-            return CreateErrorTexture();
+            return CreateErrorTexture(specs);
 
         switch (Renderer::GetCurrentAPI())
         {
@@ -41,7 +41,7 @@ namespace pxl
                 break;
 
             case RendererAPIType::OpenGL:
-                return std::make_shared<OpenGLTexture>(image);
+                return std::make_shared<OpenGLTexture>(image, specs);
 
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
@@ -51,7 +51,7 @@ namespace pxl
         return nullptr;
     }
 
-    std::shared_ptr<Texture> Texture::CreateErrorTexture()
+    std::shared_ptr<Texture> Texture::CreateErrorTexture(const TextureSpecs& specs)
     {
         // TODO: precalculate this data from Renderer::Init
 
@@ -103,7 +103,7 @@ namespace pxl
 
             case RendererAPIType::OpenGL:
                 PXL_LOG_WARN(LogArea::Renderer, "Creating error texture");
-                return std::make_shared<OpenGLTexture>(image);
+                return std::make_shared<OpenGLTexture>(image, specs);
 
             case RendererAPIType::Vulkan:
                 PXL_LOG_ERROR(LogArea::Renderer, "Can't create error Texture for Vulkan renderer api");
