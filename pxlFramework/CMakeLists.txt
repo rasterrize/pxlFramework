@@ -41,6 +41,7 @@ add_library(pxlFramework STATIC
     src/Renderer/Framebuffer.h
     src/Renderer/GraphicsDevice.h
     src/Renderer/Vertices.h
+    src/Renderer/RendererLimits.h
 
     # PRIMITIVES
     src/Renderer/Primitives/Primitive.h

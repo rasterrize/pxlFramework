@@ -2,6 +2,7 @@
 
 #include "GraphicsDevice.h"
 #include "RendererAPIType.h"
+#include "RendererLimits.h"
 
 namespace pxl
 {
@@ -23,6 +24,8 @@ namespace pxl
         virtual void SetAsCurrent() = 0;
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const = 0;
+
+        virtual RendererLimits GetLimits() = 0;
 
         static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, const std::shared_ptr<Window>& window);
     };

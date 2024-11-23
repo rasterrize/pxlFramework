@@ -28,8 +28,6 @@ namespace pxl
     static constexpr uint32_t k_MaxLineCount = 100;
     static constexpr uint32_t k_MaxLineVertexCount = k_MaxLineCount * 2;
 
-    static constexpr uint32_t k_MaxTextureUnits = 32; // TODO: This should be determined by a RenderCapabilities thing
-
     // Static Quad Data
     static std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_StaticQuadIBO = nullptr;
@@ -99,8 +97,8 @@ namespace pxl
     // Texture Data
     static uint32_t s_TextureUnitIndex = 0;
 
-    static std::array<std::shared_ptr<Texture>, k_MaxTextureUnits> s_TextureUnits;
-    static std::array<int32_t, k_MaxTextureUnits> s_Samplers;
+    static std::vector<std::shared_ptr<Texture>> s_TextureUnits;
+    static std::vector<int32_t> s_Samplers;
 
     static std::shared_ptr<Texture> s_WhitePixelTexture = nullptr;
 
@@ -124,6 +122,11 @@ namespace pxl
 
         s_ContextHandle = window->GetGraphicsContext();
         s_RendererAPIType = window->GetRendererAPI();
+
+        // Evaluate renderer limits
+        s_Limits = s_ContextHandle->GetLimits();
+        s_TextureUnits.resize(s_Limits.MaxTextureUnits, nullptr);
+        s_Samplers.resize(s_Limits.MaxTextureUnits);
 
         // Create renderer API object
         s_RendererAPI = RendererAPI::Create(s_RendererAPIType, window);
@@ -412,7 +415,7 @@ namespace pxl
         s_WhitePixelTexture = Texture::Create(image, { .Filter = SampleFilter::Nearest });
 
         // Set samplers
-        for (int32_t i = 0; i < k_MaxTextureUnits; i++)
+        for (uint32_t i = 0; i < s_Limits.MaxTextureUnits; i++)
             s_Samplers[i] = i;
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
@@ -799,7 +802,7 @@ namespace pxl
 
     float Renderer::GetTextureIndex(const std::shared_ptr<Texture>& texture)
     {
-        if (s_TextureUnitIndex >= k_MaxTextureUnits)
+        if (s_TextureUnitIndex >= s_Limits.MaxTextureUnits)
             Flush();
 
         float textureIndex = -1.0f;
@@ -858,7 +861,7 @@ namespace pxl
             s_QuadBufferBindFunc();
 
             if (s_RendererAPIType == RendererAPIType::OpenGL)
-                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, k_MaxTextureUnits, s_Samplers.data());
+                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_Limits.MaxTextureUnits, s_Samplers.data());
 
             s_QuadPipeline->Bind();
 

@@ -30,6 +30,8 @@ namespace pxl
 
         virtual std::shared_ptr<GraphicsDevice> GetDevice() const override { return m_Device; }
 
+        virtual RendererLimits GetLimits() override { return RendererLimits(); }
+
         VkSurfaceKHR GetSurface() const { return m_Surface; }
         VkSurfaceFormatKHR GetSurfaceFormat() const { return m_SurfaceFormat; }
 

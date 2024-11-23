@@ -26,6 +26,8 @@ namespace pxl
             return nullptr;
         }
 
+        virtual RendererLimits GetLimits() override;
+
     private:
         GLFWwindow* m_GLFWWindowHandle = nullptr;
         bool m_VSync = true;

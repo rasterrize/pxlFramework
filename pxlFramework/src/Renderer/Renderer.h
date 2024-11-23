@@ -134,5 +134,6 @@ namespace pxl
         static inline double s_TimeAtLastFrame = 0.0f;
 
         static inline Statistics s_Stats = {};
+        static inline RendererLimits s_Limits = {};
     };
 }
