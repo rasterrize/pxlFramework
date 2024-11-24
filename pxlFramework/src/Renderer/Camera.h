@@ -14,12 +14,12 @@ namespace pxl
 
         virtual void Update() = 0;
 
-        const glm::vec3 GetPosition() const { return m_Position; }
-        const glm::vec3 GetRotation() const { return m_Rotation; }
+        const glm::vec3& GetPosition() const { return m_Position; }
+        const glm::vec3& GetRotation() const { return m_Rotation; }
 
-        const glm::vec3 GetForwardVector();
-        const glm::vec3 GetUpVector();
-        const glm::vec3 GetRightVector();
+        glm::vec3 GetForwardVector();
+        glm::vec3 GetUpVector();
+        glm::vec3 GetRightVector();
 
         void SetPosition(const glm::vec3& position) { m_Position = position; }
         void SetRotation(const glm::vec3& rotation) { m_Rotation = rotation; }

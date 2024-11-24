@@ -20,7 +20,7 @@ namespace pxl
             camera->Update();
     }
 
-    const glm::vec3 Camera::GetForwardVector()
+    glm::vec3 Camera::GetForwardVector()
     {
         glm::vec3 forward;
 
@@ -33,7 +33,7 @@ namespace pxl
         return forward;
     }
 
-    const glm::vec3 Camera::GetUpVector()
+    glm::vec3 Camera::GetUpVector()
     {
         glm::vec3 up;
 
@@ -45,7 +45,7 @@ namespace pxl
         return up;
     }
 
-    const glm::vec3 Camera::GetRightVector()
+    glm::vec3 Camera::GetRightVector()
     {
         glm::vec3 right;
 
