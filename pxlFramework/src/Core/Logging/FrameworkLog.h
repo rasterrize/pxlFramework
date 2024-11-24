@@ -8,6 +8,8 @@
     #define PXL_LOG_WARN(area, ...)     { pxl::Logger::SetCurrentArea(area); pxl::Logger::GetFrameworkLogger()->warn(__VA_ARGS__); }
     #define PXL_LOG_ERROR(area, ...)    { pxl::Logger::SetCurrentArea(area); pxl::Logger::GetFrameworkLogger()->error(__VA_ARGS__); }
     #define PXL_LOG_CRITICAL(area, ...) { pxl::Logger::SetCurrentArea(area); pxl::Logger::GetFrameworkLogger()->critical(__VA_ARGS__); }
+
+    #define PXL_INIT_LOGGING pxl::Logger::Init()
 #else
     #define PXL_LOG_INFO(area, ...)     {}
     #define PXL_LOG_WARN(area, ...)     {}

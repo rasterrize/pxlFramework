@@ -21,6 +21,8 @@ namespace pxl
 
         s_Instance = this;
 
+        PXL_INIT_LOGGING;
+
         FrameworkConfig::Init();
         Window::Init();
     }
