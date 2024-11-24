@@ -11,6 +11,9 @@ namespace pxl
         if (image.Buffer.empty())
             return CreateErrorTexture(specs);
 
+        if (image.Metadata.Format == ImageFormat::RGB8 && image.Metadata.Size.Width % 2 != 0)
+            PXL_LOG_WARN(LogArea::Renderer, "Image supplied for texture creation is RGB only AND its width is not a power of two. This texture may not render correctly!");
+
         switch (Renderer::GetCurrentAPI())
         {
             case RendererAPIType::None:
@@ -33,6 +36,9 @@ namespace pxl
         // If the image is invalid, return a error texture
         if (!image)
             return CreateErrorTexture(specs);
+
+        if (image->Metadata.Format == ImageFormat::RGB8 && image->Metadata.Size.Width % 2 != 0)
+            PXL_LOG_WARN(LogArea::Renderer, "Image supplied for texture creation is RGB only AND its width is not a power of two. This texture may not render correctly!");
 
         switch (Renderer::GetCurrentAPI())
         {

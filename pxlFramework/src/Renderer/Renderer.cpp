@@ -834,11 +834,14 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
+        // ---------------------
+        // Prepare textures
+        // ---------------------
+
         if (s_RendererAPIType == RendererAPIType::OpenGL)
         {
             PXL_PROFILE_SCOPE_NAMED("Bind Textures");
 
-            // Bind textures
             for (uint32_t i = 0; i < s_TextureUnitIndex; i++)
             {
                 s_TextureUnits[i]->Bind(i);
@@ -848,35 +851,9 @@ namespace pxl
             s_TextureUnitIndex = 0;
         }
 
-        // Flush quads if necessary
-        if (s_QuadCount > 0)
-        {
-            PXL_PROFILE_SCOPE_NAMED("Flush Dynamic Quads");
-
-            PXL_ASSERT_MSG(s_QuadCamera, "Quad Camera isn't set");
-            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
-
-            s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
-
-            s_QuadBufferBindFunc();
-
-            if (s_RendererAPIType == RendererAPIType::OpenGL)
-                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_Limits.MaxTextureUnits, s_Samplers.data());
-
-            s_QuadPipeline->Bind();
-
-            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
-
-            s_RendererAPI->DrawIndexed(s_QuadCount * 6);
-
-            s_Stats.PipelineBinds++;
-            s_Stats.DrawCalls++;
-            s_Stats.QuadCount += s_QuadCount;
-            s_Stats.QuadVertexCount += s_QuadCount * 4;
-            s_Stats.QuadIndexCount += s_QuadCount * 6;
-
-            s_QuadCount = 0;
-        }
+        // ---------------------
+        // Static Geometry
+        // ---------------------
 
         // Flush static quads if necessary
         if (!s_StaticQuadVertices.empty())
@@ -902,34 +879,6 @@ namespace pxl
             s_Stats.QuadCount += static_cast<uint32_t>(s_StaticQuadIndices.size()) / 3;
             s_Stats.QuadVertexCount += static_cast<uint32_t>(s_StaticQuadVertices.size());
             s_Stats.QuadIndexCount += static_cast<uint32_t>(s_StaticQuadIndices.size());
-        }
-
-        // Flush cubes if necessary
-        if (s_CubeCount > 0)
-        {
-            PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
-            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
-
-            s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
-
-            {
-                PXL_PROFILE_SCOPE_NAMED("s_CubeBindFunc()");
-                s_CubeBindFunc();
-            }
-
-            s_CubePipeline->Bind();
-
-            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
-
-            s_RendererAPI->DrawIndexed(s_CubeCount * 36);
-
-            s_Stats.PipelineBinds++;
-            s_Stats.DrawCalls++;
-            s_Stats.CubeCount += s_CubeCount;
-            s_Stats.CubeVertexCount += s_CubeCount * 24;
-            s_Stats.CubeIndexCount += s_CubeCount * 36;
-
-            s_CubeCount = 0;
         }
 
         // Flush static cubes if necessary
@@ -958,6 +907,69 @@ namespace pxl
             s_Stats.CubeCount += static_cast<uint32_t>(s_StaticCubeIndices.size()) / 36;
             s_Stats.CubeVertexCount += static_cast<uint32_t>(s_StaticCubeVertices.size());
             s_Stats.CubeIndexCount += static_cast<uint32_t>(s_StaticCubeIndices.size());
+        }
+
+        // ---------------------
+        // Dynamic Geometry
+        // ---------------------
+
+        // Flush quads if necessary
+        if (s_QuadCount > 0)
+        {
+            PXL_PROFILE_SCOPE_NAMED("Flush Dynamic Quads");
+
+            PXL_ASSERT_MSG(s_QuadCamera, "Quad Camera isn't set");
+            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
+
+            s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
+
+            s_QuadBufferBindFunc();
+
+            // NOTE: Ensure we bind the pipeline before setting uniform data
+            s_QuadPipeline->Bind();
+
+            if (s_RendererAPIType == RendererAPIType::OpenGL)
+                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_Limits.MaxTextureUnits, s_Samplers.data());
+
+            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
+
+            s_RendererAPI->DrawIndexed(s_QuadCount * 6);
+
+            s_Stats.PipelineBinds++;
+            s_Stats.DrawCalls++;
+            s_Stats.QuadCount += s_QuadCount;
+            s_Stats.QuadVertexCount += s_QuadCount * 4;
+            s_Stats.QuadIndexCount += s_QuadCount * 6;
+
+            s_QuadCount = 0;
+        }
+
+        // Flush cubes if necessary
+        if (s_CubeCount > 0)
+        {
+            PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
+            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
+
+            s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
+
+            {
+                PXL_PROFILE_SCOPE_NAMED("s_CubeBindFunc()");
+                s_CubeBindFunc();
+            }
+
+            s_CubePipeline->Bind();
+
+            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
+
+            s_RendererAPI->DrawIndexed(s_CubeCount * 36);
+
+            s_Stats.PipelineBinds++;
+            s_Stats.DrawCalls++;
+            s_Stats.CubeCount += s_CubeCount;
+            s_Stats.CubeVertexCount += s_CubeCount * 24;
+            s_Stats.CubeIndexCount += s_CubeCount * 36;
+
+            s_CubeCount = 0;
         }
 
         // Flush lines if necessary

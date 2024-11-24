@@ -60,7 +60,7 @@ namespace TestApp
 
         s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png", { .Filter = pxl::SampleFilter::Nearest });
         s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png", { .Filter = pxl::SampleFilter::Nearest });
-        s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/newcornertest.png", { .Filter = pxl::SampleFilter::Nearest });
+        s_TextureAtlas = pxl::FileSystem::LoadTextureFromImage("assets/textures/atlas.png", { .Filter = pxl::SampleFilter::Nearest });
 
         // clang-format off
         s_StaticQuad = {

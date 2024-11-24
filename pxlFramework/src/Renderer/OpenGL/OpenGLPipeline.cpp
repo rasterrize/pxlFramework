@@ -12,7 +12,7 @@ namespace pxl
             PXL_LOG_ERROR(LogArea::OpenGL, "OpenGL pipelines require at least a vertex AND fragment shader");
         }
 
-        if (m_CullMode == GL_INVALID_ENUM)
+        if (specs.CullMode == CullMode::None)
             m_CullingEnabled = false;
 
         m_ShaderProgramID = glCreateProgram();
@@ -60,7 +60,9 @@ namespace pxl
         glPolygonMode(GL_FRONT_AND_BACK, m_PolygonMode);
 
         m_CullingEnabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-        glCullFace(m_CullMode);
+
+        if (m_CullingEnabled)
+            glCullFace(m_CullMode);
 
         glFrontFace(m_FrontFace);
 
