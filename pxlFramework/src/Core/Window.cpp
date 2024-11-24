@@ -31,6 +31,9 @@ namespace pxl
                 break;
 
             case RendererAPIType::OpenGL:
+#if PXL_DEBUG
+                glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
