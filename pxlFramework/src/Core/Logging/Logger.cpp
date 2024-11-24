@@ -14,12 +14,12 @@ namespace pxl
         s_ApplicationLogger = std::make_unique<spdlog::logger>("APPLICATION", applicationSink);
         PXL_ASSERT(s_ApplicationLogger);
 
-        s_ApplicationLogger->set_pattern("[%I:%M:%S] [%n] [%^%l%$] %v");
+        s_ApplicationLogger->set_pattern("[%I:%M:%S] [%n] %^[%l] %v %$");
 
         // Set framework logger/sink formatter (custom flag)
         auto formatter = std::make_unique<spdlog::pattern_formatter>();
         formatter->add_flag<LogAreaFlag>('*');
-        formatter->set_pattern("[%I:%M:%S] [%n] [%*] [%^%l%$] %v");
+        formatter->set_pattern("[%I:%M:%S] [%n] [%*] %^[%l] %v%$");
         s_FrameworkLogger->set_formatter(std::move(formatter));
     }
 
