@@ -67,7 +67,7 @@ namespace TestApp
             .Position = { 200.0f, 450.0f, 0.0f },
             .Rotation = { 0.0f, 0.0, 45.0f },
             .Size     = glm::vec2(75.0f),
-            .Colour   = pxl::Colour::GetColourAsVec4(pxl::ColourName::Pink),
+            .Colour   = pxl::Colour::AsVec4(pxl::ColourName::Pink),
             .Origin   = pxl::Origin2D::BottomRight,
         };
 

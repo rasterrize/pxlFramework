@@ -447,7 +447,7 @@ namespace pxl
 
     void Renderer::SetClearColour(ColourName colour)
     {
-        s_RendererAPI->SetClearColour(Colour::GetColourAsVec4(colour));
+        s_RendererAPI->SetClearColour(Colour::AsVec4(colour));
     }
 
     void Renderer::Begin()
