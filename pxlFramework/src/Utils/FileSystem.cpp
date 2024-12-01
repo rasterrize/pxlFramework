@@ -142,6 +142,8 @@ namespace pxl
             meshes[m] = mesh;
         }
 
+        PXL_LOG_INFO(LogArea::FileSystem, "Loaded model '{}'", path.string());
+
         return meshes;
     }
 

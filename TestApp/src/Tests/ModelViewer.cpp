@@ -35,8 +35,7 @@ namespace TestApp
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, s_Camera);
 
-        s_LoadedModels.push_back(pxl::FileSystem::LoadModel("assets/models/star.obj"));
-        AddModelToList("assets/models/star.obj");
+        LoadMesh("assets/models/star.obj");
 
         s_Window->SetFileDropCallback(OnFileDrop);
         s_Window->SetResizeCallback([](pxl::Size2D newSize)
@@ -82,6 +81,10 @@ namespace TestApp
         {
             s_MeshRotation.y += pxl::Input::GetCursorDelta().x;
             s_MeshRotation.x += pxl::Input::GetCursorDelta().y;
+        }
+        else
+        {
+            s_MeshRotation.y += 30.0f * dt;
         }
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F1))
@@ -157,7 +160,27 @@ namespace TestApp
 
     void ModelViewer::LoadMesh(const std::filesystem::path& path)
     {
-        // TODO: Check if file is a model file (.obj/.fbx/.gltf)
+        auto extension = path.extension();
+        
+        std::vector<std::filesystem::path> supportedExtensions = {
+            ".obj", ".fbx", ".gltf", ".glb"
+        };
+
+        bool validExtension = false;
+
+        // SEXtension
+        for (const auto& sExtension : supportedExtensions)
+        {
+            if (extension == sExtension)
+                validExtension = true;
+        }
+
+        if (!validExtension)
+        {
+            APP_LOG_ERROR("Model file extension is invalid");
+            return;
+        }
+
         s_LoadedModels.push_back(pxl::FileSystem::LoadModel(path)); // NOTE: currently only uses the first path
         AddModelToList(path.string());
         s_MeshRotation = glm::vec3(0.0f);
