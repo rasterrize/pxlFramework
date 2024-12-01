@@ -35,7 +35,7 @@ add_library(pxlFramework STATIC
     src/Renderer/OrthographicCamera.h src/Renderer/OrthographicCamera.cpp
     src/Renderer/PerspectiveCamera.h src/Renderer/PerspectiveCamera.cpp
     src/Renderer/Texture.h src/Renderer/Texture.cpp
-    src/Renderer/ShaderLibrary.h src/Renderer/ShaderLibrary.cpp
+    src/Renderer/ShaderManager.h src/Renderer/ShaderManager.cpp
     src/Renderer/RendererData.h
     src/Renderer/Pipeline.h src/Renderer/Pipeline.cpp
     src/Renderer/Framebuffer.h

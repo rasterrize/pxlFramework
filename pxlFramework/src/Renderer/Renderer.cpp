@@ -5,6 +5,7 @@
 #include "Debug/GUI/GUI.h"
 #include "GPUBuffer.h"
 #include "OpenGL/OpenGLRenderer.h"
+#include "ShaderManager.h"
 #include "UniformLayout.h"
 #include "Utils/FileSystem.h"
 #include "VertexArray.h"
@@ -133,7 +134,33 @@ namespace pxl
 
         PXL_ASSERT_MSG(s_RendererAPI, "Failed to create renderer api object");
 
-        // TODO: Create/compile all shaders here
+        // Compile and create shaders
+        switch (s_RendererAPIType)
+        {
+            case RendererAPIType::OpenGL:
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_textured_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_textured_ogl.frag", ShaderStage::Fragment);
+
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_ogl.frag", ShaderStage::Fragment);
+
+                ShaderManager::LoadFromGLSL("resources/shaders/line_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/line_ogl.frag", ShaderStage::Fragment);
+
+                ShaderManager::LoadFromGLSL("resources/shaders/mesh_ogl.vert", ShaderStage::Vertex);
+                break;
+                
+            case RendererAPIType::Vulkan:
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.frag", ShaderStage::Fragment);
+
+                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/quad_vert.spv", ShaderStage::Vertex);
+                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/quad_frag.spv", ShaderStage::Fragment);
+
+                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/line_vert.spv", ShaderStage::Vertex);
+                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/line_frag.spv", ShaderStage::Fragment);
+                break;
+        }
 
         // --------------------
         // Prepare Quad Data
@@ -197,11 +224,8 @@ namespace pxl
                     pipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
                 };
 
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_textured_ogl.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_textured_ogl.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_textured_ogl.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_textured_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -222,11 +246,8 @@ namespace pxl
                     pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -283,11 +304,8 @@ namespace pxl
                     s_CubeVAO->Bind();
                 };
 
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_ogl.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -297,11 +315,8 @@ namespace pxl
                     s_CubeIBO->Bind();
                 };
 
-                auto vertBin = FileSystem::LoadSPIRV("resources/shaders/compiled/quad_vert.spv");
-                auto fragBin = FileSystem::LoadSPIRV("resources/shaders/compiled/quad_frag.spv");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vert.spv");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_frag.spv");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -339,11 +354,8 @@ namespace pxl
                     s_LineVAO->Bind();
                 };
 
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/line_ogl.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/line_ogl.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("line_ogl.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("line_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -352,11 +364,8 @@ namespace pxl
                     s_LineVBO->Bind();
                 };
 
-                auto vertBin = FileSystem::LoadSPIRV("resources/shaders/compiled/line_vert.spv");
-                auto fragBin = FileSystem::LoadSPIRV("resources/shaders/compiled/line_frag.spv");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertBin);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragBin);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("line_vert.spv");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("line_frag.spv");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -385,19 +394,13 @@ namespace pxl
             // Prepare other data based on renderer API
             if (s_RendererAPIType == RendererAPIType::OpenGL)
             {
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/mesh_ogl.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_ogl.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("mesh_ogl.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                auto vertSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.vert");
-                auto fragSrc = FileSystem::LoadGLSL("resources/shaders/quad_vk.frag");
-
-                shaders[ShaderStage::Vertex] = Shader::Create(ShaderStage::Vertex, vertSrc);
-                shaders[ShaderStage::Fragment] = Shader::Create(ShaderStage::Fragment, fragSrc);
+                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
+                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });

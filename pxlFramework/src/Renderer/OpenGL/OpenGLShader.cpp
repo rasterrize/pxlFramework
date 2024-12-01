@@ -24,15 +24,15 @@ namespace pxl
 
     void OpenGLShader::Compile(const std::string& glslSrc)
     {
-        // Create an empty vertex shader handle
+        // Create an empty shader handle
         m_RendererID = glCreateShader(ShaderStageToGLShaderStage(m_ShaderStage));
 
-        // Send the vertex shader source code to GL
+        // Send the shader source code to GL
         // Note that std::string's .c_str is NULL character terminated.
         const GLchar* source = (const GLchar*)glslSrc.c_str();
         glShaderSource(m_RendererID, 1, &source, 0);
 
-        // Compile the vertex shader
+        // Compile the shader
         glCompileShader(m_RendererID);
 
         GLint isCompiled = 0;

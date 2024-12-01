@@ -26,7 +26,7 @@
 #include "../src/Renderer/RendererAPIType.h"
 #include "../src/Renderer/RendererData.h"
 #include "../src/Renderer/Shader.h"
-#include "../src/Renderer/ShaderLibrary.h"
+#include "../src/Renderer/ShaderManager.h"
 #include "../src/Renderer/Texture.h"
 #include "../src/Renderer/UniformLayout.h"
 #include "../src/Renderer/Vertices.h"
