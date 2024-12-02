@@ -83,11 +83,14 @@ namespace pxl
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
 
+        if (s_Windows.empty() && Application::Get().IsRunning())
+        {
+            Application::Get().Close();
+            return;
+        }
+
         if (Renderer::IsInitialized() && Renderer::GetGraphicsContext() == m_GraphicsContext)
             Renderer::Shutdown();
-
-        if (s_Windows.empty() && Application::Get().IsRunning())
-            Application::Get().Close();
     }
 
     void Window::SetGLFWCallbacks()
