@@ -7,10 +7,32 @@
 
 namespace pxl
 {
+    class OrthographicCamera;
+    class PerspectiveCamera;
+
+    struct PerspectiveSettings
+    {
+        float FOV;
+        float AspectRatio;
+        float NearClip;
+        float FarClip;
+    };
+
+    struct OrthographicSettings
+    {
+        float AspectRatio;
+        float NearClip;
+        float FarClip;
+        float Zoom;
+        float Left, Right, Bottom, Top;
+        bool UseAspectRatio;
+    };
+
     class Camera
     {
     public:
-        virtual ~Camera() = default;
+        Camera();
+        virtual ~Camera();
 
         virtual void Update() = 0;
 
@@ -26,10 +48,22 @@ namespace pxl
 
         glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
+        /// @brief Create and return a new PerspectiveCamera
+        /// @param settings Perspective camera settings
+        /// @return The camera
+        static std::shared_ptr<PerspectiveCamera> CreatePerspective(const PerspectiveSettings& settings);
+
+        /// @brief Create and return a new Orthograp=hicCamera
+        /// @param settings Orthographic camera settings
+        /// @return The camera
+        static std::shared_ptr<OrthographicCamera> CreateOrthographic(const OrthographicSettings& settings);
+
     protected:
         virtual void RecalculateProjection() = 0;
 
-        static void Add(const std::shared_ptr<Camera>& camera) { s_Cameras.push_back(camera); }
+    private:
+        friend class Application;
+        static void UpdateAll();
 
     protected:
         glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
@@ -38,13 +72,7 @@ namespace pxl
         glm::vec3 m_Position = glm::vec3(0.0f);
         glm::vec3 m_Rotation = glm::vec3(0.0f);
 
-        std::weak_ptr<Camera> m_Handle;
-
     private:
-        friend class Application;
-        static void UpdateAll();
-
-    private:
-        static std::vector<std::shared_ptr<Camera>> s_Cameras;
+        static inline std::vector<Camera*> s_Cameras;
     };
 }

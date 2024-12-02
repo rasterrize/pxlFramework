@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    OrthographicCamera::OrthographicCamera(const OrthographicCameraSettings& settings)
+    OrthographicCamera::OrthographicCamera(const OrthographicSettings& settings)
         : m_Settings(settings)
     {
         m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
@@ -48,19 +48,5 @@ namespace pxl
         m_Settings.Right = m_Settings.AspectRatio * m_Settings.Zoom;
         m_Settings.Bottom = -m_Settings.Zoom;
         m_Settings.Top = m_Settings.Zoom;
-    }
-
-    std::shared_ptr<OrthographicCamera> OrthographicCamera::Create(const OrthographicCameraSettings& settings)
-    {
-        auto camera = std::make_shared<OrthographicCamera>(settings);
-
-        PXL_ASSERT(camera);
-
-        camera->m_Handle = camera;
-        
-        // Add camera to pool of cameras
-        Add(camera);
-
-        return camera;
     }
 }

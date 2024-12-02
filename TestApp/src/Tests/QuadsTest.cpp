@@ -44,7 +44,7 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour(s_ClearColour);
 
-        s_Camera = pxl::OrthographicCamera::Create({
+        s_Camera = pxl::Camera::CreateOrthographic({
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = -10.0f,
             .FarClip = 10.0f,

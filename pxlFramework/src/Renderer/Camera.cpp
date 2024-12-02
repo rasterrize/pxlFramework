@@ -7,7 +7,15 @@
 
 namespace pxl
 {
-    std::vector<std::shared_ptr<Camera>> Camera::s_Cameras;
+    Camera::Camera()
+    {
+        s_Cameras.push_back(this);
+    }
+
+    Camera::~Camera()
+    {
+        s_Cameras.erase(std::find(s_Cameras.begin(), s_Cameras.end(), this));
+    }
 
     void Camera::UpdateAll()
     {
@@ -56,5 +64,15 @@ namespace pxl
         right = glm::normalize(right); // Unit Vector
 
         return right;
+    }
+
+    std::shared_ptr<PerspectiveCamera> Camera::CreatePerspective(const PerspectiveSettings& settings)
+    {
+        return std::make_shared<PerspectiveCamera>(settings);
+    }
+
+    std::shared_ptr<OrthographicCamera> Camera::CreateOrthographic(const OrthographicSettings& settings)
+    {
+        return std::make_shared<OrthographicCamera>(settings);
     }
 }

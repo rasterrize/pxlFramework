@@ -18,7 +18,7 @@ namespace TestApp
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        s_Camera = pxl::PerspectiveCamera::Create({
+        s_Camera = pxl::Camera::CreatePerspective({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 0.01f,

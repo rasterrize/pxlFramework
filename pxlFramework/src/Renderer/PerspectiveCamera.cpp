@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraSettings& settings)
+    PerspectiveCamera::PerspectiveCamera(const PerspectiveSettings& settings)
         : m_Settings(settings)
     {
         RecalculateProjection();
@@ -29,19 +29,5 @@ namespace pxl
         PXL_PROFILE_SCOPE;
         
         m_ProjectionMatrix = glm::perspective(glm::radians(m_Settings.FOV), m_Settings.AspectRatio, m_Settings.NearClip, m_Settings.FarClip);
-    }
-
-    std::shared_ptr<PerspectiveCamera> PerspectiveCamera::Create(const PerspectiveCameraSettings& settings)
-    {
-        auto camera = std::make_shared<PerspectiveCamera>(settings);
-
-        PXL_ASSERT(camera);
-
-        camera->m_Handle = camera;
-        
-        // Add camera to pool of cameras
-        Add(camera);
-
-        return camera;
     }
 }

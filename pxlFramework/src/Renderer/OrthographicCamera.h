@@ -4,20 +4,11 @@
 
 namespace pxl
 {
-    struct OrthographicCameraSettings
-    {
-        float AspectRatio;
-        float NearClip;
-        float FarClip;
-        float Zoom;
-        float Left, Right, Bottom, Top;
-        bool UseAspectRatio;
-    };
-
     class OrthographicCamera : public Camera
     {
     public:
-        OrthographicCamera(const OrthographicCameraSettings& settings);
+        OrthographicCamera(const OrthographicSettings& settings);
+        virtual ~OrthographicCamera() = default;
 
         virtual void Update() override;
 
@@ -58,8 +49,6 @@ namespace pxl
             RecalculateProjection();
         }
 
-        static std::shared_ptr<OrthographicCamera> Create(const OrthographicCameraSettings& settings);
-
     protected:
         virtual void RecalculateProjection() override;
 
@@ -68,6 +57,6 @@ namespace pxl
         void RecalculateSidesWithAspectRatio();
 
     private:
-        OrthographicCameraSettings m_Settings = {};
+        OrthographicSettings m_Settings = {};
     };
 }

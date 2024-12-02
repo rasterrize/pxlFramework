@@ -20,7 +20,7 @@ namespace TestApp
         pxl::Renderer::Init(s_Window);
         pxl::Input::Init(s_Window);
 
-        s_Camera = pxl::PerspectiveCamera::Create({
+        s_Camera = pxl::Camera::CreatePerspective({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 0.1f,

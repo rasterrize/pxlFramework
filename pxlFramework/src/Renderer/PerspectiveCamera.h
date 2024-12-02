@@ -4,18 +4,13 @@
 
 namespace pxl
 {
-    struct PerspectiveCameraSettings
-    {
-        float FOV;
-        float AspectRatio;
-        float NearClip;
-        float FarClip;
-    };
-
     class PerspectiveCamera : public Camera
     {
     public:
-        PerspectiveCamera(const PerspectiveCameraSettings& settings);
+        PerspectiveCamera(const PerspectiveSettings& settings);
+        virtual ~PerspectiveCamera() = default;
+
+        virtual void Update() override;
 
         void SetFOV(float fov)
         {
@@ -31,14 +26,10 @@ namespace pxl
         }
         float GetAspectRatio() const { return m_Settings.AspectRatio; }
 
-        virtual void Update() override;
-
-        static std::shared_ptr<PerspectiveCamera> Create(const PerspectiveCameraSettings& settings);
-
     protected:
         virtual void RecalculateProjection() override;
 
     private:
-        PerspectiveCameraSettings m_Settings = {};
+        PerspectiveSettings m_Settings = {};
     };
 }
