@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.10.0)
 project(TestApp VERSION 0.0.1 LANGUAGES CXX)
 
 add_executable(TestApp
