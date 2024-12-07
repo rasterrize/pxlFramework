@@ -53,7 +53,7 @@ namespace pxl
         /// @return The camera
         static std::shared_ptr<PerspectiveCamera> CreatePerspective(const PerspectiveSettings& settings);
 
-        /// @brief Create and return a new Orthograp=hicCamera
+        /// @brief Create and return a new OrthographicCamera
         /// @param settings Orthographic camera settings
         /// @return The camera
         static std::shared_ptr<OrthographicCamera> CreateOrthographic(const OrthographicSettings& settings);
