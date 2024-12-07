@@ -12,20 +12,20 @@ namespace pxl
 
     struct PerspectiveSettings
     {
-        float FOV;
-        float AspectRatio;
-        float NearClip;
-        float FarClip;
+        float FOV = 60.0f;
+        float AspectRatio = 16.0f / 9.0f;
+        float NearClip = 0.001f;
+        float FarClip = 1000.0f;
     };
 
     struct OrthographicSettings
     {
-        float AspectRatio;
-        float NearClip;
-        float FarClip;
-        float Zoom;
+        float AspectRatio = 16.0f / 9.0f;
+        float NearClip = -1.0f;
+        float FarClip = 1.0f;
+        float Zoom = 0.0f;
         float Left, Right, Bottom, Top;
-        bool UseAspectRatio;
+        bool UseAspectRatio = true;
     };
 
     class Camera
