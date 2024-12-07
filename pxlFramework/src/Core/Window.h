@@ -12,7 +12,7 @@
 
 namespace pxl
 {
-    static constexpr Size2D k_DefaultWindowSize = { 640, 480 };
+    static constexpr Size2D k_DefaultWindowSize = { 1280, 720 };
     static constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
 
     enum class WindowMode
@@ -26,22 +26,37 @@ namespace pxl
     {
         uint8_t Index = 1; // refers to the operating system's ID for the monitor
         std::string Name;
-        std::vector<GLFWvidmode> VideoModes;
+        glm::ivec2 Position;
+        std::vector<GLFWvidmode> VideoModes; // TODO: GLFWvidmode* ?
         bool IsPrimary = false;
         GLFWmonitor* GLFWMonitor = nullptr;
 
         const GLFWvidmode* GetCurrentVideoMode() const { return glfwGetVideoMode(GLFWMonitor); }
+        Size2D GetCurrentSize() const { return { static_cast<uint32_t>(GetCurrentVideoMode()->width), static_cast<uint32_t>(GetCurrentVideoMode()->height) }; }
     };
 
     struct WindowSpecs
     {
+        // The title of the window (appears top left of window).
         std::string Title = std::string(k_DefaultWindowTitle);
+
+        // The size of the window in screen coordinates. Used for all window modes. If not specified, defaults to k_DefaultWindowSize.
         Size2D Size = k_DefaultWindowSize;
-        glm::ivec2 Position = { 0.0f, 0.0f };
+
+        // The position of the window. Only used for Windowed mode. If not supplied, defaults to the center of Monitor.
+        std::optional<glm::ivec2> Position;
+
+        // The window mode of the window. Defaults to Windowed.
         WindowMode WindowMode = WindowMode::Windowed;
+
+        // The renderer api this window will support. Defaults to None.
         RendererAPIType RendererAPI = RendererAPIType::None;
+
+        // The monitor to use for Borderless and Fullscreen modes. If not supplied, defaults the monitor the window is on.
+        std::optional<uint8_t> MonitorIndex;
+
+        // The path to load an icon from for this window. If not supplied, the window will have no icon.
         std::optional<std::string> IconPath;
-        std::optional<Monitor> Monitor;
     };
 
     class Window
@@ -101,11 +116,9 @@ namespace pxl
         void SetResizeCallback(const std::function<void(Size2D newSize)>& callback) { m_UserResizeCallback = callback; }
         void SetFileDropCallback(const std::function<void(std::vector<std::string>)>& callback) { m_UserFileDropCallback = callback; }
 
-        static const std::vector<Monitor>& GetMonitors()
-        {
-            UpdateMonitors();
-            return s_Monitors;
-        }
+        const Monitor& GetMonitor() { return s_Monitors[m_CurrentMonitorIndex - 1]; } // OS monitor index
+
+        static const std::vector<Monitor>& GetAvailableMonitors() { return s_Monitors; }
 
         static const Monitor& GetPrimaryMonitor();
 
@@ -122,8 +135,7 @@ namespace pxl
 
         void UpdateAspectRatio() { m_AspectRatio = static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
 
-        // TODO: Change this to retrieve custom Monitor object
-        GLFWmonitor* GetPositionRelativeGLFWMonitor();
+        const Monitor& GetPositionRelativeMonitor();
 
         void SetGLFWCallbacks();
         static void SetStaticGLFWCallbacks();
@@ -153,26 +165,34 @@ namespace pxl
         std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
         std::weak_ptr<Window> m_Handle;
 
+        // The current size of the window
         Size2D m_Size = k_DefaultWindowSize;
+
+        // The current position of the window
         glm::ivec2 m_Position = { 0, 0 };
+
         std::string m_Title = std::string(k_DefaultWindowTitle);
         WindowMode m_WindowMode = WindowMode::Windowed;
         RendererAPIType m_RendererAPI = RendererAPIType::None;
         bool m_Minimized = false;
         float m_AspectRatio = 16.0f / 9.0f;
 
-        // TODO:
-        Monitor m_CurrentMonitor;
+        // The size and position of the window when it was in windowed mode
+        glm::ivec2 m_LastWindowedPosition = { 0, 0 };
+        Size2D m_LastWindowedSize = k_DefaultWindowSize;
+
+        // OS monitor index
+        uint8_t m_CurrentMonitorIndex = 1;
 
         // User callbacks
         std::function<void(Size2D)> m_UserResizeCallback;
         std::function<void(const std::vector<std::string>&)> m_UserFileDropCallback = nullptr;
 
-        Size2D m_LastWindowedSize = k_DefaultWindowSize; // TODO: make these change when the window size changes via user resize | also I think these might be unnecessary since GLFW stores the previous window size
-
+        // Storage of all windows and monitors
         static inline std::vector<std::shared_ptr<Window>> s_Windows;
         static inline std::vector<Monitor> s_Monitors;
 
+        // The function to process window events every frame
         static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;
     };
 }

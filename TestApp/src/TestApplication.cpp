@@ -52,19 +52,6 @@ namespace TestApp
         m_OnStartFunc(windowSpecs);
     }
 
-    TestApplication::~TestApplication()
-    {
-#if SAVEFRAMEWORKSETTINGS
-        // Save framework settings // TODO: this should be automatically handled by the application class
-        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
-
-        frameworkSettings.WindowMode = pxl::WindowMode::Windowed;
-        frameworkSettings.RendererAPI = pxl::Renderer::GetCurrentAPI();
-
-        pxl::FrameworkConfig::SetSettings(frameworkSettings);
-#endif
-    }
-
     void TestApplication::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
@@ -111,5 +98,22 @@ namespace TestApp
         ImGui::End();
 
         m_OnGUIRenderFunc();
+    }
+
+    void TestApplication::OnClose()
+    {
+        auto window = m_GetWindowFunc();
+
+        if (window)
+        {
+            // Save framework settings
+            // NOTE: Using auto here causes the settings to be stored as value
+            pxl::FrameworkSettings& frameworkSettings = pxl::FrameworkConfig::GetSettings();
+            frameworkSettings.RendererAPI = pxl::Renderer::GetCurrentAPI();
+            frameworkSettings.WindowMode = window->GetWindowMode();
+            frameworkSettings.VSync = window->GetGraphicsContext()->GetVSync();
+        }
+
+        m_OnCloseFunc();
     }
 }

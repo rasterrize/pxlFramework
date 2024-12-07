@@ -14,13 +14,55 @@ namespace pxl
     static constexpr uint8_t k_MaxWindowCount = 5;
 
     Window::Window(const WindowSpecs& specs)
-        : m_Title(specs.Title), m_Size(specs.Size), m_Position(specs.Position), m_WindowMode(specs.WindowMode), m_RendererAPI(specs.RendererAPI)
+        : m_Title(specs.Title), m_Size(specs.Size), m_WindowMode(specs.WindowMode), m_RendererAPI(specs.RendererAPI)
     {
+        if (!Initialized)
+            Window::Init();
+
+        if (m_WindowMode == WindowMode::Windowed)
+        {
+            // If the position is specified, use it, otherwise set to the middle of primary monitor
+            if (specs.Position.has_value())
+            {
+                m_Position = specs.Position.value();
+                m_CurrentMonitorIndex = GetPositionRelativeMonitor().Index;
+            }
+            else
+            {
+                m_CurrentMonitorIndex = GetPrimaryMonitor().Index;
+                auto vidMode = GetPrimaryMonitor().GetCurrentVideoMode();
+                m_Position = { vidMode->width / 2 - m_Size.Width / 2, vidMode->height / 2 - m_Size.Height / 2 };
+            }
+
+            // Initialize these to correct values
+            m_LastWindowedPosition = m_Position;
+            m_LastWindowedSize = m_Size;
+        }
+
+        if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
+        {
+            // If monitor index is specified, use it, otherwise use the primary monitor
+            m_CurrentMonitorIndex = specs.MonitorIndex.has_value() ? specs.MonitorIndex.value() : GetPrimaryMonitor().Index;
+
+            // Set position to top left of specified monitor
+            m_Position = GetMonitor().Position;
+
+            // Force size to monitor size (this is necessary for Borderless to be fullscreen)
+            m_Size = GetMonitor().GetCurrentSize();
+        }
+
+        // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
+        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? GetMonitor().GLFWMonitor : nullptr;
+
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
 
         // Hide the window on creation as we will still need to prepare it
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
+        // Set window position on creation
+        glfwWindowHint(GLFW_POSITION_X, m_Position.x);
+        glfwWindowHint(GLFW_POSITION_Y, m_Position.y);
 
         // Set window hints based on renderer api
         switch (specs.RendererAPI)
@@ -47,17 +89,11 @@ namespace pxl
                 break;
         }
 
-        m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), nullptr, nullptr);
+        m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), glfwMonitor, nullptr);
 
         PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", m_Title);
 
         PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", m_Title, m_Size.Width, m_Size.Height);
-
-        // TODO: set window mode and monitor that was provided
-        // TODO: use window hints to simplify this process, for eg. Position
-        // Set window to the center of the display
-        auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // TODO: allow the monitor to be specified be window creation.
-        SetPosition(vidMode->width / 2 - m_Size.Width / 2, vidMode->height / 2 - m_Size.Height / 2);
 
         // Set icon if supplied
         if (specs.IconPath.has_value())
@@ -126,28 +162,26 @@ namespace pxl
         glfwSetMonitorCallback(MonitorCallback);
     }
 
-    GLFWmonitor* Window::GetPositionRelativeGLFWMonitor()
+    const Monitor& Window::GetPositionRelativeMonitor()
     {
         auto windowCenterX = m_Position.x + static_cast<int32_t>(m_Size.Width / 2);
         auto windowCenterY = m_Position.y + static_cast<int32_t>(m_Size.Height / 2);
 
-        for (size_t i = 0; i < s_Monitors.size(); i++)
+        for (const auto& monitor : s_Monitors)
         {
-            int monitorX, monitorY;
-            int monitorWidth, monitorHeight;
-            glfwGetMonitorWorkarea(s_Monitors[i].GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
+            auto vidmode = monitor.GetCurrentVideoMode();
 
-            auto left = monitorX;
-            auto right = monitorX + monitorWidth;
-            auto top = monitorY;
-            auto bottom = monitorY + monitorHeight;
+            auto left = monitor.Position.x;
+            auto right = monitor.Position.x + vidmode->width;
+            auto top = monitor.Position.y;
+            auto bottom = monitor.Position.y + vidmode->height;
 
             if ((windowCenterX >= left && windowCenterX < right) && (windowCenterY >= top && windowCenterY < bottom))
-                return s_Monitors[i].GLFWMonitor;
+                return monitor;
         }
 
         PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor, returning primary monitor");
-        return glfwGetPrimaryMonitor();
+        return GetPrimaryMonitor();
     }
 
     void Window::SetSize(uint32_t width, uint32_t height)
@@ -168,9 +202,7 @@ namespace pxl
 
     void Window::SetPosition(int32_t xpos, int32_t ypos)
     {
-        // TODO: check if the position is inbounds and maybe check monitor properties before setting windows pos
-        // TODO: test this function to see how it behaves with odd values
-
+        // This function doesn't handle setting the window in out of bounds areas.
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
 
         PXL_LOG_INFO(LogArea::Window, "Manually set window position to {}, {}", xpos, ypos);
@@ -181,11 +213,11 @@ namespace pxl
         if (mode == m_WindowMode)
             return;
 
-        auto currentMonitor = GetPositionRelativeGLFWMonitor();
-        const GLFWvidmode* vidmode = glfwGetVideoMode(currentMonitor);
+        auto currentMonitor = GetPositionRelativeMonitor();
+        const GLFWvidmode* vidmode = currentMonitor.GetCurrentVideoMode();
 
         int monitorX, monitorY, monitorWidth, monitorHeight;
-        glfwGetMonitorWorkarea(currentMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
+        glfwGetMonitorWorkarea(currentMonitor.GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
         switch (mode)
         {
@@ -193,8 +225,7 @@ namespace pxl
                 m_WindowMode = WindowMode::Windowed;
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_TRUE);
-                // TODO: Set to window pos and size before window was fullscreen
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX + (vidmode->width / 2) - (m_LastWindowedSize.Width / 2), monitorY + (vidmode->height / 2) - (m_LastWindowedSize.Height / 2), m_LastWindowedSize.Width, m_LastWindowedSize.Height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, m_LastWindowedPosition.x, m_LastWindowedPosition.y, m_LastWindowedSize.Width, m_LastWindowedSize.Height, GLFW_DONT_CARE);
                 break;
 
             case WindowMode::Borderless:
@@ -210,7 +241,7 @@ namespace pxl
 
             case WindowMode::Fullscreen:
                 m_WindowMode = WindowMode::Fullscreen;
-                glfwSetWindowMonitor(m_GLFWWindow, currentMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, currentMonitor.GLFWMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
                 break;
         }
 
@@ -224,13 +255,6 @@ namespace pxl
 
     void Window::SetMonitor(const Monitor& monitor)
     {
-        // TODO: remove?
-        if (!monitor.GLFWMonitor)
-        {
-            PXL_LOG_WARN(LogArea::Window, "Can't set specified monitor for window '{}', Monitor doesn't exist", m_Title);
-            return;
-        }
-
         // Get the current video mode of the specified monitor
         auto vidmode = monitor.GetCurrentVideoMode();
 
@@ -240,6 +264,7 @@ namespace pxl
         switch (m_WindowMode)
         {
             case WindowMode::Windowed:
+                // Set window to the center of the specified monitor
                 SetPosition(nextMonX + (vidmode->width / 2) - (m_Size.Width / 2), nextMonY + (vidmode->height / 2) - (m_Size.Height / 2));
                 break;
             case WindowMode::Borderless:
@@ -359,6 +384,9 @@ namespace pxl
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
+        if (windowInstance->m_WindowMode == WindowMode::Windowed)
+            windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+
         if (width == 0 && height == 0)
             return;
 
@@ -432,6 +460,9 @@ namespace pxl
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
+        if (windowInstance->m_WindowMode == WindowMode::Windowed)
+            windowInstance->m_LastWindowedPosition = { xpos, ypos };
+
         windowInstance->m_Position.x = xpos;
         windowInstance->m_Position.y = ypos;
     }
@@ -496,16 +527,17 @@ namespace pxl
         for (uint8_t i = 0; i < monitorCount; i++)
         {
             Monitor monitor;
-            monitor.Name = glfwGetMonitorName(glfwMonitors[i]);
-            monitor.Index = i + 1;
             monitor.GLFWMonitor = glfwMonitors[i];
+            monitor.Index = i + 1;
+            monitor.Name = glfwGetMonitorName(glfwMonitors[i]);
+            glfwGetMonitorPos(glfwMonitors[i], &monitor.Position.x, &monitor.Position.y);
 
             int vidModeCount = 0;
             auto vidModes = glfwGetVideoModes(glfwMonitors[i], &vidModeCount);
 
             monitor.VideoModes.insert(monitor.VideoModes.end(), &vidModes[0], &vidModes[vidModeCount]);
 
-            monitor.IsPrimary = monitor.GLFWMonitor == glfwGetPrimaryMonitor() ? true : false;
+            monitor.IsPrimary = monitor.GLFWMonitor == glfwGetPrimaryMonitor();
 
             s_Monitors.push_back(monitor);
         }
