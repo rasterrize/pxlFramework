@@ -83,6 +83,8 @@ namespace pxl
 
         PXL_LOG_INFO(LogArea::Core, "Application closing...");
 
+        OnClose();
+
         GUI::Shutdown();
         Renderer::Shutdown();
         Input::Shutdown();

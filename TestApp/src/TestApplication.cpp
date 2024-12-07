@@ -47,6 +47,7 @@ namespace TestApp
         m_OnUpdateFunc = TEST_NAME::OnUpdate;
         m_OnRenderFunc = TEST_NAME::OnRender;
         m_OnGUIRenderFunc = TEST_NAME::OnGUIRender;
+        m_OnCloseFunc = TEST_NAME::OnClose;
 
         m_OnStartFunc(windowSpecs);
     }

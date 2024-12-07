@@ -21,6 +21,7 @@ namespace pxl
         virtual void OnUpdate(float dt) = 0;
         virtual void OnRender() = 0;
         virtual void OnGUIRender() = 0;
+        virtual void OnClose() = 0;
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 
