@@ -421,6 +421,12 @@ namespace pxl
         for (uint32_t i = 0; i < s_Limits.MaxTextureUnits; i++)
             s_Samplers[i] = i;
 
+        // Set default cameras
+        s_QuadCamera = pxl::Camera::Create(OrthographicSettings());
+        s_CubeCamera = pxl::Camera::Create(PerspectiveSettings());
+        s_LineCamera = pxl::Camera::Create(PerspectiveSettings());
+        // s_MeshCamera = pxl::Camera::CreatePerspective({});
+
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
 
         s_Enabled = true;

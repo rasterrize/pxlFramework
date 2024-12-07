@@ -71,8 +71,18 @@ namespace pxl
         return std::make_shared<PerspectiveCamera>(settings);
     }
 
+    std::shared_ptr<Camera> Camera::Create(const PerspectiveSettings& settings)
+    {
+        return CreatePerspective(settings);
+    }
+
     std::shared_ptr<OrthographicCamera> Camera::CreateOrthographic(const OrthographicSettings& settings)
     {
         return std::make_shared<OrthographicCamera>(settings);
+    }
+
+    std::shared_ptr<Camera> Camera::Create(const OrthographicSettings& settings)
+    {
+        return CreateOrthographic(settings);
     }
 }
