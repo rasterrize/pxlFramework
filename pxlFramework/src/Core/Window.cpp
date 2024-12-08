@@ -278,20 +278,9 @@ namespace pxl
 
     void Window::NextWindowMode()
     {
-        switch (m_WindowMode)
-        {
-            case WindowMode::Windowed:
-                SetWindowMode(WindowMode::Borderless);
-                return;
-
-            case WindowMode::Borderless:
-                SetWindowMode(WindowMode::Fullscreen);
-                return;
-
-            case WindowMode::Fullscreen:
-                SetWindowMode(WindowMode::Windowed);
-                return;
-        }
+        auto nextMode = static_cast<uint32_t>(m_WindowMode) + 1;
+        auto lastMode = static_cast<uint32_t>(WindowMode::Fullscreen);
+        SetWindowMode(static_cast<WindowMode>(nextMode % ++lastMode));
     }
 
     void Window::ToggleFullscreen()
