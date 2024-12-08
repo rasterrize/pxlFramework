@@ -9,7 +9,7 @@ namespace TestApp
     {
         windowSpecs.RendererAPI = pxl::RendererAPIType::None;
         windowSpecs.Title = "pxlFramework Test App - Window Test - Window A";
-        windowSpecs.Size = { 1280, 720 };
+        windowSpecs.WindowMode = pxl::WindowMode::Windowed;
         s_TestWindowA = pxl::Window::Create(windowSpecs);
 
         windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
@@ -32,11 +32,14 @@ namespace TestApp
             return;
         }
 
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+            s_TestWindowB->NextWindowMode();
+
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
             s_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
-            s_TestWindowA->SetMonitor(pxl::Window::GetMonitors()[1]);
+            s_TestWindowA->SetMonitor(1);
     }
 
     void WindowTest::OnRender()
