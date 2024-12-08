@@ -24,6 +24,10 @@ namespace TestApp
     static pxl::Quad s_TexturedDynamicQuad;
     static pxl::Quad s_CursorQuad;
 
+    static pxl::Quad* selectedQuad = nullptr;
+
+    static std::vector<pxl::Quad*> quads;
+
     static glm::vec2 s_CursorPosition = glm::vec2(0.0f);
 
     void QuadsTest::OnStart(pxl::WindowSpecs& windowSpecs)
@@ -107,13 +111,15 @@ namespace TestApp
         };
         // clang-format on
 
-        pxl::Renderer::AddStaticQuad(s_StaticQuad);
+        quads.push_back(&s_StaticQuad);
+        quads.push_back(&s_TexturedStaticQuad);
+        quads.push_back(&s_DynamicQuad);
+        quads.push_back(&s_TexturedDynamicQuad);
 
+        pxl::Renderer::AddStaticQuad(s_StaticQuad);
         pxl::Renderer::AddStaticQuad(s_TexturedStaticQuad);
 
         pxl::Renderer::StaticGeometryReady();
-
-        //pxl::Input::SetCursorVisibility(false);
     }
 
     void QuadsTest::OnUpdate(float dt)
@@ -160,13 +166,21 @@ namespace TestApp
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_5))
             s_DynamicQuad.Origin = pxl::Origin2D::Center;
 
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_T))
+            s_Window->SetPosition(200, -2000);
+
         if (pxl::Input::IsMouseButtonPressed(pxl::MouseCode::PXL_MOUSE_BUTTON_LEFT))
         {
-            if (s_DynamicQuad.Contains(s_CursorPosition))
-                APP_LOG_INFO("Dynamic quad pressed!");
-
-            if (s_TexturedDynamicQuad.Contains(s_CursorPosition))
-                APP_LOG_INFO("Textured dynamic quad pressed!");
+            bool foundQuad = false;
+            for (auto quad : quads)
+            {
+                if (quad->Contains(s_CursorPosition))
+                {
+                    selectedQuad = quad;
+                    foundQuad = true;
+                    break;
+                }
+            }
         }
 
         s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
@@ -184,30 +198,27 @@ namespace TestApp
         // Draw cursor quad
         // NOTE: this must be done last for transparency to work
         pxl::Renderer::AddQuad(s_CursorQuad);
-
-        // for (uint32_t x = 0; x < s_BlueQuadAmount; x += 2)
-        // {
-        //     for (uint32_t y = 0; y < s_BlueQuadAmount; y += 2)
-        //     {
-        //         pxl::Renderer::AddQuad({ x - (s_BlueQuadAmount / 2.0f), y - (s_BlueQuadAmount / 2.0f), 1.0f }, glm::vec3(0.0f), glm::vec2(1.0f), { 0.4f, 0.4f, 0.7f, 1.0f });
-        //     }
-        // }
-
-        //pxl::Renderer::AddQuad({ -0.5f, -0.5f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), { 1.0f, 0.5f, 0.3f, 1.0f });
-        //pxl::Renderer::AddQuad({ 2.0f, 2.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(0.5f), { 1.0f, 0.5f, 0.3f, 1.0f });
-        // pxl::Renderer::AddTexturedQuad({ 0.0f, 0.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), s_StoneTexture);
-        // pxl::Renderer::AddTexturedQuad({ 2.0f, 2.0f, 0.0f }, glm::vec3(0.0f), glm::vec3(1.0f), s_StoneTexture);
-
-        //pxl::Renderer::AddQuad(glm::vec3(0.0f));
     }
 
     void QuadsTest::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
 
-        ImGui::Begin("QuadsTest");
-        ImGui::Text("Cursor Position: %f, %f", s_CursorPosition.x, s_CursorPosition.y);
-        ImGui::End();
+        ImGui::ShowDemoWindow();
+
+        if (selectedQuad)
+        {
+            static ImVec2 pos = { 400, 200 };
+            ImGui::SetNextWindowPos(pos);
+            ImGui::Begin("Quad Settings");
+
+            ImGui::DragFloat3("Position", glm::value_ptr(selectedQuad->Position));
+            ImGui::DragFloat3("Rotation", glm::value_ptr(selectedQuad->Rotation));
+            ImGui::DragFloat2("Size", glm::value_ptr(selectedQuad->Size));
+            ImGui::ColorEdit4("Colour", glm::value_ptr(selectedQuad->Colour));
+
+            ImGui::End();
+        }
     }
 
     void QuadsTest::OnClose()
