@@ -154,6 +154,11 @@ namespace TestApp
     {
     }
 
+    std::shared_ptr<pxl::Window> ModelViewer::GetWindow()
+    {
+        return s_Window;
+    }
+
     void ModelViewer::OnFileDrop(const std::vector<std::string>& paths)
     {
         LoadMesh(paths.at(0));
@@ -162,7 +167,7 @@ namespace TestApp
     void ModelViewer::LoadMesh(const std::filesystem::path& path)
     {
         auto extension = path.extension();
-        
+
         std::vector<std::filesystem::path> supportedExtensions = {
             ".obj", ".fbx", ".gltf", ".glb"
         };

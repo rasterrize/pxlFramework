@@ -332,4 +332,9 @@ namespace TestApp
     void CubesTest::OnClose()
     {
     }
+
+    std::shared_ptr<pxl::Window> CubesTest::GetWindow()
+    {
+        return s_Window;
+    }
 }

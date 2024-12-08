@@ -213,4 +213,9 @@ namespace TestApp
     void QuadsTest::OnClose()
     {
     }
+
+    std::shared_ptr<pxl::Window> QuadsTest::GetWindow()
+    {
+        return s_Window;
+    }
 }

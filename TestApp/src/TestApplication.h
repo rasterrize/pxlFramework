@@ -19,5 +19,6 @@ namespace TestApp
         std::function<void()> m_OnRenderFunc = nullptr;
         std::function<void()> m_OnGUIRenderFunc = nullptr;
         std::function<void()> m_OnCloseFunc = nullptr;
+        std::function<std::shared_ptr<pxl::Window>()> m_GetWindowFunc = nullptr;
     };
 }

@@ -126,4 +126,9 @@ namespace TestApp
     void LinesTest::OnClose()
     {
     }
+    
+    std::shared_ptr<pxl::Window> LinesTest::GetWindow()
+    {
+        return s_Window;
+    }
 }

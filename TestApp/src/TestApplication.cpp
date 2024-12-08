@@ -48,6 +48,7 @@ namespace TestApp
         m_OnRenderFunc = TEST_NAME::OnRender;
         m_OnGUIRenderFunc = TEST_NAME::OnGUIRender;
         m_OnCloseFunc = TEST_NAME::OnClose;
+        m_GetWindowFunc = TEST_NAME::GetWindow;
 
         m_OnStartFunc(windowSpecs);
     }

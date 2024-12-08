@@ -141,4 +141,9 @@ namespace TestApp
     void OGLVK::OnClose()
     {
     }
+
+    std::shared_ptr<pxl::Window> OGLVK::GetWindow()
+    {
+        return s_Window;
+    }
 }

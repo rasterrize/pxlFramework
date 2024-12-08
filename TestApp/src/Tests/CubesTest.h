@@ -12,5 +12,6 @@ namespace TestApp
         static void OnUpdate(float dt);
         static void OnRender();
         static void OnGUIRender();
+        static std::shared_ptr<pxl::Window> GetWindow();
     };
 }
