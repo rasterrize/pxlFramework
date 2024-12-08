@@ -7,6 +7,8 @@ namespace pxl
     /// @brief A 2D uint vector represented as width and height
     struct Size2D
     {
+        Size2D() = default;
+
         constexpr Size2D(uint32_t width, uint32_t height)
             : Width(width), Height(height)
         {
@@ -35,6 +37,8 @@ namespace pxl
     /// @brief A 3D uint vector represented as width, height, and depth
     struct Size3D
     {
+        Size3D() = default;
+
         constexpr Size3D(uint32_t width, uint32_t height, uint32_t depth)
             : Width(width), Height(height), Depth(depth)
         {
