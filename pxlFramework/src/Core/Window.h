@@ -154,7 +154,8 @@ namespace pxl
 
         friend class Application; // for below functions
         static void Init();
-        static void ProcessEvents() { s_EventProcessFunc(); }
+        static bool IsInitialized() { return Initialized; }
+        static void ProcessEvents() { if (!Initialized) { return; } s_EventProcessFunc(); }
         static void UpdateAll();
         static void Shutdown();
 
@@ -187,6 +188,8 @@ namespace pxl
         // User callbacks
         std::function<void(Size2D)> m_UserResizeCallback;
         std::function<void(const std::vector<std::string>&)> m_UserFileDropCallback = nullptr;
+
+        static inline bool Initialized = false;
 
         // Storage of all windows and monitors
         static inline std::vector<std::shared_ptr<Window>> s_Windows;

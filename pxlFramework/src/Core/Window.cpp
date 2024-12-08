@@ -506,13 +506,15 @@ namespace pxl
         SetStaticGLFWCallbacks();
 
         UpdateMonitors();
+
+        Initialized = true;
     }
 
     void Window::UpdateAll()
     {
         PXL_PROFILE_SCOPE;
 
-        if (s_Windows.empty())
+        if (!Initialized || s_Windows.empty())
             return;
 
         for (const auto& window : s_Windows)

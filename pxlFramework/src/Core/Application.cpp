@@ -24,7 +24,6 @@ namespace pxl
         PXL_INIT_LOGGING;
 
         FrameworkConfig::Init();
-        Window::Init();
     }
 
     Application::~Application()
