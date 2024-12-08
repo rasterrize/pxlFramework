@@ -121,6 +121,8 @@ namespace pxl
             // TODO: recreate all resources used for the renderer if the renderer api has changed
         }
 
+        PXL_ASSERT_MSG(window->GetGraphicsContext(), "Window has no graphics context for renderer");
+
         s_ContextHandle = window->GetGraphicsContext();
         s_RendererAPIType = window->GetRendererAPI();
 
