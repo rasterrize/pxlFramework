@@ -37,6 +37,11 @@
 // Debug
 #include <imgui.h> // so applications can use ImGui functions
 
+// NOTE: For now we provide glm to the user, since it's the only math library we use.
+// In the future this could be a custom math library.
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "../src/Debug/GUI/GUI.h"
 #include "../src/Debug/Profiler.h"
 
