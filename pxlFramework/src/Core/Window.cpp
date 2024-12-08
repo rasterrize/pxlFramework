@@ -470,14 +470,11 @@ namespace pxl
         }
     }
 
-    void Window::MonitorCallback([[maybe_unused]] GLFWmonitor* monitor, int event)
+    void Window::MonitorCallback([[maybe_unused]] GLFWmonitor* monitor, [[maybe_unused]] int event)
     {
-        if (event == GLFW_CONNECTED || event == GLFW_DISCONNECTED)
-        {
-            // TODO: Dynamically add and remove the specified monitor from s_Monitors
-        }
-
         UpdateMonitors();
+
+        // TODO: Update all windows current index since they will likely be incorrect after monitor change.
     }
 
     void Window::Init()
