@@ -31,7 +31,7 @@ namespace pxl
             {
                 m_CurrentMonitorIndex = GetPrimaryMonitor().Index;
                 auto vidMode = GetPrimaryMonitor().GetCurrentVideoMode();
-                m_Position = { vidMode->width / 2 - m_Size.Width / 2, vidMode->height / 2 - m_Size.Height / 2 };
+                m_Position = { vidMode.Width / 2 - m_Size.Width / 2, vidMode.Height / 2 - m_Size.Height / 2 };
             }
 
             // Initialize these to correct values
@@ -48,7 +48,7 @@ namespace pxl
             m_Position = GetMonitor().Position;
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = GetMonitor().GetCurrentSize();
+            m_Size = GetMonitor().GetCurrentVideoMode().GetSize();
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
@@ -172,9 +172,9 @@ namespace pxl
             auto vidmode = monitor.GetCurrentVideoMode();
 
             auto left = monitor.Position.x;
-            auto right = monitor.Position.x + vidmode->width;
+            auto right = monitor.Position.x + static_cast<int32_t>(vidmode.Width);
             auto top = monitor.Position.y;
-            auto bottom = monitor.Position.y + vidmode->height;
+            auto bottom = monitor.Position.y + static_cast<int32_t>(vidmode.Height);
 
             if ((windowCenterX >= left && windowCenterX < right) && (windowCenterY >= top && windowCenterY < bottom))
                 return monitor;
@@ -214,7 +214,7 @@ namespace pxl
             return;
 
         auto currentMonitor = GetPositionRelativeMonitor();
-        const GLFWvidmode* vidmode = currentMonitor.GetCurrentVideoMode();
+        auto vidMode = currentMonitor.GetCurrentVideoMode();
 
         int monitorX, monitorY, monitorWidth, monitorHeight;
         glfwGetMonitorWorkarea(currentMonitor.GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
@@ -236,12 +236,12 @@ namespace pxl
                 /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
                     This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
                     Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidmode->width + 1, vidmode->height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidMode.Width + 1, vidMode.Height, GLFW_DONT_CARE);
                 break;
 
             case WindowMode::Fullscreen:
                 m_WindowMode = WindowMode::Fullscreen;
-                glfwSetWindowMonitor(m_GLFWWindow, currentMonitor.GLFWMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, currentMonitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
                 break;
         }
 
@@ -256,7 +256,7 @@ namespace pxl
     void Window::SetMonitor(const Monitor& monitor)
     {
         // Get the current video mode of the specified monitor
-        auto vidmode = monitor.GetCurrentVideoMode();
+        auto vidMode = monitor.GetCurrentVideoMode();
 
         int nextMonX, nextMonY;
         glfwGetMonitorWorkarea(monitor.GLFWMonitor, &nextMonX, &nextMonY, NULL, NULL);
@@ -265,13 +265,13 @@ namespace pxl
         {
             case WindowMode::Windowed:
                 // Set window to the center of the specified monitor
-                SetPosition(nextMonX + (vidmode->width / 2) - (m_Size.Width / 2), nextMonY + (vidmode->height / 2) - (m_Size.Height / 2));
+                SetPosition(nextMonX + (vidMode.Width / 2) - (m_Size.Width / 2), nextMonY + (vidMode.Height / 2) - (m_Size.Height / 2));
                 break;
             case WindowMode::Borderless:
                 SetPosition(nextMonX, nextMonY);
                 break;
             case WindowMode::Fullscreen:
-                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
                 break;
         }
     }
@@ -521,10 +521,15 @@ namespace pxl
             monitor.Name = glfwGetMonitorName(glfwMonitors[i]);
             glfwGetMonitorPos(glfwMonitors[i], &monitor.Position.x, &monitor.Position.y);
 
-            int vidModeCount = 0;
+            int32_t widthMM, heightMM;
+            glfwGetMonitorPhysicalSize(glfwMonitors[i], &widthMM, &heightMM);
+            monitor.PhysicalSize = Size2D(static_cast<uint32_t>(widthMM), static_cast<uint32_t>(heightMM));
+
+            int32_t vidModeCount = 0;
             auto vidModes = glfwGetVideoModes(glfwMonitors[i], &vidModeCount);
 
-            monitor.VideoModes.insert(monitor.VideoModes.end(), &vidModes[0], &vidModes[vidModeCount]);
+            for (int32_t v = 0; v < vidModeCount; v++)
+                monitor.VideoModes.push_back(&vidModes[v]);
 
             monitor.IsPrimary = monitor.GLFWMonitor == glfwGetPrimaryMonitor();
 

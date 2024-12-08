@@ -22,17 +22,37 @@ namespace pxl
         Fullscreen
     };
 
+    struct VideoMode
+    {
+        VideoMode(const GLFWvidmode* glfwMode)
+        {
+            Width = glfwMode->width;
+            Height = glfwMode->height;
+            RefreshRate = glfwMode->refreshRate;
+            BitDepth = { glfwMode->redBits, glfwMode->greenBits, glfwMode->blueBits };
+            GLFWVidMode = glfwMode;
+        }
+
+        Size2D GetSize() { return { Width, Height }; }
+
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+        uint32_t RefreshRate = 0;
+        glm::ivec3 BitDepth = glm::ivec3(0);
+        const GLFWvidmode* GLFWVidMode = nullptr;
+    };
+
     struct Monitor
     {
         uint8_t Index = 1; // refers to the operating system's ID for the monitor
         std::string Name;
         glm::ivec2 Position;
-        std::vector<GLFWvidmode> VideoModes;
+        std::vector<VideoMode> VideoModes;
+        Size2D PhysicalSize;
         bool IsPrimary = false;
         GLFWmonitor* GLFWMonitor = nullptr;
 
-        const GLFWvidmode* GetCurrentVideoMode() const { return glfwGetVideoMode(GLFWMonitor); }
-        Size2D GetCurrentSize() const { return { static_cast<uint32_t>(GetCurrentVideoMode()->width), static_cast<uint32_t>(GetCurrentVideoMode()->height) }; }
+        VideoMode GetCurrentVideoMode() const { return VideoMode(glfwGetVideoMode(GLFWMonitor)); }
     };
 
     struct WindowSpecs
