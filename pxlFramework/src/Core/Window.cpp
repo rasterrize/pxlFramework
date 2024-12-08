@@ -60,7 +60,7 @@ namespace pxl
         // Hide the window on creation as we will still need to prepare it
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-        // Set window position on creation
+        // Set window position on creation (not used in fullscreen)
         glfwWindowHint(GLFW_POSITION_X, m_Position.x);
         glfwWindowHint(GLFW_POSITION_Y, m_Position.y);
 
@@ -202,7 +202,7 @@ namespace pxl
 
     void Window::SetPosition(int32_t xpos, int32_t ypos)
     {
-        // This function doesn't handle setting the window in out of bounds areas.
+        // NOTE: This function doesn't handle setting the window in out of bounds areas.
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
 
         PXL_LOG_INFO(LogArea::Window, "Manually set window position to {}, {}", xpos, ypos);
@@ -373,15 +373,15 @@ namespace pxl
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        if (windowInstance->m_WindowMode == WindowMode::Windowed)
-            windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
-
         if (width == 0 && height == 0)
             return;
 
         windowInstance->m_Size.Width = windowInstance->m_WindowMode == WindowMode::Borderless ? width - 1 : width;
         windowInstance->m_Size.Height = height;
         windowInstance->UpdateAspectRatio();
+
+        if (windowInstance->m_WindowMode == WindowMode::Windowed)
+            windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
         if (windowInstance->m_UserResizeCallback)
             windowInstance->m_UserResizeCallback({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
@@ -393,6 +393,7 @@ namespace pxl
 
         if (Renderer::IsInitialized())
         {
+            // Use windowed borderless hack
             windowInstance->m_WindowMode == WindowMode::Borderless ? Renderer::ResizeViewport(0, 0, width - 1, height)
                                                                    : Renderer::ResizeViewport(0, 0, width, height);
             Renderer::ResizeScissor(0, 0, width, height);
@@ -449,11 +450,11 @@ namespace pxl
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        if (windowInstance->m_WindowMode == WindowMode::Windowed)
-            windowInstance->m_LastWindowedPosition = { xpos, ypos };
-
         windowInstance->m_Position.x = xpos;
         windowInstance->m_Position.y = ypos;
+
+        if (windowInstance->m_WindowMode == WindowMode::Windowed)
+            windowInstance->m_LastWindowedPosition = { xpos, ypos };
     }
 
     void Window::WindowDropCallback(GLFWwindow* window, int count, const char** paths)

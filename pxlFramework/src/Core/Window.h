@@ -12,7 +12,7 @@
 
 namespace pxl
 {
-    static constexpr Size2D k_DefaultWindowSize = { 1280, 720 };
+    static constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
     static constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
 
     enum class WindowMode
@@ -27,7 +27,7 @@ namespace pxl
         uint8_t Index = 1; // refers to the operating system's ID for the monitor
         std::string Name;
         glm::ivec2 Position;
-        std::vector<GLFWvidmode> VideoModes; // TODO: GLFWvidmode* ?
+        std::vector<GLFWvidmode> VideoModes;
         bool IsPrimary = false;
         GLFWmonitor* GLFWMonitor = nullptr;
 
@@ -40,8 +40,8 @@ namespace pxl
         // The title of the window (appears top left of window).
         std::string Title = std::string(k_DefaultWindowTitle);
 
-        // The size of the window in screen coordinates. Used for all window modes. If not specified, defaults to k_DefaultWindowSize.
-        Size2D Size = k_DefaultWindowSize;
+        // The size of the window in screen coordinates. Only used for Windowed mode. If not specified, defaults to k_DefaultWindowedSize.
+        Size2D Size = k_DefaultWindowedSize;
 
         // The position of the window. Only used for Windowed mode. If not supplied, defaults to the center of Monitor.
         std::optional<glm::ivec2> Position;
@@ -167,7 +167,7 @@ namespace pxl
         std::weak_ptr<Window> m_Handle;
 
         // The current size of the window
-        Size2D m_Size = k_DefaultWindowSize;
+        Size2D m_Size = k_DefaultWindowedSize;
 
         // The current position of the window
         glm::ivec2 m_Position = { 0, 0 };
@@ -180,7 +180,7 @@ namespace pxl
 
         // The size and position of the window when it was in windowed mode
         glm::ivec2 m_LastWindowedPosition = { 0, 0 };
-        Size2D m_LastWindowedSize = k_DefaultWindowSize;
+        Size2D m_LastWindowedSize = k_DefaultWindowedSize;
 
         // OS monitor index
         uint8_t m_CurrentMonitorIndex = 1;
