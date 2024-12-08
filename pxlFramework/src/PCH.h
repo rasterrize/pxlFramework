@@ -10,7 +10,9 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
+#include <format>
 #include <functional>
 #include <map>
 #include <memory>
@@ -20,3 +22,4 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
