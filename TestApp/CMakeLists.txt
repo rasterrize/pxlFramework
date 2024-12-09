@@ -58,6 +58,3 @@ set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThread
 
 # Copy assets to the bin folder so executables can use them along with framework resources
 file(COPY assets DESTINATION "${CMAKE_BINARY_DIR}/bin")
-
-# TEMP: Currently moves the framework config to the cwd but the application should be able to create one itself in the future
-configure_file(FrameworkConfig.yaml ${CMAKE_BINARY_DIR}/bin)
