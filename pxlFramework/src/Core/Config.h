@@ -45,6 +45,7 @@ namespace pxl
     private:
         friend class Application;
         static void Init();
+        static void Shutdown();
 
     private:
         static inline FrameworkSettings s_Settings = {};

@@ -22,6 +22,12 @@ namespace pxl
             SaveToFile();
     }
 
+    void FrameworkConfig::Shutdown()
+    {
+        if (s_AutoSave)
+            SaveToFile();
+    }
+
     void FrameworkConfig::LoadFromFile()
     {
         YAML::Node config;
@@ -49,14 +55,14 @@ namespace pxl
 
     void FrameworkConfig::SaveToFile()
     {
-        YAML::Node test;
-        test["RendererAPI"] = EnumStringHelper::ToString(s_Settings.RendererAPI);
-        test["WindowMode"] = EnumStringHelper::ToString(s_Settings.WindowMode);
-        test["VSync"] = s_Settings.VSync;
+        YAML::Node saveNode;
+        saveNode["RendererAPI"] = EnumStringHelper::ToString(s_Settings.RendererAPI);
+        saveNode["WindowMode"] = EnumStringHelper::ToString(s_Settings.WindowMode);
+        saveNode["VSync"] = s_Settings.VSync;
 
         std::ofstream configFile(s_ConfigDirectory.string() + CONFIG_FILE_NAME_STRING);
 
-        configFile << test;
+        configFile << saveNode;
 
         PXL_LOG_INFO(LogArea::Core, "Saved config file");
     }

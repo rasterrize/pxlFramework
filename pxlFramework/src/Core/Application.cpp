@@ -94,10 +94,9 @@ namespace pxl
 
         OnClose();
 
-        if (FrameworkConfig::s_AutoSave)
-            FrameworkConfig::SaveToFile();
         Platform::ResetMinimumTimerResolution(1);
 
+        FrameworkConfig::Shutdown();
         GUI::Shutdown();
         Renderer::Shutdown();
         Input::Shutdown();
