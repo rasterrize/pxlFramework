@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <Windows.h>
 
 #include "Window.h"
 
@@ -11,6 +12,16 @@ namespace pxl
     {
     public:
         static double GetTime() { return glfwInit() ? glfwGetTime() : 0.0f; }
+
+        static uint64_t GetTimerFrequency() { return glfwGetTimerFrequency(); }
+
+        // NOTE: It is recommended to only use this at the start of the application run-time.
+        // Always reset the resolution at the end of the application using Platform::ResetMinimumTimerResolution()
+        // TODO: timeBeginPeriod is considered deprecated.
+        static void SetMinimumTimerResolution(uint32_t value) { timeBeginPeriod(value); }
+
+        // Always provide the same value that was used for Platform::SetMinimumTimerResolution()
+        static void ResetMinimumTimerResolution(uint32_t value) { timeEndPeriod(value); }
 
         // Will return empty strings when cancelled
         static std::string OpenFile(const std::shared_ptr<Window> window, const char* filter);

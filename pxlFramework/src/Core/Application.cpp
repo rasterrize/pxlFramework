@@ -10,6 +10,8 @@
 #include "Utils/DiscordRPC.h"
 #include "Window.h"
 
+using namespace std::literals;
+
 namespace pxl
 {
     Application::Application()
@@ -24,6 +26,9 @@ namespace pxl
         PXL_INIT_LOGGING;
 
         FrameworkConfig::Init();
+
+        // Manually set the process's timer resolution to 1ms so the FPS limiter works more accurately.
+        Platform::SetMinimumTimerResolution(1);
     }
 
     Application::~Application()
@@ -38,6 +43,7 @@ namespace pxl
         while (m_Running)
         {
             PXL_PROFILE_SCOPE;
+            m_FrameStartTime = std::chrono::steady_clock::now();
 
             float time = static_cast<float>(Platform::GetTime());
             float deltaTime = time - m_LastFrameTime;
@@ -69,6 +75,10 @@ namespace pxl
 
             Window::UpdateAll();
 
+            // Limit the frame rate by sleeping the thread
+            if (m_FPSLimit > 0)
+                LimitFPS();
+
             Renderer::s_FrameCount++;
             Renderer::CalculateFPS();
 
@@ -86,10 +96,22 @@ namespace pxl
 
         if (FrameworkConfig::s_AutoSave)
             FrameworkConfig::SaveToFile();
+        Platform::ResetMinimumTimerResolution(1);
 
         GUI::Shutdown();
         Renderer::Shutdown();
         Input::Shutdown();
         Window::Shutdown();
+    }
+
+    void Application::LimitFPS()
+    {
+        auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
+        auto us = std::chrono::microseconds(1s) / m_FPSLimit;
+        auto overhead = us - frameTime;
+
+        // TODO: Sleep() can be very inaccurate, so I need to research the modern approach for this. THANKS MICROSOFT.
+        if (overhead > 0ms)
+            Sleep(static_cast<DWORD>(overhead.count() / 1000));
     }
 }

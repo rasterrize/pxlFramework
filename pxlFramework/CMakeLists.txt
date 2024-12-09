@@ -199,6 +199,7 @@ target_link_libraries(pxlFramework
     Vulkan::Vulkan
     discordgamesdk
     Vulkan::shaderc_combined
+    Winmm.lib # For FPS limiter. I consider this temporary.
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)

@@ -24,6 +24,7 @@ namespace pxl
         virtual void OnClose() = 0;
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
+        void SetFPSLimit(uint32_t limit) { m_FPSLimit = limit; }
 
         static Application& Get()
         {
@@ -32,9 +33,14 @@ namespace pxl
         }
 
     private:
+        void LimitFPS();
+
+    private:
         bool m_Running = true;
         bool m_Minimized = false;
         float m_LastFrameTime = 0.0f;
+        std::chrono::steady_clock::time_point m_FrameStartTime;
+        uint32_t m_FPSLimit = 0;
 
         static inline Application* s_Instance = nullptr;
     };

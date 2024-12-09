@@ -72,7 +72,7 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
 
         auto rendererStats = pxl::Renderer::GetStats();
-        ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
+        //ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
         ImGui::Begin("TestApp Renderer Stats");
 
         static float elapsed = 0.0f;
@@ -95,6 +95,12 @@ namespace TestApp
 
         if (ImGui::Button("Toggle VSync"))
             pxl::Renderer::GetGraphicsContext()->ToggleVSync();
+
+        static int32_t fpsLimit = 0;
+        ImGui::InputInt("FPS Limit", &fpsLimit);
+
+        if (ImGui::Button("Set FPS Limit"))
+            SetFPSLimit(fpsLimit);
 
         ImGui::End();
 
