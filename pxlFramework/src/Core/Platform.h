@@ -23,6 +23,9 @@ namespace pxl
         // Always provide the same value that was used for Platform::SetMinimumTimerResolution()
         static void ResetMinimumTimerResolution(uint32_t value) { timeEndPeriod(value); }
 
+        static std::string GetClipboardString() { return glfwGetClipboardString(NULL); }
+        static void SetClipboardString(const std::string& string) { glfwSetClipboardString(NULL, string.c_str()); }
+
         // Will return empty strings when cancelled
         static std::string OpenFile(const std::shared_ptr<Window> window, const char* filter);
         static std::string SaveFile(const std::shared_ptr<Window> window, const char* filter);
