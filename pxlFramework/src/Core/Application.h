@@ -24,6 +24,8 @@ namespace pxl
         virtual void OnClose() = 0;
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
+
+        uint32_t GetFPSLimit() const { return m_FPSLimit; }
         void SetFPSLimit(uint32_t limit) { m_FPSLimit = limit; }
 
         static Application& Get()

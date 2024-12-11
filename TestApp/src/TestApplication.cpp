@@ -37,10 +37,12 @@ namespace TestApp
         windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType + " - Running Test '" TEST_NAME_STRING "'";
 
         pxl::WindowSpecs windowSpecs = {};
-        windowSpecs.Size = { 1600, 900 };
+        windowSpecs.Size = frameworkSettings.WindowSize;
+        windowSpecs.Position = frameworkSettings.WindowPosition;
         windowSpecs.Title = windowTitle;
         windowSpecs.RendererAPI = windowRendererAPI;
         windowSpecs.WindowMode = windowMode;
+        windowSpecs.MonitorIndex = frameworkSettings.MonitorIndex;
         windowSpecs.IconPath = "assets/pxl.png";
 
         m_OnStartFunc = TEST_NAME::OnStart;
@@ -119,6 +121,11 @@ namespace TestApp
             frameworkSettings.RendererAPI = pxl::Renderer::GetCurrentAPI();
             frameworkSettings.WindowMode = window->GetWindowMode();
             frameworkSettings.VSync = window->GetGraphicsContext()->GetVSync();
+            frameworkSettings.WindowPosition = window->GetPosition();
+            frameworkSettings.WindowSize = window->GetSize();
+            frameworkSettings.CustomFramerateCap = GetFPSLimit();
+            frameworkSettings.MonitorIndex = window->GetMonitor().Index;
+            frameworkSettings.FullscreenRefreshRate = window->GetMonitor().GetCurrentVideoMode().RefreshRate;
         }
 
         m_OnCloseFunc();

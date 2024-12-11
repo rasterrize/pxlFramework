@@ -49,6 +49,10 @@ namespace pxl
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
             m_Size = GetMonitor().GetCurrentVideoMode().GetSize();
+
+            // Ensure LastWindowedPosition is the middle of the monitor
+            auto vidMode = GetMonitor().GetCurrentVideoMode();
+            m_LastWindowedPosition = { vidMode.Width / 2 - k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - k_DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
@@ -104,6 +108,7 @@ namespace pxl
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         SetGLFWCallbacks();
+        UpdateAspectRatio();
     }
 
     void Window::Update() const
@@ -455,6 +460,8 @@ namespace pxl
 
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedPosition = { xpos, ypos };
+
+        windowInstance->m_CurrentMonitorIndex = windowInstance->GetPositionRelativeMonitor().Index;
     }
 
     void Window::WindowDropCallback(GLFWwindow* window, int count, const char** paths)

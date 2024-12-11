@@ -13,9 +13,9 @@ namespace pxl
         // Window settings
         WindowMode WindowMode = WindowMode::Windowed;
         uint32_t MonitorIndex = 1;
-        Size2D WindowSize = { 1280, 720 }; // TODO: set to Window::k_DefaultWindowedSize
-        Size2D WindowPosition = { 0, 0 };
-        float FullscreenRefreshRate = 60.0f;
+        Size2D WindowSize = k_DefaultWindowedSize;
+        glm::ivec2 WindowPosition = { 0, 0 };
+        uint32_t FullscreenRefreshRate = 0;
         bool VSync = true;
 
         // Renderer settings

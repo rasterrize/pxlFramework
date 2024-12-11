@@ -89,6 +89,7 @@ namespace pxl
         // To specify only a minimum/maximum, use -1 for width AND height of the opposite pair
         void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
 
+        const glm::ivec2& GetPosition() const { return m_Position; }
         void SetPosition(int32_t x, int32_t y);
 
         void SetWindowMode(WindowMode winMode);
