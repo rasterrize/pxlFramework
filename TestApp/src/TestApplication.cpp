@@ -9,8 +9,11 @@
 #include "Tests/QuadsTest.h"
 #include "Tests/WindowTest.h"
 
+#define STRR(X) #X
+#define STR(X) STRR(X)
+
 #define TEST_NAME ModelViewer
-#define TEST_NAME_STRING "ModelViewer" // TODO: If its possible, set this automatically using TEST_NAME
+#define TEST_NAME_STRING STR(TEST_NAME)
 
 namespace TestApp
 {
