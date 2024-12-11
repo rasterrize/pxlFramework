@@ -15,7 +15,7 @@ namespace pxl
             case RendererAPIType::OpenGL: return std::make_shared<OpenGLGraphicsPipeline>(specs, shaders);
             case RendererAPIType::Vulkan:
                 auto context = std::static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext());
-                return std::make_shared<VulkanGraphicsPipeline>(static_pointer_cast<VulkanDevice>(context->GetDevice()), specs, shaders, context->GetDefaultRenderPass());
+                return std::make_shared<VulkanGraphicsPipeline>(specs, context->GetDefaultRenderPass());
         }
 
         return nullptr;

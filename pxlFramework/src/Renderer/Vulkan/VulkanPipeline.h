@@ -24,7 +24,7 @@ namespace pxl
     class VulkanGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        VulkanGraphicsPipeline(const std::shared_ptr<VulkanDevice>& device, const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass);
+        VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::shared_ptr<VulkanRenderPass>& renderPass);
 
         virtual void Bind() override;
         virtual void Unbind() override {};
@@ -40,6 +40,8 @@ namespace pxl
         VkPipeline GetVKPipeline() const { return m_Pipeline; }
 
     private:
+        void Recreate();
+
         static VkShaderStageFlagBits ToVkShaderStage(ShaderStage stage);
         static VkPrimitiveTopology ToVkPrimitiveTopology(PrimitiveTopology topology);
         static VkPolygonMode ToVkPolygonMode(PolygonMode mode);

@@ -7,8 +7,28 @@
 
 namespace pxl
 {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::shared_ptr<VulkanDevice>& device, const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders, const std::shared_ptr<VulkanRenderPass>& renderPass)
-        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_Shaders(shaders)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::shared_ptr<VulkanRenderPass>& renderPass)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_Shaders(specs.Shaders), m_RenderPass(renderPass), m_Specs(specs)
+    {
+        Recreate();
+
+        VulkanDeletionQueue::Add([&]()
+        {
+            Destroy();
+        });
+    }
+
+    void VulkanGraphicsPipeline::Bind()
+    {
+        PXL_PROFILE_SCOPE;
+
+        m_CurrentCommandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
+
+        // Bind Pipeline
+        vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+    }
+
+    void VulkanGraphicsPipeline::Recreate()
     {
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation
 
@@ -34,8 +54,8 @@ namespace pxl
         dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicStateInfo.pDynamicStates = dynamicStates.data();
 
-        auto bindingDescription = VulkanBuffer::GetBindingDescription(specs.VertexLayout);
-        auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(specs.VertexLayout);
+        auto bindingDescription = VulkanBuffer::GetBindingDescription(m_Specs.VertexLayout);
+        auto attributeDescriptions = VulkanBuffer::GetAttributeDescriptions(m_Specs.VertexLayout);
 
         // Vertex Input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
@@ -46,7 +66,7 @@ namespace pxl
 
         // Input Assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-        inputAssemblyInfo.topology = ToVkPrimitiveTopology(specs.PrimitiveType);
+        inputAssemblyInfo.topology = ToVkPrimitiveTopology(m_Specs.PrimitiveType);
         //inputAssemblyInfo.primitiveRestartEnable = VK_FALSE; // useful for strip topology modes
 
         // Specify viewport state
@@ -56,12 +76,12 @@ namespace pxl
 
         // Rasterization
         VkPipelineRasterizationStateCreateInfo rasterizationInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-        rasterizationInfo.depthClampEnable = VK_FALSE;                      // requires enabling a gpu feature
-        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;               // disables geometry passing this stage, we don't want that
-        rasterizationInfo.polygonMode = ToVkPolygonMode(specs.PolygonMode); // Can be lines and points, but requires enabling a gpu feature
-        rasterizationInfo.lineWidth = 1.0f;                                 // 1.0f is a good default, any higher requires enabling a gpu feature
-        rasterizationInfo.cullMode = ToVkCullMode(specs.CullMode);          // specify different types of culling here
-        rasterizationInfo.frontFace = ToVkFrontFace(specs.FrontFace);       // This is counter clockwise in OpenGL
+        rasterizationInfo.depthClampEnable = VK_FALSE;                        // requires enabling a gpu feature
+        rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;                 // disables geometry passing this stage, we don't want that
+        rasterizationInfo.polygonMode = ToVkPolygonMode(m_Specs.PolygonMode); // Can be lines and points, but requires enabling a gpu feature
+        rasterizationInfo.lineWidth = 1.0f;                                   // 1.0f is a good default, any higher requires enabling a gpu feature
+        rasterizationInfo.cullMode = ToVkCullMode(m_Specs.CullMode);          // specify different types of culling here
+        rasterizationInfo.frontFace = ToVkFrontFace(m_Specs.FrontFace);       // This is counter clockwise in OpenGL
         // rasterizationInfo.depthBiasEnable = VK_FALSE;
         // rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
         // rasterizationInfo.depthBiasClamp = 0.0f; // Optional
@@ -110,11 +130,11 @@ namespace pxl
         std::vector<VkPushConstantRange> ranges;
 
         // Create push constant ranges if a pc layout has been provided
-        if (specs.PushConstantLayout.has_value())
+        if (m_Specs.PushConstantLayout.has_value())
         {
-            ranges.reserve(specs.PushConstantLayout->GetElements().size());
+            ranges.reserve(m_Specs.PushConstantLayout->GetElements().size());
 
-            for (const auto& element : specs.PushConstantLayout->GetElements())
+            for (const auto& element : m_Specs.PushConstantLayout->GetElements())
             {
                 VkPushConstantRange range = {};
                 range.stageFlags = ToVkShaderStage(element.ShaderStage);
@@ -145,27 +165,12 @@ namespace pxl
         graphicsPipelineInfo.pColorBlendState = &colorBlending;
         graphicsPipelineInfo.pDynamicState = &dynamicStateInfo;
         graphicsPipelineInfo.layout = m_Layout;
-        graphicsPipelineInfo.renderPass = renderPass->GetVKRenderPass();
-        graphicsPipelineInfo.subpass = 0;                         // index of sub pass
-        graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // } Used for deriving off previous graphics pipelines, which is less expensive.
-        graphicsPipelineInfo.basePipelineIndex = -1;              // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
+        graphicsPipelineInfo.renderPass = m_RenderPass->GetVKRenderPass();
+        graphicsPipelineInfo.subpass = 0;                     // index of sub pass
+        graphicsPipelineInfo.basePipelineHandle = m_Pipeline; // } Used for deriving off previous graphics pipelines, which is less expensive.
+        graphicsPipelineInfo.basePipelineIndex = -1;          // } VK_PIPELINE_CREATE_DERIVATIVE_BIT must be defined in the flags for this to work.
 
         VK_CHECK(vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &m_Pipeline)); // A pipeline cache can be passed to reuse data across multiple calls to vkCreateGraphicsPipelines
-
-        VulkanDeletionQueue::Add([&]()
-        {
-            Destroy();
-        });
-    }
-
-    void VulkanGraphicsPipeline::Bind()
-    {
-        PXL_PROFILE_SCOPE;
-
-        m_CurrentCommandBuffer = static_pointer_cast<VulkanGraphicsContext>(Renderer::GetGraphicsContext())->GetSwapchain()->GetCurrentFrame().CommandBuffer;
-
-        // Bind Pipeline
-        vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     }
 
     void VulkanGraphicsPipeline::SetUniformData([[maybe_unused]] const std::string& name, [[maybe_unused]] UniformDataType type, [[maybe_unused]] const void* data)

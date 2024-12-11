@@ -18,6 +18,7 @@ namespace pxl
     {
     public:
         VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
+        VulkanFramebuffer(const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
 
         void Destroy();
 

@@ -1,11 +1,12 @@
 #include "VulkanImage.h"
 
 #include "VulkanHelpers.h"
+#include "Renderer/Renderer.h"
 
 namespace pxl
 {
-    VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format)
-        : m_Device(device), m_Width(width), m_Height(height), m_Format(format)
+    VulkanImage::VulkanImage(uint32_t width, uint32_t height, VkFormat format)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_Width(width), m_Height(height), m_Format(format)
     {
         // Create a vulkan image AND image view
         CreateImage(m_Width, m_Height, m_Format);
@@ -13,7 +14,7 @@ namespace pxl
     }
 
     VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
-        : m_Device(device), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
+        : m_Device(device->GetVkLogical()), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
     {
         // Create just a vulkan image view for the supplied image
         CreateImageView(m_Format, swapchainImage);
@@ -21,17 +22,15 @@ namespace pxl
 
     void VulkanImage::Destroy()
     {
-        auto device = static_cast<VkDevice>(m_Device->GetLogical());
-
         if (m_Image)
         {
-            vkDestroyImage(device, m_Image, nullptr);
+            vkDestroyImage(m_Device, m_Image, nullptr);
             m_Image = VK_NULL_HANDLE;
         }
 
         if (m_ImageView)
         {
-            vkDestroyImageView(device, m_ImageView, nullptr);
+            vkDestroyImageView(m_Device, m_ImageView, nullptr);
             m_ImageView = VK_NULL_HANDLE;
         }
     }
@@ -58,6 +57,6 @@ namespace pxl
         imageViewInfo.subresourceRange.baseArrayLayer = 0;
         imageViewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(static_cast<VkDevice>(m_Device->GetLogical()), &imageViewInfo, nullptr, &m_ImageView));
+        VK_CHECK(vkCreateImageView(m_Device, &imageViewInfo, nullptr, &m_ImageView));
     }
 }

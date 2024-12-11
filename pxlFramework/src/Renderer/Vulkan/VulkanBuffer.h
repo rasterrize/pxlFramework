@@ -27,7 +27,7 @@ namespace pxl
     class VulkanBuffer : public GPUBuffer
     {
     public:
-        VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data);
+        VulkanBuffer(GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data);
 
         virtual void Bind() override;
         virtual void Unbind() override {}

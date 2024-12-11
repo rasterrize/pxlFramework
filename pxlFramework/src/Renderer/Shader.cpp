@@ -18,7 +18,7 @@ namespace pxl
                 return std::make_shared<OpenGLShader>(stage, glslSrc);
 
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, glslSrc);
+                return std::make_shared<VulkanShader>(stage, glslSrc);
         }
 
         return nullptr;
@@ -37,7 +37,7 @@ namespace pxl
                 break;
 
             case RendererAPIType::Vulkan:
-                return std::make_shared<VulkanShader>(std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice()), stage, sprvBin);
+                return std::make_shared<VulkanShader>(stage, sprvBin);
         }
 
         return nullptr;

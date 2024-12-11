@@ -9,6 +9,7 @@ namespace pxl
     VulkanRenderer::VulkanRenderer(const std::shared_ptr<VulkanGraphicsContext>& context)
         : m_ContextHandle(context), m_Device(static_pointer_cast<VulkanDevice>(context->GetDevice()))
     {
+        // TOOD: should this even be here?
         // Initialise VMA (Vulkan Memory Allocator)
         if (!VulkanAllocator::Get())
             VulkanAllocator::Init(VulkanInstance::Get(), m_Device);

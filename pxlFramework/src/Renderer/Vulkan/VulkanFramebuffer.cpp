@@ -1,11 +1,17 @@
 #include "VulkanFramebuffer.h"
 
 #include "VulkanHelpers.h"
+#include "Renderer/Renderer.h"
 
 namespace pxl
 {
     VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
         : m_Device(static_cast<VkDevice>(device->GetLogical())), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
+    {
+    }
+
+    VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
     {
     }
 

@@ -10,8 +10,8 @@ namespace pxl
     class VulkanShader : public Shader
     {
     public:
-        VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin);
-        VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::string& glslSrc);
+        VulkanShader(ShaderStage stage, const std::vector<char>& sprvBin);
+        VulkanShader(ShaderStage stage, const std::string& glslSrc);
 
         virtual void Reload() override;
 

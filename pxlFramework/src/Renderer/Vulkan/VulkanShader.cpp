@@ -2,10 +2,12 @@
 
 #include <shaderc/shaderc.hpp>
 
+#include "Renderer/Renderer.h"
+
 namespace pxl
 {
-    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::vector<char>& sprvBin)
-        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_ShaderStage(stage)
+    VulkanShader::VulkanShader(ShaderStage stage, const std::vector<char>& sprvBin)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_ShaderStage(stage)
     {
         m_ShaderModule = CreateShaderModule(m_Device, sprvBin);
 
@@ -15,8 +17,8 @@ namespace pxl
         });
     }
 
-    VulkanShader::VulkanShader(const std::shared_ptr<VulkanDevice>& device, ShaderStage stage, const std::string& glslSrc)
-        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_ShaderStage(stage)
+    VulkanShader::VulkanShader(ShaderStage stage, const std::string& glslSrc)
+        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_ShaderStage(stage)
     {
         // When given glsl source code, compile it to SPIR-V so vulkan can use it
         auto sprvBin = CompileToSPIRV(glslSrc, stage);

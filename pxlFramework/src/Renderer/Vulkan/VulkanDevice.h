@@ -33,6 +33,9 @@ namespace pxl
         uint32_t GetGraphicsQueueFamily() const { return m_GraphicsQueueFamily.value(); }
         uint32_t GetComputeQueueFamily() const { return 0; }
 
+        VkDevice GetVkLogical() const { return m_LogicalDevice; }
+        VkPhysicalDevice GetVkPhysical() const { return m_PhysicalDevice; }
+
         void LogDeviceLimits(); // could be CheckDeviceLimits later so I can ensure correct device compatibility
 
     private:

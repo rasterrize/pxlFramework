@@ -28,7 +28,7 @@ namespace TestApp
 
         s_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::All, s_Camera);
+        pxl::Renderer::SetCameraAll(s_Camera);
 
         auto rendererAPIString = pxl::EnumStringHelper::ToString(windowSpecs.RendererAPI);
 

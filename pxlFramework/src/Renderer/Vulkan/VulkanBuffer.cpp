@@ -8,8 +8,8 @@
 
 namespace pxl
 {
-    VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanDevice>& device, GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data)
-        : m_Device(device), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
+    VulkanBuffer::VulkanBuffer(GPUBufferUsage usage, GPUBufferDrawHint drawHint, uint32_t size, const void* data)
+        : m_Device(static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice())), m_Usage(GetVkBufferUsageOfBufferUsage(usage))
     {
         bool useStagingBuffer = false;
         switch (drawHint)
