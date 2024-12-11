@@ -33,7 +33,10 @@ namespace pxl
         virtual void SetUniformData(const std::string& name, UniformDataType type, uint32_t count, const void* data) override;
         virtual void SetPushConstantData(const std::string& name, const void* data) override;
 
-        virtual void* GetPipelineLayout() override { return m_Layout; }
+        virtual void* GetLayout() override { return m_Layout; }
+
+        virtual const GraphicsPipelineSpecs& GetSpecs() override { return m_Specs; }
+        virtual void SetSpecs(const GraphicsPipelineSpecs& specs) override { m_Specs = specs; Recreate(); }
 
         void Destroy();
 
@@ -53,6 +56,8 @@ namespace pxl
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
         VkPipelineLayout m_Layout = VK_NULL_HANDLE;
         VkCommandBuffer m_CurrentCommandBuffer = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanRenderPass> m_RenderPass = nullptr;
+        GraphicsPipelineSpecs m_Specs = {};
 
         std::unordered_map<ShaderStage, std::shared_ptr<Shader>> m_Shaders; // NOTE: currently holds on to them so they don't immediately get destroyed
         std::unordered_map<std::string, VkPushConstantRange> m_PushConstantRanges;

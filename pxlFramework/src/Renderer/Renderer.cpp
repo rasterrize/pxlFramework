@@ -29,6 +29,19 @@ namespace pxl
     static constexpr uint32_t k_MaxLineCount = 100;
     static constexpr uint32_t k_MaxLineVertexCount = k_MaxLineCount * 2;
 
+    // General Data
+    static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
+
+    static std::unordered_map<RendererGeometryTarget, std::shared_ptr<GraphicsPipeline>> s_Pipelines;
+
+    // Texture Data
+    static uint32_t s_TextureUnitIndex = 0;
+
+    static std::vector<std::shared_ptr<Texture>> s_TextureUnits;
+    static std::vector<int32_t> s_Samplers;
+
+    static std::shared_ptr<Texture> s_WhitePixelTexture = nullptr;
+
     // Static Quad Data
     static std::shared_ptr<GPUBuffer> s_StaticQuadVBO = nullptr;
     static std::shared_ptr<GPUBuffer> s_StaticQuadIBO = nullptr;
@@ -50,8 +63,6 @@ namespace pxl
     static std::function<void()> s_QuadBufferBindFunc = nullptr; // NOTE: Lambda that binds VAO for OpenGL and VBO/IBO for Vulkan
     static std::function<void()> s_QuadUniformFunc = nullptr;
 
-    static std::shared_ptr<GraphicsPipeline> s_QuadPipeline = nullptr;
-
     // Static Cube Data
     static uint32_t s_StaticQuadIndexOffset = 0;
 
@@ -72,8 +83,6 @@ namespace pxl
 
     static std::function<void()> s_CubeBindFunc = nullptr;
 
-    static std::shared_ptr<GraphicsPipeline> s_CubePipeline = nullptr;
-
     // Line Data
     static uint32_t s_LineCount = 0;
 
@@ -83,33 +92,16 @@ namespace pxl
 
     static std::function<void()> s_LineBindFunc = nullptr;
 
-    static std::shared_ptr<GraphicsPipeline> s_LinePipeline = nullptr;
-
     // Mesh Data
     static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GPUBuffer>> s_MeshVBOs;
     static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GPUBuffer>> s_MeshIBOs;
     static std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<VertexArray>> s_MeshVAOs;
-
-    // TEMP
-    static std::unordered_map<std::shared_ptr<Mesh>, std::vector<MeshVertex>> s_MeshVertices;
-
-    static std::shared_ptr<GraphicsPipeline> s_MeshPipeline = nullptr;
-
-    // Texture Data
-    static uint32_t s_TextureUnitIndex = 0;
-
-    static std::vector<std::shared_ptr<Texture>> s_TextureUnits;
-    static std::vector<int32_t> s_Samplers;
-
-    static std::shared_ptr<Texture> s_WhitePixelTexture = nullptr;
 
     // For OpenGL
     static std::shared_ptr<VertexArray> s_QuadVAO = nullptr;
     static std::shared_ptr<VertexArray> s_CubeVAO = nullptr;
     static std::shared_ptr<VertexArray> s_LineVAO = nullptr;
     static std::shared_ptr<VertexArray> s_StaticQuadVAO = nullptr;
-
-    static std::function<void(const std::shared_ptr<GraphicsPipeline>&, const glm::mat4& vp)> s_SetViewProjectionFunc = nullptr;
 
     void Renderer::Init(const std::shared_ptr<Window>& window)
     {
@@ -254,7 +246,7 @@ namespace pxl
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
 
-            s_QuadPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+            s_Pipelines[RendererGeometryTarget::Quad] = GraphicsPipeline::Create(pipelineSpecs);
         }
 
         // --------------------
@@ -320,7 +312,7 @@ namespace pxl
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
 
-            s_CubePipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+            s_Pipelines[RendererGeometryTarget::Cube] = GraphicsPipeline::Create(pipelineSpecs);
         }
 
         // --------------------
@@ -366,7 +358,7 @@ namespace pxl
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
 
-            s_LinePipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+            s_Pipelines[RendererGeometryTarget::Line] = GraphicsPipeline::Create(pipelineSpecs);
         }
 
         // --------------------
@@ -399,12 +391,12 @@ namespace pxl
                 pipelineSpecs.PushConstantLayout = pushConstantLayout;
             }
 
-            s_MeshPipeline = GraphicsPipeline::Create(pipelineSpecs, shaders);
+            s_Pipelines[RendererGeometryTarget::Mesh] = GraphicsPipeline::Create(pipelineSpecs);
         }
 
         // Prepare white pixel texture
         std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
-        Image image(pixelBytes, Size2D(1, 1), ImageFormat::RGBA8);
+        Image image(pixelBytes, Size2D(1), ImageFormat::RGBA8);
         s_WhitePixelTexture = Texture::Create(image, { .Filter = SampleFilter::Nearest });
 
         // Set samplers
@@ -494,11 +486,6 @@ namespace pxl
 
         switch (target)
         {
-            case RendererGeometryTarget::All:
-                s_QuadCamera = camera;
-                s_CubeCamera = camera;
-                s_LineCamera = camera;
-                return;
             case RendererGeometryTarget::Quad: s_QuadCamera = camera; return;
             case RendererGeometryTarget::Cube: s_CubeCamera = camera; return;
             case RendererGeometryTarget::Line: s_LineCamera = camera; return;
@@ -506,22 +493,31 @@ namespace pxl
         }
     }
 
+    void Renderer::SetCameraAll(const std::shared_ptr<Camera>& camera)
+    {
+        s_QuadCamera = camera;
+        s_CubeCamera = camera;
+        s_LineCamera = camera;
+    }
+
+    std::shared_ptr<GraphicsPipeline> Renderer::GetPipeline(RendererGeometryTarget target)
+    {
+        return s_Pipelines.at(target);
+    }
+
     void Renderer::SetPipeline(RendererGeometryTarget target, const std::shared_ptr<GraphicsPipeline>& pipeline)
     {
         PXL_ASSERT(pipeline);
 
-        switch (target)
-        {
-            case RendererGeometryTarget::All:
-                s_QuadPipeline = pipeline;
-                s_CubePipeline = pipeline;
-                s_LinePipeline = pipeline;
-                return;
-            case RendererGeometryTarget::Quad: s_QuadPipeline = pipeline; return;
-            case RendererGeometryTarget::Cube: s_CubePipeline = pipeline; return;
-            case RendererGeometryTarget::Line: s_LinePipeline = pipeline; return;
-            case RendererGeometryTarget::Mesh: s_MeshPipeline = pipeline; return;
-        }
+        s_Pipelines[target] = pipeline;
+    }
+
+    void Renderer::SetPipelineAll(const std::shared_ptr<GraphicsPipeline>& pipeline)
+    {
+        s_Pipelines[RendererGeometryTarget::Quad] = pipeline;
+        s_Pipelines[RendererGeometryTarget::Cube] = pipeline;
+        s_Pipelines[RendererGeometryTarget::Line] = pipeline;
+        s_Pipelines[RendererGeometryTarget::Mesh] = pipeline;
     }
 
     void Renderer::AddQuad(const Quad& quad)
@@ -664,8 +660,10 @@ namespace pxl
 
         glm::mat4 transform = CalculateTransform(position, rotation, scale);
 
-        s_MeshPipeline->Bind();
-        s_MeshPipeline->SetUniformData("u_Transform", UniformDataType::Mat4, &transform);
+        auto meshPipeline = s_Pipelines.at(RendererGeometryTarget::Mesh);
+
+        meshPipeline->Bind();
+        meshPipeline->SetUniformData("u_Transform", UniformDataType::Mat4, &transform);
 
         if (!s_MeshVBOs.contains(mesh))
         {
@@ -690,7 +688,7 @@ namespace pxl
             s_MeshIBOs[mesh]->Bind();
         }
 
-        s_SetViewProjectionFunc(s_MeshPipeline, s_QuadCamera->GetViewProjectionMatrix() * transform);
+        s_SetViewProjectionFunc(meshPipeline, s_QuadCamera->GetViewProjectionMatrix() * transform);
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
 
@@ -705,11 +703,6 @@ namespace pxl
     {
         switch (target)
         {
-            case RendererGeometryTarget::All:
-                s_StaticQuadVertices.clear();
-                s_StaticCubeVertices.clear();
-                return;
-
             case RendererGeometryTarget::Quad: s_StaticQuadVertices.clear(); return;
             case RendererGeometryTarget::Cube: s_StaticCubeVertices.clear(); return;
             case RendererGeometryTarget::Line: PXL_LOG_ERROR(LogArea::Renderer, "Static Lines aren't supported"); return;
@@ -851,6 +844,15 @@ namespace pxl
         }
 
         // ---------------------
+        // Get pipelines
+        // ---------------------
+
+        auto quadPipeline = s_Pipelines.at(RendererGeometryTarget::Quad);
+        auto cubePipeline = s_Pipelines.at(RendererGeometryTarget::Cube);
+        auto linePipeline = s_Pipelines.at(RendererGeometryTarget::Line);
+        auto meshPipeline = s_Pipelines.at(RendererGeometryTarget::Mesh);
+
+        // ---------------------
         // Static Geometry
         // ---------------------
 
@@ -862,14 +864,14 @@ namespace pxl
             PXL_ASSERT_MSG(s_StaticQuadVBO, "Static quad VBO is invalid, make sure you call StaticGeometryReady()");
 
             PXL_ASSERT_MSG(s_QuadCamera, "Quad camera isn't set");
-            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
+            PXL_ASSERT_MSG(quadPipeline, "Quad pipeline isn't set");
             PXL_ASSERT_MSG(s_StaticQuadIBO, "Static quad IBO is invalid");
 
             s_StaticQuadBindFunc();
 
-            s_QuadPipeline->Bind();
+            quadPipeline->Bind();
 
-            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(quadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(static_cast<uint32_t>(s_StaticQuadIndices.size()));
 
@@ -888,16 +890,16 @@ namespace pxl
             PXL_ASSERT_MSG(s_StaticCubeVBO, "Static cube VBO is invalid, make sure you call StaticGeometryReady()");
 
             PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
-            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
+            PXL_ASSERT_MSG(cubePipeline, "Cube pipeline isn't set");
             PXL_ASSERT_MSG(s_StaticCubeIBO, "Static cube IBO is invalid");
 
             // TODO: Move this into a StaticCubeBind lambda
             s_StaticCubeVBO->Bind();
             s_CubeIBO->Bind();
 
-            s_CubePipeline->Bind();
+            cubePipeline->Bind();
 
-            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(cubePipeline, s_CubeCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(static_cast<uint32_t>(s_StaticCubeIndices.size()));
 
@@ -918,19 +920,19 @@ namespace pxl
             PXL_PROFILE_SCOPE_NAMED("Flush Dynamic Quads");
 
             PXL_ASSERT_MSG(s_QuadCamera, "Quad Camera isn't set");
-            PXL_ASSERT_MSG(s_QuadPipeline, "Quad pipeline isn't set");
+            PXL_ASSERT_MSG(quadPipeline, "Quad pipeline isn't set");
 
             s_QuadVBO->SetData(s_QuadCount * 4 * sizeof(QuadVertex), s_QuadVertices.data()); // THIS TAKES SIZE IN BYTES
 
             s_QuadBufferBindFunc();
 
             // NOTE: Ensure we bind the pipeline before setting uniform data
-            s_QuadPipeline->Bind();
+            quadPipeline->Bind();
 
             if (s_RendererAPIType == RendererAPIType::OpenGL)
-                s_QuadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_Limits.MaxTextureUnits, s_Samplers.data());
+                quadPipeline->SetUniformData("u_Textures", UniformDataType::IntArray, s_Limits.MaxTextureUnits, s_Samplers.data());
 
-            s_SetViewProjectionFunc(s_QuadPipeline, s_QuadCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(quadPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_QuadCount * 6);
 
@@ -947,7 +949,7 @@ namespace pxl
         if (s_CubeCount > 0)
         {
             PXL_ASSERT_MSG(s_CubeCamera, "Cube camera isn't set");
-            PXL_ASSERT_MSG(s_CubePipeline, "Cube pipeline isn't set");
+            PXL_ASSERT_MSG(cubePipeline, "Cube pipeline isn't set");
 
             s_CubeVBO->SetData(s_CubeCount * 24 * sizeof(CubeVertex), s_CubeVertices.data()); // THIS TAKES SIZE IN BYTES
 
@@ -956,9 +958,9 @@ namespace pxl
                 s_CubeBindFunc();
             }
 
-            s_CubePipeline->Bind();
+            cubePipeline->Bind();
 
-            s_SetViewProjectionFunc(s_CubePipeline, s_CubeCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(cubePipeline, s_CubeCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawIndexed(s_CubeCount * 36);
 
@@ -977,15 +979,15 @@ namespace pxl
             PXL_PROFILE_SCOPE_NAMED("Flush Lines");
 
             PXL_ASSERT_MSG(s_LineCamera, "Line camera isn't set");
-            PXL_ASSERT_MSG(s_LinePipeline, "Line pipeline isn't set");
+            PXL_ASSERT_MSG(linePipeline, "Line pipeline isn't set");
 
             s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
 
             s_LineBindFunc();
 
-            s_LinePipeline->Bind();
+            linePipeline->Bind();
 
-            s_SetViewProjectionFunc(s_LinePipeline, s_LineCamera->GetViewProjectionMatrix());
+            s_SetViewProjectionFunc(linePipeline, s_LineCamera->GetViewProjectionMatrix());
 
             s_RendererAPI->DrawLines(s_LineCount * 2);
 

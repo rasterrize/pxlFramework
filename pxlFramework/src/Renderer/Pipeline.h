@@ -62,9 +62,12 @@ namespace pxl
 
         virtual void SetPushConstantData(const std::string& name, const void* data) = 0;
 
-        virtual void* GetPipelineLayout() = 0;
+        virtual void* GetLayout() = 0;
 
-        static std::shared_ptr<GraphicsPipeline> Create(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders);
+        virtual const GraphicsPipelineSpecs& GetSpecs() = 0;
+        virtual void SetSpecs(const GraphicsPipelineSpecs& specs) = 0;
+
+        static std::shared_ptr<GraphicsPipeline> Create(const GraphicsPipelineSpecs& specs);
     };
 
     // Compute Pipeline

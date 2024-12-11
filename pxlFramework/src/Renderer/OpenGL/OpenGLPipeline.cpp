@@ -4,20 +4,17 @@
 
 namespace pxl
 {
-        : m_PolygonMode(ToGLPolygonMode(specs.PolygonMode)), m_CullMode(ToGLCullMode(specs.CullMode))
     OpenGLGraphicsPipeline::OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs)
+        : m_Shaders(specs.Shaders)
     {
-        if (!(shaders.at(ShaderStage::Vertex) && shaders.at(ShaderStage::Fragment)))
+        if (!(m_Shaders.at(ShaderStage::Vertex) && m_Shaders.at(ShaderStage::Fragment)))
         {
             PXL_LOG_ERROR(LogArea::OpenGL, "OpenGL pipelines require at least a vertex AND fragment shader");
         }
 
-        if (specs.CullMode == CullMode::None)
-            m_CullingEnabled = false;
-
         m_ShaderProgramID = glCreateProgram();
-        auto vertexShaderID = static_pointer_cast<OpenGLShader>(shaders.at(ShaderStage::Vertex))->GetID();
-        auto fragmentShaderID = static_pointer_cast<OpenGLShader>(shaders.at(ShaderStage::Fragment))->GetID();
+        auto vertexShaderID = static_pointer_cast<OpenGLShader>(m_Shaders.at(ShaderStage::Vertex))->GetID();
+        auto fragmentShaderID = static_pointer_cast<OpenGLShader>(m_Shaders.at(ShaderStage::Fragment))->GetID();
 
         // Attach our shaders to our program
         glAttachShader(m_ShaderProgramID, vertexShaderID);
@@ -57,14 +54,19 @@ namespace pxl
 
     void OpenGLGraphicsPipeline::Bind()
     {
-        glPolygonMode(GL_FRONT_AND_BACK, m_PolygonMode);
+        glPolygonMode(GL_FRONT_AND_BACK, ToGLPolygonMode(m_Specs.PolygonMode));
 
-        m_CullingEnabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+        if (m_Specs.CullMode != CullMode::None)
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(ToGLCullMode(m_Specs.CullMode));
+        }
+        else
+        {
+            glDisable(GL_CULL_FACE);
+        }
 
-        if (m_CullingEnabled)
-            glCullFace(m_CullMode);
-
-        glFrontFace(m_FrontFace);
+        glFrontFace(ToGLFrontFace(m_Specs.FrontFace));
 
         glUseProgram(m_ShaderProgramID);
     }

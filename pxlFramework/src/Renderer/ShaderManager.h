@@ -14,6 +14,9 @@ namespace pxl
         // Get a cached shader
         static std::shared_ptr<Shader> Get(const std::string& filename);
 
+        // Retrieve a read-only reference of the shader cache
+        static const std::unordered_map<std::string, std::shared_ptr<Shader>>& GetCache() { return s_ShaderCache; }
+
     private:
         static inline std::unordered_map<std::string, std::shared_ptr<Shader>> s_ShaderCache;
     };

@@ -18,7 +18,6 @@ namespace pxl
 {
     enum class RendererGeometryTarget
     {
-        All,
         Quad,
         Cube,
         Line,
@@ -52,8 +51,16 @@ namespace pxl
         // Set the camera for the given GeometryTarget
         static void SetCamera(RendererGeometryTarget target, const std::shared_ptr<Camera>& camera);
 
+        // Set the camera for every GeometryTarget
+        static void SetCameraAll(const std::shared_ptr<Camera>& camera);
+
+        static std::shared_ptr<GraphicsPipeline> GetPipeline(RendererGeometryTarget target);
+
         // Set a custom pipeline for the given GeometryTarget
         static void SetPipeline(RendererGeometryTarget target, const std::shared_ptr<GraphicsPipeline>& pipeline);
+
+        // (NOT RECOMMENDED) Set a custom pipeline for every GeometryTarget
+        static void SetPipelineAll(const std::shared_ptr<GraphicsPipeline>& pipeline);
 
         static void AddQuad(const Quad& quad);
         static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
