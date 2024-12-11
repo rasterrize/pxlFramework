@@ -48,7 +48,7 @@ namespace pxl
 
         VulkanStagingBuffer stagingBuffer = VulkanBuffer::CreateStagingBuffer(imageSizeInBytes);
 
-        memcpy(stagingBuffer.AllocInfo.pMappedData, image.Buffer, imageSizeInBytes);
+        memcpy(stagingBuffer.AllocInfo.pMappedData, image.Buffer.data(), imageSizeInBytes);
 
         auto uploadCommandBuffer = m_Device->AllocateCommandBuffers(QueueType::Graphics, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
 

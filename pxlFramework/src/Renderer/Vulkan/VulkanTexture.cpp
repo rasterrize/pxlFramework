@@ -14,6 +14,10 @@ namespace pxl
         });
     }
 
+    void VulkanTexture::SetData([[maybe_unused]] const void* data)
+    {
+    }
+
     void VulkanTexture::Destroy()
     {
         if (m_Image)

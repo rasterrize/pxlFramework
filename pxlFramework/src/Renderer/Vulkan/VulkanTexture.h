@@ -18,6 +18,8 @@ namespace pxl
         virtual void Bind([[maybe_unused]] uint32_t unit) override {}; // unsure if this is used in Vulkan
         virtual void Unbind() override {};
 
+        virtual void SetData(const void* data) override;
+
         virtual const ImageMetadata& GetMetadata() const override { return m_Metadata; }
 
         void Destroy();
