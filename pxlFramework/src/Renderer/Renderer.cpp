@@ -151,7 +151,7 @@ namespace pxl
 
                 ShaderManager::LoadFromGLSL("resources/shaders/mesh_ogl.vert", ShaderStage::Vertex);
                 break;
-                
+
             case RendererAPIType::Vulkan:
                 ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.vert", ShaderStage::Vertex);
                 ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.frag", ShaderStage::Fragment);
@@ -191,9 +191,6 @@ namespace pxl
             s_QuadIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, k_MaxQuadIndexCount * sizeof(uint32_t), s_QuadIndices.data());
             s_StaticQuadVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Static, k_MaxQuadVertexCount * sizeof(QuadVertex), nullptr);
 
-            // Shader storage
-            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
-
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
             pipelineSpecs.PolygonMode = PolygonMode::Fill;
@@ -226,8 +223,8 @@ namespace pxl
                     pipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_textured_ogl.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_textured_ogl.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_textured_ogl.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_textured_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -248,8 +245,8 @@ namespace pxl
                     pipeline->SetPushConstantData("u_VP", &vp);
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -286,9 +283,6 @@ namespace pxl
             s_CubeVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxCubeVertexCount * sizeof(CubeVertex), nullptr);
             s_CubeIBO = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, k_MaxCubeIndexCount * sizeof(uint32_t), s_CubeIndices.data());
 
-            // Shader storage
-            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
-
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
             pipelineSpecs.CullMode = CullMode::Back;
@@ -306,8 +300,8 @@ namespace pxl
                     s_CubeVAO->Bind();
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_ogl.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_ogl.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -317,8 +311,8 @@ namespace pxl
                     s_CubeIBO->Bind();
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vert.spv");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_frag.spv");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vert.spv");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_frag.spv");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -338,9 +332,6 @@ namespace pxl
             // Prepare Buffers
             s_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxLineVertexCount * sizeof(LineVertex), nullptr);
 
-            // Shader storage
-            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
-
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Line;
             pipelineSpecs.VertexLayout = bufferLayout;
@@ -356,8 +347,8 @@ namespace pxl
                     s_LineVAO->Bind();
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("line_ogl.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("line_ogl.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("line_ogl.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("line_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
@@ -366,8 +357,8 @@ namespace pxl
                     s_LineVBO->Bind();
                 };
 
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("line_vert.spv");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("line_frag.spv");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("line_vert.spv");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("line_frag.spv");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });
@@ -384,9 +375,6 @@ namespace pxl
         {
             const auto bufferLayout = MeshVertex::GetLayout();
 
-            // Shader storage
-            std::unordered_map<ShaderStage, std::shared_ptr<Shader>> shaders;
-
             GraphicsPipelineSpecs pipelineSpecs;
             pipelineSpecs.PrimitiveType = PrimitiveTopology::Triangle;
             pipelineSpecs.VertexLayout = bufferLayout;
@@ -396,13 +384,13 @@ namespace pxl
             // Prepare other data based on renderer API
             if (s_RendererAPIType == RendererAPIType::OpenGL)
             {
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("mesh_ogl.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("mesh_ogl.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_ogl.frag");
             }
             else if (s_RendererAPIType == RendererAPIType::Vulkan)
             {
-                shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
-                shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
+                pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("quad_vk.vert");
+                pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("quad_vk.frag");
 
                 PushConstantLayout pushConstantLayout;
                 pushConstantLayout.Add({ "u_VP", UniformDataType::Mat4, ShaderStage::Vertex });

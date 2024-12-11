@@ -39,6 +39,7 @@ namespace pxl
     // NOTE: Most of these members aren't even necessary for OpenGL
     struct GraphicsPipelineSpecs
     {
+        std::unordered_map<ShaderStage, std::shared_ptr<Shader>> Shaders;
         BufferLayout VertexLayout;
         PrimitiveTopology PrimitiveType = PrimitiveTopology::Triangle;
         PolygonMode PolygonMode = PolygonMode::Fill;

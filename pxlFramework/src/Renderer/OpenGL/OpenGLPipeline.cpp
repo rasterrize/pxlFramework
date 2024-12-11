@@ -4,8 +4,8 @@
 
 namespace pxl
 {
-    OpenGLGraphicsPipeline::OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders)
         : m_PolygonMode(ToGLPolygonMode(specs.PolygonMode)), m_CullMode(ToGLCullMode(specs.CullMode))
+    OpenGLGraphicsPipeline::OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs)
     {
         if (!(shaders.at(ShaderStage::Vertex) && shaders.at(ShaderStage::Fragment)))
         {

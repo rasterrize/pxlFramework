@@ -10,7 +10,7 @@ namespace pxl
     class OpenGLGraphicsPipeline : public GraphicsPipeline
     {
     public:
-        OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs, const std::unordered_map<ShaderStage, std::shared_ptr<Shader>>& shaders);
+        OpenGLGraphicsPipeline(const GraphicsPipelineSpecs& specs);
         virtual ~OpenGLGraphicsPipeline() = default;
 
         virtual void Bind() override;
