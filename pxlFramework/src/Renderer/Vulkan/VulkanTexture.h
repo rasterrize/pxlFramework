@@ -1,11 +1,9 @@
 #pragma once
-
 #include <vma/vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 
 #include "Renderer/Texture.h"
 #include "VulkanAllocator.h"
-#include "VulkanDevice.h"
 #include "VulkanImage.h"
 
 namespace pxl
@@ -13,7 +11,7 @@ namespace pxl
     class VulkanTexture : public Texture
     {
     public:
-        VulkanTexture(const std::shared_ptr<VulkanDevice>& device, const Image& image);
+        VulkanTexture(const Image& image);
 
         virtual void Bind([[maybe_unused]] uint32_t unit) override {}; // unsure if this is used in Vulkan
         virtual void Unbind() override {};
@@ -23,6 +21,7 @@ namespace pxl
         virtual const ImageMetadata& GetMetadata() const override { return m_Metadata; }
 
         void Destroy();
+
     private:
         std::unique_ptr<VulkanImage> m_Image = nullptr;
 

@@ -9,14 +9,16 @@
 
 namespace pxl
 {
-    // TODO: abstracted
     class VulkanImage
     {
     public:
         VulkanImage(uint32_t width, uint32_t height, VkFormat format);
-        VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format);
-        VulkanImage(const std::shared_ptr<VulkanDevice>& device, Size2D size, VkFormat format);
-        VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage);
+        VulkanImage(Size2D size, VkFormat format)
+            : VulkanImage(size.Width, size.Height, format)
+        {
+        }
+
+        VulkanImage(const std::shared_ptr<GraphicsDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage);
 
         void Destroy();
 
@@ -24,13 +26,16 @@ namespace pxl
 
         VkImageView GetImageView() const { return m_ImageView; }
 
+        bool IsSwapchainImage() const { return m_IsSwapchainImage; }
+
     private:
         void CreateImage(uint32_t width, uint32_t height, VkFormat format);
         void CreateImageView(VkFormat format, VkImage image);
 
         VkFormat ToVkFormat(ImageFormat format);
+
     private:
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<VulkanDevice> m_Device = nullptr;
 
         uint32_t m_Width = 0, m_Height = 0;
         VkFormat m_Format = VK_FORMAT_UNDEFINED;
@@ -39,7 +44,6 @@ namespace pxl
         VkImageView m_ImageView = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = VK_NULL_HANDLE;
 
-        bool m_IsSwapchainImage = false; // Currently unused
-
+        bool m_IsSwapchainImage = false;
     };
 }

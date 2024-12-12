@@ -26,7 +26,7 @@ namespace pxl
 
             case RendererAPIType::Vulkan:
                 auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
-                return std::make_shared<VulkanTexture>(vulkanDevice, image);
+                return std::make_shared<VulkanTexture>(image);
         }
 
         return nullptr;

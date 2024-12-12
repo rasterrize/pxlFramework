@@ -3,7 +3,6 @@
 #include <vulkan/vulkan.h>
 
 #include "Renderer/Shader.h"
-#include "VulkanDevice.h"
 
 namespace pxl
 {

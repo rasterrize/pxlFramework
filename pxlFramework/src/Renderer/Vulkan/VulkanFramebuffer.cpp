@@ -1,17 +1,17 @@
 #include "VulkanFramebuffer.h"
 
-#include "VulkanHelpers.h"
 #include "Renderer/Renderer.h"
+#include "VulkanHelpers.h"
 
 namespace pxl
 {
-    VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
-        : m_Device(static_cast<VkDevice>(device->GetLogical())), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
+    VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<GraphicsDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
+        : m_Device(device), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
     {
     }
 
     VulkanFramebuffer::VulkanFramebuffer(const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent)
-        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
+        : m_Device(Renderer::GetGraphicsContext()->GetDevice()), m_RenderPass(renderPass->GetVKRenderPass()), m_Extent(extent)
     {
     }
 
@@ -24,7 +24,7 @@ namespace pxl
 
         if (m_Framebuffer)
         {
-            vkDestroyFramebuffer(m_Device, m_Framebuffer, nullptr);
+            vkDestroyFramebuffer(static_cast<VkDevice>(m_Device->GetLogical()), m_Framebuffer, nullptr);
             m_Framebuffer = VK_NULL_HANDLE;
         }
     }
@@ -53,6 +53,6 @@ namespace pxl
         framebufferInfo.height = m_Extent.height;
         framebufferInfo.layers = 1;
 
-        VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_Framebuffer));
+        VK_CHECK(vkCreateFramebuffer(static_cast<VkDevice>(m_Device->GetLogical()), &framebufferInfo, nullptr, &m_Framebuffer));
     }
 }

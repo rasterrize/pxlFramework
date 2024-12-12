@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include "Renderer/Framebuffer.h"
+#include "Renderer/GraphicsDevice.h"
 #include "VulkanRenderPass.h"
 
 namespace pxl
@@ -17,7 +18,7 @@ namespace pxl
     class VulkanFramebuffer : public Framebuffer
     {
     public:
-        VulkanFramebuffer(const std::shared_ptr<VulkanDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
+        VulkanFramebuffer(const std::shared_ptr<GraphicsDevice>& device, const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
         VulkanFramebuffer(const std::shared_ptr<VulkanRenderPass>& renderPass, VkExtent2D extent);
 
         void Destroy();
@@ -41,7 +42,7 @@ namespace pxl
         void Create();
 
     private:
-        VkDevice m_Device = VK_NULL_HANDLE;
+        std::shared_ptr<GraphicsDevice> m_Device = nullptr;
         VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
         VkRenderPass m_RenderPass = VK_NULL_HANDLE;
         VkExtent2D m_Extent = {};

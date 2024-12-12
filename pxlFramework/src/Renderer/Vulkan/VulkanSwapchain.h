@@ -5,6 +5,7 @@
 #include "VulkanDevice.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanImage.h"
+#include "VulkanRenderPass.h"
 
 namespace pxl
 {
@@ -28,7 +29,7 @@ namespace pxl
     class VulkanSwapchain
     {
     public:
-        VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass);
+        VulkanSwapchain(const std::shared_ptr<GraphicsDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass);
 
         void Recreate(uint32_t width, uint32_t height);
         void Recreate();

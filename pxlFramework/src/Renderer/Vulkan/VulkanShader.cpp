@@ -3,6 +3,7 @@
 #include <shaderc/shaderc.hpp>
 
 #include "Renderer/Renderer.h"
+#include "VulkanHelpers.h"
 
 namespace pxl
 {

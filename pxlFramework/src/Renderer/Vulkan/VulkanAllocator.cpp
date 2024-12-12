@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    void VulkanAllocator::Init(VkInstance instance, const std::shared_ptr<VulkanDevice>& device)
+    void VulkanAllocator::Init(VkInstance instance, const std::shared_ptr<GraphicsDevice>& device)
     {
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
         allocatorCreateInfo.physicalDevice = static_cast<VkPhysicalDevice>(device->GetPhysical());

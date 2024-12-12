@@ -49,6 +49,10 @@ namespace pxl
 
         PXL_ASSERT(m_Device);
 
+        // Initialise VMA (Vulkan Memory Allocator)
+        if (!VulkanAllocator::Get())
+            VulkanAllocator::Init(VulkanInstance::Get(), m_Device);
+
         // Get swapchain suitable surface format (for renderpass)
         auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(selectedGPU, m_Surface);
         m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);

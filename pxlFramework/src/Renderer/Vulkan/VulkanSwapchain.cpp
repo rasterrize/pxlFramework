@@ -4,8 +4,8 @@
 
 namespace pxl
 {
-    VulkanSwapchain::VulkanSwapchain(const std::shared_ptr<VulkanDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass)
-        : m_Device(device), m_Surface(surface), m_DefaultRenderPass(renderPass)
+    VulkanSwapchain::VulkanSwapchain(const std::shared_ptr<GraphicsDevice>& device, VkSurfaceKHR surface, const VkSurfaceFormatKHR& surfaceFormat, const VkExtent2D& imageExtent, const std::shared_ptr<VulkanRenderPass>& renderPass)
+        : m_Device(static_pointer_cast<VulkanDevice>(device)), m_Surface(surface), m_DefaultRenderPass(renderPass)
     {
         m_SwapchainSpecs.Extent = imageExtent;
         m_SwapchainSpecs.Format = surfaceFormat.format;

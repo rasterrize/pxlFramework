@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    VulkanRenderPass::VulkanRenderPass(const std::shared_ptr<VulkanDevice>& device, VkFormat format)
+    VulkanRenderPass::VulkanRenderPass(const std::shared_ptr<GraphicsDevice>& device, VkFormat format)
         : m_Device(static_cast<VkDevice>(device->GetLogical()))
     {
         // Specify colour attachment/ref

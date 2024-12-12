@@ -1,26 +1,22 @@
 #include "VulkanImage.h"
 
+#include "Renderer/Renderer.h"
 #include "VulkanBuffer.h"
 #include "VulkanHelpers.h"
-#include "Renderer/Renderer.h"
 
 namespace pxl
 {
+
     VulkanImage::VulkanImage(uint32_t width, uint32_t height, VkFormat format)
-        : m_Device(static_cast<VkDevice>(Renderer::GetGraphicsContext()->GetDevice()->GetLogical())), m_Width(width), m_Height(height), m_Format(format)
+        : m_Device(static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice())), m_Width(width), m_Height(height), m_Format(format)
     {
         // Create a vulkan image AND image view
         CreateImage(m_Width, m_Height, m_Format);
-        //CreateImageView(m_Format, m_Image);
+        CreateImageView(m_Format, m_Image);
     }
 
-    VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, Size2D size, VkFormat format)
-        : VulkanImage(device, size.Width, size.Height, format)
-    {
-    }
-
-    VulkanImage::VulkanImage(const std::shared_ptr<VulkanDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
-        : m_Device(device->GetVkLogical()), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
+    VulkanImage::VulkanImage(const std::shared_ptr<GraphicsDevice>& device, uint32_t width, uint32_t height, VkFormat format, VkImage swapchainImage)
+        : m_Device(static_pointer_cast<VulkanDevice>(device)), m_Image(swapchainImage), m_Width(width), m_Height(height), m_Format(format), m_IsSwapchainImage(true)
     {
         // Create just a vulkan image view for the supplied image
         CreateImageView(m_Format, swapchainImage);
@@ -28,15 +24,18 @@ namespace pxl
 
     void VulkanImage::Destroy()
     {
-        if (m_Image)
+        if (!m_IsSwapchainImage)
         {
-            vmaDestroyImage(VulkanAllocator::Get(), m_Image, m_Allocation);
-            m_Image = VK_NULL_HANDLE;
+            if (m_Image)
+            {
+                vmaDestroyImage(VulkanAllocator::Get(), m_Image, m_Allocation);
+                m_Image = VK_NULL_HANDLE;
+            }
         }
 
         if (m_ImageView)
         {
-            vkDestroyImageView(m_Device, m_ImageView, nullptr);
+            vkDestroyImageView(static_cast<VkDevice>(m_Device->GetLogical()), m_ImageView, nullptr);
             m_ImageView = VK_NULL_HANDLE;
         }
     }
@@ -127,7 +126,7 @@ namespace pxl
         imageViewInfo.subresourceRange.baseArrayLayer = 0;
         imageViewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(m_Device, &imageViewInfo, nullptr, &m_ImageView));
+        VK_CHECK(vkCreateImageView(m_Device->GetVkLogical(), &imageViewInfo, nullptr, &m_ImageView));
     }
 
     VkFormat VulkanImage::ToVkFormat(ImageFormat format)

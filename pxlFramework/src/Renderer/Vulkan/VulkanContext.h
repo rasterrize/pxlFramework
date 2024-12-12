@@ -4,7 +4,7 @@
 
 #include "Core/Window.h"
 #include "Renderer/GraphicsContext.h"
-#include "VulkanDevice.h"
+#include "Renderer/GraphicsDevice.h"
 #include "VulkanHelpers.h"
 #include "VulkanRenderPass.h"
 #include "VulkanSwapchain.h"
@@ -41,7 +41,7 @@ namespace pxl
         std::shared_ptr<VulkanRenderPass> GetDefaultRenderPass() const { return m_DefaultRenderPass; } // Geometry Render Pass?
 
     private:
-        std::shared_ptr<VulkanDevice> m_Device = nullptr;
+        std::shared_ptr<GraphicsDevice> m_Device = nullptr;
         std::shared_ptr<VulkanSwapchain> m_Swapchain = nullptr;
 
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;

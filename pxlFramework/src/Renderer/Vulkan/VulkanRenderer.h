@@ -4,6 +4,7 @@
 
 #include "Renderer/RendererAPI.h"
 #include "VulkanContext.h"
+#include "VulkanDevice.h"
 #include "VulkanRenderPass.h"
 
 namespace pxl

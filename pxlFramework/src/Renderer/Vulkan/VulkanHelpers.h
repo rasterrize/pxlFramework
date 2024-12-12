@@ -45,7 +45,7 @@ namespace pxl
     };
 
 #ifdef PXL_DEBUG
-    static void CheckVkResult(VkResult result)
+    inline void CheckVkResult(VkResult result)
     {
         if (result != VK_SUCCESS)
         {

@@ -1,7 +1,5 @@
 #include "VulkanHelpers.h"
 
-#include "VulkanDevice.h"
-
 namespace pxl
 {
     uint32_t VulkanHelpers::GetVulkanAPIVersion()
