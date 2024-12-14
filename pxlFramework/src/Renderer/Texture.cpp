@@ -25,8 +25,7 @@ namespace pxl
                 return std::make_shared<OpenGLTexture>(image, specs);
 
             case RendererAPIType::Vulkan:
-                auto vulkanDevice = std::static_pointer_cast<VulkanDevice>(Renderer::GetGraphicsContext()->GetDevice());
-                return std::make_shared<VulkanTexture>(image);
+                return std::make_shared<VulkanTexture>(image, specs);
         }
 
         return nullptr;
@@ -51,7 +50,7 @@ namespace pxl
                 return std::make_shared<OpenGLTexture>(image, specs);
 
             case RendererAPIType::Vulkan:
-                PXL_LOG_ERROR(LogArea::Renderer, "Can't create Texture for Vulkan renderer api.");
+                PXL_LOG_ERROR(LogArea::Renderer, "Can't create shared_ptr<Image> Texture with Vulkan renderer api.");
                 break;
         }
 

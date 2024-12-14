@@ -11,7 +11,7 @@ namespace pxl
     class VulkanTexture : public Texture
     {
     public:
-        VulkanTexture(const Image& image);
+        VulkanTexture(const Image& image, const TextureSpecs& specs);
 
         virtual void Bind([[maybe_unused]] uint32_t unit) override {}; // unsure if this is used in Vulkan
         virtual void Unbind() override {};
@@ -23,7 +23,13 @@ namespace pxl
         void Destroy();
 
     private:
+        VkFilter ToVkFilter(SampleFilter filter);
+        VkSamplerAddressMode ToVkAddressMode(TextureWrapMode mode);
+
+    private:
+        std::shared_ptr<GraphicsDevice> m_Device = nullptr;
         std::unique_ptr<VulkanImage> m_Image = nullptr;
+        VkSampler m_Sampler = VK_NULL_HANDLE;
 
         // Staging data
         VkBuffer m_StagingBuffer = VK_NULL_HANDLE;

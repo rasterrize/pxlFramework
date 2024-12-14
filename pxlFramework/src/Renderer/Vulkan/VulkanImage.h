@@ -12,9 +12,9 @@ namespace pxl
     class VulkanImage
     {
     public:
-        VulkanImage(uint32_t width, uint32_t height, VkFormat format);
-        VulkanImage(Size2D size, VkFormat format)
-            : VulkanImage(size.Width, size.Height, format)
+        VulkanImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags);
+        VulkanImage(Size2D size, VkFormat format, VkImageUsageFlags usageFlags)
+            : VulkanImage(size.Width, size.Height, format, usageFlags)
         {
         }
 
@@ -29,8 +29,10 @@ namespace pxl
         bool IsSwapchainImage() const { return m_IsSwapchainImage; }
 
     private:
-        void CreateImage(uint32_t width, uint32_t height, VkFormat format);
+        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags);
         void CreateImageView(VkFormat format, VkImage image);
+
+        void TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
         VkFormat ToVkFormat(ImageFormat format);
 
@@ -46,4 +48,18 @@ namespace pxl
 
         bool m_IsSwapchainImage = false;
     };
+
+    namespace Utils
+    {
+        inline uint32_t ImageFormatToBytes(ImageFormat format)
+        {
+            switch (format)
+            {
+                case ImageFormat::RGB8:      return 1 + 1 + 1;
+                case ImageFormat::RGBA8:     return 1 + 1 + 1 + 1;
+                case ImageFormat::Undefined: return 0;
+                default:                     return 0;
+            }
+        }
+    }
 }
