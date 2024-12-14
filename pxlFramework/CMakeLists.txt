@@ -110,7 +110,15 @@ endif()
 if (PXL_ENABLE_PROFILING)
     option(TRACY_ENABLE "" ON)
     option(TRACY_ON_DEMAND "" ON)
-    add_subdirectory(deps/tracy)
+
+    FetchContent_Declare(
+    tracy
+    GIT_REPOSITORY https://github.com/wolfpld/tracy/
+    GIT_TAG 075395620a504c0cdcaf9bab3d196db16a043de7 # v0.11.0
+    )
+
+    FetchContent_MakeAvailable(tracy)
+
     target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
     target_link_libraries(pxlFramework Tracy::TracyClient)
     message("pxlFramework profiling enabled")
@@ -157,14 +165,50 @@ set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
 
 # Add Dependencies (CMake projects)
-add_subdirectory(deps/GLFW)
+include(FetchContent)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw
+    GIT_TAG 7b6aead9fb88b3623e3b3725ebb42670cbe4c579 # 3.4
+)
+
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog
+    GIT_TAG 27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
+)
+
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm
+    GIT_TAG 33b0eb9fa336ffd8551024b1d2690e418014553b # 1.0.0
+)
+
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/rasterrize/imgui
+    GIT_TAG b34fef5aabb7fc280379c901161cb09eb34138a6
+)
+
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp
+    GIT_TAG 6a08c39e3a91ef385e76515cfad86aca4bfd57ff # v5.3.1
+)
+
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+    GIT_TAG c2680200486572baf8221ba052ef50b58ecd816e # v0.11.0
+)
+
+message("Restoring pxlFramework dependencies...")
+
+FetchContent_MakeAvailable(GLFW spdlog glm imgui assimp yaml-cpp)
+
 add_subdirectory(deps/Glad)
-add_subdirectory(deps/spdlog)
-add_subdirectory(deps/GLM)
-add_subdirectory(deps/ImGui)
 add_subdirectory(deps/stb)
-add_subdirectory(deps/assimp)
-add_subdirectory(deps/yaml-cpp)
 add_subdirectory(deps/discord-game-sdk)
 
 # BASS audio library
@@ -183,6 +227,8 @@ endif()
 
 # Find Vulkan SDK
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
+
+message("pxlFramework dependencies restored")
 
 # Add Vulkan include directory
 target_include_directories(pxlFramework PRIVATE Vulkan::Headers)
