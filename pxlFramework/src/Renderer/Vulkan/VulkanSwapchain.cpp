@@ -279,13 +279,13 @@ namespace pxl
         uint32_t suitableImageCount = 0;
 
         // Select most suitable number of images for swapchain
-        if (surfaceCapabilities.minImageCount >= 2)
+        if (surfaceCapabilities.maxImageCount >= 2)
         {
             suitableImageCount = surfaceCapabilities.maxImageCount >= 3 ? 3 : 2; // Triple/Double buffering
         }
         else
         {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Selected surface for swapchain must support more than 2 images"); // technically its guaranteed to support 1 image but a game will always need 2 I think.
+            PXL_LOG_ERROR(LogArea::Vulkan, "Selected surface for swapchain must support 2 or more images"); // technically its guaranteed to support 1 image but a game will always need 2 I think.
         }
 
         return suitableImageCount;
