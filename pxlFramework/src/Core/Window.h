@@ -149,6 +149,8 @@ namespace pxl
 
         static void CloseAll();
 
+        static bool IsInitialized() { return Initialized; }
+
     private:
         Window(const WindowSpecs& specs);
 
@@ -175,8 +177,11 @@ namespace pxl
 
         friend class Application; // for below functions
         static void Init();
-        static bool IsInitialized() { return Initialized; }
-        static void ProcessEvents() { if (!Initialized) { return; } s_EventProcessFunc(); }
+        static void ProcessEvents()
+        {
+            if (s_EventProcessFunc)
+                s_EventProcessFunc();
+        }
         static void UpdateAll();
         static void Shutdown();
 
@@ -217,6 +222,6 @@ namespace pxl
         static inline std::vector<Monitor> s_Monitors;
 
         // The function to process window events every frame
-        static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;
+        static inline std::function<void()> s_EventProcessFunc = nullptr;
     };
 }

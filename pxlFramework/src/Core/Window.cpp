@@ -497,6 +497,8 @@ namespace pxl
         glfwGetVersion(&major, &minor, &rev);
         PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
 
+        s_EventProcessFunc = glfwPollEvents;
+
         SetStaticGLFWCallbacks();
 
         UpdateMonitors();

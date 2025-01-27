@@ -24,13 +24,6 @@ namespace pxl
         Mesh,
     };
 
-    enum class FramerateCap
-    {
-        Unlimited,
-        Custom,
-        GSYNC,
-    };
-
     class Renderer
     {
     public:

@@ -2,6 +2,13 @@
 
 namespace pxl
 {
+    enum class FramerateMode
+    {
+        Unlimited,
+        Custom,
+        GSYNC,
+    };
+
     class Application
     {
     public:
@@ -25,8 +32,11 @@ namespace pxl
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 
-        uint32_t GetFPSLimit() const { return m_FPSLimit; }
-        void SetFPSLimit(uint32_t limit) { m_FPSLimit = limit; }
+        uint32_t GetFPSLimit() const { return m_CustomFPSLimit; }
+        void SetFPSLimit(uint32_t limit) { m_CustomFPSLimit = limit; }
+
+        FramerateMode GetFramerateMode() const { return m_FramerateMode; }
+        void SetFramerateMode(FramerateMode mode);
 
         static Application& Get()
         {
@@ -42,7 +52,9 @@ namespace pxl
         bool m_Minimized = false;
         float m_LastFrameTime = 0.0f;
         std::chrono::steady_clock::time_point m_FrameStartTime;
-        uint32_t m_FPSLimit = 0;
+        uint32_t m_CustomFPSLimit = 60; // TODO: make constant with config.h
+        uint32_t m_GsyncFPSLimit = 0;
+        FramerateMode m_FramerateMode = FramerateMode::Unlimited;
 
         static inline Application* s_Instance = nullptr;
     };

@@ -20,7 +20,7 @@ namespace pxl
 
         // Renderer settings
         RendererAPIType RendererAPI = RendererAPIType::OpenGL;
-        FramerateCap FramerateCap = FramerateCap::Unlimited; // FPS cap will likely be implemented in window class
+        FramerateMode FramerateCapMode = FramerateMode::Unlimited; // FPS cap will likely be implemented in window class
         uint32_t CustomFramerateCap = 60;
     };
 

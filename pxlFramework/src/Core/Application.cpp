@@ -76,7 +76,7 @@ namespace pxl
             Window::UpdateAll();
 
             // Limit the frame rate by sleeping the thread
-            if (m_FPSLimit > 0)
+            if (m_FramerateMode != FramerateMode::Unlimited)
                 LimitFPS();
 
             Renderer::s_FrameCount++;
@@ -103,10 +103,35 @@ namespace pxl
         Window::Shutdown();
     }
 
+    void Application::SetFramerateMode(FramerateMode mode)
+    {
+        if (mode == FramerateMode::GSYNC)
+        {
+            if (Window::IsInitialized())
+            {
+                m_GsyncFPSLimit = Window::GetPrimaryMonitor().GetCurrentVideoMode().RefreshRate - 3;
+            }
+            else
+            {
+                PXL_LOG_WARN(LogArea::Window, "Couldn't retrieve GSYNC fps limit, defaulting to 0");
+                m_GsyncFPSLimit = 0;
+            }
+        }
+
+        m_FramerateMode = mode;
+    }
+
     void Application::LimitFPS()
     {
         auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
-        auto us = std::chrono::microseconds(1s) / m_FPSLimit;
+        uint32_t limit = 0;
+
+        if (m_FramerateMode == FramerateMode::Custom)
+            limit = m_CustomFPSLimit;
+        else if (m_FramerateMode == FramerateMode::GSYNC)
+            limit = m_GsyncFPSLimit;
+
+        auto us = std::chrono::microseconds(1s) / limit;
         auto overhead = us - frameTime;
 
         // TODO: Sleep() can be very inaccurate, so I need to research the modern approach for this. THANKS MICROSOFT.
