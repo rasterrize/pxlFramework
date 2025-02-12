@@ -10,16 +10,16 @@
             "args": [
                 "build/pxlFramework.sln",
                 "/t:build",
-                "/property:Configuration=Debug",
+                "/p:Configuration=Debug",
+                "/v:minimal",
                 "/maxCpuCount",
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": true,
             },
             "presentation": {
                 "clear": true,
-                "showReuseMessage": false,
             },
             "problemMatcher": "$msCompile",
         },
@@ -30,7 +30,8 @@
             "args": [
                 "build/pxlFramework.sln",
                 "/t:rebuild",
-                "/property:Configuration=Debug",
+                "/p:Configuration=Debug",
+                "/v:minimal",
                 "/maxCpuCount",
             ],
             "group": {
@@ -43,7 +44,7 @@
             "problemMatcher": "$msCompile",
             "dependsOn": [
                 "CMake: clean",
-                "CMake: configure"
+                "CMake: configure",
             ]
         },
         {
@@ -53,8 +54,9 @@
             "args": [
                 "build/pxlFramework.sln",
                 "/t:build",
-                "/property:Configuration=Release",
-                "/maxCpuCount"
+                "/p:Configuration=Release",
+                "/v:minimal",
+                "/maxCpuCount",
             ],
             "group": "build",
             "presentation": {
@@ -70,8 +72,9 @@
             "args": [
                 "build/pxlFramework.sln",
                 "/t:rebuild",
-                "/property:Configuration=Release",
-                "/maxCpuCount"
+                "/p:Configuration=Release",
+                "/v:minimal",
+                "/maxCpuCount",
             ],
             "group": "build",
             "presentation": {
