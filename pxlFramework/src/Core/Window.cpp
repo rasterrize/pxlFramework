@@ -16,7 +16,7 @@ namespace pxl
     Window::Window(const WindowSpecs& specs)
         : m_Title(specs.Title), m_Size(specs.Size), m_WindowMode(specs.WindowMode), m_RendererAPI(specs.RendererAPI)
     {
-        if (!Initialized)
+        if (!s_Initialized)
             Window::Init();
 
         if (m_WindowMode == WindowMode::Windowed)
@@ -503,14 +503,14 @@ namespace pxl
 
         UpdateMonitors();
 
-        Initialized = true;
+        s_Initialized = true;
     }
 
     void Window::UpdateAll()
     {
         PXL_PROFILE_SCOPE;
 
-        if (!Initialized || s_Windows.empty())
+        if (!s_Initialized || s_Windows.empty())
             return;
 
         for (const auto& window : s_Windows)

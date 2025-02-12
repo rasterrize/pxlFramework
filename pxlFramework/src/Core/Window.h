@@ -149,7 +149,7 @@ namespace pxl
 
         static void CloseAll();
 
-        static bool IsInitialized() { return Initialized; }
+        static bool IsInitialized() { return s_Initialized; }
 
     private:
         Window(const WindowSpecs& specs);
@@ -215,7 +215,7 @@ namespace pxl
         std::function<void(Size2D)> m_UserResizeCallback;
         std::function<void(const std::vector<std::string>&)> m_UserFileDropCallback = nullptr;
 
-        static inline bool Initialized = false;
+        static inline bool s_Initialized = false;
 
         // Storage of all windows and monitors
         static inline std::vector<std::shared_ptr<Window>> s_Windows;
