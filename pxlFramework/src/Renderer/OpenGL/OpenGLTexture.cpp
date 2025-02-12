@@ -107,14 +107,14 @@ namespace pxl
         return GL_INVALID_ENUM;
     }
 
-    GLenum OpenGLTexture::ToGLWrapMode(TextureWrapMode mode)
+    GLenum OpenGLTexture::ToGLWrapMode(TextureWrap mode)
     {
         switch (mode)
         {
-            case TextureWrapMode::Repeat:         return GL_REPEAT;
-            case TextureWrapMode::MirroredRepeat: return GL_MIRRORED_REPEAT;
-            case TextureWrapMode::ClampToEdge:    return GL_CLAMP_TO_EDGE;
-            case TextureWrapMode::ClampToBorder:  return GL_CLAMP_TO_BORDER;
+            case TextureWrap::Repeat:         return GL_REPEAT;
+            case TextureWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
+            case TextureWrap::ClampToEdge:    return GL_CLAMP_TO_EDGE;
+            case TextureWrap::ClampToBorder:  return GL_CLAMP_TO_BORDER;
         }
 
         return GL_INVALID_ENUM;

@@ -29,7 +29,7 @@ namespace pxl
         static GLenum ToGLFormat(ImageFormat format);
         static GLenum ToGLFilter(SampleFilter filter);
         static GLenum ToGLType(TextureType type);
-        static GLenum ToGLWrapMode(TextureWrapMode mode);
+        static GLenum ToGLWrapMode(TextureWrap mode);
 
     private:
         ImageMetadata m_Metadata;

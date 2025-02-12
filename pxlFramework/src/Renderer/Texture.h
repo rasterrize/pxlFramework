@@ -12,7 +12,7 @@ namespace pxl
         CubeMap,
     };
 
-    enum class TextureWrapMode
+    enum class TextureWrap
     {
         Repeat,
         MirroredRepeat,
@@ -23,7 +23,7 @@ namespace pxl
     struct TextureSpecs
     {
         TextureType Type = TextureType::Tex2D;
-        TextureWrapMode WrapMode = TextureWrapMode::ClampToEdge;
+        TextureWrap WrapMode = TextureWrap::ClampToEdge;
         SampleFilter Filter = SampleFilter::Linear;
     };
 
