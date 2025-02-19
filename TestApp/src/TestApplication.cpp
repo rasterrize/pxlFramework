@@ -127,8 +127,8 @@ namespace TestApp
             frameworkSettings.WindowPosition = window->GetPosition();
             frameworkSettings.WindowSize = window->GetSize();
             frameworkSettings.CustomFramerateCap = GetFPSLimit();
-            frameworkSettings.MonitorIndex = window->GetMonitor().Index;
-            frameworkSettings.FullscreenRefreshRate = window->GetMonitor().GetCurrentVideoMode().RefreshRate;
+            frameworkSettings.MonitorIndex = window->GetCurrentMonitor().Index;
+            frameworkSettings.FullscreenRefreshRate = window->GetCurrentMonitor().GetCurrentVideoMode().RefreshRate;
         }
 
         m_OnCloseFunc();

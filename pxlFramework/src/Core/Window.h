@@ -13,6 +13,7 @@
 namespace pxl
 {
     static constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
+    static constexpr float k_DefaultAspectRatio = 16.0f / 9.0f;
     static constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
 
     enum class WindowMode
@@ -137,7 +138,7 @@ namespace pxl
         void SetResizeCallback(const std::function<void(Size2D newSize)>& callback) { m_UserResizeCallback = callback; }
         void SetFileDropCallback(const std::function<void(std::vector<std::string>)>& callback) { m_UserFileDropCallback = callback; }
 
-        const Monitor& GetMonitor() { return s_Monitors[m_CurrentMonitorIndex - 1]; } // OS monitor index
+        const Monitor& GetCurrentMonitor() { return m_CurrentMonitor; }
 
         static const std::vector<Monitor>& GetAvailableMonitors() { return s_Monitors; }
 
@@ -202,14 +203,14 @@ namespace pxl
         WindowMode m_WindowMode = WindowMode::Windowed;
         RendererAPIType m_RendererAPI = RendererAPIType::None;
         bool m_Minimized = false;
-        float m_AspectRatio = 16.0f / 9.0f;
+        float m_AspectRatio = k_DefaultAspectRatio;
 
         // The size and position of the window when it was in windowed mode
         glm::ivec2 m_LastWindowedPosition = { 0, 0 };
         Size2D m_LastWindowedSize = k_DefaultWindowedSize;
 
-        // OS monitor index
-        uint8_t m_CurrentMonitorIndex = 1;
+        // The current monitor this window is sitting on
+        Monitor m_CurrentMonitor;
 
         // User callbacks
         std::function<void(Size2D)> m_UserResizeCallback;

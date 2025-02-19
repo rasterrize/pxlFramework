@@ -25,11 +25,11 @@ namespace pxl
             if (specs.Position.has_value())
             {
                 m_Position = specs.Position.value();
-                m_CurrentMonitorIndex = GetPositionRelativeMonitor().Index;
+                m_CurrentMonitor = GetPositionRelativeMonitor();
             }
             else
             {
-                m_CurrentMonitorIndex = GetPrimaryMonitor().Index;
+                m_CurrentMonitor = GetPrimaryMonitor();
                 auto vidMode = GetPrimaryMonitor().GetCurrentVideoMode();
                 m_Position = { vidMode.Width / 2 - m_Size.Width / 2, vidMode.Height / 2 - m_Size.Height / 2 };
             }
@@ -42,21 +42,21 @@ namespace pxl
         if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
         {
             // If monitor index is specified, use it, otherwise use the primary monitor
-            m_CurrentMonitorIndex = specs.MonitorIndex.has_value() ? specs.MonitorIndex.value() : GetPrimaryMonitor().Index;
+            m_CurrentMonitor = specs.MonitorIndex.has_value() ? s_Monitors[specs.MonitorIndex.value()] : GetPrimaryMonitor();
 
             // Set position to top left of specified monitor
-            m_Position = GetMonitor().Position;
+            m_Position = GetCurrentMonitor().Position;
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = GetMonitor().GetCurrentVideoMode().GetSize();
+            m_Size = GetCurrentMonitor().GetCurrentVideoMode().GetSize();
 
             // Ensure LastWindowedPosition is the middle of the monitor
-            auto vidMode = GetMonitor().GetCurrentVideoMode();
+            auto vidMode = GetCurrentMonitor().GetCurrentVideoMode();
             m_LastWindowedPosition = { vidMode.Width / 2 - k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - k_DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
-        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? GetMonitor().GLFWMonitor : nullptr;
+        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? GetCurrentMonitor().GLFWMonitor : nullptr;
 
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
@@ -218,9 +218,10 @@ namespace pxl
         if (mode == m_WindowMode)
             return;
 
-        auto currentMonitor = GetPositionRelativeMonitor();
+        auto currentMonitor = GetCurrentMonitor();
         auto vidMode = currentMonitor.GetCurrentVideoMode();
 
+        // TODO: use monitor video mode / position
         int monitorX, monitorY, monitorWidth, monitorHeight;
         glfwGetMonitorWorkarea(currentMonitor.GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
 
@@ -461,7 +462,7 @@ namespace pxl
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedPosition = { xpos, ypos };
 
-        windowInstance->m_CurrentMonitorIndex = windowInstance->GetPositionRelativeMonitor().Index;
+        windowInstance->m_CurrentMonitor = windowInstance->GetPositionRelativeMonitor();
     }
 
     void Window::WindowDropCallback(GLFWwindow* window, int count, const char** paths)
