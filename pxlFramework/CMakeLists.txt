@@ -81,7 +81,6 @@ add_library(pxlFramework STATIC
     # UTILS
     src/Utils/FileSystem.h src/Utils/FileSystem.cpp
     src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
-    src/Utils/DiscordRPC.h src/Utils/DiscordRPC.cpp
     src/Utils/Easing.h src/Utils/Easing.cpp
     src/Utils/Random.h src/Utils/Random.cpp
 
@@ -215,7 +214,6 @@ FetchContent_MakeAvailable(GLFW spdlog glm imgui assimp yaml-cpp volk)
 
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
-add_subdirectory(deps/discord-game-sdk)
 
 # BASS audio library
 target_include_directories(pxlFramework PUBLIC deps/BASS/include)
@@ -225,7 +223,6 @@ target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 if(MSVC)
     target_compile_options(glfw PUBLIC "/MP")
     target_compile_options(glad PUBLIC "/MP")
-    target_compile_options(discordgamesdk PUBLIC "/MP")
     target_compile_options(imgui PUBLIC "/MP")
     target_compile_options(stb PUBLIC "/MP")
     target_compile_options(yaml-cpp PUBLIC "/MP")
@@ -249,14 +246,21 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::shaderc_combined
-    discordgamesdk
     Winmm.lib # For FPS limiter. I consider this temporary.
     volk
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
 
-target_compile_definitions(pxlFramework PRIVATE
+# Framework Modules
+if (PXL_MODULE_DISCORD)
+    message("pxlFramework discord module enabled")
+    add_subdirectory(modules/discord)
+    target_link_libraries(pxlFramework pxlFramework-discord)
+    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_MODULE_DISCORD)
+endif()
+
+target_compile_definitions(pxlFramework PUBLIC
     GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_NONE   # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header 

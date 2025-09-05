@@ -11,11 +11,15 @@ option(PXL_ENABLE_ASSERTS "Enable framework asserts" OFF)
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
 option(PXL_BUILD_TESTS "Build TestApp/Tests" OFF)
 
+# Configure optional framework modules
+option(PXL_MODULE_DISCORD "Enable discord rpc module" OFF)
+
 # Ensure static linking
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 # NOTE: This is done before pxlFramework because TestApp sets some pxlFramework options
 if (PXL_BUILD_TESTS)
+    message("Build pxlFramework TestApp enabled")
     add_subdirectory(TestApp)
 
     # Set TestApp to the startup project in Visual Studio
@@ -28,5 +32,4 @@ add_subdirectory(pxlFramework)
 file(COPY pxlFramework/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # Copy necessary framework dependency DLLs to bin directory
-file(COPY pxlFramework/deps/discord-game-sdk/lib/discord_game_sdk.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY pxlFramework/deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)

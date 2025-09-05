@@ -7,7 +7,6 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Renderer.h"
 #include "Stopwatch.h"
-#include "Utils/DiscordRPC.h"
 #include "Window.h"
 
 using namespace std::literals;
@@ -70,7 +69,6 @@ namespace pxl
                 Renderer::Begin();
                 OnRender();
                 Renderer::End();
-                DiscordRPC::Update();
             }
 
             Window::UpdateAll();

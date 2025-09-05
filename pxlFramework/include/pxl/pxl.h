@@ -46,7 +46,10 @@
 #include "../src/Debug/Profiler.h"
 
 // Utils
-#include "../src/Utils/DiscordRPC.h"
 #include "../src/Utils/EnumStringHelper.h"
 #include "../src/Utils/FileSystem.h"
 #include "../src/Utils/Random.h"
+
+#ifdef PXL_ENABLE_MODULE_DISCORD
+    #include "../modules/discord/src/DiscordRPC.h"
+#endif
