@@ -29,6 +29,9 @@ namespace pxl
 
     void Input::Shutdown()
     {
+        if (!s_Enabled)
+            return;
+
         s_Enabled = false;
         s_WindowHandle = nullptr;
         PXL_LOG_INFO(LogArea::Input, "Input shutdown");
