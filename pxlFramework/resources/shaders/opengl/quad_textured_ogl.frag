@@ -11,5 +11,5 @@ uniform sampler2D u_Textures[gl_MaxCombinedTextureImageUnits];
 
 void main()
 {
-    color = texture(u_Textures[int(v_TexIndex)], v_TexCoords) * vec4(v_Colour.rgb, 1.0);
+    color = texture(u_Textures[int(v_TexIndex)], v_TexCoords) * v_Colour;
 }
