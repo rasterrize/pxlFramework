@@ -97,24 +97,24 @@ add_library(pxlFramework STATIC
 target_compile_features(pxlFramework PRIVATE cxx_std_20)
 
 # Enable logging if desired
-if (PXL_ENABLE_LOGGING)
+if(PXL_ENABLE_LOGGING)
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
 endif()
 
 # Enable asserts if desired
-if (PXL_ENABLE_ASSERTS)
+if(PXL_ENABLE_ASSERTS)
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_ASSERTS)
 endif()
 
 # Enable profiling if desired
-if (PXL_ENABLE_PROFILING)
+if(PXL_ENABLE_PROFILING)
     option(TRACY_ENABLE "" ON)
     option(TRACY_ON_DEMAND "" ON)
 
     FetchContent_Declare(
-    tracy
-    GIT_REPOSITORY https://github.com/wolfpld/tracy/
-    GIT_TAG 075395620a504c0cdcaf9bab3d196db16a043de7 # v0.11.0
+        tracy
+        GIT_REPOSITORY https://github.com/wolfpld/tracy/
+        GIT_TAG 075395620a504c0cdcaf9bab3d196db16a043de7 # v0.11.0
     )
 
     FetchContent_MakeAvailable(tracy)
@@ -127,15 +127,15 @@ else()
 endif()
 
 # Set MSVC settings
-if (MSVC)
+if(MSVC)
     # Set MSVC runtime library based on build type
     set_target_properties(pxlFramework PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    
+
     # Set MSBuild multi-processor compilation
     target_compile_options(pxlFramework PRIVATE "/MP")
 
     # Set compiler warning level
-    target_compile_options(pxlFramework PRIVATE "/W4")
+    target_compile_options(pxlFramework PRIVATE "/W3")
 
     # Treat warnings as errors
     target_compile_options(pxlFramework PRIVATE "/WX")
@@ -203,9 +203,15 @@ FetchContent_Declare(
     GIT_TAG c2680200486572baf8221ba052ef50b58ecd816e # v0.11.0
 )
 
+FetchContent_Declare(
+    volk
+    GIT_REPOSITORY https://github.com/zeux/volk
+    GIT_TAG 0b17a763ba5643e32da1b2152f8140461b3b7345 # 1.4.304
+)
+
 message("Restoring pxlFramework dependencies...")
 
-FetchContent_MakeAvailable(GLFW spdlog glm imgui assimp yaml-cpp)
+FetchContent_MakeAvailable(GLFW spdlog glm imgui assimp yaml-cpp volk)
 
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
@@ -216,7 +222,7 @@ target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
 # Set libraries to build with multi-processor compilation
-if (MSVC)
+if(MSVC)
     target_compile_options(glfw PUBLIC "/MP")
     target_compile_options(glad PUBLIC "/MP")
     target_compile_options(discordgamesdk PUBLIC "/MP")
@@ -242,25 +248,27 @@ target_link_libraries(pxlFramework
     stb
     assimp
     yaml-cpp
-    Vulkan::Vulkan
-    discordgamesdk
     Vulkan::shaderc_combined
+    discordgamesdk
     Winmm.lib # For FPS limiter. I consider this temporary.
+    volk
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
 
-target_compile_definitions(pxlFramework PRIVATE 
+target_compile_definitions(pxlFramework PRIVATE
     GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_NONE   # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header 
+    VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
+    WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
 )
 
 # Specify source directory as an include folder for simplified '#include's in code
 # TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
-#       and should instead only expose pxl.h (I am unsure if this is even possible)
+# and should instead only expose pxl.h (I am unsure if this is even possible)
 target_include_directories(pxlFramework PUBLIC src)
 
 # Specify include directories for projects using pxlFramework via add_subdirectory()

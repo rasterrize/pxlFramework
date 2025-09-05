@@ -1,5 +1,10 @@
 #pragma once
 
+// Include Windows.h before anything else, to avoid confusing preprocessor warnings
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
+
 // pxlFramework
 #include "Core/Assert.h"
 #include "Core/Logging/FrameworkLog.h"

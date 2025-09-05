@@ -10,7 +10,13 @@ namespace pxl
         allocatorCreateInfo.physicalDevice = static_cast<VkPhysicalDevice>(device->GetPhysical());
         allocatorCreateInfo.device = static_cast<VkDevice>(device->GetLogical());
         allocatorCreateInfo.instance = instance;
+        allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_3;
         allocatorCreateInfo.pVulkanFunctions = nullptr;
+
+        VmaVulkanFunctions funcs = {};
+        funcs.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+        funcs.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+        allocatorCreateInfo.pVulkanFunctions = &funcs;
 
         VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &s_Allocator));
 

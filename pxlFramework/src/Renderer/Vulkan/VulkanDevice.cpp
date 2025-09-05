@@ -1,6 +1,6 @@
 #include "VulkanDevice.h"
 
-//#include <vulkan/vulkan_win32.h>
+#include <Volk/volk.h>
 
 #include "VulkanHelpers.h"
 
@@ -24,6 +24,10 @@ namespace pxl
             vkDestroyDevice(m_LogicalDevice, nullptr);
             m_LogicalDevice = VK_NULL_HANDLE;
         });
+
+        // Load vulkan device functions with volk
+        // NOTE: Currently, this assumes that only one global device is used for the application.
+        volkLoadDevice(m_LogicalDevice);
 
         // Get graphics/present queue from device
         m_GraphicsQueue = VulkanHelpers::GetQueueHandle(m_LogicalDevice, m_GraphicsQueueFamily);

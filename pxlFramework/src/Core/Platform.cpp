@@ -2,9 +2,20 @@
 
 #include <GLFW/glfw3native.h>
 #include <commdlg.h>
+#include <timeapi.h>
 
 namespace pxl
 {
+    void Platform::SetMinimumTimerResolution(uint32_t value)
+    {
+         timeBeginPeriod(value);
+    }
+
+    void Platform::ResetMinimumTimerResolution(uint32_t value)
+    {
+         timeEndPeriod(value);
+    }
+
     std::string pxl::Platform::OpenFile(const std::shared_ptr<Window> window, const char* filter)
     {
         OPENFILENAMEA ofn;

@@ -1,5 +1,7 @@
 #include "VulkanInstance.h"
 
+#include <Volk/volk.h>
+
 #include "VulkanHelpers.h"
 
 namespace pxl
@@ -36,6 +38,9 @@ namespace pxl
             vkDestroyInstance(s_Instance, nullptr);
             s_Instance = VK_NULL_HANDLE;
         });
+
+        // Load vulkan entrypoints with volk
+        volkLoadInstance(s_Instance);
 
 #ifdef PXL_ENABLE_LOGGING
         // Logging

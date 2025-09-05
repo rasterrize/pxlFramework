@@ -597,6 +597,9 @@ namespace pxl
                     std::vector<const char*> selectedExtensions;
                     std::vector<const char*> selectedLayers;
 
+                    // Initialize volk
+                    VK_CHECK(volkInitialize());
+                    
                     // We are only using the required extensions by glfw for now
                     // Should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE)
                     selectedExtensions = Window::GetVKRequiredInstanceExtensions();
