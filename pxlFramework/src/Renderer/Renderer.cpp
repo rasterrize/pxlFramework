@@ -132,27 +132,27 @@ namespace pxl
         switch (s_RendererAPIType)
         {
             case RendererAPIType::OpenGL:
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_textured_ogl.vert", ShaderStage::Vertex);
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_textured_ogl.frag", ShaderStage::Fragment);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/quad_textured_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/quad_textured_ogl.frag", ShaderStage::Fragment);
 
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_ogl.vert", ShaderStage::Vertex);
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_ogl.frag", ShaderStage::Fragment);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/quad_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/quad_ogl.frag", ShaderStage::Fragment);
 
-                ShaderManager::LoadFromGLSL("resources/shaders/line_ogl.vert", ShaderStage::Vertex);
-                ShaderManager::LoadFromGLSL("resources/shaders/line_ogl.frag", ShaderStage::Fragment);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/line_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/line_ogl.frag", ShaderStage::Fragment);
 
-                ShaderManager::LoadFromGLSL("resources/shaders/mesh_ogl.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/opengl/mesh_ogl.vert", ShaderStage::Vertex);
                 break;
 
             case RendererAPIType::Vulkan:
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.vert", ShaderStage::Vertex);
-                ShaderManager::LoadFromGLSL("resources/shaders/quad_vk.frag", ShaderStage::Fragment);
+                ShaderManager::LoadFromGLSL("resources/shaders/vulkan/quad_vk.vert", ShaderStage::Vertex);
+                ShaderManager::LoadFromGLSL("resources/shaders/vulkan/quad_vk.frag", ShaderStage::Fragment);
 
-                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/quad_vert.spv", ShaderStage::Vertex);
-                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/quad_frag.spv", ShaderStage::Fragment);
+                ShaderManager::LoadFromSPIRV("resources/shaders/vulkan/compiled/quad_vert.spv", ShaderStage::Vertex);
+                ShaderManager::LoadFromSPIRV("resources/shaders/vulkan/compiled/quad_frag.spv", ShaderStage::Fragment);
 
-                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/line_vert.spv", ShaderStage::Vertex);
-                ShaderManager::LoadFromSPIRV("resources/shaders/compiled/line_frag.spv", ShaderStage::Fragment);
+                ShaderManager::LoadFromSPIRV("resources/shaders/vulkan/compiled/line_vert.spv", ShaderStage::Vertex);
+                ShaderManager::LoadFromSPIRV("resources/shaders/vulkan/compiled/line_frag.spv", ShaderStage::Fragment);
                 break;
         }
 
