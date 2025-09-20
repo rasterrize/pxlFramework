@@ -9,6 +9,9 @@ namespace pxl
         GSYNC,
     };
 
+    /** @brief The core that runs a pxlFramework application.
+        IMPORTANT: You must inherit from this class and override specific methods (OnUpdate, OnRender, etc) to add anything custom to your app.
+    */
     class Application
     {
     public:
@@ -18,17 +21,19 @@ namespace pxl
         Application(const Application& other) = delete;
         Application& operator=(const Application& other) = delete;
 
-        virtual ~Application();
+        // Enforces this class as abstract
+        virtual ~Application() = 0;
 
         void Run();
         void Close();
 
         bool IsRunning() const { return m_Running; }
 
-        virtual void OnUpdate(float dt) = 0;
-        virtual void OnRender() = 0;
-        virtual void OnGUIRender() = 0;
-        virtual void OnClose() = 0;
+        // Override these methods in a derived class to add custom logic
+        virtual void OnUpdate(float dt) {}
+        virtual void OnRender() {}
+        virtual void OnGUIRender() {} // This function only gets called if ImGui is initialized
+        virtual void OnClose() {}
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 

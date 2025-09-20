@@ -174,8 +174,9 @@ namespace pxl
         // Static GLFW callbacks
         static void GLFWErrorCallback(int error, const char* description);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
-
-        friend class Application; // for below functions
+        
+        friend class Application;
+        // ^ for the below functions
         static void Init();
         static void ProcessEvents()
         {

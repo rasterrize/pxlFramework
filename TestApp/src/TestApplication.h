@@ -6,7 +6,6 @@ namespace TestApp
     {
     public:
         TestApplication();
-        virtual ~TestApplication() override = default;
 
         virtual void OnUpdate(float dt) override;
         virtual void OnRender() override;
