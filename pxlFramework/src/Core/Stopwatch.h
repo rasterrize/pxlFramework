@@ -18,7 +18,8 @@ namespace pxl
 
         void Start()
         {
-            m_StartTime = std::chrono::high_resolution_clock::now();
+            if (!m_Stopped)
+                m_StartTime = std::chrono::high_resolution_clock::now();
         }
 
         void Stop()
@@ -28,7 +29,7 @@ namespace pxl
             CalculateElapsed();
         }
 
-        void Restart()
+        void Reset()
         {
             m_StartTime = std::chrono::high_resolution_clock::now();
             m_EndTime = std::chrono::high_resolution_clock::now();

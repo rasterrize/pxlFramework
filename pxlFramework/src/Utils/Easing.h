@@ -4,6 +4,7 @@ namespace pxl
 {
     enum class Ease
     {
+        Linear,
         InSine,
         OutSine,
         InOutSine,
@@ -38,6 +39,8 @@ namespace pxl
 
     class Easing
     {
+    public:
+        static std::function<double(double)> GetEasingFunction(Ease ease);
         static double InSine(double t);
         static double OutSine(double t);
         static double InOutSine(double t);
