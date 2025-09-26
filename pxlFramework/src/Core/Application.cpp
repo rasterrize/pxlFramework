@@ -25,9 +25,6 @@ namespace pxl
         PXL_INIT_LOGGING;
 
         FrameworkConfig::Init();
-
-        // Manually set the process's timer resolution to 1ms so the FPS limiter works more accurately.
-        Platform::SetMinimumTimerResolution(1);
     }
 
     Application::~Application()
@@ -92,8 +89,6 @@ namespace pxl
 
         OnClose();
 
-        Platform::ResetMinimumTimerResolution(1);
-
         FrameworkConfig::Shutdown();
         GUI::Shutdown();
         Renderer::Shutdown();
@@ -132,8 +127,14 @@ namespace pxl
         auto us = std::chrono::microseconds(1s) / limit;
         auto overhead = us - frameTime;
 
-        // TODO: Sleep() can be very inaccurate, so I need to research the modern approach for this. THANKS MICROSOFT.
-        if (overhead > 0ms)
-            Sleep(static_cast<DWORD>(overhead.count() / 1000));
+        if (overhead > 0us)
+        {
+            // TODO: Stopwatch uses high resolution clock, which can go backwards, and therefore breaks if the time is changed on the OS
+            // To fix, this should be using a steady clock stopwatch variant
+            Stopwatch wait;
+            while (wait.GetElapsedMicroSec() < overhead.count())
+            {
+            }
+        }
     }
 }

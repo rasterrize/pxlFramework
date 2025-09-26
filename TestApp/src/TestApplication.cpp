@@ -98,14 +98,24 @@ namespace TestApp
         ImGui::Text("Total Vertex Count: %u", rendererStats.GetTotalVertexCount());
         ImGui::Text("Total Index Count: %u", rendererStats.GetTotalIndexCount());
 
-        if (ImGui::Button("Toggle VSync"))
-            pxl::Renderer::GetGraphicsContext()->ToggleVSync();
+        static bool enableVSync = pxl::Renderer::GetGraphicsContext()->GetVSync();
+        if (ImGui::Checkbox("Enable VSync", &enableVSync))
+            pxl::Renderer::GetGraphicsContext()->SetVSync(enableVSync);
 
-        static int32_t fpsLimit = 0;
-        ImGui::InputInt("FPS Limit", &fpsLimit);
+        static bool limitFPS = GetFramerateMode() != pxl::FramerateMode::Unlimited ? true : false;
+        if (ImGui::Checkbox("Enable FPS Limiter", &limitFPS))
+        {
+            if (limitFPS)
+                SetFramerateMode(pxl::FramerateMode::Custom);
+            else
+                SetFramerateMode(pxl::FramerateMode::Unlimited);
+        }
 
-        if (ImGui::Button("Set FPS Limit"))
-            SetFPSLimit(fpsLimit);
+        static int32_t fpsLimit = GetFPSLimit();
+        if (ImGui::InputInt("FPS Limit", &fpsLimit))
+            SetFPSLimit(std::max(1, fpsLimit));
+
+        fpsLimit = std::max(1, fpsLimit);
 
         ImGui::End();
 
