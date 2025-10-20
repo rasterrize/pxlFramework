@@ -7,7 +7,7 @@ in vec4 v_Colour;
 in vec2 v_TexCoords;
 in float v_TexIndex;
 
-uniform sampler2D u_Textures[gl_MaxCombinedTextureImageUnits];
+uniform sampler2D u_Textures[gl_MaxTextureImageUnits];
 
 void main()
 {

@@ -68,7 +68,7 @@ namespace pxl
     RendererLimits OpenGLGraphicsContext::GetLimits()
     {
         int32_t maxTextureUnits;
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 
         return {
             .MaxTextureUnits = static_cast<uint32_t>(maxTextureUnits),
