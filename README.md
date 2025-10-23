@@ -31,7 +31,7 @@ If you wish to create an application or game with this framework... well atm goo
 
 To build you will need:
  - [CMake](https://cmake.org/download/) (_any recent version_)
- - [VulkanSDK](https://vulkan.lunarg.com/sdk/home) (_with **Shader Toolchain Debug Symbols x64** and **Vulkan Memory Allocator header** checked_)
+ - [VulkanSDK](https://vulkan.lunarg.com/sdk/home) (_with **Shader Toolchain Debug Symbols x64**, **Vulkan Memory Allocator header** and **Volk header** checked_)
  - [MSVC](https://visualstudio.microsoft.com/downloads/) (_any version supporting **C++20**_)
 
 To clone use:
