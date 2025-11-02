@@ -1,95 +1,24 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(pxlFramework VERSION 0.0.1 LANGUAGES CXX)
 
+# Add source and header files
+file(GLOB_RECURSE core_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Core/*.cpp ${PROJECT_SOURCE_DIR}/src/Core/*.h)
+file(GLOB_RECURSE renderer_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Renderer/*.cpp ${PROJECT_SOURCE_DIR}/src/Renderer/*.h)
+file(GLOB_RECURSE debug_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Debug/*.cpp ${PROJECT_SOURCE_DIR}/src/Debug/*.h)
+file(GLOB_RECURSE utils_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Utils/*.cpp ${PROJECT_SOURCE_DIR}/src/Utils/*.h)
+file(GLOB root_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+
+# Exclude audio for now
+if(FALSE)
+    file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Audio/*.cpp ${PROJECT_SOURCE_DIR}/src/Audio/*.h)
+endif()
+
 add_library(pxlFramework STATIC
-    # PCH
-    src/PCH.h
-
-    # CORE
-    src/Core/Application.h src/Core/Application.cpp
-    src/Core/Window.h src/Core/Window.cpp
-    src/Core/Logging/Logger.h src/Core/Logging/Logger.cpp
-    src/Core/Logging/FrameworkLog.h
-    src/Core/Logging/ApplicationLog.h
-    src/Core/Input.h src/Core/Input.cpp
-    src/Core/KeyCodes.h
-    src/Core/MouseCodes.h
-    src/Core/Platform.h src/Core/Platform.cpp
-    src/Core/Stopwatch.h
-    src/Core/Config.h src/Core/Config.cpp
-    src/Core/Size.h
-    src/Core/Colour.h
-    src/Core/Image.h
-
-    # RENDERER
-    src/Renderer/Renderer.h src/Renderer/Renderer.cpp
-    src/Renderer/RendererAPI.h src/Renderer/RendererAPI.cpp
-    src/Renderer/RendererAPIType.h
-    src/Renderer/GraphicsContext.h src/Renderer/GraphicsContext.cpp
-    src/Renderer/GPUBuffer.h src/Renderer/GPUBuffer.cpp
-    src/Renderer/VertexArray.h src/Renderer/VertexArray.cpp
-    src/Renderer/BufferLayout.h
-    src/Renderer/UniformLayout.h
-    src/Renderer/Shader.h src/Renderer/Shader.cpp
-    src/Renderer/Camera.h src/Renderer/Camera.cpp
-    src/Renderer/OrthographicCamera.h src/Renderer/OrthographicCamera.cpp
-    src/Renderer/PerspectiveCamera.h src/Renderer/PerspectiveCamera.cpp
-    src/Renderer/Texture.h src/Renderer/Texture.cpp
-    src/Renderer/ShaderManager.h src/Renderer/ShaderManager.cpp
-    src/Renderer/RendererData.h
-    src/Renderer/Pipeline.h src/Renderer/Pipeline.cpp
-    src/Renderer/Framebuffer.h
-    src/Renderer/GraphicsDevice.h
-    src/Renderer/Vertices.h
-    src/Renderer/RendererLimits.h
-
-    # PRIMITIVES
-    src/Renderer/Primitives/Primitive.h
-    src/Renderer/Primitives/Quad.h
-    src/Renderer/Primitives/Cube.h
-    src/Renderer/Primitives/Line.h
-
-    # OPENGL
-    src/Renderer/OpenGL/OpenGLRenderer.h src/Renderer/OpenGL/OpenGLRenderer.cpp
-    src/Renderer/OpenGL/OpenGLContext.h src/Renderer/OpenGL/OpenGLContext.cpp
-    src/Renderer/OpenGL/OpenGLBuffer.h src/Renderer/OpenGL/OpenGLBuffer.cpp
-    src/Renderer/OpenGL/OpenGLVertexArray.h src/Renderer/OpenGL/OpenGLVertexArray.cpp
-    src/Renderer/OpenGL/OpenGLShader.h src/Renderer/OpenGL/OpenGLShader.cpp
-    src/Renderer/OpenGL/OpenGLTexture.h src/Renderer/OpenGL/OpenGLTexture.cpp
-    src/Renderer/OpenGL/OpenGLPipeline.h src/Renderer/OpenGL/OpenGLPipeline.cpp
-
-    # AUDIO
-    # src/Audio/AudioManager.h src/Audio/AudioManager.cpp
-    # src/Audio/AudioTrack.h src/Audio/AudioTrack.cpp
-
-    # VULKAN
-    src/Renderer/Vulkan/VulkanInstance.h src/Renderer/Vulkan/VulkanInstance.cpp
-    src/Renderer/Vulkan/VulkanRenderer.h src/Renderer/Vulkan/VulkanRenderer.cpp
-    src/Renderer/Vulkan/VulkanContext.h src/Renderer/Vulkan/VulkanContext.cpp
-    src/Renderer/Vulkan/VulkanShader.h src/Renderer/Vulkan/VulkanShader.cpp
-    src/Renderer/Vulkan/VulkanPipeline.h src/Renderer/Vulkan/VulkanPipeline.cpp
-    src/Renderer/Vulkan/VulkanRenderPass.h src/Renderer/Vulkan/VulkanRenderPass.cpp
-    src/Renderer/Vulkan/VulkanFramebuffer.h src/Renderer/Vulkan/VulkanFramebuffer.cpp
-    src/Renderer/Vulkan/VulkanSwapchain.h src/Renderer/Vulkan/VulkanSwapchain.cpp
-    src/Renderer/Vulkan/VulkanHelpers.h src/Renderer/Vulkan/VulkanHelpers.cpp
-    src/Renderer/Vulkan/VulkanImage.h src/Renderer/Vulkan/VulkanImage.cpp
-    src/Renderer/Vulkan/VulkanBuffer.h src/Renderer/Vulkan/VulkanBuffer.cpp
-    src/Renderer/Vulkan/VulkanDevice.h src/Renderer/Vulkan/VulkanDevice.cpp
-    src/Renderer/Vulkan/VulkanAllocator.h src/Renderer/Vulkan/VulkanAllocator.cpp
-    src/Renderer/Vulkan/VmaUsage.cpp
-
-    # UTILS
-    src/Utils/FileSystem.h src/Utils/FileSystem.cpp
-    src/Utils/EnumStringHelper.h src/Utils/EnumStringHelper.cpp
-    src/Utils/Easing.h src/Utils/Easing.cpp
-    src/Utils/Random.h src/Utils/Random.cpp
-
-    # DEBUG
-    src/Debug/GUI/GUI.h src/Debug/GUI/GUI.cpp
-    src/Debug/GUI/GUIBase.h
-    src/Debug/GUI/GUIOpenGL.h src/Debug/GUI/GUIOpenGL.cpp
-    src/Debug/GUI/GUIVulkan.h src/Debug/GUI/GUIVulkan.cpp
-    src/Debug/Profiler.h src/Debug/Profiler.cpp
+    ${core_source_files}
+    ${renderer_source_files}
+    ${debug_source_files}
+    ${utils_source_files}
+    ${root_source_files}
 )
 
 # Set project c++ standard
@@ -181,6 +110,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm
+
     # GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863 # 1.0.1
 )
 
@@ -253,7 +183,7 @@ target_link_libraries(pxlFramework
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
 
 # Framework Modules
-if (PXL_MODULE_DISCORD)
+if(PXL_MODULE_DISCORD)
     message("pxlFramework discord module enabled")
     add_subdirectory(modules/discord)
     target_link_libraries(pxlFramework pxlFramework-discord)
@@ -262,8 +192,8 @@ endif()
 
 target_compile_definitions(pxlFramework PUBLIC
     GLFW_EXPOSE_NATIVE_WIN32
-    GLFW_INCLUDE_NONE   # Tell GLFW to not include it's own OpenGL headers
-    GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header 
+    GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
+    GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
     WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
     $<$<CONFIG:Debug>:PXL_DEBUG>
