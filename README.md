@@ -1,4 +1,6 @@
 # pxlFramework
+[![Continuous Integration](https://github.com/rasterrize/pxlFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/rasterrize/pxlFramework/actions/workflows/ci.yml)
+
 ### A Windows C++ Application/Game Framework
 This is a hobby project I've been casually working on. Originally, it started as just me following TheCherno's [Game Engine series](https://youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT&si=15wnEV42qfltyt2v) but at some point I realized I was more or less copying the code and not fully comprehending the reasons behind things. So I decided I would make all the decisions and write all the future code instead of just copying the tutorial. This is why some aspects of the code may look similar to TheCherno's game engine, such as the structure of renderer classes.
 
