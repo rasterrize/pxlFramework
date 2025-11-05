@@ -847,10 +847,10 @@ namespace pxl
         // Get pipelines
         // ---------------------
 
-        auto quadPipeline = s_Pipelines.at(RendererGeometryTarget::Quad);
-        auto cubePipeline = s_Pipelines.at(RendererGeometryTarget::Cube);
-        auto linePipeline = s_Pipelines.at(RendererGeometryTarget::Line);
-        auto meshPipeline = s_Pipelines.at(RendererGeometryTarget::Mesh);
+        auto& quadPipeline = s_Pipelines.at(RendererGeometryTarget::Quad);
+        auto& cubePipeline = s_Pipelines.at(RendererGeometryTarget::Cube);
+        auto& linePipeline = s_Pipelines.at(RendererGeometryTarget::Line);
+        auto& meshPipeline = s_Pipelines.at(RendererGeometryTarget::Mesh);
 
         // ---------------------
         // Static Geometry
