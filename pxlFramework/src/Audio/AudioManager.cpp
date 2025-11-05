@@ -16,13 +16,13 @@ namespace pxl
     {
         s_WindowHandle = windowHandle;
 
-        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, ), NULL) // need to fix
+        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, ), NULL) // TODO: need to fix
         {
-            PXL_LOG_INFO("BASS initialized");
+            PXL_LOG_INFO(LogArea::Audio, "BASS initialized");
         }
         else
         {
-            PXL_LOG_ERROR("BASS failed to initialize");
+            PXL_LOG_ERROR(LogArea::Audio, "BASS failed to initialize");
             // TODO: bass error callbacks
             return;
         }
