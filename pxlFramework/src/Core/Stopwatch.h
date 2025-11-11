@@ -18,21 +18,19 @@ namespace pxl
 
         void Start()
         {
-            if (!m_Stopped)
-                m_StartTime = std::chrono::high_resolution_clock::now();
+            m_LastStartPoint = std::chrono::high_resolution_clock::now();
+            m_Running = true;
         }
 
         void Stop()
         {
-            m_EndTime = std::chrono::high_resolution_clock::now();
-            m_Stopped = true;
             CalculateElapsed();
+            m_Running = false;
         }
 
         void Reset()
         {
-            m_StartTime = std::chrono::high_resolution_clock::now();
-            m_EndTime = std::chrono::high_resolution_clock::now();
+            m_LastStartPoint = std::chrono::high_resolution_clock::now();
             m_Elapsed = std::chrono::duration<float>::zero();
         }
 
@@ -45,25 +43,37 @@ namespace pxl
         float GetElapsedMilliSec()
         {
             CalculateElapsed();
-            return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(m_Elapsed).count());
+            return GetElapsed<std::chrono::milliseconds, float>();
         }
 
         float GetElapsedMicroSec()
         {
             CalculateElapsed();
-            return static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(m_Elapsed).count());
+            return GetElapsed<std::chrono::microseconds, float>();
         }
+
+        bool IsRunning() { return m_Running; }
 
     private:
         void CalculateElapsed()
         {
-            m_Elapsed = m_Stopped == true ? m_EndTime - m_StartTime : std::chrono::high_resolution_clock::now() - m_StartTime;
+            if (!m_Running)
+                return;
+
+            m_Elapsed += std::chrono::high_resolution_clock::now() - m_LastStartPoint;
+            m_LastStartPoint = std::chrono::high_resolution_clock::now();
+        }
+
+        template<typename timeT, typename outputT>
+        outputT GetElapsed()
+        {
+            return static_cast<outputT>(std::chrono::duration_cast<timeT>(m_Elapsed).count());
         }
 
     private:
-        bool m_Stopped = false;
+        bool m_Running = false;
 
-        std::chrono::high_resolution_clock::time_point m_StartTime, m_EndTime;
+        std::chrono::high_resolution_clock::time_point m_LastStartPoint;
         std::chrono::duration<float> m_Elapsed;
     };
 }

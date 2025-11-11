@@ -20,7 +20,7 @@ add_library(pxlFramework STATIC
     src/Core/Size.h
     src/Core/Colour.h
     src/Core/Image.h
-    src/Core/Animation.h src/Core/Animation.cpp
+    src/Core/Animation.h
 
     # RENDERER
     src/Renderer/Renderer.h src/Renderer/Renderer.cpp
