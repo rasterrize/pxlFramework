@@ -13,6 +13,7 @@
 #include "../src/Core/Platform.h"
 #include "../src/Core/Stopwatch.h"
 #include "../src/Core/Window.h"
+#include "../src/Core/Animation.h"
 
 // Renderer
 #include "../src/Renderer/BufferLayout.h"

@@ -14,6 +14,45 @@ namespace pxl
 
     static constexpr double pi = std::numbers::pi;
 
+    std::function<double(double)> Easing::GetEasingFunction(Ease ease)
+    {
+        switch (ease)
+        {
+            case Ease::InSine: return InSine;
+            case Ease::OutSine: return OutSine;
+            case Ease::InOutSine: return InOutSine;
+            case Ease::InQuad: return InQuad;
+            case Ease::OutQuad: return OutQuad;
+            case Ease::InOutQuad: return InOutQuad;
+            case Ease::InCubic: return InCubic;
+            case Ease::OutCubic: return OutCubic;
+            case Ease::InOutCubic: return InOutCubic;
+            case Ease::InQuart: return InQuart;
+            case Ease::OutQuart: return OutQuart;
+            case Ease::InOutQuart: return InOutQuart;
+            case Ease::InQuint: return InQuint;
+            case Ease::OutQuint: return OutQuint;
+            case Ease::InOutQuint: return InOutQuint;
+            case Ease::InExpo: return InExpo;
+            case Ease::OutExpo: return OutExpo;
+            case Ease::InOutExpo: return InOutExpo;
+            case Ease::InCirc: return InCirc;
+            case Ease::OutCirc: return OutCirc;
+            case Ease::InOutCirc: return InOutCirc;
+            case Ease::InBack: return InBack;
+            case Ease::OutBack: return OutBack;
+            case Ease::InOutBack: return InOutBack;
+            case Ease::InElastic: return InElastic;
+            case Ease::OutElastic: return OutElastic;
+            case Ease::InOutElastic: return InOutElastic;
+            case Ease::InBounce: return InBounce;
+            case Ease::OutBounce: return OutBounce;
+            case Ease::InOutBounce: return InOutBounce;
+        }
+
+        return [](double) { return 0.0f; };
+    }
+
     double Easing::InSine(double t)
     {
         return sin(1.5707963 * t);
