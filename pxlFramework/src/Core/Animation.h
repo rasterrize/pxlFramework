@@ -74,7 +74,7 @@ namespace pxl
         void SetEasingFunc(Ease ease) { m_EasingFunction = Easing::GetEasingFunction(ease); }
 
         // Set the easing function using a custom 0 to 1 algorithm
-        void SetEasingFunc(const std::function<double, double>& func) { m_EasingFunction = func; }
+        void SetEasingFunc(const std::function<double(double)>& func) { m_EasingFunction = func; }
 
         Stopwatch GetStopwatch() const { return m_Stopwatch; }
 
