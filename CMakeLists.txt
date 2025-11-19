@@ -18,7 +18,7 @@ option(PXL_MODULE_DISCORD "Enable discord rpc module" OFF)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 # NOTE: This is done before pxlFramework because TestApp sets some pxlFramework options
-if (PXL_BUILD_TESTS)
+if(PXL_BUILD_TESTS)
     message("Build pxlFramework TestApp enabled")
     add_subdirectory(TestApp)
 

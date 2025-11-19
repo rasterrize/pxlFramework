@@ -49,7 +49,7 @@ target_compile_definitions(TestApp PRIVATE
 )
 
 # Set MSVC multi-processor compilation
-if (MSVC)
+if(MSVC)
     target_compile_options(TestApp PRIVATE "/MP")
 endif()
 
