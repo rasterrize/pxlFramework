@@ -4,6 +4,7 @@
 
 #include <glm/vec2.hpp>
 
+#include "Gamepad.h"
 #include "KeyCodes.h"
 #include "MouseCodes.h"
 #include "Window.h"

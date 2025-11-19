@@ -6,6 +6,7 @@
 
 #include "Core/Image.h"
 #include "Core/Size.h"
+#include "Gamepad.h"
 #include "InputSystem.h"
 #include "Renderer/GraphicsContext.h"
 #include "Renderer/RendererAPIType.h"
@@ -148,6 +149,8 @@ namespace pxl
 
         static bool IsInitialized() { return s_Initialized; }
 
+        static std::shared_ptr<Gamepad> GetGamepad(int id);
+
     private:
         Window(const WindowSpecs& specs);
 
@@ -173,6 +176,7 @@ namespace pxl
         // Static GLFW callbacks
         static void GLFWErrorCallback(int error, const char* description);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
+        static void JoystickCallback(int jid, int event);
 
         friend class Application; // for the below functions
         static void Init();
@@ -181,6 +185,7 @@ namespace pxl
         static void Shutdown();
 
         static void UpdateMonitors();
+        static void PrepareConnectedGamepad(int jid);
 
     private:
         GLFWwindow* m_GLFWWindow = nullptr;
@@ -211,6 +216,7 @@ namespace pxl
         // Storage of all windows and monitors
         static inline std::vector<std::shared_ptr<Window>> s_Windows;
         static inline std::vector<Monitor> s_Monitors;
+        static inline std::unordered_map<int, std::shared_ptr<Gamepad>> s_Gamepads;
 
         // The function to process window events every application update
         static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;

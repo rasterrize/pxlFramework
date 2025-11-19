@@ -21,6 +21,7 @@
 #include "../src/Core/Events/KeyboardEvents.h"
 #include "../src/Core/Events/MouseEvents.h"
 #include "../src/Core/Events/WindowEvents.h"
+#include "../src/Core/Events/GamepadEvents.h"
 
 // Renderer
 #include "../src/Renderer/BufferLayout.h"

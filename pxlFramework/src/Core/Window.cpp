@@ -162,6 +162,7 @@ namespace pxl
     {
         glfwSetErrorCallback(GLFWErrorCallback);
         glfwSetMonitorCallback(MonitorCallback);
+        glfwSetJoystickCallback(JoystickCallback);
     }
 
     void Window::UpdateCurrentMonitor()
@@ -513,6 +514,21 @@ namespace pxl
         // TODO: WHY DOES THIS CALLBACK NOT GET CALLED ??? MAYBE TRY DISCONNECTING IT THROUGH WINDOWS INSTEAD OF PHYSCIALLY
     }
 
+    void Window::JoystickCallback(int jid, int event)
+    {
+        if (event == GLFW_CONNECTED)
+        {
+            PrepareConnectedGamepad(jid);
+        }
+        else if (event == GLFW_DISCONNECTED)
+        {
+            if (s_Gamepads.contains(jid))
+                s_Gamepads.erase(jid);
+
+            PXL_LOG_INFO(LogArea::Input, "Controller {} disconnected", jid);
+        }
+    }
+
     void Window::Init()
     {
         if (!glfwInit())
@@ -529,6 +545,13 @@ namespace pxl
 
         UpdateMonitors();
 
+        // Force evaluate present gamepads since the joystick callback isn't called at the start
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+        {
+            if (glfwJoystickPresent(i))
+                PrepareConnectedGamepad(i);
+        }
+
         s_Initialized = true;
     }
 
@@ -538,6 +561,9 @@ namespace pxl
 
         for (auto& window : s_Windows)
             window->m_InputSystem->ResetCurrentState();
+
+        for (auto& [jid, gamepad] : s_Gamepads)
+            gamepad->UpdateState();
 
         s_EventProcessFunc();
     }
@@ -581,6 +607,32 @@ namespace pxl
             monitor.IsPrimary = monitor.GLFWMonitor == glfwGetPrimaryMonitor();
 
             s_Monitors.push_back(monitor);
+        }
+    }
+
+    std::shared_ptr<Gamepad> Window::GetGamepad(int id)
+    {
+        if (s_Gamepads.contains(id))
+            return s_Gamepads.at(id);
+
+        return nullptr;
+    }
+
+    void Window::PrepareConnectedGamepad(int jid)
+    {
+        PXL_LOG_INFO(LogArea::Input, "Controller {} connected", jid);
+        if (glfwJoystickIsGamepad(jid))
+        {
+            auto eventQueueCallback = Application::Get().GetEventManager()->GetEventQueueCallback();
+            auto gamepad = std::make_shared<Gamepad>(jid, eventQueueCallback);
+            s_Gamepads[jid] = gamepad;
+
+            PXL_LOG_INFO(LogArea::Input, "- Name: {}", gamepad->GetName());
+            PXL_LOG_INFO(LogArea::Input, "- GUID: {}", gamepad->GetGUID());
+        }
+        else
+        {
+            PXL_LOG_ERROR(LogArea::Input, "Controller connected wasn't detected as a proper gamepad and it won't be used by the input system");
         }
     }
 

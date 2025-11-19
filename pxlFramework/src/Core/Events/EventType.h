@@ -22,6 +22,11 @@ namespace pxl
         WindowMinimize,
         WindowModeChange,
         WindowPathDrop,
+
+        // Gamepad events
+        GamepadAxisChange = 80,
+        GamepadButtonDown,
+        GamepadButtonUp,
     };
 
     namespace Utils
@@ -30,18 +35,21 @@ namespace pxl
         {
             switch (type)
             {
-                case EventType::Unknown:          return "Unknown";
-                case EventType::KeyDown:          return "KeyDown";
-                case EventType::KeyUp:            return "KeyUp";
-                case EventType::MouseMove:        return "MouseMove";
-                case EventType::MouseButtonDown:  return "MouseButtonDown";
-                case EventType::MouseButtonUp:    return "MouseButtonUp";
-                case EventType::MouseScroll:      return "MouseScroll";
-                case EventType::WindowResize:     return "WindowResize";
-                case EventType::WindowReposition: return "WindowReposition";
-                case EventType::WindowMinimize:   return "WindowMinimize";
-                case EventType::WindowModeChange: return "WindowModeChange";
-                case EventType::WindowPathDrop:   return "WindowPathDrop";
+                case EventType::Unknown:           return "Unknown";
+                case EventType::KeyDown:           return "KeyDown";
+                case EventType::KeyUp:             return "KeyUp";
+                case EventType::MouseMove:         return "MouseMove";
+                case EventType::MouseButtonDown:   return "MouseButtonDown";
+                case EventType::MouseButtonUp:     return "MouseButtonUp";
+                case EventType::MouseScroll:       return "MouseScroll";
+                case EventType::WindowResize:      return "WindowResize";
+                case EventType::WindowReposition:  return "WindowReposition";
+                case EventType::WindowMinimize:    return "WindowMinimize";
+                case EventType::WindowModeChange:  return "WindowModeChange";
+                case EventType::WindowPathDrop:    return "WindowPathDrop";
+                case EventType::GamepadAxisChange: return "GamepadAxisChange";
+                case EventType::GamepadButtonDown: return "GamepadButtonDown";
+                case EventType::GamepadButtonUp:   return "GamepadButtonUp";
             }
 
             return "Undefined";
