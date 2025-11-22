@@ -172,8 +172,7 @@ namespace pxl
     {
         PXL_ASSERT(s_Enabled);
 
-        visible ? glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-                : glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(s_WindowHandle, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
     }
 
     void Input::SetCursor(StandardCursor standardCursor)

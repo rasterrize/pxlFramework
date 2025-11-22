@@ -51,6 +51,8 @@ namespace pxl
 
     void OpenGLGraphicsContext::Present()
     {
+        PXL_PROFILE_SCOPE;
+
         glfwSwapBuffers(m_GLFWWindowHandle);
     }
 

@@ -17,7 +17,7 @@ namespace pxl
         timeEndPeriod(value);
     }
 
-    std::string pxl::Platform::OpenFile(const std::shared_ptr<Window> window, const char* filter)
+    std::string Platform::OpenFile(const std::shared_ptr<Window> window, const char* filter)
     {
         OPENFILENAMEA ofn;
         CHAR szFile[260] = { 0 };
@@ -36,7 +36,7 @@ namespace pxl
         return std::string();
     }
 
-    std::string pxl::Platform::SaveFile(const std::shared_ptr<Window> window, const char* filter)
+    std::string Platform::SaveFile(const std::shared_ptr<Window> window, const char* filter)
     {
         OPENFILENAMEA ofn;
         CHAR szFile[260] = { 0 };

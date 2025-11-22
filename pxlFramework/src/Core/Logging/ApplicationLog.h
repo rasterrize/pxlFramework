@@ -12,6 +12,4 @@
     #define APP_LOG_WARN(...)
     #define APP_LOG_ERROR(...)
     #define APP_LOG_CRITICAL(...)
-
-    #define PXL_INIT_LOGGING
 #endif

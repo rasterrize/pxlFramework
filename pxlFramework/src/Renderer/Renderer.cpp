@@ -404,10 +404,10 @@ namespace pxl
             s_Samplers[i] = i;
 
         // Set default cameras
-        s_QuadCamera = pxl::Camera::Create(OrthographicSettings());
-        s_CubeCamera = pxl::Camera::Create(PerspectiveSettings());
-        s_LineCamera = pxl::Camera::Create(PerspectiveSettings());
-        // s_MeshCamera = pxl::Camera::CreatePerspective({});
+        s_QuadCamera = Camera::Create(OrthographicSettings());
+        s_CubeCamera = Camera::Create(PerspectiveSettings());
+        s_LineCamera = Camera::Create(PerspectiveSettings());
+        // s_MeshCamera = Camera::CreatePerspective({});
 
         PXL_LOG_INFO(LogArea::Renderer, "Finished preparing renderer");
 
