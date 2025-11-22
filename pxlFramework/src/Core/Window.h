@@ -19,7 +19,7 @@ namespace pxl
     {
         Windowed,
         Borderless,
-        Fullscreen
+        Fullscreen,
     };
 
     struct VideoMode
@@ -58,7 +58,7 @@ namespace pxl
     struct WindowSpecs
     {
         // The title of the window (appears top left of window).
-        std::string Title = std::string(k_DefaultWindowTitle);
+        std::string Title = k_DefaultWindowTitle.data();
 
         // The size of the window in screen coordinates. Only used for Windowed mode. If not specified, defaults to k_DefaultWindowedSize.
         Size2D Size = k_DefaultWindowedSize;
@@ -72,7 +72,7 @@ namespace pxl
         // The renderer api this window will support. Defaults to None.
         RendererAPIType RendererAPI = RendererAPIType::None;
 
-        // The monitor to use for Borderless and Fullscreen modes. If not supplied, defaults the monitor the window is on.
+        // The monitor to use for Borderless and Fullscreen modes. If not supplied, defaults to the primary monitor.
         std::optional<uint8_t> MonitorIndex;
 
         // The path to load an icon from for this window. If not supplied, the window will have no icon.
@@ -84,14 +84,10 @@ namespace pxl
     public:
         void Close() const;
 
-        void SetSize(uint32_t width, uint32_t height);
-
-        // To specify only a minimum/maximum, use -1 for width AND height of the opposite pair
-        void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
-
         const glm::ivec2& GetPosition() const { return m_Position; }
         void SetPosition(int32_t x, int32_t y);
 
+        WindowMode GetWindowMode() const { return m_WindowMode; }
         void SetWindowMode(WindowMode winMode);
 
         void SetMonitor(uint8_t index); // OS monitor index
@@ -102,37 +98,36 @@ namespace pxl
         std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
 
         Size2D GetSize() const { return m_Size; }
-        uint32_t GetWidth() const { return m_Size.Width; }
-        uint32_t GetHeight() const { return m_Size.Height; }
+        void SetSize(uint32_t width, uint32_t height);
 
-        WindowMode GetWindowMode() const { return m_WindowMode; }
+        // To specify only a minimum/maximum, use -1 for width AND height of the opposite pair
+        void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
 
         RendererAPIType GetRendererAPI() const { return m_RendererAPI; }
 
-        float GetAspectRatio() const { return m_AspectRatio; }
+        float GetAspectRatio() const { return static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
 
         Size2D GetFramebufferSize() const;
 
         void NextWindowMode();
         void ToggleFullscreen();
 
-        void Minimize();
-        void Maximize();
-        void Restore();
+        void Minimize() const;
+        void Maximize() const;
+        void Restore() const;
 
-        bool GetVisibility() const { return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE); }
-        void SetVisibility(bool value);
+        bool GetVisibility() const;
+        void SetVisibility(bool value) const;
 
         const std::string& GetTitle() const { return m_Title; }
-        void SetTitle(const std::string_view& title) const { glfwSetWindowTitle(m_GLFWWindow, title.data()); }
+        void SetTitle(const std::string_view& title);
 
         void SetIcon(const std::shared_ptr<Image>& image);
 
-        // Use -1 for both parameters to disable
-        void EnforceAspectRatio(uint32_t numerator, uint32_t denominator);
+        // Use -1 for both parameters to disable aspect ratio enforcement
+        void EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const;
 
-        // Highlights the window in the taskbar to grab the user's attention for something
-        void RequestUserAttention();
+        void RequestUserAttention() const;
 
         void SetResizeCallback(const std::function<void(Size2D newSize)>& callback) { m_UserResizeCallback = callback; }
         void SetFileDropCallback(const std::function<void(std::vector<std::string>)>& callback) { m_UserFileDropCallback = callback; }
@@ -156,12 +151,10 @@ namespace pxl
 
         void Update() const;
 
-        void UpdateAspectRatio() { m_AspectRatio = static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
-
         void UpdateCurrentMonitor();
 
-        void SetGLFWCallbacks();
-        static void SetStaticGLFWCallbacks();
+        void InitWindowCallbacks();
+        static void InitGLFWCallbacks();
 
         // Per-window GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
@@ -169,20 +162,15 @@ namespace pxl
         static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
         static void WindowPositionCallback(GLFWwindow* window, int xpos, int ypos);
-        static void WindowDropCallback(GLFWwindow* window, int count, const char** paths);
+        static void DropCallback(GLFWwindow* window, int count, const char** paths);
 
         // Static GLFW callbacks
         static void GLFWErrorCallback(int error, const char* description);
         static void MonitorCallback(GLFWmonitor* monitor, int event);
-        
-        friend class Application;
-        // ^ for the below functions
+
+        friend class Application; // for the below functions
         static void Init();
-        static void ProcessEvents()
-        {
-            if (s_EventProcessFunc)
-                s_EventProcessFunc();
-        }
+        static void ProcessEvents() { s_EventProcessFunc(); }
         static void UpdateAll();
         static void Shutdown();
 
@@ -193,17 +181,13 @@ namespace pxl
         std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
         std::weak_ptr<Window> m_Handle;
 
-        // The current size of the window
         Size2D m_Size = k_DefaultWindowedSize;
-
-        // The current position of the window
         glm::ivec2 m_Position = { 0, 0 };
-
         std::string m_Title = std::string(k_DefaultWindowTitle);
         WindowMode m_WindowMode = WindowMode::Windowed;
         RendererAPIType m_RendererAPI = RendererAPIType::None;
+
         bool m_Minimized = false;
-        float m_AspectRatio = k_DefaultAspectRatio;
 
         // The size and position of the window when it was in windowed mode
         glm::ivec2 m_LastWindowedPosition = { 0, 0 };
@@ -222,7 +206,7 @@ namespace pxl
         static inline std::vector<std::shared_ptr<Window>> s_Windows;
         static inline std::vector<Monitor> s_Monitors;
 
-        // The function to process window events every frame
-        static inline std::function<void()> s_EventProcessFunc = nullptr;
+        // The function to process window events every application update
+        static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;
     };
 }
