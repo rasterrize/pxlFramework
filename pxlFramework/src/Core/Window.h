@@ -158,7 +158,7 @@ namespace pxl
 
         void UpdateAspectRatio() { m_AspectRatio = static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
 
-        const Monitor& GetPositionRelativeMonitor();
+        void UpdateCurrentMonitor();
 
         void SetGLFWCallbacks();
         static void SetStaticGLFWCallbacks();
@@ -209,7 +209,7 @@ namespace pxl
         glm::ivec2 m_LastWindowedPosition = { 0, 0 };
         Size2D m_LastWindowedSize = k_DefaultWindowedSize;
 
-        // The current monitor this window is sitting on
+        // The current monitor this window is on
         Monitor m_CurrentMonitor;
 
         // User callbacks

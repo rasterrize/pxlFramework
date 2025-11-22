@@ -21,16 +21,16 @@ namespace pxl
 
         if (m_WindowMode == WindowMode::Windowed)
         {
-            // If the position is specified, use it, otherwise set to the middle of primary monitor
+            // If the position is specified, use it, otherwise set position to the middle of primary monitor
             if (specs.Position.has_value())
             {
                 m_Position = specs.Position.value();
-                m_CurrentMonitor = GetPositionRelativeMonitor();
+                UpdateCurrentMonitor();
             }
             else
             {
                 m_CurrentMonitor = GetPrimaryMonitor();
-                auto vidMode = GetPrimaryMonitor().GetCurrentVideoMode();
+                auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
                 m_Position = { vidMode.Width / 2 - m_Size.Width / 2, vidMode.Height / 2 - m_Size.Height / 2 };
             }
 
@@ -38,25 +38,24 @@ namespace pxl
             m_LastWindowedPosition = m_Position;
             m_LastWindowedSize = m_Size;
         }
-
-        if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
+        else if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
         {
             // If monitor index is specified, use it, otherwise use the primary monitor
             m_CurrentMonitor = specs.MonitorIndex.has_value() ? s_Monitors[specs.MonitorIndex.value()] : GetPrimaryMonitor();
 
             // Set position to top left of specified monitor
-            m_Position = GetCurrentMonitor().Position;
+            m_Position = m_CurrentMonitor.Position;
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = GetCurrentMonitor().GetCurrentVideoMode().GetSize();
+            m_Size = m_CurrentMonitor.GetCurrentVideoMode().GetSize();
 
             // Ensure LastWindowedPosition is the middle of the monitor
-            auto vidMode = GetCurrentMonitor().GetCurrentVideoMode();
+            auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
             m_LastWindowedPosition = { vidMode.Width / 2 - k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - k_DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
-        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? GetCurrentMonitor().GLFWMonitor : nullptr;
+        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? m_CurrentMonitor.GLFWMonitor : nullptr;
 
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
@@ -167,10 +166,10 @@ namespace pxl
         glfwSetMonitorCallback(MonitorCallback);
     }
 
-    const Monitor& Window::GetPositionRelativeMonitor()
+    void Window::UpdateCurrentMonitor()
     {
-        auto windowCenterX = m_Position.x + static_cast<int32_t>(m_Size.Width / 2);
-        auto windowCenterY = m_Position.y + static_cast<int32_t>(m_Size.Height / 2);
+        Monitor bestMonitor = GetPrimaryMonitor();
+        int32_t bestOverlap = 0;
 
         for (const auto& monitor : s_Monitors)
         {
@@ -181,12 +180,27 @@ namespace pxl
             auto top = monitor.Position.y;
             auto bottom = monitor.Position.y + static_cast<int32_t>(vidmode.Height);
 
-            if ((windowCenterX >= left && windowCenterX < right) && (windowCenterY >= top && windowCenterY < bottom))
-                return monitor;
+            // Determine monitor on a best overlap basis. Sourced from https://stackoverflow.com/a/31526753
+            auto xOverlap = std::max<int>(0, std::min<int>(m_Position.x + m_Size.Width, right) - std::max<int>(m_Position.x, left));
+            auto yOverlap = std::max<int>(0, std::min<int>(m_Position.y + m_Size.Height, bottom) - std::max<int>(m_Position.y, top));
+
+            auto overlap = xOverlap * yOverlap;
+
+            if (bestOverlap < overlap)
+            {
+                bestOverlap = overlap;
+                bestMonitor = monitor;
+            }
         }
 
-        PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor, returning primary monitor");
-        return GetPrimaryMonitor();
+        if (bestOverlap == 0)
+        {
+            // If no correct monitor was found, then just leave it as it was
+            PXL_LOG_WARN(LogArea::Window, "Failed to determine window's current monitor");
+            return;
+        }
+
+        m_CurrentMonitor = bestMonitor;
     }
 
     void Window::SetSize(uint32_t width, uint32_t height)
