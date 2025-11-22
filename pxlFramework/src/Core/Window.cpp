@@ -21,16 +21,16 @@ namespace pxl
 
         if (m_WindowMode == WindowMode::Windowed)
         {
-            // If the position is specified, use it, otherwise set to the middle of primary monitor
+            // If the position is specified, use it, otherwise set position to the middle of primary monitor
             if (specs.Position.has_value())
             {
                 m_Position = specs.Position.value();
-                m_CurrentMonitor = GetPositionRelativeMonitor();
+                UpdateCurrentMonitor();
             }
             else
             {
                 m_CurrentMonitor = GetPrimaryMonitor();
-                auto vidMode = GetPrimaryMonitor().GetCurrentVideoMode();
+                auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
                 m_Position = { vidMode.Width / 2 - m_Size.Width / 2, vidMode.Height / 2 - m_Size.Height / 2 };
             }
 
@@ -38,25 +38,24 @@ namespace pxl
             m_LastWindowedPosition = m_Position;
             m_LastWindowedSize = m_Size;
         }
-
-        if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
+        else if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
         {
             // If monitor index is specified, use it, otherwise use the primary monitor
             m_CurrentMonitor = specs.MonitorIndex.has_value() ? s_Monitors[specs.MonitorIndex.value()] : GetPrimaryMonitor();
 
             // Set position to top left of specified monitor
-            m_Position = GetCurrentMonitor().Position;
+            m_Position = m_CurrentMonitor.Position;
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = GetCurrentMonitor().GetCurrentVideoMode().GetSize();
+            m_Size = m_CurrentMonitor.GetCurrentVideoMode().GetSize();
 
             // Ensure LastWindowedPosition is the middle of the monitor
-            auto vidMode = GetCurrentMonitor().GetCurrentVideoMode();
+            auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
             m_LastWindowedPosition = { vidMode.Width / 2 - k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - k_DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
-        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? GetCurrentMonitor().GLFWMonitor : nullptr;
+        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? m_CurrentMonitor.GLFWMonitor : nullptr;
 
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
@@ -107,8 +106,7 @@ namespace pxl
         }
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
-        SetGLFWCallbacks();
-        UpdateAspectRatio();
+        InitWindowCallbacks();
     }
 
     void Window::Update() const
@@ -130,30 +128,18 @@ namespace pxl
             return;
         }
 
-        if (Renderer::IsInitialized() && Renderer::GetGraphicsContext() == m_GraphicsContext)
+        if (Renderer::IsInitialized() && m_GraphicsContext == Renderer::GetGraphicsContext())
             Renderer::Shutdown();
     }
 
-    void Window::SetGLFWCallbacks()
+    void Window::InitWindowCallbacks()
     {
         glfwSetWindowCloseCallback(m_GLFWWindow, WindowCloseCallback);
         glfwSetWindowSizeCallback(m_GLFWWindow, WindowResizeCallback);
         glfwSetWindowPosCallback(m_GLFWWindow, WindowPositionCallback);
         glfwSetFramebufferSizeCallback(m_GLFWWindow, FramebufferResizeCallback);
         glfwSetWindowIconifyCallback(m_GLFWWindow, WindowIconifyCallback);
-        glfwSetDropCallback(m_GLFWWindow, [](GLFWwindow* window, int count, const char** paths)
-        {
-            auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-            if (windowInstance->m_UserFileDropCallback)
-            {
-                std::vector<std::string> stringPaths(count);
-                for (int i = 0; i < count; i++)
-                    stringPaths[i] = paths[i];
-
-                windowInstance->m_UserFileDropCallback(stringPaths);
-            }
-        });
+        glfwSetDropCallback(m_GLFWWindow, DropCallback);
 
         glfwSetKeyCallback(m_GLFWWindow, Input::GLFWKeyCallback);
         glfwSetMouseButtonCallback(m_GLFWWindow, Input::GLFWMouseButtonCallback);
@@ -161,16 +147,16 @@ namespace pxl
         glfwSetCursorPosCallback(m_GLFWWindow, Input::GLFWCursorPosCallback);
     }
 
-    void Window::SetStaticGLFWCallbacks()
+    void Window::InitGLFWCallbacks()
     {
         glfwSetErrorCallback(GLFWErrorCallback);
         glfwSetMonitorCallback(MonitorCallback);
     }
 
-    const Monitor& Window::GetPositionRelativeMonitor()
+    void Window::UpdateCurrentMonitor()
     {
-        auto windowCenterX = m_Position.x + static_cast<int32_t>(m_Size.Width / 2);
-        auto windowCenterY = m_Position.y + static_cast<int32_t>(m_Size.Height / 2);
+        Monitor bestMonitor = GetPrimaryMonitor();
+        int32_t bestOverlap = 0;
 
         for (const auto& monitor : s_Monitors)
         {
@@ -181,12 +167,27 @@ namespace pxl
             auto top = monitor.Position.y;
             auto bottom = monitor.Position.y + static_cast<int32_t>(vidmode.Height);
 
-            if ((windowCenterX >= left && windowCenterX < right) && (windowCenterY >= top && windowCenterY < bottom))
-                return monitor;
+            // Determine monitor on a best overlap basis. Sourced from https://stackoverflow.com/a/31526753
+            auto xOverlap = std::max<int>(0, std::min<int>(m_Position.x + m_Size.Width, right) - std::max<int>(m_Position.x, left));
+            auto yOverlap = std::max<int>(0, std::min<int>(m_Position.y + m_Size.Height, bottom) - std::max<int>(m_Position.y, top));
+
+            auto overlap = xOverlap * yOverlap;
+
+            if (bestOverlap < overlap)
+            {
+                bestOverlap = overlap;
+                bestMonitor = monitor;
+            }
         }
 
-        PXL_LOG_ERROR(LogArea::Window, "Failed to get window current monitor, returning primary monitor");
-        return GetPrimaryMonitor();
+        if (bestOverlap == 0)
+        {
+            // If no correct monitor was found, then just leave it as it was
+            PXL_LOG_WARN(LogArea::Window, "Failed to determine window's current monitor");
+            return;
+        }
+
+        m_CurrentMonitor = bestMonitor;
     }
 
     void Window::SetSize(uint32_t width, uint32_t height)
@@ -218,12 +219,8 @@ namespace pxl
         if (mode == m_WindowMode)
             return;
 
-        auto currentMonitor = GetCurrentMonitor();
-        auto vidMode = currentMonitor.GetCurrentVideoMode();
-
-        // TODO: use monitor video mode / position
-        int monitorX, monitorY, monitorWidth, monitorHeight;
-        glfwGetMonitorWorkarea(currentMonitor.GLFWMonitor, &monitorX, &monitorY, &monitorWidth, &monitorHeight);
+        auto monitor = GetCurrentMonitor();
+        auto vidMode = monitor.GetCurrentVideoMode();
 
         switch (mode)
         {
@@ -242,12 +239,12 @@ namespace pxl
                 /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
                     This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
                     Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitorX, monitorY, vidMode.Width + 1, vidMode.Height, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, vidMode.Width + 1, vidMode.Height, GLFW_DONT_CARE);
                 break;
 
             case WindowMode::Fullscreen:
                 m_WindowMode = WindowMode::Fullscreen;
-                glfwSetWindowMonitor(m_GLFWWindow, currentMonitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
                 break;
         }
 
@@ -297,24 +294,35 @@ namespace pxl
             SetWindowMode(WindowMode::Windowed);
     }
 
-    void Window::Minimize()
+    void Window::Minimize() const
     {
         glfwIconifyWindow(m_GLFWWindow);
     }
 
-    void Window::Maximize()
+    void Window::Maximize() const
     {
         glfwMaximizeWindow(m_GLFWWindow);
     }
 
-    void Window::Restore()
+    void Window::Restore() const
     {
         glfwRestoreWindow(m_GLFWWindow);
     }
 
-    void Window::SetVisibility(bool value)
+    bool Window::GetVisibility() const
+    {
+        return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE);
+    }
+
+    void Window::SetVisibility(bool value) const
     {
         value ? glfwShowWindow(m_GLFWWindow) : glfwHideWindow(m_GLFWWindow);
+    }
+
+    void Window::SetTitle(const std::string_view& title)
+    {
+        m_Title = title;
+        glfwSetWindowTitle(m_GLFWWindow, title.data()); 
     }
 
     void Window::SetIcon(const std::shared_ptr<Image>& image)
@@ -327,12 +335,12 @@ namespace pxl
         glfwSetWindowIcon(m_GLFWWindow, 1, &glfwImage);
     }
 
-    void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator)
+    void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const
     {
         glfwSetWindowAspectRatio(m_GLFWWindow, numerator, denominator);
     }
 
-    void Window::RequestUserAttention()
+    void Window::RequestUserAttention() const
     {
         glfwRequestWindowAttention(m_GLFWWindow);
     }
@@ -384,7 +392,6 @@ namespace pxl
 
         windowInstance->m_Size.Width = windowInstance->m_WindowMode == WindowMode::Borderless ? width - 1 : width;
         windowInstance->m_Size.Height = height;
-        windowInstance->UpdateAspectRatio();
 
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
@@ -462,10 +469,12 @@ namespace pxl
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedPosition = { xpos, ypos };
 
-        windowInstance->m_CurrentMonitor = windowInstance->GetPositionRelativeMonitor();
+        // NOTE: Retrieve an up-to-date iconification status, due to this callback being called before WindowIconifyCallback
+        if (!glfwGetWindowAttrib(windowInstance->GetNativeWindow(), GLFW_ICONIFIED))
+            windowInstance->UpdateCurrentMonitor();
     }
 
-    void Window::WindowDropCallback(GLFWwindow* window, int count, const char** paths)
+    void Window::DropCallback(GLFWwindow* window, int count, const char** paths)
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
@@ -479,11 +488,11 @@ namespace pxl
         }
     }
 
-    void Window::MonitorCallback([[maybe_unused]] GLFWmonitor* monitor, [[maybe_unused]] int event)
+    void Window::MonitorCallback(GLFWmonitor* monitor, int event)
     {
         UpdateMonitors();
 
-        // TODO: Update all windows current index since they will likely be incorrect after monitor change.
+        // TODO: WHY DOES THIS CALLBACK NOT GET CALLED ??? MAYBE TRY DISCONNECTING IT THROUGH WINDOWS INSTEAD OF PHYSCIALLY
     }
 
     void Window::Init()
@@ -498,9 +507,7 @@ namespace pxl
         glfwGetVersion(&major, &minor, &rev);
         PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
 
-        s_EventProcessFunc = glfwPollEvents;
-
-        SetStaticGLFWCallbacks();
+        InitGLFWCallbacks();
 
         UpdateMonitors();
 
@@ -520,6 +527,8 @@ namespace pxl
 
     void Window::UpdateMonitors()
     {
+        s_Monitors.clear();
+
         int monitorCount;
         auto glfwMonitors = glfwGetMonitors(&monitorCount);
 
@@ -576,9 +585,12 @@ namespace pxl
         }
 
         // clang-format off
+
+        // NOTE: This struct allows make_shared to create a window object despite the private constructor
         struct shared_window_enabler : public Window {
             shared_window_enabler(const WindowSpecs& specs) : Window(specs) {}
         };
+
         // clang-format on
 
         auto window = std::make_shared<shared_window_enabler>(windowSpecs);
@@ -587,45 +599,46 @@ namespace pxl
 
         window->m_Handle = window;
 
-        if (windowSpecs.RendererAPI != RendererAPIType::None)
+        if (windowSpecs.RendererAPI == RendererAPIType::Vulkan)
         {
-            if (windowSpecs.RendererAPI == RendererAPIType::Vulkan)
+            // Initialize the Vulkan instance if necessary
+            if (!VulkanInstance::Get())
             {
-                // Initialize the Vulkan instance if necessary
-                if (!VulkanInstance::Get())
-                {
-                    std::vector<const char*> selectedExtensions;
-                    std::vector<const char*> selectedLayers;
+                std::vector<const char*> selectedExtensions;
+                std::vector<const char*> selectedLayers;
 
-                    // Initialize volk
-                    VK_CHECK(volkInitialize());
-                    
-                    // We are only using the required extensions by glfw for now
-                    // Should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE)
-                    selectedExtensions = Window::GetVKRequiredInstanceExtensions();
+                // Initialize volk
+                VK_CHECK(volkInitialize());
 
-                    // Get available instance layers
-                    auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
+                // We are only using the required extensions by glfw for now
+                // Should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE)
+                selectedExtensions = Window::GetVKRequiredInstanceExtensions();
+
+                // Get available instance layers
+                auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
 
 #ifdef PXL_DEBUG
-                    // Get validation layer (Vulkan debugging)
-                    selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
+                // Get validation layer (Vulkan debugging)
+                selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
 #endif
 
-                    VulkanInstance::Init(selectedExtensions, selectedLayers);
-                }
+                VulkanInstance::Init(selectedExtensions, selectedLayers);
             }
+        }
 
+        if (windowSpecs.RendererAPI != RendererAPIType::None)
+        {
             // Automatically create a graphics context for the window
             window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window);
 
             PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", windowSpecs.Title);
         }
 
-        // Set the visibility now since we have a valid context
+        // Show the window now since we have a valid context
         window->SetVisibility(true);
 
         s_Windows.push_back(window);
+
         return window;
     }
 }
