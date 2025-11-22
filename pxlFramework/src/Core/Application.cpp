@@ -70,7 +70,7 @@ namespace pxl
 
             Window::UpdateAll();
 
-            // Limit the frame rate by sleeping the thread
+            // Limit the frame rate if necessary
             if (m_FramerateMode != FramerateMode::Unlimited)
                 LimitFPS();
 
