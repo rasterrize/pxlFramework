@@ -68,7 +68,7 @@ namespace TestApp
 
         // clang-format off
         s_StaticQuad = {
-            .Position = { 200.0f, 450.0f, 0.0f },
+            .Position = { 400.0f, 450.0f, 0.0f },
             .Rotation = { 0.0f, 0.0, 45.0f },
             .Size     = glm::vec2(75.0f),
             .Colour   = pxl::Colour::AsVec4(pxl::ColourName::Pink),
@@ -76,7 +76,7 @@ namespace TestApp
         };
 
         s_TexturedStaticQuad = {
-            .Position = { 400.0f, 450.0f, 0.0f },
+            .Position = { 600.0f, 450.0f, 0.0f },
             .Rotation = { 0.0f, 0.0, 0.0f },
             .Size     = glm::vec2(75.0f),
             .Colour   = glm::vec4(1.0f),
@@ -85,7 +85,7 @@ namespace TestApp
         };
 
         s_DynamicQuad = {
-            .Position = { 600.0f, 450.0f, 0.0f },
+            .Position = { 800.0f, 450.0f, 0.0f },
             .Rotation = { 0.0f, 0.0f, 0.0f },
             .Size     = glm::vec2(75.0f),
             .Colour   = glm::vec4(1.0f, 0.4f, 0.5f, 1.0f),
@@ -93,7 +93,7 @@ namespace TestApp
         };
 
         s_TexturedDynamicQuad = {
-            .Position = { 800.0f, 450.0f, 0.0f },
+            .Position = { 1000.0f, 450.0f, 0.0f },
             .Rotation = { 0.0f, 0.0f, 0.0f },
             .Size     = glm::vec2(75.0f),
             .Colour   = glm::vec4(1.0f),
@@ -204,12 +204,10 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-        ImGui::ShowDemoWindow();
-
         if (selectedQuad)
         {
-            static ImVec2 pos = { 400, 200 };
-            ImGui::SetNextWindowPos(pos);
+            ImGui::SetNextWindowPos({ 400.0f, 50.0f }, ImGuiCond_Once);
+            ImGui::SetNextWindowSize({ 230.0f, 150.0f }, ImGuiCond_Once);
             ImGui::Begin("Quad Settings");
 
             ImGui::DragFloat3("Position", glm::value_ptr(selectedQuad->Position));

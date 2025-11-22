@@ -77,7 +77,8 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
 
         auto rendererStats = pxl::Renderer::GetStats();
-        //ImGui::SetNextWindowSize(ImVec2(200.0f, 200.0f));
+        ImGui::SetNextWindowPos(ImVec2(50.0f, 50.0f), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(250.0f, 300.0f), ImGuiCond_Once);
         ImGui::Begin("TestApp Renderer Stats");
 
         static float elapsed = 0.0f;
