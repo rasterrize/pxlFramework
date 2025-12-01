@@ -182,7 +182,6 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::shaderc_combined
-    $<$<CONFIG:WIN32>:Winmm.lib> # For FPS limiter. I consider this temporary.
     volk
 )
 
@@ -208,6 +207,10 @@ if (WIN32)
     target_compile_definitions(pxlFramework PUBLIC
         GLFW_EXPOSE_NATIVE_WIN32
         WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
+    )
+
+    target_link_libraries(pxlFramework
+        Winmm.lib # For FPS limiter. I consider this temporary.
     )
 endif()
 
