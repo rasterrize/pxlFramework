@@ -1,7 +1,7 @@
 #pragma once
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
-#include <Volk/volk.h>
+#include <volk/volk.h>
 #include <vma/vk_mem_alloc.h>
 
 #include "VulkanDevice.h"

@@ -1,5 +1,7 @@
 #include "ModelViewer.h"
 
+#include <cmath>
+
 namespace TestApp
 {
     static std::shared_ptr<pxl::Window> s_Window = nullptr;
@@ -98,9 +100,9 @@ namespace TestApp
                 LoadMesh(filePath);
         }
 
-        s_MeshRotation.x = std::fmodf(s_MeshRotation.x, 360.0f);
-        s_MeshRotation.y = std::fmodf(s_MeshRotation.y, 360.0f);
-        s_MeshRotation.z = std::fmodf(s_MeshRotation.z, 360.0f);
+        s_MeshRotation.x = std::fmod(s_MeshRotation.x, 360.0f);
+        s_MeshRotation.y = std::fmod(s_MeshRotation.y, 360.0f);
+        s_MeshRotation.z = std::fmod(s_MeshRotation.z, 360.0f);
 
         s_Camera->SetRotation(cameraRotation);
         s_Camera->SetPosition(cameraPosition);

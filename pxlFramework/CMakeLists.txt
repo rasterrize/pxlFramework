@@ -72,6 +72,12 @@ if(MSVC)
     target_link_options(pxlFramework PUBLIC "/ignore:4099")
 endif()
 
+if (LINUX)
+    target_compile_options(pxlFramework PRIVATE "-fpermissive")
+    target_compile_options(pxlFramework PRIVATE "-w")
+    target_compile_options(pxlFramework PRIVATE "-fno-ms-extensions")
+endif()
+
 # Set GLFW settings
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -176,7 +182,7 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::shaderc_combined
-    Winmm.lib # For FPS limiter. I consider this temporary.
+    # Winmm.lib # For FPS limiter. I consider this temporary.
     volk
 )
 
@@ -191,11 +197,11 @@ if(PXL_MODULE_DISCORD)
 endif()
 
 target_compile_definitions(pxlFramework PUBLIC
-    GLFW_EXPOSE_NATIVE_WIN32
+    # GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
-    WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
+    # WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers #
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
 )

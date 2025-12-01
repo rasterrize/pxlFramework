@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vulkan/vk_enum_string_helper.h>
-#include <Volk/volk.h>
+#include <volk/volk.h>
 
 namespace pxl
 {
@@ -50,7 +50,7 @@ namespace pxl
         if (result != VK_SUCCESS)
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
-            __debugbreak();
+            // __debugbreak();
         }
     }
 #endif

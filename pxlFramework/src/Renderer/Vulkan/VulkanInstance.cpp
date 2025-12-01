@@ -1,6 +1,6 @@
 #include "VulkanInstance.h"
 
-#include <Volk/volk.h>
+#include <volk/volk.h>
 
 #include "VulkanHelpers.h"
 

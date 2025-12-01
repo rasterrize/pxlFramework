@@ -79,22 +79,22 @@ namespace pxl
 
         struct Statistics
         { // clang-format off
-            float FrameTime          = 0.0f;
-            float FPS                = 0.0f;
-            uint32_t DrawCalls       = 0;
-            uint32_t QuadCount       = 0;
-            uint32_t QuadVertexCount = 0;
-            uint32_t QuadIndexCount  = 0;
-            uint32_t CubeCount       = 0;
-            uint32_t CubeVertexCount = 0;
-            uint32_t CubeIndexCount  = 0;
-            uint32_t LineCount       = 0;
-            uint32_t LineVertexCount = 0;
-            uint32_t MeshCount       = 0;
-            uint32_t MeshVertexCount = 0;
-            uint32_t MeshIndexCount  = 0;
-            uint32_t TextureBinds    = 0;
-            uint32_t PipelineBinds   = 0;
+            float FrameTime;
+            float FPS;
+            uint32_t DrawCalls;
+            uint32_t QuadCount;
+            uint32_t QuadVertexCount;
+            uint32_t QuadIndexCount;
+            uint32_t CubeCount;
+            uint32_t CubeVertexCount;
+            uint32_t CubeIndexCount;
+            uint32_t LineCount;
+            uint32_t LineVertexCount;
+            uint32_t MeshCount;
+            uint32_t MeshVertexCount;
+            uint32_t MeshIndexCount;
+            uint32_t TextureBinds;
+            uint32_t PipelineBinds;
 
             uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshIndexCount / 3); }
             uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }

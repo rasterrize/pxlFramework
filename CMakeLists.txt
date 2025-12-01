@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory f
 option(PXL_ENABLE_LOGGING "Enable framework logging" ON)
 option(PXL_ENABLE_ASSERTS "Enable framework asserts" OFF)
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
-option(PXL_BUILD_TESTS "Build TestApp/Tests" OFF)
+option(PXL_BUILD_TESTS "Build TestApp/Tests" ON)
 
 # Configure optional framework modules
 option(PXL_MODULE_DISCORD "Enable discord rpc module" OFF)

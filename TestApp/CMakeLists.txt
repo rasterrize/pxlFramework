@@ -53,6 +53,12 @@ if (MSVC)
     target_compile_options(TestApp PRIVATE "/MP")
 endif()
 
+if (LINUX)
+    target_compile_options(TestApp PRIVATE "-fpermissive")
+    target_compile_options(TestApp PRIVATE "-w")
+    target_compile_options(TestApp PRIVATE "-fno-ms-extensions")
+endif()
+
 # Set MSVC runtime library based on build type
 set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 

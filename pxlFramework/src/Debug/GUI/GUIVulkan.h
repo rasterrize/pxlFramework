@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Volk/volk.h>
+#include <volk/volk.h>
 
 #include "GUIBase.h"
 #include "Renderer/Vulkan/VulkanContext.h"
