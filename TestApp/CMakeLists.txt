@@ -36,9 +36,6 @@ set(PXL_ENABLE_LOGGING $<CONFIG:Debug> CACHE BOOL "" FORCE)
 target_include_directories(TestApp PRIVATE ${CMAKE_SOURCE_DIR}/pxlFramework/include)
 target_link_libraries(TestApp pxlFramework)
 
-# Set exe as Win32 for release builds (TODO: use only for distribution builds)
-set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
-
 # Set Visual Studio working directory
 set_target_properties(TestApp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
@@ -50,13 +47,7 @@ target_compile_definitions(TestApp PRIVATE
 
 # Set MSVC multi-processor compilation
 if (MSVC)
-    target_compile_options(TestApp PRIVATE "/MP")
-endif()
-
-if (LINUX)
-    target_compile_options(TestApp PRIVATE "-fpermissive")
-    target_compile_options(TestApp PRIVATE "-w")
-    target_compile_options(TestApp PRIVATE "-fno-ms-extensions")
+target_compile_options(TestApp PRIVATE "/MP")
 endif()
 
 # Set MSVC runtime library based on build type
@@ -64,3 +55,12 @@ set_target_properties(TestApp PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThread
 
 # Copy assets to the bin folder so executables can use them along with framework resources
 file(COPY assets DESTINATION "${CMAKE_BINARY_DIR}/bin")
+
+if (WIN32)
+    # Set exe as Win32 for release builds (TODO: use only for distribution builds)
+    set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
+elseif (LINUX)
+    target_compile_options(TestApp PRIVATE "-fpermissive")
+    target_compile_options(TestApp PRIVATE "-w")
+    target_compile_options(TestApp PRIVATE "-fno-ms-extensions")
+endif()

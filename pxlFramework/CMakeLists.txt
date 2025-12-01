@@ -72,7 +72,7 @@ if(MSVC)
     target_link_options(pxlFramework PUBLIC "/ignore:4099")
 endif()
 
-if (LINUX)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(pxlFramework PRIVATE "-fpermissive")
     target_compile_options(pxlFramework PRIVATE "-w")
     target_compile_options(pxlFramework PRIVATE "-fno-ms-extensions")
@@ -182,7 +182,7 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::shaderc_combined
-    # Winmm.lib # For FPS limiter. I consider this temporary.
+    $<$<CONFIG:WIN32>:Winmm.lib> # For FPS limiter. I consider this temporary.
     volk
 )
 
@@ -197,14 +197,19 @@ if(PXL_MODULE_DISCORD)
 endif()
 
 target_compile_definitions(pxlFramework PUBLIC
-    # GLFW_EXPOSE_NATIVE_WIN32
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
-    # WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers #
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
 )
+
+if (WIN32)
+    target_compile_definitions(pxlFramework PUBLIC
+        GLFW_EXPOSE_NATIVE_WIN32
+        WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
+    )
+endif()
 
 # Specify source directory as an include folder for simplified '#include's in code
 # TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
