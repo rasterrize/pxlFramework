@@ -1,5 +1,7 @@
 #include "Input.h"
 
+#include "Events/MouseEvents.h"
+
 namespace pxl
 {
     void Input::Init(const std::shared_ptr<Window>& window)
@@ -16,15 +18,10 @@ namespace pxl
         s_RawInputSupported = glfwRawMouseMotionSupported();
 
         s_WindowHandle = window->GetNativeWindow();
+        s_InputSystem = window->GetInputSystem();
         s_Enabled = true;
 
         PXL_LOG_INFO(LogArea::Input, "Input initialized");
-    }
-
-    void Input::Update()
-    {
-        s_LastCursorPosition = s_CursorPosition;
-        glfwGetCursorPos(s_WindowHandle, &s_CursorPosition.x, &s_CursorPosition.y);
     }
 
     void Input::Shutdown()
@@ -43,11 +40,10 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        bool keyPressed = s_CurrentKeyStates[keyCode] == GLFW_PRESS && s_PreviousKeyStates[keyCode] != GLFW_PRESS ? true : false;
+        if (!s_InputSystem->GetCurrentState().KeyStates.contains(keyCode))
+            return false;
 
-        s_PreviousKeyStates[keyCode] = s_CurrentKeyStates[keyCode];
-
-        return keyPressed;
+        return s_InputSystem->GetCurrentState().KeyStates.at(keyCode) == GLFW_PRESS;
     }
 
     bool Input::IsKeyHeld(KeyCode keyCode)
@@ -56,7 +52,7 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        return glfwGetKey(s_WindowHandle, keyCode) == GLFW_PRESS;
+        return glfwGetKey(s_WindowHandle, static_cast<int>(keyCode)) == GLFW_PRESS;
     }
 
     bool Input::IsMouseButtonPressed(MouseCode buttonCode)
@@ -65,11 +61,10 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        bool buttonPressed = s_CurrentMBStates[buttonCode] == GLFW_PRESS && s_PreviousMBStates[buttonCode] != GLFW_PRESS ? true : false;
+        if (!s_InputSystem->GetCurrentState().MBStates.contains(buttonCode) || !s_InputSystem->GetPreviousState().MBStates.contains(buttonCode))
+            return false;
 
-        s_PreviousMBStates[buttonCode] = s_CurrentMBStates[buttonCode];
-
-        return buttonPressed;
+        return s_InputSystem->GetCurrentState().MBStates.at(buttonCode) == GLFW_PRESS && s_InputSystem->GetPreviousState().MBStates.at(buttonCode) != GLFW_PRESS;
     }
 
     bool Input::IsMouseButtonHeld(MouseCode buttonCode)
@@ -78,7 +73,10 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        return glfwGetMouseButton(s_WindowHandle, buttonCode) == GLFW_PRESS;
+        if (!s_InputSystem->GetCurrentState().MBStates.contains(buttonCode))
+            return false;
+
+        return s_InputSystem->GetCurrentState().MBStates.at(buttonCode) == GLFW_PRESS;
     }
 
     bool Input::IsMouseScrolledUp()
@@ -87,12 +85,9 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        if (s_VerticalScrollOffset == 1.0f)
-        {
-            s_VerticalScrollOffset = 0.0f;
+        if (s_InputSystem->GetCurrentState().VerticalScrollOffset > 0.0)
             return true;
-        }
-
+        
         return false;
     }
 
@@ -102,22 +97,25 @@ namespace pxl
 
         PXL_ASSERT(s_Enabled);
 
-        if (s_VerticalScrollOffset == -1.0f)
-        {
-            s_VerticalScrollOffset = 0.0f;
+        if (s_InputSystem->GetCurrentState().VerticalScrollOffset < 0.0)
             return true;
-        }
 
         return false;
     }
 
-    void Input::SetCursorPosition(uint32_t x, uint32_t y)
+    void Input::SetCursorPosition(double x, double y)
     {
         PXL_ASSERT(s_Enabled);
 
-        glfwSetCursorPos(s_WindowHandle, static_cast<double>(x), static_cast<double>(y));
-        s_CursorPosition.x = static_cast<double>(x);
-        s_CursorPosition.y = static_cast<double>(y);
+        glfwSetCursorPos(s_WindowHandle, x, y);
+    }
+
+    glm::vec2 Input::GetCursorDelta()
+    {
+        auto currentPos = s_InputSystem->GetCurrentState().CursorPosition;
+        auto previousPos = s_InputSystem->GetPreviousState().CursorPosition;
+
+        return currentPos - previousPos;
     }
 
     void Input::SetCursorMode(CursorMode cursorMode)
@@ -195,31 +193,5 @@ namespace pxl
     void Input::SetCursor(Cursor customCursor)
     {
         glfwSetCursor(s_WindowHandle, customCursor.GetNativeCursor());
-    }
-
-    void Input::GLFWKeyCallback([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
-    {
-        // Override GLFW's windows key auto iconify so the start menu doesn't immediately disappear
-        if (key == GLFW_KEY_LEFT_SUPER)
-        {
-            if (glfwGetWindowMonitor(window))
-                glfwIconifyWindow(s_WindowHandle);
-        }
-
-        s_CurrentKeyStates[key] = action;
-    }
-
-    void Input::GLFWMouseButtonCallback([[maybe_unused]] GLFWwindow* window, int button, int action, [[maybe_unused]] int mods)
-    {
-        s_CurrentMBStates[button] = action;
-    }
-
-    void Input::GLFWCursorPosCallback([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xpos, [[maybe_unused]] double ypos)
-    {
-    }
-
-    void Input::GLFWScrollCallback([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xoffset, double yoffset)
-    {
-        s_VerticalScrollOffset = yoffset;
     }
 }

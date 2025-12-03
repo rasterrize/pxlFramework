@@ -48,40 +48,40 @@ namespace TestApp
         auto cameraFOV = s_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Escape))
         {
             pxl::Application::Get().Close();
             return;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
             s_Window->NextWindowMode();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::F7))
             s_Window->GetGraphicsContext()->ToggleVSync();
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftShift))
             cameraSpeed *= 3.0f;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_CONTROL))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftControl))
             cameraSpeed *= 0.5f;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::W))
             cameraPosition.y += cameraSpeed * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::A))
             cameraPosition.x -= cameraSpeed * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::S))
             cameraPosition.y -= cameraSpeed * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::D))
             cameraPosition.x += cameraSpeed * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::Q))
             cameraPosition.z += cameraSpeed * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::E))
             cameraPosition.z -= cameraSpeed * dt;
 
         if (pxl::Input::IsMouseScrolledUp())

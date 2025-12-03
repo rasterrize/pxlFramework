@@ -29,8 +29,8 @@ target_compile_features(TestApp PRIVATE cxx_std_20)
 
 # Set pxlFramework settings
 set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
-set(PXL_ENABLE_ASSERTS $<CONFIG:Debug> CACHE BOOL "" FORCE)
-set(PXL_ENABLE_LOGGING $<CONFIG:Debug> CACHE BOOL "" FORCE)
+set(PXL_ENABLE_ASSERTS ON CACHE BOOL "" FORCE) # $<$<CONFIG:Debug>:ON> $<$<CONFIG:Release>:OFF>
+set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
 
 # Include and link to pxlFramework
 target_include_directories(TestApp PRIVATE ${CMAKE_SOURCE_DIR}/pxlFramework/include)

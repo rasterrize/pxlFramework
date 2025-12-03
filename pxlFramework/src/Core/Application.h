@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Events/EventManager.h"
+
 namespace pxl
 {
     enum class FramerateMode
@@ -34,6 +36,7 @@ namespace pxl
         virtual void OnRender() {}
         virtual void OnGUIRender() {} // This function only gets called if ImGui is initialized
         virtual void OnClose() {}
+        virtual void OnEvent(const Event& e) {}
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 
@@ -43,11 +46,15 @@ namespace pxl
         FramerateMode GetFramerateMode() const { return m_FramerateMode; }
         void SetFramerateMode(FramerateMode mode);
 
+        const std::unique_ptr<EventManager>& GetEventManager() const { return m_EventManager; }
+
         static Application& Get()
         {
             PXL_ASSERT(s_Instance);
             return *s_Instance;
         }
+
+        static bool Exists() { return s_Instance; }
 
     private:
         void LimitFPS();
@@ -60,6 +67,8 @@ namespace pxl
         uint32_t m_CustomFPSLimit = 60; // TODO: make constant with config.h
         uint32_t m_GsyncFPSLimit = 0;
         FramerateMode m_FramerateMode = FramerateMode::Unlimited;
+
+        std::unique_ptr<EventManager> m_EventManager = nullptr;
 
         static inline Application* s_Instance = nullptr;
     };

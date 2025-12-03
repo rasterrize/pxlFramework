@@ -16,6 +16,10 @@ namespace TestApp
     static std::vector<std::string> s_LoadedModelNames;
     static int32_t s_CurrentModelIndex = 0;
 
+    static pxl::UserEventHandler<pxl::WindowResizeEvent> s_ResizeHandler;
+    static pxl::UserEventHandler<pxl::WindowPathDropEvent> s_PathDropHandler;
+    static pxl::UserEventHandler<pxl::KeyDownEvent> s_KeyDownHandler;
+
     void ModelViewer::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         PXL_PROFILE_SCOPE;
@@ -38,13 +42,11 @@ namespace TestApp
 
         LoadMesh("assets/models/star.obj");
 
-        s_Window->SetFileDropCallback(OnFileDrop);
-        s_Window->SetResizeCallback([](pxl::Size2D newSize)
-        {
-            s_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
-        });
-
         pxl::GUI::Init(s_Window);
+
+        PXL_REGISTER_STATIC_HANDLER(s_ResizeHandler, pxl::WindowResizeEvent, OnWindowResizeEvent);
+        PXL_REGISTER_STATIC_HANDLER(s_PathDropHandler, pxl::WindowPathDropEvent, OnWindowPathDropEvent);
+        PXL_REGISTER_STATIC_HANDLER(s_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
     }
 
     void ModelViewer::OnUpdate(float dt)
@@ -54,31 +56,13 @@ namespace TestApp
         auto cameraPosition = s_Camera->GetPosition();
         auto cameraRotation = s_Camera->GetRotation();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
-        {
-            pxl::Application::Get().Close();
-            return;
-        }
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
-            s_Window->NextWindowMode();
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
-            s_Window->GetGraphicsContext()->SetVSync(!s_Window->GetGraphicsContext()->GetVSync());
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::W))
             cameraPosition.z -= 20.0f * dt;
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::S))
             cameraPosition.z += 20.0f * dt;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_DOWN))
-            s_MeshPosition.y -= 30.0f * dt;
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_UP))
-            s_MeshPosition.y += 30.0f * dt;
-
-        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::PXL_MOUSE_BUTTON_LEFT))
+        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::LeftButton))
         {
             s_MeshRotation.y += pxl::Input::GetCursorDelta().x;
             s_MeshRotation.x += pxl::Input::GetCursorDelta().y;
@@ -86,16 +70,6 @@ namespace TestApp
         else
         {
             s_MeshRotation.y += 30.0f * dt;
-        }
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F1))
-        {
-            auto filePath = pxl::Platform::OpenFile(s_Window,
-                "OBJ File (*.obj)\0"
-                "*.obj\0");
-
-            if (!filePath.empty())
-                LoadMesh(filePath);
         }
 
         s_MeshRotation.x = std::fmodf(s_MeshRotation.x, 360.0f);
@@ -159,9 +133,47 @@ namespace TestApp
         return s_Window;
     }
 
-    void ModelViewer::OnFileDrop(const std::vector<std::string>& paths)
+    void ModelViewer::OnKeyDownEvent(pxl::KeyDownEvent& e)
     {
-        LoadMesh(paths.at(0));
+        if (e.IsKey(pxl::KeyCode::Escape))
+        {
+            pxl::Application::Get().Close();
+            e.Handled();
+            return;
+        }
+
+        if (e.IsModsAndKey(pxl::KeyModFlags::Alt, pxl::KeyCode::Enter))
+            s_Window->NextWindowMode();
+
+        if (e.IsKey(pxl::KeyCode::F7))
+            s_Window->GetGraphicsContext()->SetVSync(!s_Window->GetGraphicsContext()->GetVSync());
+
+        if (e.IsKey(pxl::KeyCode::F1))
+        {
+            auto filePath = pxl::Platform::OpenFile(s_Window,
+                "OBJ File (*.obj)\0"
+                "*.obj\0");
+
+            if (!filePath.empty())
+                LoadMesh(filePath);
+        }
+
+        if (e.IsKey(pxl::KeyCode::Down))
+            s_MeshPosition.y -= 3.0f;
+
+        if (e.IsKey(pxl::KeyCode::Up))
+            s_MeshPosition.y += 3.0f;
+    }
+
+    void ModelViewer::OnWindowPathDropEvent(pxl::WindowPathDropEvent& e)
+    {
+        LoadMesh(e.GetPaths().at(0));
+    }
+
+    void ModelViewer::OnWindowResizeEvent(pxl::WindowResizeEvent& e)
+    {
+        auto newSize = e.GetSize();
+        s_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
     }
 
     void ModelViewer::LoadMesh(const std::filesystem::path& path)

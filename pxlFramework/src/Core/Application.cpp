@@ -25,6 +25,8 @@ namespace pxl
         PXL_INIT_LOGGING;
 
         FrameworkConfig::Init();
+
+        m_EventManager = std::make_unique<EventManager>();
     }
 
     Application::~Application()
@@ -46,26 +48,19 @@ namespace pxl
             m_LastFrameTime = time;
 
             Window::ProcessEvents();
+            m_EventManager->ProcessQueue();
 
-            // If all windows are closed after window processes close events, stop running
-            if (!m_Running)
-                break;
-
-            if (!m_Minimized)
+            if (!m_Minimized && m_Running)
             {
-                if (Input::IsInitialized())
-                    Input::Update();
-
                 OnUpdate(deltaTime);
 
-                // If user application closes the app manually, stop running
-                if (!m_Running)
-                    break;
-
-                Camera::UpdateAll();
-                Renderer::Begin();
-                OnRender();
-                Renderer::End();
+                if (Renderer::IsInitialized())
+                {
+                    Camera::UpdateAll();
+                    Renderer::Begin();
+                    OnRender();
+                    Renderer::End();
+                }
             }
 
             Window::UpdateAll();
@@ -83,6 +78,9 @@ namespace pxl
 
     void Application::Close()
     {
+        if (!m_Running)
+            return;
+
         m_Running = false;
 
         PXL_LOG_INFO(LogArea::Core, "Application closing...");
@@ -119,6 +117,7 @@ namespace pxl
         auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
         uint32_t limit = 0;
 
+        // TODO: use a function to return a suitable limit, and skip the next steps if its 0 (unlimited)
         if (m_FramerateMode == FramerateMode::Custom)
             limit = m_CustomFPSLimit;
         else if (m_FramerateMode == FramerateMode::GSYNC)

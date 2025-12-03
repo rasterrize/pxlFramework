@@ -139,37 +139,37 @@ namespace TestApp
 
         s_CursorQuad.Position = glm::vec3(s_CursorPosition, 1.0f);
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Escape))
         {
             pxl::Application::Get().Close();
             return;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
             s_Window->NextWindowMode();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_F7))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::F7))
             s_Window->GetGraphicsContext()->ToggleVSync();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num1))
             s_DynamicQuad.Origin = pxl::Origin2D::TopLeft;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num2))
             s_DynamicQuad.Origin = pxl::Origin2D::TopRight;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_3))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num3))
             s_DynamicQuad.Origin = pxl::Origin2D::BottomLeft;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_4))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num4))
             s_DynamicQuad.Origin = pxl::Origin2D::BottomRight;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_5))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num5))
             s_DynamicQuad.Origin = pxl::Origin2D::Center;
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_T))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::T))
             s_Window->SetPosition(200, -2000);
 
-        if (pxl::Input::IsMouseButtonPressed(pxl::MouseCode::PXL_MOUSE_BUTTON_LEFT))
+        if (pxl::Input::IsMouseButtonPressed(pxl::MouseCode::LeftButton))
         {
             bool foundQuad = false;
             for (auto quad : quads)

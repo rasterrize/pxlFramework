@@ -421,6 +421,9 @@ namespace pxl
 
         s_Enabled = false;
 
+        s_ContextHandle.reset();
+        s_RendererAPI.reset();
+
         // Delete vulkan objects before RAII deletes them in the wrong order
         if (s_RendererAPIType == RendererAPIType::Vulkan)
         {
@@ -445,9 +448,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
-        if (!s_Enabled)
-            return;
+        PXL_ASSERT(s_Enabled);
 
         s_RendererAPI->BeginFrame();
 
@@ -463,9 +464,7 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        // NOTE: required atm otherwise application will call it even if the renderer isn't enabled
-        if (!s_Enabled)
-            return;
+        PXL_ASSERT(s_Enabled);
 
         Flush();
 

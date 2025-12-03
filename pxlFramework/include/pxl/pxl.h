@@ -1,6 +1,7 @@
 #pragma once
 
 // Core
+#include "../src/Core/Animation.h"
 #include "../src/Core/Application.h"
 #include "../src/Core/Assert.h"
 #include "../src/Core/Colour.h"
@@ -13,7 +14,13 @@
 #include "../src/Core/Platform.h"
 #include "../src/Core/Stopwatch.h"
 #include "../src/Core/Window.h"
-#include "../src/Core/Animation.h"
+
+// Events
+#include "../src/Core/Events/Event.h"
+#include "../src/Core/Events/EventHandler.h"
+#include "../src/Core/Events/KeyboardEvents.h"
+#include "../src/Core/Events/MouseEvents.h"
+#include "../src/Core/Events/WindowEvents.h"
 
 // Renderer
 #include "../src/Renderer/BufferLayout.h"

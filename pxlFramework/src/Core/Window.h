@@ -6,11 +6,13 @@
 
 #include "Core/Image.h"
 #include "Core/Size.h"
+#include "InputSystem.h"
 #include "Renderer/GraphicsContext.h"
 #include "Renderer/RendererAPIType.h"
 
 namespace pxl
 {
+    // TODO: define these locally bc currently they are global (oops)
     static constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
     static constexpr float k_DefaultAspectRatio = 16.0f / 9.0f;
     static constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
@@ -132,9 +134,6 @@ namespace pxl
 
         void RequestUserAttention() const;
 
-        void SetResizeCallback(const std::function<void(Size2D newSize)>& callback) { m_UserResizeCallback = callback; }
-        void SetFileDropCallback(const std::function<void(std::vector<std::string>)>& callback) { m_UserFileDropCallback = callback; }
-
         const Monitor& GetCurrentMonitor() { return m_CurrentMonitor; }
 
         static const std::vector<Monitor>& GetAvailableMonitors() { return s_Monitors; }
@@ -143,7 +142,7 @@ namespace pxl
 
         static std::vector<const char*> GetVKRequiredInstanceExtensions();
 
-        static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
+        [[nodiscard]] static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
 
         static void CloseAll();
 
@@ -159,6 +158,10 @@ namespace pxl
         void InitWindowCallbacks();
         static void InitGLFWCallbacks();
 
+        friend class InputSystem;
+        friend class Input;
+        const std::shared_ptr<InputSystem>& GetInputSystem() const { return m_InputSystem; }
+
         // Per-window GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
         static void WindowResizeCallback(GLFWwindow* window, int width, int height);
@@ -173,7 +176,7 @@ namespace pxl
 
         friend class Application; // for the below functions
         static void Init();
-        static void ProcessEvents() { s_EventProcessFunc(); }
+        static void ProcessEvents();
         static void UpdateAll();
         static void Shutdown();
 
@@ -183,6 +186,8 @@ namespace pxl
         GLFWwindow* m_GLFWWindow = nullptr;
         std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
         std::weak_ptr<Window> m_Handle;
+        std::shared_ptr<InputSystem> m_InputSystem;
+        std::function<void(Event&)> m_EventCallback;
 
         Size2D m_Size = k_DefaultWindowedSize;
         glm::ivec2 m_Position = { 0, 0 };
@@ -199,10 +204,6 @@ namespace pxl
         // The current monitor this window is on
         Monitor m_CurrentMonitor;
 
-        // User callbacks
-        std::function<void(Size2D)> m_UserResizeCallback;
-        std::function<void(const std::vector<std::string>&)> m_UserFileDropCallback = nullptr;
-        
         bool m_ShowAfterFirstPresent = true;
 
         static inline bool s_Initialized = false;

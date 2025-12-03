@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "Application.h"
+#include "Events/WindowEvents.h"
 #include "Input.h"
 #include "Platform.h"
 #include "Renderer/Renderer.h"
@@ -112,6 +113,10 @@ namespace pxl
         // Use cool dark mode titlebar
         if (specs.DarkMode)
             Platform::UseImmersiveDarkMode(m_GLFWWindow);
+
+        // Init event and input systems
+        m_EventCallback = Application::Get().GetEventManager()->GetEventSendCallback();
+        m_InputSystem = std::make_shared<InputSystem>(m_GLFWWindow, Application::Get().GetEventManager()->GetEventQueueCallback());
     }
 
     void Window::Update()
@@ -133,7 +138,7 @@ namespace pxl
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
 
-        if (s_Windows.empty() && Application::Get().IsRunning())
+        if (s_Windows.empty())
         {
             Application::Get().Close();
             return;
@@ -151,11 +156,6 @@ namespace pxl
         glfwSetFramebufferSizeCallback(m_GLFWWindow, FramebufferResizeCallback);
         glfwSetWindowIconifyCallback(m_GLFWWindow, WindowIconifyCallback);
         glfwSetDropCallback(m_GLFWWindow, DropCallback);
-
-        glfwSetKeyCallback(m_GLFWWindow, Input::GLFWKeyCallback);
-        glfwSetMouseButtonCallback(m_GLFWWindow, Input::GLFWMouseButtonCallback);
-        glfwSetScrollCallback(m_GLFWWindow, Input::GLFWScrollCallback);
-        glfwSetCursorPosCallback(m_GLFWWindow, Input::GLFWCursorPosCallback);
     }
 
     void Window::InitGLFWCallbacks()
@@ -258,6 +258,9 @@ namespace pxl
                 glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
                 break;
         }
+
+        WindowModeChangeEvent event(mode, m_Handle.lock());
+        m_EventCallback(event);
 
         PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, EnumStringHelper::ToString(m_WindowMode));
     }
@@ -407,8 +410,8 @@ namespace pxl
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-        if (windowInstance->m_UserResizeCallback)
-            windowInstance->m_UserResizeCallback({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
+        WindowResizeEvent event({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) }, windowInstance->m_Handle.lock());
+        windowInstance->m_EventCallback(event);
     }
 
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -468,6 +471,9 @@ namespace pxl
             Application::Get().SetMinimization(false);
             s_EventProcessFunc = glfwPollEvents;
         }
+
+        WindowMinimizeEvent event(iconified, windowInstance->m_Handle.lock());
+        windowInstance->m_EventCallback(event);
     }
 
     void Window::WindowPositionCallback(GLFWwindow* window, int xpos, int ypos)
@@ -483,20 +489,21 @@ namespace pxl
         // NOTE: Retrieve an up-to-date iconification status, due to this callback being called before WindowIconifyCallback
         if (!glfwGetWindowAttrib(windowInstance->GetNativeWindow(), GLFW_ICONIFIED))
             windowInstance->UpdateCurrentMonitor();
+
+        WindowRepositionEvent event({ xpos, ypos }, windowInstance->m_Handle.lock());
+        windowInstance->m_EventCallback(event);
     }
 
     void Window::DropCallback(GLFWwindow* window, int count, const char** paths)
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        if (windowInstance->m_UserFileDropCallback)
-        {
-            std::vector<std::string> stringPaths(count);
-            for (int i = 0; i < count; i++)
-                stringPaths[i] = paths[i];
+        std::vector<std::string> stringPaths(count);
+        for (int i = 0; i < count; i++)
+            stringPaths[i] = paths[i];
 
-            windowInstance->m_UserFileDropCallback(stringPaths);
-        }
+        WindowPathDropEvent event(stringPaths, windowInstance->m_Handle.lock());
+        windowInstance->m_EventCallback(event);
     }
 
     void Window::MonitorCallback(GLFWmonitor* monitor, int event)
@@ -523,6 +530,16 @@ namespace pxl
         UpdateMonitors();
 
         s_Initialized = true;
+    }
+
+    void Window::ProcessEvents()
+    {
+        PXL_PROFILE_SCOPE;
+
+        for (auto& window : s_Windows)
+            window->m_InputSystem->ResetCurrentState();
+
+        s_EventProcessFunc();
     }
 
     void Window::UpdateAll()
@@ -583,7 +600,6 @@ namespace pxl
 
         glfwTerminate();
 
-        PXL_LOG_INFO(LogArea::Window, "GLFW terminated");
         PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
     }
 

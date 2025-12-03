@@ -26,19 +26,19 @@ namespace TestApp
 
     void WindowTest::OnUpdate(float dt)
     {
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ESCAPE))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Escape))
         {
             pxl::Application::Get().Close();
             return;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_ALT) && pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_ENTER))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
             s_TestWindowB->NextWindowMode();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_1))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num1))
             s_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_2))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num2))
             s_TestWindowA->SetMonitor(1);
     }
 

@@ -48,7 +48,7 @@ namespace TestApp
         auto cameraSpeed = 2.0f;
         auto cursorPos = pxl::Input::GetCursorPosition();
 
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::PXL_KEY_TAB))
+        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Tab))
         {
             if (s_ControllingCamera)
                 s_ControllingCamera = false;
@@ -56,19 +56,19 @@ namespace TestApp
                 s_ControllingCamera = true;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_LEFT_SHIFT))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftShift))
         {
             cameraSpeed *= 5.0f;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_W))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::W))
         {
             if (s_ControllingCamera)
             {
                 cameraPosition.y += cameraSpeed * dt;
             }
         }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_A))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::A))
         {
             if (s_ControllingCamera)
             {
@@ -79,14 +79,14 @@ namespace TestApp
                 s_PlayerPosition.x -= 1.0f * dt;
             }
         }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_S))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::S))
         {
             if (s_ControllingCamera)
             {
                 cameraPosition.y -= cameraSpeed * dt;
             }
         }
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_D))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::D))
         {
             if (s_ControllingCamera)
             {
@@ -98,12 +98,12 @@ namespace TestApp
             }
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_Q))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::Q))
         {
             cameraPosition.z -= cameraSpeed * dt;
         }
 
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::PXL_KEY_E))
+        if (pxl::Input::IsKeyHeld(pxl::KeyCode::E))
         {
             cameraPosition.z += cameraSpeed * dt;
         }
