@@ -1,6 +1,7 @@
 #include "TestApplication.h"
 
 // Tests
+#include "Tests/AudioTest.h"
 #include "Tests/CubesTest.h"
 #include "Tests/EmptyApp.h"
 #include "Tests/LinesTest.h"

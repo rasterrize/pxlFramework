@@ -22,6 +22,8 @@ add_executable(TestApp
     src/Tests/WindowTest.cpp
     src/Tests/LinesTest.h
     src/Tests/LinesTest.cpp
+    src/Tests/AudioTest.h
+    src/Tests/AudioTest.cpp
 )
 
 # Set project c++ standard
