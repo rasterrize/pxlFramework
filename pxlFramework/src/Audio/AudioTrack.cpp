@@ -1,4 +1,5 @@
 #include "AudioTrack.h"
+#include "AudioUtil.h"
 
 namespace pxl
 {
@@ -14,21 +15,21 @@ namespace pxl
 
     void AudioTrack::Play()
     {
-        BASS_ChannelPlay(m_Stream, FALSE);
+        BASS_CHECK(BASS_ChannelPlay(m_Stream, false));
     }
 
     void AudioTrack::Pause()
     {
-        BASS_ChannelPause(m_Stream); // TODO: Check if the track is playing
+        BASS_CHECK(BASS_ChannelPause(m_Stream)); // TODO: Check if the track is playing
     }
 
     void AudioTrack::Stop()
     {
-        BASS_ChannelStop(m_Stream); // TODO: Check if the track is playing
+        BASS_CHECK(BASS_ChannelStop(m_Stream)); // TODO: Check if the track is playing
     }
 
     void AudioTrack::Free()
     {
-        BASS_StreamFree(m_Stream);
+        BASS_CHECK(BASS_StreamFree(m_Stream));
     }
 }

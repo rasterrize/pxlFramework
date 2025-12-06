@@ -1,22 +1,23 @@
 #include "AudioManager.h"
+#include "AudioUtil.h"
 
 namespace pxl
 {
     bool AudioManager::s_Enabled = false;
 
-    int AudioManager::s_CurrentDeviceIndex = 1; // TODO: should automatically set to the default speaker device.
-    int AudioManager::s_Frequency = 44100;      // TODO: should get the frequency of the set audio device
+    int AudioManager::s_CurrentDeviceIndex = -1; // -1 = default device
+    int AudioManager::s_Frequency = 44100;       // considered the standard for human hearing, can be increased for better fx
     float AudioManager::s_Volume = 10;
 
     std::shared_ptr<Window> AudioManager::s_WindowHandle = nullptr;
 
     std::unordered_map<std::string, std::shared_ptr<AudioTrack>> AudioManager::s_Tracks;
 
-    void AudioManager::Init(const std::shared_ptr<Window> windowHandle)
+    void AudioManager::Init(const std::shared_ptr<Window> windowHandle = nullptr)
     {
         s_WindowHandle = windowHandle;
 
-        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, ), NULL) // TODO: need to fix
+        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, NULL, NULL))
         {
             PXL_LOG_INFO(LogArea::Audio, "BASS initialized");
         }
@@ -28,7 +29,7 @@ namespace pxl
         }
 
         // Configure BASS
-        BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, s_Volume * 100); // Stream Volume in BASS is from 0 - 10000
+        BASS_CHECK(BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, static_cast<DWORD>(s_Volume * 100))); // Stream Volume in BASS is from 0 - 10000
 
         s_Enabled = true;
     }
@@ -38,7 +39,7 @@ namespace pxl
         if (!s_Enabled)
             return;
 
-        BASS_Free();
+        BASS_CHECK(BASS_Free());
         s_Enabled = false;
     }
 
@@ -65,10 +66,11 @@ namespace pxl
     std::vector<std::string> AudioManager::GetLibrary()
     {
         std::vector<std::string> audioNames;
+        audioNames.reserve(s_Tracks.size());
 
-        for (auto track : s_Tracks)
+        for (auto& [name, track] : s_Tracks)
         {
-            audioNames.push_back(track.first);
+            audioNames.push_back(name);
         }
 
         return audioNames;

@@ -33,7 +33,8 @@
 #include "../src/Renderer/Vertices.h"
 
 // Audio
-//#include "../src/Audio/AudioManager.h"
+#include "../src/Audio/AudioManager.h"
+#include "../src/Audio/AudioTrack.h"
 
 // Debug
 #include <imgui.h> // so applications can use ImGui functions

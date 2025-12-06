@@ -7,11 +7,7 @@ file(GLOB_RECURSE renderer_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/
 file(GLOB_RECURSE debug_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Debug/*.cpp ${PROJECT_SOURCE_DIR}/src/Debug/*.h)
 file(GLOB_RECURSE utils_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Utils/*.cpp ${PROJECT_SOURCE_DIR}/src/Utils/*.h)
 file(GLOB root_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-
-# Exclude audio for now
-if(FALSE)
-    file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Audio/*.cpp ${PROJECT_SOURCE_DIR}/src/Audio/*.h)
-endif()
+file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Audio/*.cpp ${PROJECT_SOURCE_DIR}/src/Audio/*.h)
 
 add_library(pxlFramework STATIC
     ${core_source_files}
@@ -19,6 +15,7 @@ add_library(pxlFramework STATIC
     ${debug_source_files}
     ${utils_source_files}
     ${root_source_files}
+    ${audio_source_files}
 )
 
 # Set project c++ standard
@@ -151,6 +148,7 @@ target_link_libraries(pxlFramework
     Vulkan::volk
     Winmm.lib # For FPS limiter. I consider this temporary.
     dwmapi.lib
+    bass
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
