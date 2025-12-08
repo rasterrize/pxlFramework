@@ -181,6 +181,7 @@ target_link_libraries(pxlFramework
     yaml-cpp
     Vulkan::shaderc_combined
     Winmm.lib # For FPS limiter. I consider this temporary.
+    dwmapi.lib
     volk
 )
 

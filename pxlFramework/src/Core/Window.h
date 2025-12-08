@@ -77,6 +77,9 @@ namespace pxl
 
         // The path to load an icon from for this window. If not supplied, the window will have no icon.
         std::optional<std::string> IconPath;
+
+        // Use dark mode for window title
+        bool DarkMode = true;
     };
 
     class Window

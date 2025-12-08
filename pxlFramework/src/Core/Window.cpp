@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "Input.h"
+#include "Platform.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Vulkan/VulkanContext.h"
 #include "Renderer/Vulkan/VulkanHelpers.h"
@@ -107,6 +108,10 @@ namespace pxl
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         InitWindowCallbacks();
+
+        // Use cool dark mode titlebar
+        if (specs.DarkMode)
+            Platform::UseImmersiveDarkMode(m_GLFWWindow);
     }
 
     void Window::Update() const
@@ -322,7 +327,7 @@ namespace pxl
     void Window::SetTitle(const std::string_view& title)
     {
         m_Title = title;
-        glfwSetWindowTitle(m_GLFWWindow, title.data()); 
+        glfwSetWindowTitle(m_GLFWWindow, title.data());
     }
 
     void Window::SetIcon(const std::shared_ptr<Image>& image)

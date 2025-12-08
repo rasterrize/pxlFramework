@@ -28,5 +28,8 @@ namespace pxl
         // Will return empty strings when cancelled
         static std::string OpenFile(const std::shared_ptr<Window> window, const char* filter);
         static std::string SaveFile(const std::shared_ptr<Window> window, const char* filter);
+
+        // WARNING: this function only works on windows 10 20h1 or greater
+        static void UseImmersiveDarkMode(GLFWwindow* window);
     };
 }
