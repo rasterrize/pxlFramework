@@ -59,7 +59,9 @@ namespace pxl
         void Suspend() { m_Suspend = true; }
         void Continue() { m_Suspend = false; }
 
-        void FramebufferResized() { m_FramebufferResized = true; }
+        void Invalidate() { m_Invalid = true; }
+
+        bool IsInvalid() const { return m_Invalid; }
 
     private:
         void CreateSwapchain();
@@ -92,6 +94,6 @@ namespace pxl
         bool m_VSync = true;
         bool m_Suspend = false;
 
-        bool m_FramebufferResized = false;
+        bool m_Invalid = false;
     };
 }

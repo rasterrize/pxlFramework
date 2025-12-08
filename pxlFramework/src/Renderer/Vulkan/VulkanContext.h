@@ -22,7 +22,7 @@ namespace pxl
         virtual void SetVSync(bool value) override
         {
             m_Swapchain->SetVSync(value);
-            m_Swapchain->Recreate();
+            m_Swapchain->Invalidate();
         }
         virtual void ToggleVSync() { SetVSync(!m_Swapchain->GetVSync()); }
 

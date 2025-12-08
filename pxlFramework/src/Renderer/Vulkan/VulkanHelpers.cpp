@@ -211,7 +211,6 @@ namespace pxl
         VkSemaphore semaphore;
 
         VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-        // TODO: flags
 
         VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore));
 

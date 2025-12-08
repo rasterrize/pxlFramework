@@ -429,7 +429,7 @@ namespace pxl
             if (static_cast<uint32_t>(width) != swapchainSpecs.Extent.width || static_cast<uint32_t>(height) != swapchainSpecs.Extent.height)
             {
                 swapchain->SetExtent({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
-                swapchain->FramebufferResized();
+                swapchain->Invalidate();
             }
         }
     }

@@ -78,16 +78,21 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         auto device = static_cast<VkDevice>(m_Device->GetLogical());
+        auto swapchain = m_ContextHandle->GetSwapchain();
 
         // Get the next frame to render to
-        m_CurrentFrame = m_ContextHandle->GetSwapchain()->GetCurrentFrame();
+        m_CurrentFrame = swapchain->GetCurrentFrame();
 
         // Wait until the command buffers and semaphores are ready again
         VK_CHECK(vkWaitForFences(device, 1, &m_CurrentFrame.InFlightFence, VK_TRUE, UINT64_MAX)); // using UINT64_MAX pretty much means an infinite timeout (18 quintillion nanoseconds = 584 years)
 
+        // Ensure swapchain is valid
+        if (swapchain->IsInvalid())
+            swapchain->Recreate();
+
         // Get next available image index
-        m_ContextHandle->GetSwapchain()->AcquireNextAvailableImageIndex();
-        uint32_t imageIndex = m_ContextHandle->GetSwapchain()->GetCurrentImageIndex();
+        swapchain->AcquireNextAvailableImageIndex();
+        uint32_t imageIndex = swapchain->GetCurrentImageIndex();
 
         VK_CHECK(vkResetFences(device, 1, &m_CurrentFrame.InFlightFence));
 
@@ -104,9 +109,9 @@ namespace pxl
 
         VkRenderPassBeginInfo renderPassBeginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         renderPassBeginInfo.renderPass = m_DefaultRenderPass->GetVKRenderPass(); // shouldnt be here if I want to support different render passes in the future.
-        renderPassBeginInfo.framebuffer = m_ContextHandle->GetSwapchain()->GetFramebuffer(imageIndex)->GetVKFramebuffer();
+        renderPassBeginInfo.framebuffer = swapchain->GetFramebuffer(imageIndex)->GetVKFramebuffer();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_ContextHandle->GetSwapchain()->GetSwapchainSpecs().Extent;
+        renderPassBeginInfo.renderArea.extent = swapchain->GetSwapchainSpecs().Extent;
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &m_ClearValue;
 

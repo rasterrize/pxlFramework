@@ -106,6 +106,8 @@ namespace pxl
         CreateSwapchain();
         PrepareImages();
         PrepareFramebuffers(m_DefaultRenderPass);
+
+        m_Invalid = false;
     }
 
     void VulkanSwapchain::Destroy(VkSwapchainKHR swapchain)
@@ -157,7 +159,7 @@ namespace pxl
         auto result = vkAcquireNextImageKHR(static_cast<VkDevice>(m_Device->GetLogical()), m_Swapchain, UINT64_MAX, m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
-            Recreate();
+            Invalidate();
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             PXL_LOG_ERROR(LogArea::Vulkan, "Failed to retrieve next available image in the swapchain");
     }
@@ -186,10 +188,9 @@ namespace pxl
         // Update current frame index to the next frame
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFramesInFlight;
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         {
-            m_FramebufferResized = false;
-            Recreate();
+            Invalidate();
         }
         else if (result != VK_SUCCESS)
         {
