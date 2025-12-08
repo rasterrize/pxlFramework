@@ -4,6 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "build",
+            "targets": [
+                "ALL_BUILD"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
             "label": "Build pxlFramework (Debug)",
             "type": "shell",
             "command": "MSBuild",
@@ -12,16 +26,13 @@
                 "/t:build",
                 "/p:Configuration=Debug",
                 "/v:minimal",
-                "/maxCpuCount",
+                "/maxCpuCount"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true,
-            },
+            "group": "build",
             "presentation": {
-                "clear": true,
+                "clear": true
             },
-            "problemMatcher": "$msCompile",
+            "problemMatcher": "$msCompile"
         },
         {
             "label": "Rebuild pxlFramework (Debug)",
@@ -32,19 +43,19 @@
                 "/t:rebuild",
                 "/p:Configuration=Debug",
                 "/v:minimal",
-                "/maxCpuCount",
+                "/maxCpuCount"
             ],
             "group": {
-                "kind": "build",
+                "kind": "build"
             },
             "presentation": {
                 "clear": true,
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
                 "CMake: clean",
-                "CMake: configure",
+                "CMake: configure"
             ]
         },
         {
@@ -56,14 +67,14 @@
                 "/t:build",
                 "/p:Configuration=Release",
                 "/v:minimal",
-                "/maxCpuCount",
+                "/maxCpuCount"
             ],
             "group": "build",
             "presentation": {
                 "clear": true,
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
-            "problemMatcher": "$msCompile",
+            "problemMatcher": "$msCompile"
         },
         {
             "label": "Rebuild pxlFramework (Release)",
@@ -74,12 +85,12 @@
                 "/t:rebuild",
                 "/p:Configuration=Release",
                 "/v:minimal",
-                "/maxCpuCount",
+                "/maxCpuCount"
             ],
             "group": "build",
             "presentation": {
                 "clear": true,
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
             "problemMatcher": "$msCompile",
             "dependsOn": [
