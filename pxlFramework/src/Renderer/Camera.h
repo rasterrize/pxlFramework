@@ -23,7 +23,7 @@ namespace pxl
         float AspectRatio = 16.0f / 9.0f;
         float NearClip = -1.0f;
         float FarClip = 1.0f;
-        float Zoom = 0.0f;
+        float Zoom = 1.0f;
         float Left, Right, Bottom, Top;
         bool UseAspectRatio = true;
     };
