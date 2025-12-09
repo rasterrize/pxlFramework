@@ -422,7 +422,7 @@ namespace pxl
             auto swapchain = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->m_GraphicsContext)->GetSwapchain();
             auto swapchainSpecs = swapchain->GetSwapchainSpecs();
 
-            if (width == 0 && height == 0)
+            if (width == 0 || height == 0)
             {
                 swapchain->Suspend();
                 return;
