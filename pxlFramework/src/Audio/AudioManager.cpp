@@ -1,37 +1,32 @@
 #include "AudioManager.h"
+
 #include "AudioUtil.h"
 
 namespace pxl
 {
-    bool AudioManager::s_Enabled = false;
-
-    int AudioManager::s_CurrentDeviceIndex = -1; // -1 = default device
-    int AudioManager::s_Frequency = 44100;       // considered the standard for human hearing, can be increased for better fx
-    float AudioManager::s_Volume = 10;
-
-    std::shared_ptr<Window> AudioManager::s_WindowHandle = nullptr;
-
-    std::unordered_map<std::string, std::shared_ptr<AudioTrack>> AudioManager::s_Tracks;
-
-    void AudioManager::Init(const std::shared_ptr<Window> windowHandle = nullptr)
+    bool AudioManager::Init(const AudioConfig& config, std::shared_ptr<Window> window)
     {
-        s_WindowHandle = windowHandle;
+        s_Config = config;
 
-        if (BASS_Init(s_CurrentDeviceIndex, s_Frequency, 0, NULL, NULL))
+        if (BASS_Init(s_Config.CurrentDeviceIndex, s_Config.Frequency, 0, NULL, NULL))
         {
             PXL_LOG_INFO(LogArea::Audio, "BASS initialized");
         }
         else
         {
             PXL_LOG_ERROR(LogArea::Audio, "BASS failed to initialize");
-            // TODO: bass error callbacks
-            return;
+            return false;
         }
 
-        // Configure BASS
-        BASS_CHECK(BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, static_cast<DWORD>(s_Volume * 100))); // Stream Volume in BASS is from 0 - 10000
+        SetMasterVolume(s_Config.MasterVolume);
+
+        s_Config.CurrentDeviceIndex = BASS_GetDevice();
+
+        BASS_PluginLoad("bassflac", 0);
 
         s_Enabled = true;
+
+        return true;
     }
 
     void AudioManager::Shutdown()
@@ -63,16 +58,9 @@ namespace pxl
         s_Tracks.at(trackName)->Stop();
     }
 
-    std::vector<std::string> AudioManager::GetLibrary()
-    {
-        std::vector<std::string> audioNames;
-        audioNames.reserve(s_Tracks.size());
-
-        for (auto& [name, track] : s_Tracks)
-        {
-            audioNames.push_back(name);
-        }
-
-        return audioNames;
+    void AudioManager::SetMasterVolume(float percentage)
+    {   
+        s_Config.MasterVolume = percentage;
+        BASS_CHECK(BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, static_cast<DWORD>(s_Config.MasterVolume * 100.0f))); // Stream Volume in BASS is from 0 - 10000
     }
 }

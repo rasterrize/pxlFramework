@@ -37,4 +37,4 @@ add_subdirectory(pxlFramework)
 file(COPY pxlFramework/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # Copy necessary framework dependency DLLs to bin directory
-file(COPY pxlFramework/deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY pxlFramework/deps/BASS/lib/bass.dll pxlFramework/deps/BASS/lib/bassflac.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)

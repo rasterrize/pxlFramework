@@ -1,15 +1,16 @@
 #include "FileSystem.h"
 
+#include <assimp/postprocess.h> // Post processing flags
+#include <assimp/scene.h>       // Output data structure
+#include <bass.h>
+#include <bassflac.h>
 #include <stb_image.h>
 #include <stb_image_write.h>
 
-#include <fstream>
-//#include <bass.h>
-
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h>       // Output data structure
-
 #include <assimp/Importer.hpp> // C++ importer interface
+#include <fstream>
+
+#include "Audio/AudioUtil.h"
 
 namespace pxl
 {
@@ -185,15 +186,45 @@ namespace pxl
         stbi_write_png_compression_level = level;
     }
 
-    // std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::string& filePath)
-    // {
-    //     HSTREAM stream = BASS_StreamCreateFile(FALSE, filePath.c_str(), 0, 0, BASS_SAMPLE_FLOAT);
+    std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::filesystem::path& path)
+    {
+        std::array<std::string, 7> supportedTypes = {
+            ".mp3", ".mp2", ".mp1", ".wav", ".ogg", ".aiff", ".flac"
+        };
 
-    //     if (stream)
-    //         Logger::LogInfo("Loaded audio: '" + filePath + "'");
-    //     else
-    //         Logger::LogError("Failed to load audio: '" + filePath + "'");
+        bool isSupported = false;
+        for (auto& type : supportedTypes)
+        {
+            if (path.extension() == type)
+            {
+                isSupported = true;
+                break;
+            }
+        }
 
-    //     return std::make_shared<AudioTrack>(stream);
-    // }
+        if (!isSupported)
+        {
+            PXL_LOG_ERROR(LogArea::FileSystem, "Failed to load {}, {} files aren't supported", path.string(), path.extension().string());
+            return nullptr;
+        }
+
+        HSTREAM stream;
+
+        if (path.extension() == ".flac")
+            stream = BASS_FLAC_StreamCreateFile(0, path.string().c_str(), 0, 0, BASS_SAMPLE_FLOAT);
+        else
+            stream = BASS_StreamCreateFile(0, path.string().c_str(), 0, 0, BASS_SAMPLE_FLOAT);
+
+        if (stream)
+        {
+            PXL_LOG_INFO(LogArea::FileSystem, "Loaded audio: {}", path.string());
+        }
+        else
+        {
+            BASS_CHECK(false); // Force display error code
+            PXL_LOG_ERROR(LogArea::FileSystem, "Failed to load audio: {}", path.string());
+        }
+
+        return std::make_shared<AudioTrack>(stream);
+    }
 }

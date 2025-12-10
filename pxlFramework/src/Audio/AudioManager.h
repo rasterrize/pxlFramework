@@ -5,10 +5,17 @@
 
 namespace pxl
 {
+    struct AudioConfig
+    {
+        int CurrentDeviceIndex = -1; // -1 = default device
+        int Frequency = 44100;       // Considered the standard for human hearing, can be increased for better fx
+        float MasterVolume = 10;     // Percentage
+    };
+
     class AudioManager
     {
     public:
-        static void Init(const std::shared_ptr<Window> windowHandle);
+        static bool Init(const AudioConfig& config = {}, std::shared_ptr<Window> window = nullptr);
         static void Shutdown();
 
         static void Add(const std::string& trackName, const std::shared_ptr<AudioTrack> track);
@@ -17,17 +24,18 @@ namespace pxl
         static void Pause(const std::string& trackName);
         static void Stop(const std::string& trackName);
 
-        static std::vector<std::string> GetLibrary(); // probably should have a different name
+        static std::unordered_map<std::string, std::shared_ptr<AudioTrack>> GetTrackLibrary() { return s_Tracks; }
+
+        static void SetMasterVolume(float percentage);
 
     private:
-        static bool s_Enabled;
+        static inline bool s_Enabled = false;
 
-        static int s_CurrentDeviceIndex;
-        static int s_Frequency;
-        static float s_Volume;
+        static inline AudioConfig s_Config = {};
 
-        static std::shared_ptr<Window> s_WindowHandle;
+        // Only needed for DirectSound output
+        static inline std::shared_ptr<Window> s_WindowHandle = nullptr;
 
-        static std::unordered_map<std::string, std::shared_ptr<AudioTrack>> s_Tracks;
+        static inline std::unordered_map<std::string, std::shared_ptr<AudioTrack>> s_Tracks;
     };
 }

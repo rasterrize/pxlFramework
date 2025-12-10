@@ -116,7 +116,7 @@ add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
 
 target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+target_link_directories(pxlFramework PUBLIC deps/BASS/lib)
 
 # Set libraries to build with multi-processor compilation
 if(MSVC)
@@ -149,6 +149,7 @@ target_link_libraries(pxlFramework
     Winmm.lib # For FPS limiter. I consider this temporary.
     dwmapi.lib
     bass
+    bassflac
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)

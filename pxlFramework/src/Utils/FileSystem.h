@@ -4,7 +4,7 @@
 #include "Renderer/RendererData.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
-//#include "Audio/AudioTrack.h"
+#include "Audio/AudioTrack.h"
 
 namespace pxl
 {
@@ -27,7 +27,7 @@ namespace pxl
         static std::string LoadGLSL(const std::filesystem::path& path);
         static std::vector<char> LoadSPIRV(const std::filesystem::path& path);
         static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::filesystem::path& path);
-        //static std::shared_ptr<AudioTrack> LoadAudioTrack(const std::string& filePath);
+        static std::shared_ptr<AudioTrack> LoadAudioTrack(const std::filesystem::path& path);
 
         // Path may include directories but for the image to write the directory must already exist.
         static bool WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical = false);
