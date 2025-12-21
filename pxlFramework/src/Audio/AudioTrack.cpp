@@ -17,16 +17,19 @@ namespace pxl
     void AudioTrack::Play()
     {
         BASS_CHECK(BASS_ChannelPlay(m_Stream, false));
+        m_Playing = true;
     }
 
     void AudioTrack::Pause()
     {
         BASS_CHECK(BASS_ChannelPause(m_Stream)); // TODO: Check if the track is playing
+        m_Playing = false;
     }
 
     void AudioTrack::Stop()
     {
         BASS_CHECK(BASS_ChannelStop(m_Stream)); // TODO: Check if the track is playing
+        m_Playing = false;
     }
 
     void AudioTrack::Free()
