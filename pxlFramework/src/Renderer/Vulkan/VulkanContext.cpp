@@ -47,8 +47,6 @@ namespace pxl
         // Create Logical Device for selected Physical Device
         m_Device = std::make_shared<VulkanDevice>(selectedGPU, m_Surface);
 
-        PXL_ASSERT(m_Device);
-
         // Get swapchain suitable surface format (for renderpass)
         auto surfaceFormats = VulkanHelpers::GetSurfaceFormats(selectedGPU, m_Surface);
         m_SurfaceFormat = VulkanHelpers::GetSuitableSurfaceFormat(surfaceFormats);

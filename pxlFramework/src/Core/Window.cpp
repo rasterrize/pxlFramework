@@ -600,8 +600,6 @@ namespace pxl
 
         auto window = std::make_shared<shared_window_enabler>(windowSpecs);
 
-        PXL_ASSERT(window);
-
         window->m_Handle = window;
 
         if (windowSpecs.RendererAPI == RendererAPIType::Vulkan)

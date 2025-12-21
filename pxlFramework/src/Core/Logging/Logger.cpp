@@ -9,10 +9,8 @@ namespace pxl
         auto applicationSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
         s_FrameworkLogger = std::make_unique<spdlog::logger>("FRAMEWORK", frameworkSink);
-        PXL_ASSERT(s_FrameworkLogger);
 
         s_ApplicationLogger = std::make_unique<spdlog::logger>("APPLICATION", applicationSink);
-        PXL_ASSERT(s_ApplicationLogger);
 
         s_ApplicationLogger->set_pattern("[%I:%M:%S] [%n] %^[%l] %v %$");
 
