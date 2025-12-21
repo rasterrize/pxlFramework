@@ -14,89 +14,13 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": [],
-            "detail": "CMake template build task"
-        },
-        {
-            "label": "Build pxlFramework (Debug)",
-            "type": "shell",
-            "command": "MSBuild",
-            "args": [
-                "build/pxlFramework.sln",
-                "/t:build",
-                "/p:Configuration=Debug",
-                "/v:minimal",
-                "/maxCpuCount"
+            "problemMatcher": [
+                "$msCompile",
             ],
-            "group": "build",
+            "detail": "Build using the current kit, variant, and generator defined by CMakeTools",
             "presentation": {
                 "clear": true
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Rebuild pxlFramework (Debug)",
-            "type": "shell",
-            "command": "MSBuild",
-            "args": [
-                "build/pxlFramework.sln",
-                "/t:rebuild",
-                "/p:Configuration=Debug",
-                "/v:minimal",
-                "/maxCpuCount"
-            ],
-            "group": {
-                "kind": "build"
-            },
-            "presentation": {
-                "clear": true,
-                "showReuseMessage": false
-            },
-            "problemMatcher": "$msCompile",
-            "dependsOn": [
-                "CMake: clean",
-                "CMake: configure"
-            ]
-        },
-        {
-            "label": "Build pxlFramework (Release)",
-            "type": "shell",
-            "command": "MSBuild",
-            "args": [
-                "build/pxlFramework.sln",
-                "/t:build",
-                "/p:Configuration=Release",
-                "/v:minimal",
-                "/maxCpuCount"
-            ],
-            "group": "build",
-            "presentation": {
-                "clear": true,
-                "showReuseMessage": false
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Rebuild pxlFramework (Release)",
-            "type": "shell",
-            "command": "MSBuild",
-            "args": [
-                "build/pxlFramework.sln",
-                "/t:rebuild",
-                "/p:Configuration=Release",
-                "/v:minimal",
-                "/maxCpuCount"
-            ],
-            "group": "build",
-            "presentation": {
-                "clear": true,
-                "showReuseMessage": false
-            },
-            "problemMatcher": "$msCompile",
-            "dependsOn": [
-                "CMake: clean",
-                "CMake: configure"
-            ]
+            }
         }
     ]
 }

@@ -34,26 +34,6 @@ if(PXL_ENABLE_ASSERTS)
     target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_ASSERTS)
 endif()
 
-# Enable profiling if desired
-if(PXL_ENABLE_PROFILING)
-    option(TRACY_ENABLE "" ON)
-    option(TRACY_ON_DEMAND "" ON)
-
-    FetchContent_Declare(
-        tracy
-        GIT_REPOSITORY https://github.com/wolfpld/tracy/
-        GIT_TAG 075395620a504c0cdcaf9bab3d196db16a043de7 # v0.11.0
-    )
-
-    FetchContent_MakeAvailable(tracy)
-
-    target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
-    target_link_libraries(pxlFramework Tracy::TracyClient)
-    message("pxlFramework profiling enabled")
-else()
-    option(TRACY_ENABLE "" OFF)
-endif()
-
 # Set MSVC settings
 if(MSVC)
     # Set MSVC runtime library based on build type
@@ -70,6 +50,22 @@ if(MSVC)
 
     # Ignore missing PDB warnings (currently because of shaderc)
     target_link_options(pxlFramework PUBLIC "/ignore:4099")
+endif()
+
+# download CPM.cmake
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.8/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=78ba32abdf798bc616bab7c73aac32a17bbd7b06ad9e26a6add69de8f3ae4791
+)
+
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
+if(DEFINED ENV{CPM_CACHE})
+    set(CPM_SOURCE_CACHE $ENV{CPM_CACHE})
+else()
+    set(CPM_SOURCE_CACHE ${CMAKE_BINARY_DIR}/cpm_cache)
 endif()
 
 # Set GLFW settings
@@ -97,59 +93,31 @@ set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
 
 # Add Dependencies (CMake projects)
-include(FetchContent)
-
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw
-    GIT_TAG 7b6aead9fb88b3623e3b3725ebb42670cbe4c579 # 3.4
-)
-
-FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog
-    GIT_TAG 27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
-)
-
-FetchContent_Declare(
-    glm
-    GIT_REPOSITORY https://github.com/g-truc/glm
-
-    # GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863 # 1.0.1
-)
-
-FetchContent_Declare(
-    imgui
-    GIT_REPOSITORY https://github.com/rasterrize/imgui
-    GIT_TAG b34fef5aabb7fc280379c901161cb09eb34138a6
-)
-
-FetchContent_Declare(
-    assimp
-    GIT_REPOSITORY https://github.com/assimp/assimp
-    GIT_TAG fb375dd8c0a032106a2122815fb18dffe0283721 # v6.0.2
-)
-
-FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-    GIT_TAG c2680200486572baf8221ba052ef50b58ecd816e # v0.11.0
-)
-
-FetchContent_Declare(
-    volk
-    GIT_REPOSITORY https://github.com/zeux/volk
-    GIT_TAG 0b17a763ba5643e32da1b2152f8140461b3b7345 # 1.4.304
-)
-
 message("Restoring pxlFramework dependencies...")
 
-FetchContent_MakeAvailable(GLFW spdlog glm imgui assimp yaml-cpp volk)
+CPMAddPackage("gh:glfw/glfw#3.4")
+CPMAddPackage("gh:gabime/spdlog#v1.14.1")
+CPMAddPackage("gh:g-truc/glm#1.0.2")
+CPMAddPackage("gh:rasterrize/imgui#b34fef5aabb7fc280379c901161cb09eb34138a6")
+CPMAddPackage("gh:assimp/assimp#v6.0.2")
+CPMAddPackage("gh:jbeder/yaml-cpp#c2680200486572baf8221ba052ef50b58ecd816e")
+
+if(PXL_ENABLE_PROFILING)
+    option(TRACY_ENABLE "" ON)
+    option(TRACY_ON_DEMAND "" ON)
+
+    CPMAddPackage("gh:wolfpld/tracy#v0.11.0")
+
+    target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
+    target_link_libraries(pxlFramework Tracy::TracyClient)
+    message("pxlFramework profiling enabled")
+else()
+    option(TRACY_ENABLE "" OFF)
+endif()
 
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
 
-# BASS audio library
 target_include_directories(pxlFramework PUBLIC deps/BASS/include)
 target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
 
@@ -163,7 +131,7 @@ if(MSVC)
 endif()
 
 # Find Vulkan SDK
-find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
+find_package(Vulkan REQUIRED COMPONENTS shaderc_combined volk)
 
 message("pxlFramework dependencies restored")
 
@@ -180,9 +148,9 @@ target_link_libraries(pxlFramework
     assimp
     yaml-cpp
     Vulkan::shaderc_combined
+    Vulkan::volk
     Winmm.lib # For FPS limiter. I consider this temporary.
     dwmapi.lib
-    volk
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)

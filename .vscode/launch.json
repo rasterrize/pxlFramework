@@ -2,26 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch TestApp (Debug)",
+            "name": "Launch TestApp",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/Debug/TestApp.exe",
-            "args": [],
-            "stopAtEntry": false,
+            "program": "${command:cmake.getLaunchTargetPath}",
             "cwd": "${workspaceFolder}/build/bin",
-            "environment": [],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Launch TestApp (Release)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/bin/Release/TestApp.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/bin",
-            "environment": [],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "preLaunchTask": "CMake: build"
         }
     ]
 }
