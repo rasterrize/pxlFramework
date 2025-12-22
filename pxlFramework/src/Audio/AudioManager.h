@@ -27,6 +27,7 @@ namespace pxl
         static std::unordered_map<std::string, std::shared_ptr<AudioTrack>> GetTrackLibrary() { return s_Tracks; }
 
         static void SetMasterVolume(float percentage);
+        static void AdjustMasterVolume(float offset);
 
     private:
         static inline bool s_Enabled = false;

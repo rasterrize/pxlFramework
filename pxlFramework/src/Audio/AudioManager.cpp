@@ -60,7 +60,13 @@ namespace pxl
 
     void AudioManager::SetMasterVolume(float percentage)
     {   
-        s_Config.MasterVolume = percentage;
+        s_Config.MasterVolume = std::clamp(percentage, 0.0f, 100.0f);
         BASS_CHECK(BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, static_cast<DWORD>(s_Config.MasterVolume * 100.0f))); // Stream Volume in BASS is from 0 - 10000
+    }
+
+    void AudioManager::AdjustMasterVolume(float offset)
+    {
+        s_Config.MasterVolume = std::clamp(s_Config.MasterVolume + offset, 0.0f, 100.0f);
+        BASS_CHECK(BASS_SetConfig(BASS_CONFIG_GVOL_STREAM, static_cast<DWORD>(s_Config.MasterVolume * 100.0f)));
     }
 }
