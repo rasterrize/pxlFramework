@@ -65,6 +65,11 @@ namespace pxl
         return (BASS_ChannelIsActive(m_Stream) == BASS_ACTIVE_PLAYING);
     }
 
+    void AudioTrack::Preload(uint32_t ms)
+    {
+        BASS_CHECK(BASS_ChannelUpdate(m_Stream, ms));
+    }
+
     void AudioTrack::SetPosition(double seconds)
     {
         BASS_CHECK(BASS_ChannelSetPosition(m_Stream, ToBytes(ClampSeconds(seconds)), BASS_POS_BYTE));

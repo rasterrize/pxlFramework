@@ -35,6 +35,8 @@ namespace pxl
 
         bool IsPlaying() const;
 
+        void Preload(uint32_t ms);
+
         void SetFinishCallback(const std::function<void()>& func) { m_FinishCallback = func; }
 
         const HSTREAM GetStream() const { return m_Stream; }
