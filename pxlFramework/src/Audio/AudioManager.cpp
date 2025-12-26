@@ -24,6 +24,8 @@ namespace pxl
 
         BASS_PluginLoad("bassflac", 0);
 
+        BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+
         s_Enabled = true;
 
         return true;
