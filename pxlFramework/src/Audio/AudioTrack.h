@@ -5,22 +5,33 @@
 
 namespace pxl
 {
+    struct AudioMetadata
+    {
+        std::string Title;
+        std::string Artist;
+        std::vector<std::string> Genres;
+        std::string Album;
+    };
+
     class AudioTrack
     {
     public:
-        AudioTrack(HSTREAM stream);
+        AudioTrack(HSTREAM stream, const AudioMetadata& metadata = {});
         ~AudioTrack();
 
-        void Play();
+        void Play(bool restart = false);
         void Pause();
-        void Restart();
-        void Stop();
 
         // Get the current track's position in seconds
         double GetPosition() const { return ToSeconds(GetPositionInBytes()); }
 
         void SetPosition(double seconds);
         void OffsetPosition(double seconds);
+
+        float GetVolume() const { return GetAttribute(BASS_ATTRIB_VOL); }
+
+        // 0.0 -> 1.0 = normal volume, 1.0+ = amplification
+        void SetVolume(float value) { SetAttribute(BASS_ATTRIB_VOL, value); }
 
         bool IsPlaying() const;
 
@@ -38,11 +49,18 @@ namespace pxl
         double ToSeconds(QWORD bytes) const { return BASS_ChannelBytes2Seconds(m_Stream, bytes); }
         QWORD ToBytes(double seconds) const { return BASS_ChannelSeconds2Bytes(m_Stream, seconds); }
 
+        float GetAttribute(DWORD attrib) const;
+        void SetAttribute(DWORD attrib, float value);
+
+        double ClampSeconds(double secs);
+
     private:
         HSTREAM m_Stream;
 
         QWORD m_LengthInBytes;
         double m_LengthInSeconds;
+
+        std::optional<AudioMetadata> m_Metadata;
 
         std::function<void()> m_PauseCallback;
         std::function<void()> m_FinishCallback;

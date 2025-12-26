@@ -19,10 +19,7 @@ namespace pxl
         static void Shutdown();
 
         static void Add(const std::string& trackName, const std::shared_ptr<AudioTrack> track);
-
-        static void Play(const std::string& trackName);
-        static void Pause(const std::string& trackName);
-        static void Stop(const std::string& trackName);
+        static std::shared_ptr<AudioTrack> Get(const std::string& trackName) { return s_Tracks.at(trackName); }
 
         static std::unordered_map<std::string, std::shared_ptr<AudioTrack>> GetTrackLibrary() { return s_Tracks; }
 

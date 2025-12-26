@@ -43,21 +43,6 @@ namespace pxl
         s_Tracks.emplace(trackName, track);
     }
 
-    void AudioManager::Play(const std::string& trackName)
-    {
-        s_Tracks.at(trackName)->Play(); // TODO: this and the 2 functions below should check if the track exists
-    }
-
-    void AudioManager::Pause(const std::string& trackName)
-    {
-        s_Tracks.at(trackName)->Pause();
-    }
-
-    void AudioManager::Stop(const std::string& trackName)
-    {
-        s_Tracks.at(trackName)->Stop();
-    }
-
     void AudioManager::SetMasterVolume(float percentage)
     {   
         s_Config.MasterVolume = std::clamp(percentage, 0.0f, 100.0f);
