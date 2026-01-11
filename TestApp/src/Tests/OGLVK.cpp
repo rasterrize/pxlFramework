@@ -2,33 +2,28 @@
 
 namespace TestApp
 {
-    static std::shared_ptr<pxl::Window> s_Window;
-    static std::shared_ptr<pxl::PerspectiveCamera> s_Camera;
-
-    static constexpr int64_t RPCCLIENT_ID = 1141683223064231946;
-
     static float rotation = 0.0f;
     static float rotation2 = 0.0f;
 
     void OGLVK::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        s_Window = pxl::Window::Create(windowSpecs);
+        m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(s_Window);
-        pxl::Input::Init(s_Window);
+        pxl::Renderer::Init(m_Window);
+        pxl::Input::Init(m_Window);
 
         pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
 
-        s_Camera = pxl::Camera::CreatePerspective({
+        m_Camera = pxl::Camera::CreatePerspective({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 1.0f,
             .FarClip = 1000.0f,
         });
 
-        s_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
+        m_Camera->SetPosition({ 0.0f, -0.2f, 15.0f });
 
-        pxl::Renderer::SetCameraAll(s_Camera);
+        pxl::Renderer::SetCameraAll(m_Camera);
 
         auto rendererAPIString = pxl::EnumStringHelper::ToString(windowSpecs.RendererAPI);
 
@@ -44,8 +39,8 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-        auto cameraPosition = s_Camera->GetPosition();
-        auto cameraFOV = s_Camera->GetFOV();
+        auto cameraPosition = m_Camera->GetPosition();
+        auto cameraFOV = m_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::Escape))
@@ -55,10 +50,10 @@ namespace TestApp
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
-            s_Window->NextWindowMode();
+            m_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::F7))
-            s_Window->GetGraphicsContext()->ToggleVSync();
+            m_Window->GetGraphicsContext()->ToggleVSync();
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftShift))
             cameraSpeed *= 3.0f;
@@ -90,9 +85,9 @@ namespace TestApp
         if (pxl::Input::IsMouseScrolledDown())
             cameraFOV += cameraSpeed * 0.5f;
 
-        s_Camera->SetPosition(cameraPosition);
-        s_Camera->SetFOV(cameraFOV);
-        s_Camera->SetAspectRatio(s_Window->GetAspectRatio());
+        m_Camera->SetPosition(cameraPosition);
+        m_Camera->SetFOV(cameraFOV);
+        m_Camera->SetAspectRatio(m_Window->GetAspectRatio());
 
         rotation += 20.0f * dt;
         rotation2 -= 20.0f * dt;
@@ -136,14 +131,5 @@ namespace TestApp
         PXL_PROFILE_SCOPE;
 
         ImGui::ShowDemoWindow();
-    }
-
-    void OGLVK::OnClose()
-    {
-    }
-
-    std::shared_ptr<pxl::Window> OGLVK::GetWindow()
-    {
-        return s_Window;
     }
 }

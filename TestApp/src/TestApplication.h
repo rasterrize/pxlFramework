@@ -2,24 +2,36 @@
 
 #include <pxl/pxl.h>
 
+#include "Tests/Test.h"
+
 namespace TestApp
 {
     class TestApplication : public pxl::Application
     {
     public:
-        TestApplication();
-
         virtual void OnUpdate(float dt) override;
         virtual void OnRender() override;
         virtual void OnGUIRender() override;
         virtual void OnClose() override;
 
+        template<typename TestT>
+        void LaunchTest()
+        {
+            if (!std::is_base_of_v<Test, TestT>)
+            {
+                APP_LOG_CRITICAL("LaunchTest called with invalid test type");
+                return;
+            }
+
+            m_Test = std::make_unique<TestT>();
+            auto specs = CreateWindowSpecs();
+            m_Test->OnStart(specs);
+        }
+
     private:
-        std::function<void(pxl::WindowSpecs&)> m_OnStartFunc = nullptr;
-        std::function<void(float dt)> m_OnUpdateFunc = nullptr;
-        std::function<void()> m_OnRenderFunc = nullptr;
-        std::function<void()> m_OnGUIRenderFunc = nullptr;
-        std::function<void()> m_OnCloseFunc = nullptr;
-        std::function<std::shared_ptr<pxl::Window>()> m_GetWindowFunc = nullptr;
+        pxl::WindowSpecs CreateWindowSpecs();
+
+    private:
+        std::unique_ptr<Test> m_Test = nullptr;
     };
 }

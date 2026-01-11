@@ -1,4 +1,11 @@
 #include "TestApplication.h"
+#include "Tests/CubesTest.h"
+#include "Tests/EmptyApp.h"
+#include "Tests/LinesTest.h"
+#include "Tests/ModelViewer.h"
+#include "Tests/MultiWindow.h"
+#include "Tests/OGLVK.h"
+#include "Tests/QuadsTest.h"
 
 #ifndef TA_RELEASE
     #define MAIN_FUNC() int main()
@@ -8,9 +15,9 @@
 
 MAIN_FUNC()
 {
-    // NOTE: Logging init function should be called before creating an application
     PXL_INIT_LOGGING;
 
     TestApp::TestApplication app;
+    app.LaunchTest<TestApp::ModelViewer>();
     app.Run();
 }

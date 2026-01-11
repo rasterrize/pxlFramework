@@ -2,9 +2,6 @@
 
 namespace TestApp
 {
-    static std::shared_ptr<pxl::Window> s_Window = nullptr;
-    static std::shared_ptr<pxl::OrthographicCamera> s_Camera = nullptr;
-
     static glm::vec4 s_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
 
     static bool s_ControllingCamera = true;
@@ -40,15 +37,15 @@ namespace TestApp
             windowSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
         }
 
-        s_Window = pxl::Window::Create(windowSpecs);
+        m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(s_Window);
-        pxl::Input::Init(s_Window);
-        pxl::GUI::Init(s_Window);
+        pxl::Renderer::Init(m_Window);
+        pxl::Input::Init(m_Window);
+        pxl::GUI::Init(m_Window);
 
         pxl::Renderer::SetClearColour(s_ClearColour);
 
-        s_Camera = pxl::Camera::CreateOrthographic({
+        m_Camera = pxl::Camera::CreateOrthographic({
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = -10.0f,
             .FarClip = 10.0f,
@@ -60,7 +57,7 @@ namespace TestApp
             .UseAspectRatio = false,
         });
 
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, m_Camera);
 
         s_StoneTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/stone.png", { .Filter = pxl::SampleFilter::Nearest });
         s_CursorTexture = pxl::FileSystem::LoadTextureFromImage("assets/textures/cursor@2x.png", { .Filter = pxl::SampleFilter::Nearest });
@@ -124,13 +121,13 @@ namespace TestApp
 
     void QuadsTest::OnUpdate(float dt)
     {
-        auto cameraPosition = s_Camera->GetPosition();
-        auto cameraRotation = s_Camera->GetRotation();
+        auto cameraPosition = m_Camera->GetPosition();
+        auto cameraRotation = m_Camera->GetRotation();
         auto cameraSpeed = 2.0f;
 
-        auto windowSize = s_Window->GetSize();
-        s_Camera->SetRight(static_cast<float>(windowSize.Width));
-        s_Camera->SetTop(static_cast<float>(windowSize.Height));
+        auto windowSize = m_Window->GetSize();
+        m_Camera->SetRight(static_cast<float>(windowSize.Width));
+        m_Camera->SetTop(static_cast<float>(windowSize.Height));
 
         s_CursorPosition = pxl::Input::GetCursorPosition();
 
@@ -146,10 +143,10 @@ namespace TestApp
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
-            s_Window->NextWindowMode();
+            m_Window->NextWindowMode();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::F7))
-            s_Window->GetGraphicsContext()->ToggleVSync();
+            m_Window->GetGraphicsContext()->ToggleVSync();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num1))
             s_DynamicQuad.Origin = pxl::Origin2D::TopLeft;
@@ -167,7 +164,7 @@ namespace TestApp
             s_DynamicQuad.Origin = pxl::Origin2D::Center;
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::T))
-            s_Window->SetPosition(200, -2000);
+            m_Window->SetPosition(200, -2000);
 
         if (pxl::Input::IsMouseButtonPressed(pxl::MouseCode::LeftButton))
         {
@@ -183,7 +180,7 @@ namespace TestApp
             }
         }
 
-        s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
+        m_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
 
         s_DynamicQuad.Rotation.z += 25.0f * dt;
         s_TexturedDynamicQuad.Rotation.z -= 25.0f * dt;
@@ -217,14 +214,5 @@ namespace TestApp
 
             ImGui::End();
         }
-    }
-
-    void QuadsTest::OnClose()
-    {
-    }
-
-    std::shared_ptr<pxl::Window> QuadsTest::GetWindow()
-    {
-        return s_Window;
     }
 }

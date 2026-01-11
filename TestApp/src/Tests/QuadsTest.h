@@ -2,16 +2,24 @@
 
 #include <pxl/pxl.h>
 
+#include "Test.h"
+
 namespace TestApp
 {
-    class QuadsTest
+    class QuadsTest : public Test
     {
     public:
-        static void OnStart(pxl::WindowSpecs& windowSpecs);
-        static void OnUpdate(float dt);
-        static void OnRender();
-        static void OnGUIRender();
-        static void OnClose();
-        static std::shared_ptr<pxl::Window> GetWindow();
+        virtual void OnStart(pxl::WindowSpecs& windowSpecs) override;
+        virtual void OnUpdate(float dt) override;
+        virtual void OnRender() override;
+        virtual void OnGUIRender() override;
+
+        virtual std::shared_ptr<pxl::Window> GetWindow() const override { return m_Window; }
+
+        virtual std::string ToString() const override { return "QuadsTest"; }
+
+    private:
+        std::shared_ptr<pxl::Window> m_Window = nullptr;
+        std::shared_ptr<pxl::OrthographicCamera> m_Camera = nullptr;
     };
 }

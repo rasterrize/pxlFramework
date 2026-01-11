@@ -1,17 +1,14 @@
 #pragma once
 
-#include <pxl/pxl.h>
+#include "Test.h"
 
 namespace TestApp
 {
-    class EmptyApp
+    class EmptyApp : public Test
     {
     public:
-        static void OnStart(pxl::WindowSpecs& windowSpecs);
-        static void OnUpdate(float dt);
-        static void OnRender();
-        static void OnGUIRender();
-        static void OnClose();
-        static std::shared_ptr<pxl::Window> GetWindow() { return nullptr; }
+        virtual void OnUpdate(float dt) override;
+
+        virtual std::string ToString() const override { return "EmptyApp"; }
     };
 }

@@ -2,59 +2,41 @@
 
 namespace TestApp
 {
-    static std::shared_ptr<pxl::Window> s_Window = nullptr;
-    static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
-
-    static glm::vec4 m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
-
-    static glm::vec2 s_MouseDelta = glm::vec2(0.0f);
-
-    static glm::vec3 s_MeshRotation = { 0.0f, 0.0f, 0.0f };
-    static glm::vec3 s_MeshPosition = { 0.0f, 0.0f, 0.0f };
-
-    static std::vector<std::vector<std::shared_ptr<pxl::Mesh>>> s_LoadedModels;
-    static std::vector<std::string> s_LoadedModelNames;
-    static int32_t s_CurrentModelIndex = 0;
-
-    static pxl::UserEventHandler<pxl::WindowResizeEvent> s_ResizeHandler;
-    static pxl::UserEventHandler<pxl::WindowPathDropEvent> s_PathDropHandler;
-    static pxl::UserEventHandler<pxl::KeyDownEvent> s_KeyDownHandler;
-
     void ModelViewer::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         PXL_PROFILE_SCOPE;
 
-        s_Window = pxl::Window::Create(windowSpecs);
+        m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(s_Window);
-        pxl::Input::Init(s_Window);
+        pxl::Renderer::Init(m_Window);
+        pxl::Input::Init(m_Window);
 
         pxl::Renderer::SetClearColour(m_ClearColour);
 
-        s_Camera = pxl::Camera::CreatePerspective({ .FOV = 60.0f,
-            .AspectRatio = s_Window->GetAspectRatio(),
+        m_Camera = pxl::Camera::CreatePerspective({ .FOV = 60.0f,
+            .AspectRatio = m_Window->GetAspectRatio(),
             .NearClip = 0.001f,
             .FarClip = 1000.0f });
 
-        s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, m_Camera);
 
         LoadMesh("assets/models/star.obj");
 
-        pxl::GUI::Init(s_Window);
+        pxl::GUI::Init(m_Window);
 
-        PXL_REGISTER_STATIC_HANDLER(s_ResizeHandler, pxl::WindowResizeEvent, OnWindowResizeEvent);
-        PXL_REGISTER_STATIC_HANDLER(s_PathDropHandler, pxl::WindowPathDropEvent, OnWindowPathDropEvent);
-        PXL_REGISTER_STATIC_HANDLER(s_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
+        PXL_REGISTER_HANDLER(m_ResizeHandler, pxl::WindowResizeEvent, OnWindowResizeEvent);
+        PXL_REGISTER_HANDLER(m_PathDropHandler, pxl::WindowPathDropEvent, OnWindowPathDropEvent);
+        PXL_REGISTER_HANDLER(m_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
     }
 
     void ModelViewer::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
 
-        auto cameraPosition = s_Camera->GetPosition();
-        auto cameraRotation = s_Camera->GetRotation();
+        auto cameraPosition = m_Camera->GetPosition();
+        auto cameraRotation = m_Camera->GetRotation();
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::W))
             cameraPosition.z -= 20.0f * dt;
@@ -62,31 +44,31 @@ namespace TestApp
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::S))
             cameraPosition.z += 20.0f * dt;
 
-        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::LeftButton))
+        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::LeftButton) && !ImGui::GetIO().WantCaptureMouse)
         {
-            s_MeshRotation.y += pxl::Input::GetCursorDelta().x;
-            s_MeshRotation.x += pxl::Input::GetCursorDelta().y;
+            m_MeshRotation.y += pxl::Input::GetCursorDelta().x;
+            m_MeshRotation.x += pxl::Input::GetCursorDelta().y;
         }
         else
         {
-            s_MeshRotation.y += 30.0f * dt;
+            m_MeshRotation.y += 30.0f * dt;
         }
 
-        s_MeshRotation.x = std::fmodf(s_MeshRotation.x, 360.0f);
-        s_MeshRotation.y = std::fmodf(s_MeshRotation.y, 360.0f);
-        s_MeshRotation.z = std::fmodf(s_MeshRotation.z, 360.0f);
+        m_MeshRotation.x = std::fmodf(m_MeshRotation.x, 360.0f);
+        m_MeshRotation.y = std::fmodf(m_MeshRotation.y, 360.0f);
+        m_MeshRotation.z = std::fmodf(m_MeshRotation.z, 360.0f);
 
-        s_Camera->SetRotation(cameraRotation);
-        s_Camera->SetPosition(cameraPosition);
+        m_Camera->SetRotation(cameraRotation);
+        m_Camera->SetPosition(cameraPosition);
     }
 
     void ModelViewer::OnRender()
     {
         PXL_PROFILE_SCOPE;
 
-        for (const auto& mesh : s_LoadedModels[s_CurrentModelIndex])
+        for (const auto& mesh : m_LoadedModels[m_CurrentModelIndex])
         {
-            pxl::Renderer::DrawMesh(mesh, s_MeshPosition, s_MeshRotation, glm::vec3(1.0f));
+            pxl::Renderer::DrawMesh(mesh, m_MeshPosition, m_MeshRotation, glm::vec3(1.0f));
         }
     }
 
@@ -96,16 +78,16 @@ namespace TestApp
 
         ImGui::Begin("ModelViewer");
 
-        ImGui::Text("s_MeshRotation: %.2f, %.2f, %.2f", s_MeshRotation.x, s_MeshRotation.y, s_MeshRotation.z);
+        ImGui::Text("s_MeshRotation: %.2f, %.2f, %.2f", m_MeshRotation.x, m_MeshRotation.y, m_MeshRotation.z);
         ImGui::Text("CursorDelta: %.2f, %.2f", pxl::Input::GetCursorDelta().x, pxl::Input::GetCursorDelta().y);
 
         if (ImGui::BeginListBox("Models"))
         {
-            for (int n = 0; n < s_LoadedModelNames.size(); n++)
+            for (int n = 0; n < m_LoadedModelNames.size(); n++)
             {
-                const bool is_selected = (s_CurrentModelIndex == n);
-                if (ImGui::Selectable(s_LoadedModelNames[n].c_str(), is_selected))
-                    s_CurrentModelIndex = n;
+                const bool is_selected = (m_CurrentModelIndex == n);
+                if (ImGui::Selectable(m_LoadedModelNames[n].c_str(), is_selected))
+                    m_CurrentModelIndex = n;
             }
 
             ImGui::EndListBox();
@@ -113,7 +95,7 @@ namespace TestApp
 
         if (ImGui::Button("Open File..."))
         {
-            auto filePath = pxl::Platform::OpenFile(s_Window,
+            auto filePath = pxl::Platform::OpenFile(m_Window,
                 "OBJ File (*.obj)\0"
                 "*.obj\0");
 
@@ -122,15 +104,6 @@ namespace TestApp
         }
 
         ImGui::End();
-    }
-
-    void ModelViewer::OnClose()
-    {
-    }
-
-    std::shared_ptr<pxl::Window> ModelViewer::GetWindow()
-    {
-        return s_Window;
     }
 
     void ModelViewer::OnKeyDownEvent(pxl::KeyDownEvent& e)
@@ -143,14 +116,14 @@ namespace TestApp
         }
 
         if (e.IsModsAndKey(pxl::KeyModFlags::Alt, pxl::KeyCode::Enter))
-            s_Window->NextWindowMode();
+            m_Window->NextWindowMode();
 
         if (e.IsKey(pxl::KeyCode::F7))
-            s_Window->GetGraphicsContext()->SetVSync(!s_Window->GetGraphicsContext()->GetVSync());
+            m_Window->GetGraphicsContext()->SetVSync(!m_Window->GetGraphicsContext()->GetVSync());
 
         if (e.IsKey(pxl::KeyCode::F1))
         {
-            auto filePath = pxl::Platform::OpenFile(s_Window,
+            auto filePath = pxl::Platform::OpenFile(m_Window,
                 "OBJ File (*.obj)\0"
                 "*.obj\0");
 
@@ -159,10 +132,10 @@ namespace TestApp
         }
 
         if (e.IsKey(pxl::KeyCode::Down))
-            s_MeshPosition.y -= 3.0f;
+            m_MeshPosition.y -= 3.0f;
 
         if (e.IsKey(pxl::KeyCode::Up))
-            s_MeshPosition.y += 3.0f;
+            m_MeshPosition.y += 3.0f;
     }
 
     void ModelViewer::OnWindowPathDropEvent(pxl::WindowPathDropEvent& e)
@@ -173,7 +146,7 @@ namespace TestApp
     void ModelViewer::OnWindowResizeEvent(pxl::WindowResizeEvent& e)
     {
         auto newSize = e.GetSize();
-        s_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
+        m_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
     }
 
     void ModelViewer::LoadMesh(const std::filesystem::path& path)
@@ -199,10 +172,10 @@ namespace TestApp
             return;
         }
 
-        s_LoadedModels.push_back(pxl::FileSystem::LoadModel(path)); // NOTE: currently only uses the first path
+        m_LoadedModels.push_back(pxl::FileSystem::LoadModel(path)); // NOTE: currently only uses the first path
         AddModelToList(path.string());
-        s_MeshRotation = glm::vec3(0.0f);
-        s_CurrentModelIndex = static_cast<int32_t>(s_LoadedModelNames.size() - 1);
+        m_MeshRotation = glm::vec3(0.0f);
+        m_CurrentModelIndex = static_cast<int32_t>(m_LoadedModelNames.size() - 1);
     }
 
     void ModelViewer::AddModelToList(const std::string& modelName)
@@ -212,6 +185,6 @@ namespace TestApp
         if (pos >= modelName.length())
             pos = modelName.rfind("\\");
 
-        s_LoadedModelNames.push_back(modelName.substr(pos + 1, modelName.length()));
+        m_LoadedModelNames.push_back(modelName.substr(pos + 1, modelName.length()));
     }
 }

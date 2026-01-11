@@ -4,6 +4,7 @@ project(TestApp VERSION 0.0.1 LANGUAGES CXX)
 add_executable(TestApp
     src/Entrypoint.cpp
     src/TestApplication.h src/TestApplication.cpp
+    src/Tests/Test.h
 
     # TESTS
     src/Tests/OGLVK.h
@@ -18,8 +19,8 @@ add_executable(TestApp
     src/Tests/QuadsTest.cpp
     src/Tests/EmptyApp.h
     src/Tests/EmptyApp.cpp
-    src/Tests/WindowTest.h
-    src/Tests/WindowTest.cpp
+    src/Tests/MultiWindow.h
+    src/Tests/MultiWindow.cpp
     src/Tests/LinesTest.h
     src/Tests/LinesTest.cpp
 )

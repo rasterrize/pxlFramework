@@ -2,9 +2,6 @@
 
 namespace TestApp
 {
-    static std::shared_ptr<pxl::Window> s_Window = nullptr;
-    static std::shared_ptr<pxl::PerspectiveCamera> s_Camera = nullptr;
-
     static glm::vec4 s_ClearColour = glm::vec4(0.5f, 0.3f, 0.6f, 1.0f);
 
     static glm::vec3 s_PlayerPosition = glm::vec3(0.0f);
@@ -15,45 +12,42 @@ namespace TestApp
 
     void CubesTest::OnStart(pxl::WindowSpecs& windowSpecs)
     {
-        s_Window = pxl::Window::Create(windowSpecs);
+        m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(s_Window);
-        pxl::Input::Init(s_Window);
+        pxl::Renderer::Init(m_Window);
+        pxl::Input::Init(m_Window);
 
-        s_Camera = pxl::Camera::CreatePerspective({
+        m_Camera = pxl::Camera::CreatePerspective({
             .FOV = 45.0f,
             .AspectRatio = 16.0f / 9.0f,
             .NearClip = 0.1f,
             .FarClip = 1000.0f,
         });
 
-        s_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetClearColour(s_ClearColour);
 
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Cube, s_Camera);
+        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Cube, m_Camera);
 
-        s_Window->GetGraphicsContext()->SetVSync(false);
+        m_Window->GetGraphicsContext()->SetVSync(false);
 
-        pxl::GUI::Init(s_Window);
+        pxl::GUI::Init(m_Window);
     }
 
     void CubesTest::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
 
-        auto cameraPosition = s_Camera->GetPosition();
-        auto cameraRotation = s_Camera->GetRotation();
-        auto cameraFOV = s_Camera->GetFOV();
+        auto cameraPosition = m_Camera->GetPosition();
+        auto cameraRotation = m_Camera->GetRotation();
+        auto cameraFOV = m_Camera->GetFOV();
         auto cameraSpeed = 2.0f;
         auto cursorPos = pxl::Input::GetCursorPosition();
 
         if (pxl::Input::IsKeyPressed(pxl::KeyCode::Tab))
         {
-            if (s_ControllingCamera)
-                s_ControllingCamera = false;
-            else
-                s_ControllingCamera = true;
+            s_ControllingCamera = !s_ControllingCamera;
         }
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftShift))
@@ -117,8 +111,8 @@ namespace TestApp
             cameraFOV += cameraSpeed * 0.5f;
         }
 
-        s_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
-        s_Camera->SetFOV(cameraFOV);
+        m_Camera->SetPosition({ cameraPosition.x, cameraPosition.y, cameraPosition.z });
+        m_Camera->SetFOV(cameraFOV);
 
         s_CubeRotation.x += 60.0f * dt;
         s_CubeRotation.y += 60.0f * dt;
@@ -327,14 +321,5 @@ namespace TestApp
 
         ImGui::End();
 #endif
-    }
-
-    void CubesTest::OnClose()
-    {
-    }
-
-    std::shared_ptr<pxl::Window> CubesTest::GetWindow()
-    {
-        return s_Window;
     }
 }

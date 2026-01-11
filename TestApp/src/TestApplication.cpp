@@ -1,75 +1,21 @@
 #include "TestApplication.h"
 
-// Tests
-#include "Tests/CubesTest.h"
-#include "Tests/EmptyApp.h"
-#include "Tests/LinesTest.h"
-#include "Tests/ModelViewer.h"
-#include "Tests/OGLVK.h"
-#include "Tests/QuadsTest.h"
-#include "Tests/WindowTest.h"
-
-#define STRR(X) #X
-#define STR(X) STRR(X)
-
-#define TEST_NAME ModelViewer
-#define TEST_NAME_STRING STR(TEST_NAME)
-
 namespace TestApp
-{
-    TestApplication::TestApplication()
-    {
-        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
-
-        std::string windowTitle = "pxlFramework Test App";
-        std::string buildType = "Unknown Build Type";
-        std::string rendererAPIType = "Unknown Renderer API";
-        pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
-        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
-
-#ifdef TA_DEBUG
-        buildType = "Debug x64";
-#elif TA_RELEASE
-        buildType = "Release x64";
-#elif TA_DIST
-        buildType = "Distribute x64";
-#endif
-
-        rendererAPIType = pxl::EnumStringHelper::ToString(windowRendererAPI);
-
-        windowTitle = "pxlFramework Test App - " + buildType + " - " + rendererAPIType + " - Running Test '" TEST_NAME_STRING "'";
-
-        pxl::WindowSpecs windowSpecs = {};
-        windowSpecs.Size = frameworkSettings.WindowSize;
-        windowSpecs.Position = frameworkSettings.WindowPosition;
-        windowSpecs.Title = windowTitle;
-        windowSpecs.RendererAPI = windowRendererAPI;
-        windowSpecs.WindowMode = windowMode;
-        windowSpecs.MonitorIndex = frameworkSettings.MonitorIndex;
-        windowSpecs.IconPath = "assets/pxl.png";
-
-        m_OnStartFunc = TEST_NAME::OnStart;
-        m_OnUpdateFunc = TEST_NAME::OnUpdate;
-        m_OnRenderFunc = TEST_NAME::OnRender;
-        m_OnGUIRenderFunc = TEST_NAME::OnGUIRender;
-        m_OnCloseFunc = TEST_NAME::OnClose;
-        m_GetWindowFunc = TEST_NAME::GetWindow;
-
-        m_OnStartFunc(windowSpecs);
-    }
-
+{ 
     void TestApplication::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
 
-        m_OnUpdateFunc(dt);
+        if (m_Test)
+            m_Test->OnUpdate(dt);
     }
 
     void TestApplication::OnRender()
     {
         PXL_PROFILE_SCOPE;
 
-        m_OnRenderFunc();
+        if (m_Test)
+            m_Test->OnRender();
     }
 
     void TestApplication::OnGUIRender()
@@ -120,12 +66,13 @@ namespace TestApp
 
         ImGui::End();
 
-        m_OnGUIRenderFunc();
+        if (m_Test)
+            m_Test->OnGUIRender();
     }
 
     void TestApplication::OnClose()
     {
-        auto window = m_GetWindowFunc();
+        auto window = m_Test->GetWindow();
 
         if (window)
         {
@@ -142,6 +89,41 @@ namespace TestApp
             frameworkSettings.FullscreenRefreshRate = window->GetCurrentMonitor().GetCurrentVideoMode().RefreshRate;
         }
 
-        m_OnCloseFunc();
+        if (m_Test)
+            m_Test->OnClose();
+    }
+
+    pxl::WindowSpecs TestApplication::CreateWindowSpecs()
+    {
+        auto frameworkSettings = pxl::FrameworkConfig::GetSettings();
+
+        std::string windowTitle = "pxlFramework Test App";
+        std::string buildTypeString = "Unknown Build Type";
+        std::string rendererAPITypeString = "Unknown Renderer API";
+        pxl::RendererAPIType windowRendererAPI = frameworkSettings.RendererAPI;
+        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
+
+#ifdef TA_DEBUG
+        buildTypeString = "Debug x64";
+#elif TA_RELEASE
+        buildTypeString = "Release x64";
+#elif TA_DIST
+        buildTypeString = "Distribute x64";
+#endif
+
+        rendererAPITypeString = pxl::EnumStringHelper::ToString(windowRendererAPI);
+
+        windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, rendererAPITypeString, m_Test->ToString());
+
+        pxl::WindowSpecs windowSpecs = {};
+        windowSpecs.Size = frameworkSettings.WindowSize;
+        windowSpecs.Position = frameworkSettings.WindowPosition;
+        windowSpecs.Title = windowTitle;
+        windowSpecs.RendererAPI = windowRendererAPI;
+        windowSpecs.WindowMode = windowMode;
+        windowSpecs.MonitorIndex = frameworkSettings.MonitorIndex;
+        windowSpecs.IconPath = "assets/pxl.png";
+
+        return windowSpecs;
     }
 }
