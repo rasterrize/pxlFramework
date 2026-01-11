@@ -152,7 +152,7 @@ namespace pxl
     private:
         Window(const WindowSpecs& specs);
 
-        void Update() const;
+        void Update();
 
         void UpdateCurrentMonitor();
 
@@ -202,6 +202,8 @@ namespace pxl
         // User callbacks
         std::function<void(Size2D)> m_UserResizeCallback;
         std::function<void(const std::vector<std::string>&)> m_UserFileDropCallback = nullptr;
+        
+        bool m_ShowAfterFirstPresent = true;
 
         static inline bool s_Initialized = false;
 

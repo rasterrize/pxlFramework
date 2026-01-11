@@ -114,12 +114,18 @@ namespace pxl
             Platform::UseImmersiveDarkMode(m_GLFWWindow);
     }
 
-    void Window::Update() const
+    void Window::Update()
     {
         PXL_PROFILE_SCOPE;
 
         if (m_GraphicsContext)
             m_GraphicsContext->Present();
+
+        if (m_ShowAfterFirstPresent)
+        {
+            SetVisibility(true);
+            m_ShowAfterFirstPresent = false;
+        }
     }
 
     void Window::Close() const
@@ -636,9 +642,6 @@ namespace pxl
 
             PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", windowSpecs.Title);
         }
-
-        // Show the window now since we have a valid context
-        window->SetVisibility(true);
 
         s_Windows.push_back(window);
 
