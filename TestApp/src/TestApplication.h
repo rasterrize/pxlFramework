@@ -28,6 +28,8 @@ namespace TestApp
             m_Test->OnStart(specs);
         }
 
+        bool HasTest() const { return static_cast<bool>(m_Test); }
+
     private:
         pxl::WindowSpecs CreateWindowSpecs();
 
