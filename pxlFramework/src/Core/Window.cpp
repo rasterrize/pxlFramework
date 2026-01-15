@@ -600,6 +600,8 @@ namespace pxl
 
         glfwTerminate();
 
+        s_Initialized = false;
+
         PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
     }
 
