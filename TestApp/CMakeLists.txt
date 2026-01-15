@@ -13,8 +13,6 @@ add_executable(TestApp
     src/Tests/ModelViewer.cpp
     src/Tests/CubesTest.h
     src/Tests/CubesTest.cpp
-    src/Tests/OGLVK.h
-    src/Tests/OGLVK.cpp
     src/Tests/QuadsTest.h
     src/Tests/QuadsTest.cpp
     src/Tests/EmptyApp.h
