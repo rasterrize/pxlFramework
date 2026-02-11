@@ -149,8 +149,8 @@ target_link_libraries(pxlFramework
     yaml-cpp
     Vulkan::shaderc_combined
     Vulkan::volk
-    Winmm.lib # For FPS limiter. I consider this temporary.
-    dwmapi.lib
+    $<$<PLATFORM_ID:Windows>:Winmm.lib> # For FPS limiter. I consider this temporary.
+    $<$<PLATFORM_ID:Windows>:dwmapi.lib>
 )
 
 target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
@@ -164,11 +164,11 @@ if(PXL_MODULE_DISCORD)
 endif()
 
 target_compile_definitions(pxlFramework PUBLIC
-    GLFW_EXPOSE_NATIVE_WIN32
+    $<$<PLATFORM_ID:Windows>:GLFW_EXPOSE_NATIVE_WIN32>
+    $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN> # Tell Win32 API to use less headers
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
     GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
-    WIN32_LEAN_AND_MEAN # Tell Win32 API to use less headers
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
 )
@@ -180,3 +180,8 @@ target_include_directories(pxlFramework PUBLIC src)
 
 # Specify include directories for projects using pxlFramework via add_subdirectory()
 target_include_directories(pxlFramework PUBLIC include)
+
+# Due to certain variables being named their own type, we must ignore this warning for now
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(pxlFramework PUBLIC "-Wno-changes-meaning")
+endif()

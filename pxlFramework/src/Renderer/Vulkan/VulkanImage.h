@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Volk/volk.h>
+#include <volk/volk.h>
 
 #include "VulkanDevice.h"
 
@@ -31,6 +31,5 @@ namespace pxl
         VkImageView m_ImageView = VK_NULL_HANDLE;
 
         bool m_IsSwapchainImage = false; // Currently unused
-
     };
 }

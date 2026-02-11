@@ -54,9 +54,9 @@ namespace TestApp
             m_MeshRotation.y += 30.0f * dt;
         }
 
-        m_MeshRotation.x = std::fmodf(m_MeshRotation.x, 360.0f);
-        m_MeshRotation.y = std::fmodf(m_MeshRotation.y, 360.0f);
-        m_MeshRotation.z = std::fmodf(m_MeshRotation.z, 360.0f);
+        m_MeshRotation.x = std::fmod(m_MeshRotation.x, 360.0f);
+        m_MeshRotation.y = std::fmod(m_MeshRotation.y, 360.0f);
+        m_MeshRotation.z = std::fmod(m_MeshRotation.z, 360.0f);
 
         m_Camera->SetRotation(cameraRotation);
         m_Camera->SetPosition(cameraPosition);

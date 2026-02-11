@@ -33,7 +33,7 @@ namespace pxl
         {
         }
 
-        virtual void EventHandler::OnEvent(Event& e) override
+        virtual void OnEvent(Event& e) override
         {
             PXL_PROFILE_SCOPE;
 

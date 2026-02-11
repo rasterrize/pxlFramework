@@ -7,10 +7,10 @@
 #include "Tests/OGLVK.h"
 #include "Tests/QuadsTest.h"
 
-#ifndef TA_RELEASE
-    #define MAIN_FUNC() int main(int argc, char* argv[])
-#else
+#if defined(TA_RELEASE) && defined(_WIN64)
     #define MAIN_FUNC() int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+    #define MAIN_FUNC() int main(int argc, char* argv[])
 #endif
 
 MAIN_FUNC()

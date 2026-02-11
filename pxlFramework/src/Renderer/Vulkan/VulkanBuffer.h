@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vma/vk_mem_alloc.h>
-#include <Volk/volk.h>
+#include <volk/volk.h>
 
 #include "Renderer/BufferLayout.h"
 #include "Renderer/GPUBuffer.h"

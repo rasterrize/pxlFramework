@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLM/glm.hpp>
+#include <glm/glm.hpp>
 
 #include "Core/MouseCodes.h"
 #include "InputEvent.h"
