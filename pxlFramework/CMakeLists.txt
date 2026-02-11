@@ -100,7 +100,7 @@ CPMAddPackage("gh:gabime/spdlog#v1.14.1")
 CPMAddPackage("gh:g-truc/glm#1.0.2")
 CPMAddPackage("gh:rasterrize/imgui#b34fef5aabb7fc280379c901161cb09eb34138a6")
 CPMAddPackage("gh:assimp/assimp#v6.0.2")
-CPMAddPackage("gh:jbeder/yaml-cpp#c2680200486572baf8221ba052ef50b58ecd816e")
+CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.9.0")
 
 if(PXL_ENABLE_PROFILING)
     option(TRACY_ENABLE "" ON)
