@@ -1,10 +1,10 @@
 # pxlFramework
 [![Continuous Integration](https://github.com/rasterrize/pxlFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/rasterrize/pxlFramework/actions/workflows/ci.yml)
 
-### A Windows C++ Application/Game Framework
+### A Windows & Linux C++ Application/Game Framework
 This is a hobby project I've been casually working on. Originally, it started as just me following TheCherno's [Game Engine series](https://youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT&si=15wnEV42qfltyt2v) but at some point I realized I was more or less copying the code and not fully comprehending the reasons behind things. So I decided I would make all the decisions and write all the future code instead of just copying the tutorial. This is why some aspects of the code may look similar to TheCherno's game engine, such as the structure of renderer classes.
 
-**NOTE:** This project is still very **WIP**. There are bugs, and things WILL crash. I have a lot of plans for it, so much that it may never be 'complete'.
+**NOTE:** This project is still very **WIP**. There are bugs, and things WILL crash. I have a lot of plans for it, so much that it may never be considered 'complete'.
 
 ### Features
 #### Currently implemented features
@@ -26,20 +26,29 @@ This is a hobby project I've been casually working on. Originally, it started as
 - Instanced rendering
 - Optimization
 
-### Building/using pxlFramework
-This project uses **CMake** along with a **C++20** compiler. However right now I only use MSVC, so I'm unsure if it works for with any other compilers.
+### Using pxlFramework
+If you wish to create a game or an application with this framework... well atm good luck because there isn't any online documentation yet :P
 
-If you wish to create an application or game with this framework... well atm good luck because there isn't any documentation or template yet :P
+However, I have made a template which can be used for new projects, so for those who wish to try out this _thing_ I have created, you can find it [here](https://github.com/rasterrize/pxlFramework-Template).
+
+### Building and testing pxlFramework
+This project uses **CMake** along with a **C++20** compiler. MSVC and GCC are the ones I have tested.
 
 To build you will need:
  - [CMake](https://cmake.org/download/) (_any recent version_)
  - [VulkanSDK](https://vulkan.lunarg.com/sdk/home) (_with **Shader Toolchain Debug Symbols x64**, **Vulkan Memory Allocator header** and **Volk header** checked_)
- - [MSVC](https://visualstudio.microsoft.com/downloads/) (_any version supporting **C++20**_)
+ - [MSVC](https://visualstudio.microsoft.com/downloads/) or GCC (_any version supporting **C++20**_)
 
-To clone use:
+First, clone the repo using:
 ```sh
 git clone https://github.com/rasterrize/pxlFramework
 ```
+Then enter the directory and build it using cmake:
+```sh
+cd pxlFramework
+cmake -B build
+```
+TestApp should build automatically, and can be launched from the bin directory or through VSCode/Visual Studio.
 
 #### Dependencies/Libraries this project uses
 - [GLFW](https://github.com/glfw/glfw) (for window and input handling)
