@@ -23,6 +23,12 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config Debug
 
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: testapp-windows-debug
+        path: build/bin/Debug/TestApp.exe
+
   build-release-windows:
     name: Windows Build (Release)
     runs-on: windows-latest
@@ -42,6 +48,12 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config Release
+
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: testapp-windows-release
+        path: build/bin/Release/TestApp.exe
   
   build-debug-linux:
     name: Linux Build (Debug)
@@ -64,6 +76,12 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config Debug
 
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: testapp-linux-debug
+        path: build/bin/TestApp
+
   build-release-linux:
     name: Linux Build (Release)
     runs-on: ubuntu-latest
@@ -84,3 +102,9 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config Release
+
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: testapp-linux-release
+        path: build/bin/TestApp
