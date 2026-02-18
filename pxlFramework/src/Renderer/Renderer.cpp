@@ -13,6 +13,7 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanInstance.h"
 #include "Vulkan/VulkanRenderer.h"
+#include "glm/gtc/quaternion.hpp"
 
 namespace pxl
 {
@@ -657,7 +658,15 @@ namespace pxl
             return;
         }
 
-        glm::mat4 transform = CalculateTransform(position, rotation, scale);
+        glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat rotationQuat = rotationY * rotationZ * rotationX;
+
+        glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), position);
+        glm::mat4 rotationMat = glm::mat4_cast(rotationQuat);
+        glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
+        glm::mat4 transform = translateMat * rotationMat * scaleMat;
 
         auto meshPipeline = s_Pipelines.at(RendererGeometryTarget::Mesh);
 
@@ -687,7 +696,7 @@ namespace pxl
             s_MeshIBOs[mesh]->Bind();
         }
 
-        s_SetViewProjectionFunc(meshPipeline, s_QuadCamera->GetViewProjectionMatrix() * transform);
+        s_SetViewProjectionFunc(meshPipeline, s_QuadCamera->GetViewProjectionMatrix());
 
         s_RendererAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
 

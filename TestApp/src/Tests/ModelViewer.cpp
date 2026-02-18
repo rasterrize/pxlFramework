@@ -78,7 +78,7 @@ namespace TestApp
 
         ImGui::Begin("ModelViewer");
 
-        ImGui::Text("s_MeshRotation: %.2f, %.2f, %.2f", m_MeshRotation.x, m_MeshRotation.y, m_MeshRotation.z);
+        ImGui::DragFloat3("MeshRotation: %.2f, %.2f, %.2f", reinterpret_cast<float*>(&m_MeshRotation));
         ImGui::Text("CursorDelta: %.2f, %.2f", pxl::Input::GetCursorDelta().x, pxl::Input::GetCursorDelta().y);
 
         if (ImGui::BeginListBox("Models"))

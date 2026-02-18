@@ -46,6 +46,8 @@ namespace pxl
         void SetPosition(const glm::vec3& position) { m_Position = position; }
         void SetRotation(const glm::vec3& rotation) { m_Rotation = rotation; }
 
+        glm::mat4 GetViewMatrix() const { return m_ViewMatrix; }
+        glm::mat4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
         glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
         /// @brief Create and return a new PerspectiveCamera
