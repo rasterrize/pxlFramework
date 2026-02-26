@@ -53,7 +53,7 @@ namespace pxl
 
             // Ensure LastWindowedPosition is the middle of the monitor
             auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-            m_LastWindowedPosition = { vidMode.Width / 2 - k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - k_DefaultWindowedSize.Height / 2 };
+            m_LastWindowedPosition = { vidMode.Width / 2 - WindowConstants::k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - WindowConstants::k_DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen

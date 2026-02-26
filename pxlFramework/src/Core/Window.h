@@ -13,10 +13,11 @@
 
 namespace pxl
 {
-    // TODO: define these locally bc currently they are global (oops)
-    static constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
-    static constexpr float k_DefaultAspectRatio = 16.0f / 9.0f;
-    static constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
+    namespace WindowConstants
+    {
+        inline constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
+        inline constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
+    }
 
     enum class WindowMode
     {
@@ -61,10 +62,10 @@ namespace pxl
     struct WindowSpecs
     {
         // The title of the window (appears top left of window).
-        std::string Title = k_DefaultWindowTitle.data();
+        std::string Title = WindowConstants::k_DefaultWindowTitle.data();
 
         // The size of the window in screen coordinates. Only used for Windowed mode. If not specified, defaults to k_DefaultWindowedSize.
-        Size2D Size = k_DefaultWindowedSize;
+        Size2D Size = WindowConstants::k_DefaultWindowedSize;
 
         // The position of the window. Only used for Windowed mode. If not supplied, defaults to the center of Monitor.
         std::optional<glm::ivec2> Position;
@@ -194,9 +195,9 @@ namespace pxl
         std::shared_ptr<InputSystem> m_InputSystem;
         std::function<void(Event&)> m_EventCallback;
 
-        Size2D m_Size = k_DefaultWindowedSize;
+        Size2D m_Size = WindowConstants::k_DefaultWindowedSize;
         glm::ivec2 m_Position = { 0, 0 };
-        std::string m_Title = std::string(k_DefaultWindowTitle);
+        std::string m_Title = WindowConstants::k_DefaultWindowTitle.data();
         WindowMode m_WindowMode = WindowMode::Windowed;
         RendererAPIType m_RendererAPI = RendererAPIType::None;
 
@@ -204,7 +205,7 @@ namespace pxl
 
         // The size and position of the window when it was in windowed mode
         glm::ivec2 m_LastWindowedPosition = { 0, 0 };
-        Size2D m_LastWindowedSize = k_DefaultWindowedSize;
+        Size2D m_LastWindowedSize = WindowConstants::k_DefaultWindowedSize;
 
         // The current monitor this window is on
         Monitor m_CurrentMonitor;
