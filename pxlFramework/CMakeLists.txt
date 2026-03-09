@@ -148,7 +148,6 @@ target_link_libraries(pxl
     assimp
     yaml-cpp
     Vulkan::volk
-    $<$<PLATFORM_ID:Windows>:Winmm.lib> # For FPS limiter. I consider this temporary.
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
 )
 

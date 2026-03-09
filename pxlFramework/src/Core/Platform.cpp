@@ -5,25 +5,10 @@
 #ifdef _WIN64
     #include <commdlg.h>
     #include <dwmapi.h>
-    #include <timeapi.h>
 #endif
 
 namespace pxl
 {
-    void Platform::SetMinimumTimerResolution(uint32_t value)
-    {
-#ifdef _WIN64
-        timeBeginPeriod(value);
-#endif
-    }
-
-    void Platform::ResetMinimumTimerResolution(uint32_t value)
-    {
-#ifdef _WIN64
-        timeEndPeriod(value);
-#endif
-    }
-
     std::string Platform::OpenFile(const std::shared_ptr<Window> window, const char* filter)
     {
 #ifdef _WIN64
