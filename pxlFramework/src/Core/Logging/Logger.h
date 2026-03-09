@@ -21,7 +21,6 @@ namespace pxl
         Window,
         Input,
         Renderer,
-        OpenGL,
         Vulkan,
         FileSystem,
         Audio,

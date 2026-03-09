@@ -1,7 +1,6 @@
 #include "Application.h"
 
 #include "Config.h"
-#include "Debug/GUI/GUI.h"
 #include "Input.h"
 #include "Platform.h"
 #include "Renderer/Camera.h"
@@ -41,6 +40,7 @@ namespace pxl
         while (m_Running)
         {
             PXL_PROFILE_SCOPE;
+
             m_FrameStartTime = std::chrono::steady_clock::now();
 
             float time = static_cast<float>(Platform::GetTime());
@@ -50,16 +50,22 @@ namespace pxl
             Window::ProcessEvents();
             m_EventManager->ProcessQueue();
 
-            if (!m_Minimized && m_Running)
+            if (m_Running)
             {
                 OnUpdate(deltaTime);
 
-                if (Renderer::IsInitialized())
+                if (m_Renderer)
                 {
-                    Camera::UpdateAll();
-                    Renderer::Begin();
-                    OnRender();
-                    Renderer::End();
+                    Camera::UpdateAll(); // TODO: Do something else here
+                    m_Renderer->Begin();
+                    OnRender(m_Renderer);
+
+                    if (m_Renderer->IsImGuiInitialized())
+                    {
+                        OnGUIRender();
+                    }
+
+                    m_Renderer->End();
                 }
             }
 
@@ -68,9 +74,6 @@ namespace pxl
             // Limit the frame rate if necessary
             if (m_FramerateMode != FramerateMode::Unlimited)
                 LimitFPS();
-
-            Renderer::s_FrameCount++;
-            Renderer::CalculateFPS();
 
             PXL_PROFILE_FRAME_END;
         }
@@ -88,24 +91,34 @@ namespace pxl
         OnClose();
 
         FrameworkConfig::Shutdown();
-        GUI::Shutdown();
-        Renderer::Shutdown();
+        ShutdownRenderer();
         Input::Shutdown();
         Window::Shutdown();
     }
 
+    const std::unique_ptr<Renderer>& Application::InitRenderer(const RendererConfig& config)
+    {
+        m_Renderer = std::make_unique<Renderer>(config);
+        return m_Renderer;
+    }
+
+    void Application::ShutdownRenderer()
+    {
+        m_Renderer.reset();
+    }
+
     void Application::SetFramerateMode(FramerateMode mode)
     {
-        if (mode == FramerateMode::GSYNC)
+        if (mode == FramerateMode::AdaptiveSync)
         {
             if (Window::IsInitialized())
             {
-                m_GsyncFPSLimit = Window::GetPrimaryMonitor().GetCurrentVideoMode().RefreshRate - 3;
+                m_AdaptiveSyncFPSLimit = Window::GetPrimaryMonitor().GetCurrentVideoMode().RefreshRate - 3;
             }
             else
             {
-                PXL_LOG_WARN(LogArea::Window, "Couldn't retrieve GSYNC fps limit, defaulting to 0");
-                m_GsyncFPSLimit = 0;
+                PXL_LOG_WARN(LogArea::Window, "Couldn't retrieve AdaptiveSync fps limit, defaulting to 0");
+                m_AdaptiveSyncFPSLimit = 0;
             }
         }
 
@@ -120,8 +133,8 @@ namespace pxl
         // TODO: use a function to return a suitable limit, and skip the next steps if its 0 (unlimited)
         if (m_FramerateMode == FramerateMode::Custom)
             limit = m_CustomFPSLimit;
-        else if (m_FramerateMode == FramerateMode::GSYNC)
-            limit = m_GsyncFPSLimit;
+        else if (m_FramerateMode == FramerateMode::AdaptiveSync)
+            limit = m_AdaptiveSyncFPSLimit;
 
         auto us = std::chrono::microseconds(1s) / limit;
         auto overhead = us - frameTime;

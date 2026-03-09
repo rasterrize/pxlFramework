@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GPUResource.h"
+
 namespace pxl
 {
     enum class ShaderStage
@@ -7,19 +9,35 @@ namespace pxl
         Vertex,
         Fragment,
         Geometry,
-        Tessellation,
+        TessellationControl,
+        TessellationEvaluation,
     };
 
-    class Shader
+    struct ShaderSpecs
+    {
+        ShaderStage Stage;
+        std::filesystem::path FilePath;
+    };
+
+    /// @brief A program that executes code at specific stages within a pipeline
+    class Shader : public GPUResource
     {
     public:
+        Shader(const ShaderSpecs& specs)
+            : m_Specs(specs)
+        {
+        }
         virtual ~Shader() = default;
 
+        virtual void Free() override = 0;
+
+        /// @brief Reloads this shader from disk
+        /// @note  Any pipelines using this shader must be recreated manually
         virtual void Reload() = 0;
 
-        virtual ShaderStage GetShaderStage() const = 0;
+        ShaderSpecs GetSpecs() const { return m_Specs; }
 
-        static std::shared_ptr<Shader> Create(ShaderStage stage, const std::string& glslSrc);
-        static std::shared_ptr<Shader> Create(ShaderStage stage, const std::vector<char>& sprvBin);
+    protected:
+        ShaderSpecs m_Specs;
     };
 }

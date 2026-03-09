@@ -3,33 +3,25 @@
 #include <volk/volk.h>
 
 #include "Renderer/Shader.h"
-#include "VulkanDevice.h"
 
 namespace pxl
 {
     class VulkanShader : public Shader
     {
     public:
-        VulkanShader(ShaderStage stage, const std::vector<char>& sprvBin);
-        VulkanShader(ShaderStage stage, const std::string& glslSrc);
+        VulkanShader(const ShaderSpecs& specs, VkDevice device);
+
+        virtual void Free() override;
 
         virtual void Reload() override;
 
-        virtual ShaderStage GetShaderStage() const override { return m_ShaderStage; }
-
-        void Destroy();
-
-        VkShaderModule GetShaderModule() const { return m_ShaderModule; }
+        VkShaderModule GetModule() const { return m_Module; }
 
     private:
-        static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
-        static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<uint32_t>& code);
-
-        static std::vector<uint32_t> CompileToSPIRV(const std::string& glslSrc, ShaderStage stage);
+        void Load();
 
     private:
-        VkDevice m_Device = VK_NULL_HANDLE;
-        VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
-        ShaderStage m_ShaderStage = ShaderStage::Vertex;
+        VkShaderModule m_Module = nullptr;
+        VkDevice m_Device = nullptr;
     };
 }

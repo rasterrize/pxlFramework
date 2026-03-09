@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Image.h"
+#include "GPUResource.h"
 
 namespace pxl
 {
@@ -10,6 +11,12 @@ namespace pxl
         Tex2D,
         Tex3D,
         CubeMap,
+    };
+
+    enum class TextureFormat
+    {
+        RGB8,
+        RGBA8,
     };
 
     enum class TextureWrap
@@ -27,21 +34,14 @@ namespace pxl
         SampleFilter Filter = SampleFilter::Linear;
     };
 
-    class Texture
+    /// @brief An image stored in the GPU's memory which can be used in the graphics pipeline
+    class Texture : public GPUResource
     {
     public:
         virtual ~Texture() = default;
 
-        virtual void Bind(uint32_t unit) = 0; // unsure if this is used in Vulkan
-        virtual void Unbind() = 0;
+        virtual void Free() override = 0;
 
         virtual void SetData(const void* data) = 0;
-
-        virtual const ImageMetadata& GetMetadata() const = 0;
-
-        static std::shared_ptr<Texture> Create(const Image& image, const TextureSpecs& specs);
-        static std::shared_ptr<Texture> Create(const std::shared_ptr<Image>& image, const TextureSpecs& specs);
-
-        static std::shared_ptr<Texture> CreateErrorTexture(const TextureSpecs& specs);
     };
 }

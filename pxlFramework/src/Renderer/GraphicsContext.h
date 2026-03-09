@@ -1,32 +1,34 @@
 #pragma once
 
+#include "GPUBuffer.h"
+#include "GraphicsPipeline.h"
 #include "GraphicsDevice.h"
-#include "RendererAPIType.h"
-#include "RendererLimits.h"
 
 namespace pxl
 {
-    // Use forward declaration instead of include to avoid cycling includes
-    class Window;
+    struct DrawParams
+    {
+        std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
+        std::shared_ptr<GraphicsPipeline> Pipeline = nullptr;
+        uint32_t VertexCount = 0;
+        uint32_t IndexCount = 0;
+    };
 
+    /// @brief Represents a context used for recording graphics operations.
     class GraphicsContext
     {
     public:
         virtual ~GraphicsContext() = default;
 
-        virtual void Present() = 0;
+        virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) = 0;
+        virtual void End(const std::unique_ptr<GraphicsDevice>& device) = 0;
 
-        virtual bool GetVSync() const = 0;
-        virtual void SetVSync(bool value) = 0;
-        virtual void ToggleVSync() = 0;
+        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline) = 0;
+        virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;
 
-        // Required for OpenGL
-        virtual void SetAsCurrent() = 0;
+        virtual void Draw(const DrawParams& params) = 0;
+        virtual void DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer) = 0;
 
-        virtual std::shared_ptr<GraphicsDevice> GetDevice() const = 0;
-
-        virtual RendererLimits GetLimits() = 0;
-
-        static std::shared_ptr<GraphicsContext> Create(RendererAPIType api, const std::shared_ptr<Window>& window);
+        virtual void SetClearColour(const glm::vec4& colour) = 0;
     };
 }

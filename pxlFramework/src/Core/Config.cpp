@@ -38,10 +38,8 @@ namespace pxl
         if (config["RendererAPI"].IsDefined())
         {
             auto rendererAPI = config["RendererAPI"].as<std::string>();
-            if (rendererAPI == "OpenGL")
-                s_Settings.RendererAPI = RendererAPIType::OpenGL;
-            else if (rendererAPI == "Vulkan")
-                s_Settings.RendererAPI = RendererAPIType::Vulkan;
+            if (rendererAPI == "Vulkan")
+                s_Settings.GraphicsAPIType = GraphicsAPIType::Vulkan;
         }
 
         // Window Mode
@@ -92,7 +90,7 @@ namespace pxl
     void FrameworkConfig::SaveToFile()
     {
         YAML::Node saveNode;
-        saveNode["RendererAPI"] = EnumStringHelper::ToString(s_Settings.RendererAPI);
+        saveNode["RendererAPI"] = EnumStringHelper::ToString(s_Settings.GraphicsAPIType);
         saveNode["WindowMode"] = EnumStringHelper::ToString(s_Settings.WindowMode);
         saveNode["VSync"] = s_Settings.VSync;
         saveNode["WindowPositionX"] = s_Settings.WindowPosition.x;

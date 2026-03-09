@@ -48,7 +48,7 @@ namespace pxl
         static void SetCursor(Cursor customCursor);
 
     private:
-        friend class Window; // for callbacks
+        friend class Window;
 
         static inline bool s_Enabled = false;
         static inline GLFWwindow* s_WindowHandle = nullptr;

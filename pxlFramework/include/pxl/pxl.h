@@ -29,13 +29,10 @@
 #include "../src/Renderer/GraphicsContext.h"
 #include "../src/Renderer/OrthographicCamera.h"
 #include "../src/Renderer/PerspectiveCamera.h"
-#include "../src/Renderer/Pipeline.h"
+#include "../src/Renderer/GraphicsPipeline.h"
 #include "../src/Renderer/Primitives/Quad.h"
 #include "../src/Renderer/Renderer.h"
-#include "../src/Renderer/RendererAPIType.h"
-#include "../src/Renderer/RendererData.h"
 #include "../src/Renderer/Shader.h"
-#include "../src/Renderer/ShaderManager.h"
 #include "../src/Renderer/Texture.h"
 #include "../src/Renderer/UniformLayout.h"
 #include "../src/Renderer/Vertices.h"
@@ -51,7 +48,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../src/Debug/GUI/GUI.h"
 #include "../src/Debug/Profiler.h"
 
 // Utils

@@ -5,9 +5,7 @@
 #include "Input.h"
 #include "Platform.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/Vulkan/VulkanContext.h"
-#include "Renderer/Vulkan/VulkanHelpers.h"
-#include "Renderer/Vulkan/VulkanInstance.h"
+#include "Renderer/Vulkan/VulkanUtils.h"
 #include "Utils/EnumStringHelper.h"
 #include "Utils/FileSystem.h"
 
@@ -16,7 +14,7 @@ namespace pxl
     static constexpr uint8_t k_MaxWindowCount = 5;
 
     Window::Window(const WindowSpecs& specs)
-        : m_Title(specs.Title), m_Size(specs.Size), m_WindowMode(specs.WindowMode), m_RendererAPI(specs.RendererAPI)
+        : m_Title(specs.Title), m_Size(specs.Size), m_WindowMode(specs.WindowMode)
     {
         if (!s_Initialized)
             Window::Init();
@@ -42,8 +40,11 @@ namespace pxl
         }
         else if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
         {
+            m_CurrentMonitor = GetPrimaryMonitor();
+
             // If monitor index is specified, use it, otherwise use the primary monitor
-            m_CurrentMonitor = specs.MonitorIndex.has_value() ? s_Monitors[specs.MonitorIndex.value()] : GetPrimaryMonitor();
+            if (specs.MonitorIndex.has_value() && specs.MonitorIndex.value() < s_Monitors.size())
+                m_CurrentMonitor = s_Monitors.at(specs.MonitorIndex.value());
 
             // Set position to top left of specified monitor
             m_Position = m_CurrentMonitor.Position;
@@ -63,36 +64,13 @@ namespace pxl
         glfwDefaultWindowHints();
 
         // Hide the window on creation as we will still need to prepare it
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
         // Set window position on creation (not used in fullscreen)
         glfwWindowHint(GLFW_POSITION_X, m_Position.x);
         glfwWindowHint(GLFW_POSITION_Y, m_Position.y);
 
-        // Set window hints based on renderer api
-        switch (specs.RendererAPI)
-        {
-            case RendererAPIType::None:
-                PXL_LOG_WARN(LogArea::Window, "RendererAPI type 'None' specified! Creating a GLFW window with no renderer api...");
-                glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-                break;
-
-            case RendererAPIType::OpenGL:
-#if PXL_DEBUG
-                glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif
-                glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-                break;
-
-            case RendererAPIType::Vulkan:
-                PXL_ASSERT_MSG(glfwVulkanSupported(), "Vulkan loader wasn't found by GLFW");
-
-                glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-                break;
-        }
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), glfwMonitor, nullptr);
 
@@ -123,9 +101,6 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        if (m_GraphicsContext)
-            m_GraphicsContext->Present();
-
         if (m_ShowAfterFirstPresent)
         {
             Show();
@@ -144,8 +119,10 @@ namespace pxl
             return;
         }
 
-        if (Renderer::IsInitialized() && m_GraphicsContext == Renderer::GetGraphicsContext())
-            Renderer::Shutdown();
+        if (Application::Get().GetRenderer()->GetConfig().Window == m_Handle.lock())
+        {
+            Application::Get().ShutdownRenderer();
+        }
     }
 
     void Window::InitWindowCallbacks()
@@ -662,6 +639,16 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
     }
 
+    VkSurfaceKHR Window::CreateVKSurface(VkInstance instance)
+    {
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+        VK_CHECK(glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface));
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan window surface created");
+
+        return surface;
+    }
+
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
     {
         if (s_Windows.size() >= k_MaxWindowCount)
@@ -682,41 +669,6 @@ namespace pxl
         auto window = std::make_shared<shared_window_enabler>(windowSpecs);
 
         window->m_Handle = window;
-
-        if (windowSpecs.RendererAPI == RendererAPIType::Vulkan)
-        {
-            // Initialize the Vulkan instance if necessary
-            if (!VulkanInstance::Get())
-            {
-                std::vector<const char*> selectedExtensions;
-                std::vector<const char*> selectedLayers;
-
-                // Initialize volk
-                VK_CHECK(volkInitialize());
-
-                // We are only using the required extensions by glfw for now
-                // Should retrieve VK_KHR_SURFACE and platform specific extensions (VK_KHR_win32_SURFACE)
-                selectedExtensions = Window::GetVKRequiredInstanceExtensions();
-
-                // Get available instance layers
-                auto availableLayers = VulkanHelpers::GetAvailableInstanceLayers();
-
-#ifdef PXL_DEBUG
-                // Get validation layer (Vulkan debugging)
-                selectedLayers.push_back(VulkanHelpers::GetValidationLayer(availableLayers));
-#endif
-
-                VulkanInstance::Init(selectedExtensions, selectedLayers);
-            }
-        }
-
-        if (windowSpecs.RendererAPI != RendererAPIType::None)
-        {
-            // Automatically create a graphics context for the window
-            window->m_GraphicsContext = GraphicsContext::Create(windowSpecs.RendererAPI, window);
-
-            PXL_ASSERT_MSG(window->m_GraphicsContext, "Failed to create graphics context for window '{}'", windowSpecs.Title);
-        }
 
         s_Windows.push_back(window);
 

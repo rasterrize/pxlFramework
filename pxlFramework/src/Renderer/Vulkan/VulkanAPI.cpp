@@ -1,0 +1,132 @@
+#include "VulkanAPI.h"
+
+#define VMA_IMPLEMENTATION
+#include <vma/vk_mem_alloc.h>
+
+#include "Core/Window.h"
+#include "VulkanGraphicsContext.h"
+#include "VulkanGraphicsDevice.h"
+#include "VulkanUtils.h"
+
+namespace pxl
+{
+    VulkanAPI::VulkanAPI()
+    {
+        if (volkInitialize())
+            throw std::runtime_error("Failed to initialize volk");
+
+        auto availableExtensions = VulkanUtils::GetAvailableInstanceExtensions();
+        auto requiredExtensions = Window::GetVKRequiredInstanceExtensions();
+
+        auto availableLayers = VulkanUtils::GetAvailableInstanceLayers();
+        std::vector<const char*> requestedLayers;
+
+#ifdef PXL_DEBUG
+        const char* validationLayer = "VK_LAYER_KHRONOS_validation";
+        if (VulkanUtils::ValidateLayer(validationLayer, availableLayers))
+        {
+            requestedLayers.push_back(validationLayer);
+            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan validation layer found");
+        }
+        else
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Vulkan validation layer NOT found");
+        }
+
+        bool useDebugUtils = false;
+        if (VulkanUtils::ValidateExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, availableExtensions))
+        {
+            requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            useDebugUtils = true;
+            PXL_LOG_INFO(LogArea::Vulkan, "Debug utils extension found");
+        }
+        else
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Debug utils extension NOT found");
+        }
+#endif
+
+        if (!VulkanUtils::ValidateExtensions(requiredExtensions, availableExtensions))
+            throw std::runtime_error("Required instance extensions not found");
+
+        VkApplicationInfo appInfo = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
+        appInfo.pApplicationName = "pxlFramework App";
+        appInfo.pEngineName = "pxlFramework";
+        appInfo.apiVersion = VK_API_VERSION_1_3; // The vulkan API version this code base is built on
+
+        VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+        instanceInfo.pApplicationInfo = &appInfo;
+        instanceInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+        instanceInfo.ppEnabledExtensionNames = requiredExtensions.data();
+        instanceInfo.enabledLayerCount = static_cast<uint32_t>(requestedLayers.size());
+        instanceInfo.ppEnabledLayerNames = requestedLayers.data();
+
+#ifdef PXL_DEBUG
+        VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+        if (useDebugUtils)
+        {
+            debugMessengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+
+            debugMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+            debugMessengerInfo.pfnUserCallback = DebugCallback;
+
+            instanceInfo.pNext = &debugMessengerInfo;
+        }
+#endif
+
+        VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));
+        volkLoadInstance(m_Instance);
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan instance created");
+
+#ifdef PXL_DEBUG
+        if (useDebugUtils)
+        {
+            VK_CHECK(vkCreateDebugUtilsMessengerEXT(m_Instance, &debugMessengerInfo, nullptr, &m_DebugMessenger));
+            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan debug utils messenger created");
+        }
+#endif
+    }
+
+    VulkanAPI::~VulkanAPI()
+    {
+        if (m_DebugMessenger)
+        {
+            vkDestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+            m_DebugMessenger = VK_NULL_HANDLE;
+            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan debug utils messenger destroyed");
+        }
+
+        if (m_Instance)
+        {
+            vkDestroyInstance(m_Instance, nullptr);
+            m_Instance = VK_NULL_HANDLE;
+            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan instance destroyed");
+        }
+    }
+
+    std::unique_ptr<GraphicsContext> VulkanAPI::CreateGraphicsContext()
+    {
+        return std::make_unique<VulkanGraphicsContext>();
+    }
+
+    std::unique_ptr<GraphicsDevice> VulkanAPI::CreateGraphicsDevice(const GraphicsDeviceSpecs& specs)
+    {
+        return std::make_unique<VulkanGraphicsDevice>(specs, m_Instance);
+    }
+
+    VkBool32 VulkanAPI::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT types, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData)
+    {
+        // TODO: support other severity levels
+        if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        {
+            PXL_LOG_ERROR(LogArea::Vulkan, "Validation Layer - Error: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
+        }
+        else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Validation Layer - Warning: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
+        }
+
+        return VK_FALSE;
+    }
+}

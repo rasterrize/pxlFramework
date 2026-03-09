@@ -87,18 +87,18 @@ namespace pxl
             return newPosition.x >= left && newPosition.x <= right && newPosition.y >= bottom && newPosition.y <= top;
         }
 
-        static constexpr std::array<QuadVertex, 4> GetDefaultVertices()
+        static constexpr std::array<TexturedVertex, 4> GetDefaultVertices()
         {
             return {
                 // clang-format off
-                QuadVertex({ -0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
-                QuadVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
-                QuadVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
-                QuadVertex({  0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
+                TexturedVertex({ -0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
+                TexturedVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
+                TexturedVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
+                TexturedVertex({  0.5f,  0.5f, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
             }; // clang-format on
         }
 
-        static std::array<QuadVertex, 4> GetDefaultVerticesWithOrigin(Origin2D origin)
+        static std::array<TexturedVertex, 4> GetDefaultVerticesWithOrigin(Origin2D origin)
         {
             float xOffset = 0.0f;
             float yOffset = 0.0f;
@@ -129,10 +129,10 @@ namespace pxl
 
             return {
                 // clang-format off
-                QuadVertex({ -0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
-                QuadVertex({ -0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
-                QuadVertex({  0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
-                QuadVertex({  0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
+                TexturedVertex({ -0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 1.0f }), 
+                TexturedVertex({ -0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 0.0f, 0.0f }),
+                TexturedVertex({  0.5f + xOffset, -0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 0.0f }),
+                TexturedVertex({  0.5f + xOffset,  0.5f + yOffset, 0.0f }, glm::vec4(1.0f), { 1.0f, 1.0f }),
             }; // clang-format on
         }
 

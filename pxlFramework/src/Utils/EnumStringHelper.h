@@ -6,8 +6,8 @@
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Camera.h"
 #include "Renderer/GPUBuffer.h"
-#include "Renderer/Pipeline.h"
-#include "Renderer/RendererAPIType.h"
+#include "Renderer/GraphicsPipeline.h"
+#include "Renderer/GraphicsAPI.h"
 #include "Renderer/UniformLayout.h"
 
 namespace pxl
@@ -15,7 +15,7 @@ namespace pxl
     class EnumStringHelper
     {
     public:
-        static std::string ToString(RendererAPIType type);
+        static std::string ToString(GraphicsAPIType type);
         static std::string ToString(GPUBufferUsage usage);
         static std::string ToString(GPUBufferDrawHint hint);
         static std::string ToString(WindowMode mode);

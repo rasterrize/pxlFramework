@@ -6,7 +6,7 @@
 
 namespace pxl
 {
-    struct QuadVertex
+    struct TexturedVertex
     {
         glm::vec3 Position = glm::vec3(0.0f);  // Position of vertex in NDC
         glm::vec4 Colour = glm::vec4(1.0f);    // Colour of the vertex. Passed to the fragment shader
@@ -16,29 +16,25 @@ namespace pxl
         static constexpr BufferLayout GetLayout()
         {
             BufferLayout layout;
-            layout.Add({ BufferDataType::Float3, false }); // vertex position
-            layout.Add({ BufferDataType::Float4, false }); // colour
-            layout.Add({ BufferDataType::Float2, false }); // texture coords
-            layout.Add({ BufferDataType::Float, false });  // texture slot index
+            layout.Add(BufferDataType::Vec3);  // vertex position
+            layout.Add(BufferDataType::Vec4);  // colour
+            layout.Add(BufferDataType::Vec2);  // texture coords
+            layout.Add(BufferDataType::Float); // texture slot index
 
             return layout;
         }
     };
 
-    struct CubeVertex
+    struct ColouredVertex
     {
-        glm::vec3 Position = glm::vec3(0.0f);
-        glm::vec4 Colour = glm::vec4(1.0f);
-        glm::vec2 TexCoords = glm::vec2(0.0f);
-        float TexIndex = -1.0f;
+        glm::vec3 Position = glm::vec3(0.0f); // Position of vertex in NDC
+        glm::vec4 Colour = glm::vec4(1.0f);   // Colour of the vertex. Passed to the fragment shader
 
         static constexpr BufferLayout GetLayout()
         {
             BufferLayout layout;
-            layout.Add({ BufferDataType::Float3, false }); // vertex position
-            layout.Add({ BufferDataType::Float4, false }); // colour
-            layout.Add({ BufferDataType::Float2, false }); // texture coords
-            layout.Add({ BufferDataType::Float, false });  // texture slot index
+            layout.Add(BufferDataType::Vec3); // vertex position
+            layout.Add(BufferDataType::Vec4); // colour
 
             return layout;
         }
@@ -52,29 +48,11 @@ namespace pxl
         static constexpr BufferLayout GetLayout()
         {
             BufferLayout layout;
-            layout.Add({ BufferDataType::Float3, false }); // vertex position
-            layout.Add({ BufferDataType::Float4, false }); // colour
+            layout.Add(BufferDataType::Vec3); // vertex position
+            layout.Add(BufferDataType::Vec4); // colour
 
             return layout;
         }
     };
 
-    struct MeshVertex
-    {
-        glm::vec3 Position = glm::vec3(0.0f);
-        glm::vec4 Colour = glm::vec4(1.0f);
-        glm::vec2 TexCoords = glm::vec2(0.0f);
-        float TexIndex = -1.0f;
-
-        static constexpr BufferLayout GetLayout()
-        {
-            BufferLayout layout;
-            layout.Add({ BufferDataType::Float3, false }); // vertex position
-            layout.Add({ BufferDataType::Float4, false }); // colour
-            layout.Add({ BufferDataType::Float2, false }); // texture coords
-            layout.Add({ BufferDataType::Float, false });  // texture slot index
-
-            return layout;
-        }
-    };
 }

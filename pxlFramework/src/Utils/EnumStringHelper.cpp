@@ -2,13 +2,11 @@
 
 namespace pxl
 {
-    std::string EnumStringHelper::ToString(RendererAPIType type)
+    std::string EnumStringHelper::ToString(GraphicsAPIType type)
     {
         switch (type)
         {
-            case RendererAPIType::None:   return "None";
-            case RendererAPIType::OpenGL: return "OpenGL";
-            case RendererAPIType::Vulkan: return "Vulkan";
+            case GraphicsAPIType::Vulkan: return "Vulkan";
         }
 
         return "Undefined";
@@ -18,7 +16,6 @@ namespace pxl
     {
         switch (usage)
         {
-            case GPUBufferUsage::None:    return "None";
             case GPUBufferUsage::Vertex:  return "Vertex";
             case GPUBufferUsage::Index:   return "Index";
             case GPUBufferUsage::Uniform: return "Uniform";
@@ -67,18 +64,18 @@ namespace pxl
     {
         switch (type)
         {
-            case BufferDataType::None:   return "None";
-            case BufferDataType::Float:  return "Float";
-            case BufferDataType::Float2: return "Float2";
-            case BufferDataType::Float3: return "Float3";
-            case BufferDataType::Float4: return "Float4";
-            case BufferDataType::Int:    return "Int";
-            case BufferDataType::Int2:   return "Int2";
-            case BufferDataType::Int3:   return "Int3";
-            case BufferDataType::Int4:   return "Int4";
-            case BufferDataType::Mat3:   return "Mat3";
-            case BufferDataType::Mat4:   return "Mat4";
-            case BufferDataType::Bool:   return "Bool";
+            case BufferDataType::None:  return "None";
+            case BufferDataType::Float: return "Float";
+            case BufferDataType::Vec2:  return "Vec2";
+            case BufferDataType::Vec3:  return "Vec3";
+            case BufferDataType::Vec4:  return "Vec4";
+            case BufferDataType::Int:   return "Int";
+            case BufferDataType::IVec2: return "IVec2";
+            case BufferDataType::IVec3: return "IVec3";
+            case BufferDataType::IVec4: return "IVec4";
+            case BufferDataType::Mat3:  return "Mat3";
+            case BufferDataType::Mat4:  return "Mat4";
+            case BufferDataType::Bool:  return "Bool";
         }
 
         return "Undefined";
@@ -184,8 +181,8 @@ namespace pxl
     {
         switch (face)
         {
-            case FrontFace::CW:  return "Clockwise";
-            case FrontFace::CCW: return "Counter-Clockwise";
+            case FrontFace::Clockwise:        return "Clockwise";
+            case FrontFace::CounterClockwise: return "Counter-Clockwise";
         }
 
         return "Undefined";
@@ -195,10 +192,11 @@ namespace pxl
     {
         switch (stage)
         {
-            case ShaderStage::Vertex:       return "Vertex";
-            case ShaderStage::Fragment:     return "Fragment";
-            case ShaderStage::Geometry:     return "Geometry";
-            case ShaderStage::Tessellation: return "Tessellation";
+            case ShaderStage::Vertex:                 return "Vertex";
+            case ShaderStage::Fragment:               return "Fragment";
+            case ShaderStage::Geometry:               return "Geometry";
+            case ShaderStage::TessellationControl:    return "TessellationControl";
+            case ShaderStage::TessellationEvaluation: return "TessellationEvaluation";
         }
 
         return "Undefined";

@@ -6,79 +6,60 @@ namespace pxl
     {
         None,
         Float,
-        Float2,
-        Float3,
-        Float4,
+        Vec2,
+        Vec3,
+        Vec4,
         Int,
-        Int2,
-        Int3,
-        Int4,
+        IVec2,
+        IVec3,
+        IVec4,
         Mat3,
         Mat4,
         Bool,
     };
 
-    // Returns size of type in bytes
-    static constexpr uint32_t SizeOfBufferDataType(BufferDataType type)
+    namespace Utils
     {
-        switch (type)
+        /// @brief Gets the size of a buffer data type in bytes
+        /// @param type The BufferDataType
+        /// @return The number of bytes
+        inline constexpr uint32_t SizeOfBufferDataType(BufferDataType type)
         {
-            // These are currently hardcoded but an optimal way in the future would be to use API data types, such as sizeof(Glfloat)
-            case BufferDataType::Float:  return 4;
-            case BufferDataType::Float2: return 4 * 2;
-            case BufferDataType::Float3: return 4 * 3;
-            case BufferDataType::Float4: return 4 * 4;
-            case BufferDataType::Int:    return 4;
-            case BufferDataType::Int2:   return 4 * 2;
-            case BufferDataType::Int3:   return 4 * 3;
-            case BufferDataType::Int4:   return 4 * 4;
-            case BufferDataType::Mat3:   return 4 * 3 * 3;
-            case BufferDataType::Mat4:   return 4 * 4 * 4;
-            case BufferDataType::Bool:   return 4;
+            switch (type)
+            {
+                case BufferDataType::Float: return 4;
+                case BufferDataType::Vec2:  return 4 * 2;
+                case BufferDataType::Vec3:  return 4 * 3;
+                case BufferDataType::Vec4:  return 4 * 4;
+                case BufferDataType::Int:   return 4;
+                case BufferDataType::IVec2: return 4 * 2;
+                case BufferDataType::IVec3: return 4 * 3;
+                case BufferDataType::IVec4: return 4 * 4;
+                case BufferDataType::Mat3:  return 4 * 3 * 3;
+                case BufferDataType::Mat4:  return 4 * 4 * 4;
+                case BufferDataType::Bool:  return 4;
+                default:                    return 0;
+            }
         }
-
-        return 0;
     }
 
-    struct BufferElement
-    {
-        BufferDataType Type;
-        bool Normalized;
-
-        uint32_t CountOfBufferDataType() const
-        {
-            switch (Type)
-            {
-                case BufferDataType::Float:  return 1;
-                case BufferDataType::Float2: return 2;
-                case BufferDataType::Float3: return 3;
-                case BufferDataType::Float4: return 4;
-                case BufferDataType::Int:    return 1;
-                case BufferDataType::Int2:   return 2;
-                case BufferDataType::Int3:   return 3;
-                case BufferDataType::Int4:   return 4;
-                case BufferDataType::Mat3:   return 3; // } unsure about these bottom two
-                case BufferDataType::Mat4:   return 4;
-            }
-
-            return 0;
-        }
-    };
-
+    /// @brief Describes the layout of data in a GPUBuffer
     class BufferLayout
     {
     public:
-        const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+        const std::vector<BufferDataType>& GetElements() const { return m_Elements; }
         uint32_t GetStride() const { return m_Stride; }
 
-        constexpr void Add(const BufferElement& element)
+        constexpr void Add(BufferDataType element)
         {
             m_Elements.push_back(element);
-            m_Stride += SizeOfBufferDataType(element.Type);
+            m_Stride += Utils::SizeOfBufferDataType(element);
         }
 
     private:
-        std::vector<BufferElement> m_Elements;
-        uint32_t m_Stride = 0; // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
+        std::vector<BufferDataType> m_Elements;
+
+        // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
+        uint32_t m_Stride = 0;
     };
 }

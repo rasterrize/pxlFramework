@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Application.h"
+#include "Renderer/GraphicsAPI.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/RendererAPIType.h"
 #include "Size.h"
 #include "Window.h"
 
@@ -16,12 +16,12 @@ namespace pxl
         Size2D WindowSize = WindowConstants::k_DefaultWindowedSize;
         glm::ivec2 WindowPosition = { 0, 0 };
         uint32_t FullscreenRefreshRate = 0;
-        bool VSync = true;
 
         // Renderer settings
-        RendererAPIType RendererAPI = RendererAPIType::OpenGL;
-        FramerateMode FramerateCapMode = FramerateMode::Unlimited; // FPS cap will likely be implemented in window class
+        GraphicsAPIType GraphicsAPIType = GraphicsAPIType::Vulkan;
+        FramerateMode FramerateCapMode = FramerateMode::Unlimited;
         uint32_t CustomFramerateCap = 60;
+        bool VSync = true;
     };
 
     class FrameworkConfig

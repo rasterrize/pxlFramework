@@ -2,8 +2,6 @@
 
 #include <stb_image.h>
 
-#include <glm/vec2.hpp>
-
 namespace pxl
 {
     enum class ImageFormat

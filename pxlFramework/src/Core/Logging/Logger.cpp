@@ -30,7 +30,6 @@ namespace pxl
             case LogArea::Window:     return "Window";
             case LogArea::Input:      return "Input";
             case LogArea::Renderer:   return "Renderer";
-            case LogArea::OpenGL:     return "OpenGL";
             case LogArea::Vulkan:     return "Vulkan";
             case LogArea::FileSystem: return "FileSystem";
             case LogArea::Audio:      return "Audio";

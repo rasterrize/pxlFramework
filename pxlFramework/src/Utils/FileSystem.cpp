@@ -38,11 +38,12 @@ namespace pxl
 
     std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& path, const TextureSpecs& specs, bool flipVertical)
     {
-        auto image = LoadImageFile(path, flipVertical);
+        // auto image = LoadImageFile(path, flipVertical);
 
-        std::shared_ptr<Texture> texture = Texture::Create(image, specs);
+        // std::shared_ptr<Texture> texture = Texture::Create(image, specs);
 
-        return texture;
+        // return texture;
+        return nullptr;
     }
 
     std::string FileSystem::LoadGLSL(const std::filesystem::path& path)
@@ -80,15 +81,14 @@ namespace pxl
         std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
 
         if (!file.is_open())
-            throw std::runtime_error("Failed to open shader file");
+            throw std::runtime_error("Failed to open SPIR-V file");
 
-        size_t fileSize = (size_t)file.tellg(); // because we are reading the file from the end, we can tell what size our buffer should be
+        // Because we are reading the file from the end, we can tell what size our buffer should be
+        size_t fileSize = (size_t)file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0); // return back to the start of the file
         file.read(buffer.data(), fileSize);
-
-        //file.close(); // RAII closes it
 
         return buffer;
     }

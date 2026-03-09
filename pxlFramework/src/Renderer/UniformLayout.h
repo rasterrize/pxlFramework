@@ -22,6 +22,7 @@ namespace pxl
         IntArray,
     };
 
+    // TODO: move this outside of global space
     // Returns size of type in bytes
     static constexpr uint32_t SizeOfUniformDataType(UniformDataType type)
     {
@@ -49,6 +50,7 @@ namespace pxl
         ShaderStage ShaderStage = ShaderStage::Vertex;
     };
 
+    /// @brief Describes the layout of uniform variables used in a pipeline
     class UniformLayout
     {
     public:
@@ -68,20 +70,6 @@ namespace pxl
             }
 
             return bytes;
-        }
-
-    private:
-        std::vector<UniformElement> m_Elements;
-    };
-
-    class PushConstantLayout
-    {
-    public:
-        const std::vector<UniformElement> GetElements() const { return m_Elements; }
-
-        void Add(const UniformElement& pc)
-        {
-            m_Elements.push_back(pc);
         }
 
     private:

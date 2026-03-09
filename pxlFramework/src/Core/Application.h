@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events/EventManager.h"
+#include "Renderer/Renderer.h"
 
 namespace pxl
 {
@@ -8,7 +9,7 @@ namespace pxl
     {
         Unlimited,
         Custom,
-        GSYNC,
+        AdaptiveSync,
     };
 
     /** @brief The core that runs a pxlFramework application.
@@ -31,12 +32,26 @@ namespace pxl
 
         bool IsRunning() const { return m_Running; }
 
-        // Override these methods in a derived class to add custom logic
+        /* Called every update cycle for this application.
+           Use this function for application/game logic. */
         virtual void OnUpdate(float dt) {}
-        virtual void OnRender() {}
-        virtual void OnGUIRender() {} // This function only gets called if ImGui is initialized
+
+        /* Called every frame for this application's renderer. Will only be called if the renderer is initialized.
+           Use this function for any kind of rendering. */
+        virtual void OnRender(const std::unique_ptr<Renderer>& renderer) {}
+
+        // Called every frame. Convenience function for holding ImGui related functions.
+        virtual void OnGUIRender() {}
+
+        // Called once when the application closes.
         virtual void OnClose() {}
+
+        // Called for every event that passes through the event system. Only use this in special cases.
         virtual void OnEvent(const Event& e) {}
+
+        const std::unique_ptr<Renderer>& GetRenderer() const { return m_Renderer; }
+        const std::unique_ptr<Renderer>& InitRenderer(const RendererConfig& config);
+        void ShutdownRenderer();
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }
 
@@ -48,6 +63,7 @@ namespace pxl
 
         const std::unique_ptr<EventManager>& GetEventManager() const { return m_EventManager; }
 
+    public:
         static Application& Get()
         {
             PXL_ASSERT(s_Instance);
@@ -60,16 +76,18 @@ namespace pxl
         void LimitFPS();
 
     private:
+        static inline Application* s_Instance = nullptr;
+
         bool m_Running = true;
         bool m_Minimized = false;
+
         float m_LastFrameTime = 0.0f;
         std::chrono::steady_clock::time_point m_FrameStartTime;
         uint32_t m_CustomFPSLimit = 60; // TODO: make constant with config.h
-        uint32_t m_GsyncFPSLimit = 0;
+        uint32_t m_AdaptiveSyncFPSLimit = 0;
         FramerateMode m_FramerateMode = FramerateMode::Unlimited;
 
+        std::unique_ptr<Renderer> m_Renderer = nullptr;
         std::unique_ptr<EventManager> m_EventManager = nullptr;
-
-        static inline Application* s_Instance = nullptr;
     };
 }

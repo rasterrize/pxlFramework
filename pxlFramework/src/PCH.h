@@ -1,6 +1,7 @@
 #pragma once
 
 // Include Windows.h before anything else, to avoid confusing preprocessor warnings
+// TODO: move this, a platform dependant header included in every file is prolly not a good idea
 #ifdef _WIN32
     #include <Windows.h>
 #endif
@@ -19,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>

@@ -98,7 +98,9 @@ message(STATUS "PXL: Restoring dependencies")
 CPMAddPackage("gh:glfw/glfw#3.4")
 CPMAddPackage("gh:gabime/spdlog#v1.14.1")
 CPMAddPackage("gh:g-truc/glm#1.0.2")
-CPMAddPackage("gh:rasterrize/imgui#b34fef5aabb7fc280379c901161cb09eb34138a6")
+CPMAddPackage("gh:rasterrize/imgui#09e1ae0f6f5ea3c4f5f058ff89815edf5722b296")
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_VULKAN_USE_VOLK IMGUI_IMPL_VULKAN_VOLK_FILENAME=<volk/volk.h>)
+
 CPMAddPackage("gh:assimp/assimp#v6.0.2")
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.9.0")
 
@@ -115,7 +117,6 @@ else()
     option(TRACY_ENABLE "" OFF)
 endif()
 
-add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
 
 target_include_directories(pxl PUBLIC deps/BASS/include)
@@ -124,7 +125,6 @@ target_link_directories(pxl PUBLIC deps/BASS/lib/x64)
 # Set libraries to build with multi-processor compilation
 if(MSVC)
     target_compile_options(glfw PUBLIC "/MP")
-    target_compile_options(glad PUBLIC "/MP")
     target_compile_options(imgui PUBLIC "/MP")
     target_compile_options(stb PUBLIC "/MP")
     target_compile_options(yaml-cpp PUBLIC "/MP")
@@ -137,14 +137,12 @@ message(STATUS "PXL: Finished restoring dependencies")
 
 target_link_libraries(pxl
     glfw
-    glad
     spdlog
     glm
     imgui
     stb
     assimp
     yaml-cpp
-    Vulkan::shaderc_combined
     Vulkan::volk
     $<$<PLATFORM_ID:Windows>:Winmm.lib> # For FPS limiter. I consider this temporary.
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
@@ -164,7 +162,6 @@ target_compile_definitions(pxl PUBLIC
     $<$<PLATFORM_ID:Windows>:GLFW_EXPOSE_NATIVE_WIN32>
     $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN> # Tell Win32 API to use less headers
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
-    GLFW_INCLUDE_VULKAN # Tell GLFW to include the Vulkan header
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
@@ -182,3 +179,32 @@ target_include_directories(pxl INTERFACE include)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(pxl PUBLIC "-Wno-changes-meaning")
 endif()
+
+# Copy internal framework resources to bin directory
+# Copy fonts
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
+
+# Copy necessary framework dependency DLLs to bin directory
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+# Compile shaders to SPIR-V
+set(PXL_SHADER_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders")
+set(PXL_SHADER_COMPILE_DIR "${CMAKE_BINARY_DIR}/bin/resources/shaders/compiled")
+
+file(MAKE_DIRECTORY ${PXL_SHADER_COMPILE_DIR})
+
+add_custom_command(TARGET pxl POST_BUILD COMMAND
+    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/coloured_vertex.vert -o ${PXL_SHADER_COMPILE_DIR}/coloured_vertex_vert.spv
+)
+
+add_custom_command(TARGET pxl POST_BUILD COMMAND
+    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/coloured_vertex.frag -o ${PXL_SHADER_COMPILE_DIR}/coloured_vertex_frag.spv
+)
+
+add_custom_command(TARGET pxl POST_BUILD COMMAND
+    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/textured_vertex.vert -o ${PXL_SHADER_COMPILE_DIR}/textured_vertex_vert.spv
+)
+
+add_custom_command(TARGET pxl POST_BUILD COMMAND
+    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/textured_vertex.frag -o ${PXL_SHADER_COMPILE_DIR}/textured_vertex_frag.spv
+)

@@ -1,15 +1,17 @@
 #pragma once
 
+// clang-format off
+// Include volk.h before glfw since we don't want glfw including vulkan.h
+#include <volk/volk.h>
 #include <GLFW/glfw3.h>
+// clang-format on
 
-#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
 
 #include "Core/Image.h"
 #include "Core/Size.h"
 #include "Gamepad.h"
 #include "InputSystem.h"
-#include "Renderer/GraphicsContext.h"
-#include "Renderer/RendererAPIType.h"
 
 namespace pxl
 {
@@ -73,9 +75,6 @@ namespace pxl
         // The window mode of the window. Defaults to Windowed.
         WindowMode WindowMode = WindowMode::Windowed;
 
-        // The renderer api this window will support. Defaults to None.
-        RendererAPIType RendererAPI = RendererAPIType::None;
-
         // The monitor to use for Borderless and Fullscreen modes. If not supplied, defaults to the primary monitor.
         std::optional<uint8_t> MonitorIndex;
 
@@ -111,8 +110,6 @@ namespace pxl
         /// @return The GLFWwindow handle of this window
         GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
-        std::shared_ptr<GraphicsContext> GetGraphicsContext() const { return m_GraphicsContext; }
-
         Size2D GetSize() const { return m_Size; }
         void SetSize(uint32_t width, uint32_t height);
 
@@ -123,8 +120,6 @@ namespace pxl
         /// @param maxHeight Maximum window height in screen coordinates
         /// @note You can specify just a minimum or maximum by using -1 for width AND height of the opposite pair
         void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
-
-        RendererAPIType GetRendererAPI() const { return m_RendererAPI; }
 
         /// @brief Gets a floating point representation of the aspect ratio of this window (e.g 16:9 returns 1.7777)
         /// by dividing the width and height
@@ -175,6 +170,10 @@ namespace pxl
 
         const Monitor& GetCurrentMonitor() { return m_CurrentMonitor; }
 
+        /// @brief Creates a Vulkan surface for this window
+        /// @note This surface will NOT be automatically destroyed by the window class
+        VkSurfaceKHR CreateVKSurface(VkInstance instance);
+
     public:
         /// @brief Creates and prepares a new window object. Do not try to create windows another way as things will break.
         /// @param windowSpecs The specifications for the window
@@ -183,11 +182,11 @@ namespace pxl
 
         static const std::vector<Monitor>& GetAvailableMonitors() { return s_Monitors; }
 
+        static void CloseAll();
+
         static const Monitor& GetPrimaryMonitor();
 
         static std::vector<const char*> GetVKRequiredInstanceExtensions();
-
-        static void CloseAll();
 
         static bool IsInitialized() { return s_Initialized; }
 
@@ -233,7 +232,6 @@ namespace pxl
 
     private:
         GLFWwindow* m_GLFWWindow = nullptr;
-        std::shared_ptr<GraphicsContext> m_GraphicsContext = nullptr;
         std::weak_ptr<Window> m_Handle;
         std::shared_ptr<InputSystem> m_InputSystem;
         std::function<void(Event&)> m_EventCallback;
@@ -242,7 +240,6 @@ namespace pxl
         glm::ivec2 m_Position = { 0, 0 };
         std::string m_Title = WindowConstants::k_DefaultWindowTitle.data();
         WindowMode m_WindowMode = WindowMode::Windowed;
-        RendererAPIType m_RendererAPI = RendererAPIType::None;
 
         bool m_Minimized = false;
 

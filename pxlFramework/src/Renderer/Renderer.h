@@ -1,146 +1,99 @@
 #pragma once
 
 #include "Camera.h"
-#include "Core/Colour.h"
 #include "Core/Window.h"
+#include "GraphicsAPI.h"
 #include "GraphicsContext.h"
-#include "Pipeline.h"
-#include "Primitives/Cube.h"
+#include "GraphicsPipeline.h"
+#include "ImGuiRenderer.h"
+#include "Mesh.h"
 #include "Primitives/Line.h"
 #include "Primitives/Quad.h"
-#include "RendererAPI.h"
-#include "RendererAPIType.h"
-#include "RendererData.h"
+#include "RendererConfig.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "VertexBatch.h"
 
 namespace pxl
 {
-    enum class RendererGeometryTarget
+    struct FrameStats
     {
-        Quad,
-        Cube,
-        Line,
-        Mesh,
+        uint32_t DrawCalls;
+        uint32_t VertexCount;
+        uint32_t IndexCount;
+        uint32_t TextureBinds;
+        uint32_t PipelineBinds;
+
+        uint32_t GetTriangleCount() { return IndexCount / 3; }
+    };
+
+    struct RendererStats
+    {
+        uint64_t FrameCount = 0;
+        float LastFrameTime = 0.0f;
+        double TimeAtLastFrame = 0.0;
     };
 
     class Renderer
     {
     public:
-        static void Init(const std::shared_ptr<Window>& window);
-        static void Shutdown();
+        Renderer(const RendererConfig& config);
+        ~Renderer();
 
-        static bool IsInitialized() { return s_Enabled; }
+        RendererConfig GetConfig() const { return m_Config; }
 
-        static RendererAPIType GetCurrentAPI() { return s_RendererAPIType; }
-        static std::shared_ptr<GraphicsContext> GetGraphicsContext() { return s_ContextHandle; }
+        const std::unique_ptr<GraphicsContext>& GetGraphicsContext() const { return m_GraphicsContext; }
+        const std::unique_ptr<GraphicsDevice>& GetGraphicsDevice() const { return m_GraphicsDevice; }
 
-        static void SetClearColour(const glm::vec4& colour);
-        static void SetClearColour(ColourName colour);
+        void SetClearColour(const glm::vec4& colour) { m_GraphicsContext->SetClearColour(colour); }
 
-        static void ResizeViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetViewport(x, y, width, height); }
-        static void ResizeScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) { s_RendererAPI->SetScissor(x, y, width, height); }
+        void Submit(const Quad& quad);
+        void Submit(const Line& line);
+        void Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
-        // Set the camera for the given GeometryTarget
-        static void SetCamera(RendererGeometryTarget target, const std::shared_ptr<Camera>& camera);
+        FrameStats& GetFrameStats() { return m_FrameStats; }
+        RendererStats& GetRendererStats() { return m_RendererStats; }
 
-        // Set the camera for every GeometryTarget
-        static void SetCameraAll(const std::shared_ptr<Camera>& camera);
+        float GetFramesPerSecond() const { return 1000.0f / m_RendererStats.LastFrameTime; }
 
-        static std::shared_ptr<GraphicsPipeline> GetPipeline(RendererGeometryTarget target);
-
-        // Set a custom pipeline for the given GeometryTarget
-        static void SetPipeline(RendererGeometryTarget target, const std::shared_ptr<GraphicsPipeline>& pipeline);
-
-        // (NOT RECOMMENDED) Set a custom pipeline for every GeometryTarget
-        static void SetPipelineAll(const std::shared_ptr<GraphicsPipeline>& pipeline);
-
-        static void AddQuad(const Quad& quad);
-        static void AddQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
-
-        static void AddCube(const Cube& cube);
-        static void AddCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
-
-        static void AddLine(const Line& line);
-        static void AddLine(const glm::vec3& startPos, const glm::vec3& endPos, const glm::vec3& rotation, const glm::vec4& colour);
-
-        static void DrawMesh(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
-
-        // Reset the static geometry data of the give GeometryTarget
-        static void ResetStaticGeometry(RendererGeometryTarget target);
-
-        // Uploads the static geometry to the GPU
-        static void StaticGeometryReady();
-
-        static void AddStaticQuad(const Quad& quad);
-        static void AddStaticQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& scale, const glm::vec4& colour);
-        static void AddStaticCube(const Cube& cube);
-        static void AddStaticCube(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec4& colour);
-
-        struct Statistics
-        { // clang-format off
-            float FrameTime;
-            float FPS;
-            uint32_t DrawCalls;
-            uint32_t QuadCount;
-            uint32_t QuadVertexCount;
-            uint32_t QuadIndexCount;
-            uint32_t CubeCount;
-            uint32_t CubeVertexCount;
-            uint32_t CubeIndexCount;
-            uint32_t LineCount;
-            uint32_t LineVertexCount;
-            uint32_t MeshCount;
-            uint32_t MeshVertexCount;
-            uint32_t MeshIndexCount;
-            uint32_t TextureBinds;
-            uint32_t PipelineBinds;
-
-            uint32_t GetTotalTriangleCount() { return (QuadIndexCount / 3) + (CubeIndexCount / 3) + (MeshIndexCount / 3); }
-            uint32_t GetTotalVertexCount() { return QuadVertexCount + CubeVertexCount + LineVertexCount + MeshVertexCount; }
-            uint32_t GetTotalIndexCount() { return QuadIndexCount + CubeIndexCount + MeshIndexCount; }
-        }; // clang-format on
-
-        // Gets the statistics of the current frame
-        static const Statistics& GetStats() { return s_Stats; }
-
-        static float GetFPS() { return s_Stats.FPS; }
-        static float GetFrameTimeMS() { return s_Stats.FrameTime; }
+        void InitImGui();
+        bool IsImGuiInitialized() const { return m_ImGuiRenderer != nullptr; }
 
     private:
         friend class Application;
-        static void CalculateFPS();
-        static void Begin();
-        static void End();
+        void Begin();
+        void End();
 
-        static void Flush();
+        void Flush();
 
-        static float GetTextureIndex(const std::shared_ptr<Texture>& texture);
+        glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
-        static glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
-
-        static void ResetStats()
-        {
-            memset(&s_Stats, 0, sizeof(Statistics));
-        }
+        void ResetFrameStats() { memset(&m_FrameStats, 0, sizeof(FrameStats)); }
 
     private:
-        static inline bool s_Enabled = false;
+        RendererConfig m_Config;
 
-        static inline RendererAPIType s_RendererAPIType = RendererAPIType::None;
+        std::unique_ptr<GraphicsAPI> m_GraphicsAPI = nullptr;
+        std::unique_ptr<GraphicsDevice> m_GraphicsDevice = nullptr;
+        std::unique_ptr<GraphicsContext> m_GraphicsContext = nullptr;
 
-        static inline std::unique_ptr<RendererAPI> s_RendererAPI = nullptr;
+        std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer = nullptr;
 
-        static inline std::shared_ptr<GraphicsContext> s_ContextHandle = nullptr;
+        std::shared_ptr<GPUBuffer> m_TriangleBuffer;
+        std::shared_ptr<GraphicsPipeline> m_TrianglePipeline;
 
-        static inline std::shared_ptr<Camera> s_QuadCamera = nullptr;
-        static inline std::shared_ptr<Camera> s_CubeCamera = nullptr;
-        static inline std::shared_ptr<Camera> s_LineCamera = nullptr;
+        std::shared_ptr<Texture> m_WhitePixelTexture = nullptr;
+        std::shared_ptr<Texture> m_ErrorTexture = nullptr;
 
-        static inline uint32_t s_FrameCount = 0;
-        static inline double s_TimeAtLastFrame = 0.0f;
+        // std::unique_ptr<TextureHandler> m_TextureHandler = nullptr;
 
-        static inline Statistics s_Stats = {};
-        static inline RendererLimits s_Limits = {};
+        std::unique_ptr<VertexBatch<TexturedVertex>> m_QuadBatch;
+        std::shared_ptr<GPUBuffer> m_QuadIndexBuffer;
+        std::shared_ptr<GraphicsPipeline> m_QuadPipeline;
+
+        FrameStats m_FrameStats = {};
+        RendererStats m_RendererStats = {};
+
+        // std::shared_ptr<Camera> m_Camera = nullptr;
     };
 }
