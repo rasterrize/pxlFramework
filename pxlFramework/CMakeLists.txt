@@ -92,15 +92,19 @@ set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
 
+# Set ImGui settings
+set(IMGUI_USE_BACKEND_GLFW ON CACHE BOOL "" FORCE)
+set(IMGUI_USE_BACKEND_VULKAN ON CACHE BOOL "" FORCE)
+set(IMGUI_USE_STDLIB ON CACHE BOOL "" FORCE)
+set(IMGUI_USE_VOLK ON CACHE BOOL "" FORCE)
+
 # Add Dependencies (CMake projects)
 message(STATUS "PXL: Restoring dependencies")
 
 CPMAddPackage("gh:glfw/glfw#3.4")
 CPMAddPackage("gh:gabime/spdlog#v1.14.1")
 CPMAddPackage("gh:g-truc/glm#1.0.2")
-CPMAddPackage("gh:rasterrize/imgui#09e1ae0f6f5ea3c4f5f058ff89815edf5722b296")
-target_compile_definitions(imgui PUBLIC IMGUI_IMPL_VULKAN_USE_VOLK IMGUI_IMPL_VULKAN_VOLK_FILENAME=<volk/volk.h>)
-
+CPMAddPackage("gh:rasterrize/imgui#9269aeeabbb67ffec2ece1579478d836a6d4056b")
 CPMAddPackage("gh:assimp/assimp#v6.0.2")
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.9.0")
 
