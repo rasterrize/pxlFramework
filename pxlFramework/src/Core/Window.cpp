@@ -128,7 +128,7 @@ namespace pxl
 
         if (m_ShowAfterFirstPresent)
         {
-            SetVisibility(true);
+            Show();
             m_ShowAfterFirstPresent = false;
         }
     }
@@ -329,9 +329,14 @@ namespace pxl
         return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE);
     }
 
-    void Window::SetVisibility(bool value) const
+    void Window::Show() const
     {
-        value ? glfwShowWindow(m_GLFWWindow) : glfwHideWindow(m_GLFWWindow);
+        glfwShowWindow(m_GLFWWindow);
+    }
+
+    void Window::Hide() const
+    {
+        glfwHideWindow(m_GLFWWindow);
     }
 
     void Window::SetTitle(const std::string_view& title)

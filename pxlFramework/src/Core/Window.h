@@ -124,7 +124,12 @@ namespace pxl
         void Restore() const;
 
         bool GetVisibility() const;
-        void SetVisibility(bool value) const;
+
+        /// @brief Shows the window
+        void Show() const;
+
+        /// @brief Hides the window
+        void Hide() const;
 
         const std::string& GetTitle() const { return m_Title; }
         void SetTitle(const std::string_view& title);
