@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(pxlFramework VERSION 0.0.1)
+project(pxl VERSION 0.0.1)
 
 # Output directory for executables (.EXE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -16,7 +16,7 @@ option(PXL_MODULE_DISCORD "Enable discord rpc module" OFF)
 
 # NOTE: This is done before pxlFramework because TestApp sets some pxlFramework options
 if(PXL_BUILD_TESTS)
-    message("Build pxlFramework TestApp enabled")
+    message(STATUS "PXL: Build TestApp enabled")
     add_subdirectory(TestApp)
 
     # Set TestApp to the startup project in Visual Studio

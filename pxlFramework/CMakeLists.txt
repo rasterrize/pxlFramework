@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.30)
 
 # Add source and header files
 file(GLOB_RECURSE core_source_files CONFIGURE_DEPENDS src/Core/*.cpp src/Core/*.h)
@@ -12,7 +12,7 @@ if(FALSE)
     file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS src/Audio/*.cpp src/Audio/*.h)
 endif()
 
-add_library(pxlFramework STATIC
+add_library(pxl STATIC
     ${core_source_files}
     ${renderer_source_files}
     ${debug_source_files}
@@ -21,34 +21,34 @@ add_library(pxlFramework STATIC
 )
 
 # Set project c++ standard
-target_compile_features(pxlFramework PRIVATE cxx_std_20)
+target_compile_features(pxl PRIVATE cxx_std_20)
 
 # Enable logging if desired
 if(PXL_ENABLE_LOGGING)
-    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_LOGGING)
+    target_compile_definitions(pxl PRIVATE PXL_ENABLE_LOGGING)
 endif()
 
 # Enable asserts if desired
 if(PXL_ENABLE_ASSERTS)
-    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_ASSERTS)
+    target_compile_definitions(pxl PRIVATE PXL_ENABLE_ASSERTS)
 endif()
 
 # Set MSVC settings
 if(MSVC)
     # Set MSVC runtime library based on build type
-    set_target_properties(pxlFramework PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set_target_properties(pxl PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
     # Set MSBuild multi-processor compilation
-    target_compile_options(pxlFramework PRIVATE "/MP")
+    target_compile_options(pxl PRIVATE "/MP")
 
     # Set compiler warning level
-    target_compile_options(pxlFramework PRIVATE "/W3")
+    target_compile_options(pxl PRIVATE "/W3")
 
     # Treat warnings as errors
-    target_compile_options(pxlFramework PRIVATE "/WX")
+    target_compile_options(pxl PRIVATE "/WX")
 
     # Ignore missing PDB warnings (currently because of shaderc)
-    target_link_options(pxlFramework PUBLIC "/ignore:4099")
+    target_link_options(pxl PUBLIC "/ignore:4099")
 endif()
 
 # download CPM.cmake
@@ -93,7 +93,7 @@ set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
 
 # Add Dependencies (CMake projects)
-message("Restoring pxlFramework dependencies...")
+message(STATUS "PXL: Restoring dependencies")
 
 CPMAddPackage("gh:glfw/glfw#3.4")
 CPMAddPackage("gh:gabime/spdlog#v1.14.1")
@@ -110,7 +110,7 @@ if(PXL_ENABLE_PROFILING)
 
     target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
     target_link_libraries(pxlFramework Tracy::TracyClient)
-    message("pxlFramework profiling enabled")
+    message(STATUS "PXL: Profiling enabled")
 else()
     option(TRACY_ENABLE "" OFF)
 endif()
@@ -118,8 +118,8 @@ endif()
 add_subdirectory(deps/Glad)
 add_subdirectory(deps/stb)
 
-target_include_directories(pxlFramework PUBLIC deps/BASS/include)
-target_link_directories(pxlFramework PUBLIC deps/BASS/lib/x64)
+target_include_directories(pxl PUBLIC deps/BASS/include)
+target_link_directories(pxl PUBLIC deps/BASS/lib/x64)
 
 # Set libraries to build with multi-processor compilation
 if(MSVC)
@@ -133,12 +133,9 @@ endif()
 # Find Vulkan SDK
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined volk)
 
-message("pxlFramework dependencies restored")
+message(STATUS "PXL: Finished restoring dependencies")
 
-# Add Vulkan include directory
-target_include_directories(pxlFramework PRIVATE Vulkan::Headers)
-
-target_link_libraries(pxlFramework
+target_link_libraries(pxl
     glfw
     glad
     spdlog
@@ -153,17 +150,17 @@ target_link_libraries(pxlFramework
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
 )
 
-target_precompile_headers(pxlFramework PUBLIC src/PCH.h)
+target_precompile_headers(pxl PUBLIC src/PCH.h)
 
 # Framework Modules
 if(PXL_MODULE_DISCORD)
-    message("pxlFramework discord module enabled")
+    message(STATUS "PXL: Discord module enabled")
     add_subdirectory(modules/discord)
-    target_link_libraries(pxlFramework pxlFramework-discord)
-    target_compile_definitions(pxlFramework PUBLIC PXL_ENABLE_MODULE_DISCORD)
+    target_link_libraries(pxl pxlFramework-discord)
+    target_compile_definitions(pxl PUBLIC PXL_ENABLE_MODULE_DISCORD)
 endif()
 
-target_compile_definitions(pxlFramework PUBLIC
+target_compile_definitions(pxl PUBLIC
     $<$<PLATFORM_ID:Windows>:GLFW_EXPOSE_NATIVE_WIN32>
     $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN> # Tell Win32 API to use less headers
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
@@ -176,12 +173,12 @@ target_compile_definitions(pxlFramework PUBLIC
 # Specify source directory as an include folder for simplified '#include's in code
 # TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
 # and should instead only expose pxl.h (I am unsure if this is even possible)
-target_include_directories(pxlFramework PUBLIC src)
+target_include_directories(pxl PUBLIC src)
 
 # Specify include directories for projects using pxlFramework via add_subdirectory()
-target_include_directories(pxlFramework PUBLIC include)
+target_include_directories(pxl INTERFACE include)
 
 # Due to certain variables being named their own type, we must ignore this warning for now
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(pxlFramework PUBLIC "-Wno-changes-meaning")
+    target_compile_options(pxl PUBLIC "-Wno-changes-meaning")
 endif()

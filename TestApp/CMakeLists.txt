@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.30)
 
 add_executable(TestApp
     src/Entrypoint.cpp
@@ -31,9 +31,8 @@ set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
 set(PXL_ENABLE_ASSERTS ON CACHE BOOL "" FORCE)
 set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
 
-# Include and link to pxlFramework
-target_include_directories(TestApp PRIVATE ${CMAKE_SOURCE_DIR}/pxlFramework/include)
-target_link_libraries(TestApp pxlFramework)
+# Link to pxlFramework
+target_link_libraries(TestApp pxl)
 
 # Set exe as Win32 for release builds (TODO: use only for distribution builds)
 set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
