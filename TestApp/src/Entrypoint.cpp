@@ -38,26 +38,26 @@ MAIN_FUNC()
             auto testValue = string.substr(6, string.length());
 
             // TODO: simplify this
-            if (testValue == "ModelViewer")
-                app.LaunchTest<TestApp::ModelViewer>();
-            else if (testValue == "QuadsTest")
-                app.LaunchTest<TestApp::QuadsTest>();
-            else if (testValue == "CubesTest")
-                app.LaunchTest<TestApp::CubesTest>();
-            else if (testValue == "LinesTest")
-                app.LaunchTest<TestApp::LinesTest>();
-            else if (testValue == "EmptyApp")
-                app.LaunchTest<TestApp::EmptyApp>();
-            else if (testValue == "OGLVK")
-                app.LaunchTest<TestApp::OGLVK>();
-            else if (testValue == "MultiWindow")
-                app.LaunchTest<TestApp::MultiWindow>();
+            // if (testValue == "ModelViewer")
+            //     app.LaunchTest<TestApp::ModelViewer>();
+            // else if (testValue == "QuadsTest")
+            //     app.LaunchTest<TestApp::QuadsTest>();
+            // else if (testValue == "CubesTest")
+            //     app.LaunchTest<TestApp::CubesTest>();
+            // else if (testValue == "LinesTest")
+            //     app.LaunchTest<TestApp::LinesTest>();
+            // else if (testValue == "EmptyApp")
+            //     app.LaunchTest<TestApp::EmptyApp>();
+            // else if (testValue == "OGLVK")
+            //     app.LaunchTest<TestApp::OGLVK>();
+            // else if (testValue == "MultiWindow")
+            //     app.LaunchTest<TestApp::MultiWindow>();
         }
     }
 #endif
 
     if (!app.HasTest())
-        app.LaunchTest<TestApp::ModelViewer>();
+        app.LaunchTest<TestApp::EmptyApp>();
 
     app.Run();
 }

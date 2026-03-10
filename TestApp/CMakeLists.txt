@@ -7,20 +7,21 @@ add_executable(TestApp
     src/Tests/Test.h
 
     # TESTS
-    src/Tests/OGLVK.h
-    src/Tests/OGLVK.cpp
-    src/Tests/ModelViewer.h
-    src/Tests/ModelViewer.cpp
-    src/Tests/CubesTest.h
-    src/Tests/CubesTest.cpp
-    src/Tests/QuadsTest.h
-    src/Tests/QuadsTest.cpp
+    # src/Tests/OGLVK.h
+    # src/Tests/OGLVK.cpp
+    # src/Tests/ModelViewer.h
+    # src/Tests/ModelViewer.cpp
+    # src/Tests/CubesTest.h
+    # src/Tests/CubesTest.cpp
+    # src/Tests/QuadsTest.h
+    # src/Tests/QuadsTest.cpp
     src/Tests/EmptyApp.h
     src/Tests/EmptyApp.cpp
-    src/Tests/MultiWindow.h
-    src/Tests/MultiWindow.cpp
-    src/Tests/LinesTest.h
-    src/Tests/LinesTest.cpp
+
+    # src/Tests/MultiWindow.h
+    # src/Tests/MultiWindow.cpp
+    # src/Tests/LinesTest.h
+    # src/Tests/LinesTest.cpp
 )
 
 # Set project c++ standard
