@@ -104,7 +104,7 @@ message(STATUS "PXL: Restoring dependencies")
 CPMAddPackage("gh:glfw/glfw#3.4")
 CPMAddPackage("gh:gabime/spdlog#v1.14.1")
 CPMAddPackage("gh:g-truc/glm#1.0.2")
-CPMAddPackage("gh:rasterrize/imgui#9269aeeabbb67ffec2ece1579478d836a6d4056b")
+CPMAddPackage("gh:rasterrize/imgui#0b6e01053c60c828b5625bd2eb80a9b9525e31d1")
 CPMAddPackage("gh:assimp/assimp#v6.0.2")
 CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.9.0")
 
