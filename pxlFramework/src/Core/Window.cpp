@@ -400,35 +400,6 @@ namespace pxl
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-        if (Renderer::IsInitialized())
-        {
-            // Use windowed borderless hack
-            windowInstance->m_WindowMode == WindowMode::Borderless ? Renderer::ResizeViewport(0, 0, width - 1, height)
-                                                                   : Renderer::ResizeViewport(0, 0, width, height);
-            Renderer::ResizeScissor(0, 0, width, height);
-        }
-
-        if (Renderer::GetCurrentAPI() == RendererAPIType::Vulkan)
-        {
-            auto swapchain = std::dynamic_pointer_cast<VulkanGraphicsContext>(windowInstance->m_GraphicsContext)->GetSwapchain();
-            auto swapchainSpecs = swapchain->GetSwapchainSpecs();
-
-            if (width == 0 || height == 0)
-            {
-                swapchain->Suspend();
-                return;
-            }
-
-            swapchain->Continue();
-
-            // Only recreate the swapchain if the fb size has actually changed
-            if (static_cast<uint32_t>(width) != swapchainSpecs.Extent.width || static_cast<uint32_t>(height) != swapchainSpecs.Extent.height)
-            {
-                swapchain->SetExtent({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
-                swapchain->Invalidate();
-            }
-        }
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
