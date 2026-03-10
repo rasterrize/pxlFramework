@@ -16,6 +16,7 @@
             },
             "problemMatcher": [
                 "$msCompile",
+                "$gcc",
             ],
             "detail": "Build using the current kit, variant, and generator defined by CMakeTools",
             "presentation": {
