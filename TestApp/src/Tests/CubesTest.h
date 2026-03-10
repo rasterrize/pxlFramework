@@ -11,7 +11,7 @@ namespace TestApp
     public:
         virtual void OnStart(pxl::WindowSpecs& windowSpecs) override;
         virtual void OnUpdate(float dt) override;
-        virtual void OnRender() override;
+        virtual void OnRender(const std::unique_ptr<pxl::Renderer>& renderer) override;
         virtual void OnGUIRender() override;
 
         virtual std::shared_ptr<pxl::Window> GetWindow() const override { return m_Window; }
