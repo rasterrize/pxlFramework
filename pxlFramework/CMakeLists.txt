@@ -1,16 +1,15 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(pxlFramework VERSION 0.0.1 LANGUAGES CXX)
 
 # Add source and header files
-file(GLOB_RECURSE core_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Core/*.cpp ${PROJECT_SOURCE_DIR}/src/Core/*.h)
-file(GLOB_RECURSE renderer_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Renderer/*.cpp ${PROJECT_SOURCE_DIR}/src/Renderer/*.h)
-file(GLOB_RECURSE debug_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Debug/*.cpp ${PROJECT_SOURCE_DIR}/src/Debug/*.h)
-file(GLOB_RECURSE utils_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Utils/*.cpp ${PROJECT_SOURCE_DIR}/src/Utils/*.h)
-file(GLOB root_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE core_source_files CONFIGURE_DEPENDS src/Core/*.cpp src/Core/*.h)
+file(GLOB_RECURSE renderer_source_files CONFIGURE_DEPENDS src/Renderer/*.cpp src/Renderer/*.h)
+file(GLOB_RECURSE debug_source_files CONFIGURE_DEPENDS src/Debug/*.cpp src/Debug/*.h)
+file(GLOB_RECURSE utils_source_files CONFIGURE_DEPENDS src/Utils/*.cpp src/Utils/*.h)
+file(GLOB root_source_files CONFIGURE_DEPENDS src/*.cpp src/*.h)
 
 # Exclude audio for now
 if(FALSE)
-    file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/Audio/*.cpp ${PROJECT_SOURCE_DIR}/src/Audio/*.h)
+    file(GLOB_RECURSE audio_source_files CONFIGURE_DEPENDS src/Audio/*.cpp src/Audio/*.h)
 endif()
 
 add_library(pxlFramework STATIC

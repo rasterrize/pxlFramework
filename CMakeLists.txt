@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.10.0)
-project(pxlFramework VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.30)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) # Output directory for static lib (.LIB)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory for shared lib (.DLL)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory for executables (.EXE)
+project(pxlFramework VERSION 0.0.1)
+
+# Output directory for executables (.EXE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # User configurable build options
 option(PXL_ENABLE_LOGGING "Enable framework logging" ON)
@@ -13,9 +13,6 @@ option(PXL_BUILD_TESTS "Build TestApp/Tests" ${PROJECT_IS_TOP_LEVEL})
 
 # User optional framework modules
 option(PXL_MODULE_DISCORD "Enable discord rpc module" OFF)
-
-# Ensure static linking
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 # NOTE: This is done before pxlFramework because TestApp sets some pxlFramework options
 if(PXL_BUILD_TESTS)

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(TestApp VERSION 0.0.1 LANGUAGES CXX)
 
 add_executable(TestApp
     src/Entrypoint.cpp
-    src/TestApplication.h src/TestApplication.cpp
+    src/TestApplication.h
+    src/TestApplication.cpp
     src/Tests/Test.h
 
     # TESTS
@@ -28,7 +28,7 @@ target_compile_features(TestApp PRIVATE cxx_std_20)
 
 # Set pxlFramework settings
 set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
-set(PXL_ENABLE_ASSERTS ON CACHE BOOL "" FORCE) # $<$<CONFIG:Debug>:ON> $<$<CONFIG:Release>:OFF>
+set(PXL_ENABLE_ASSERTS ON CACHE BOOL "" FORCE)
 set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
 
 # Include and link to pxlFramework
