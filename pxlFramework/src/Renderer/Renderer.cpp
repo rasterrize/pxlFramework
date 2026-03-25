@@ -5,7 +5,6 @@
 #include "BufferLayout.h"
 #include "GPUBuffer.h"
 #include "UniformLayout.h"
-#include "Utils/EnumStringHelper.h"
 #include "Vertices.h"
 
 namespace pxl
@@ -169,7 +168,10 @@ namespace pxl
         // Image image(pixelBytes, Size2D(1), ImageFormat::RGBA8);
         // m_WhitePixelTexture = Texture::Create(image, { .Filter = SampleFilter::Nearest });
 
-        PXL_LOG_INFO(LogArea::Renderer, "Renderer initialized with {} graphics API", EnumStringHelper::ToString(m_Config.APIType));
+        if (m_Config.InitImGui)
+            InitImGui();
+
+        PXL_LOG_INFO(LogArea::Renderer, "Renderer initialized with {} graphics API", Utils::ToString(m_Config.APIType));
     }
 
     Renderer::~Renderer()

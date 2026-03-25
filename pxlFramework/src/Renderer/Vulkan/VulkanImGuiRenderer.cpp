@@ -45,10 +45,6 @@ namespace pxl
         ImGui::CreateContext();
 
         ImGuiIO& io = ImGui::GetIO();
-        // io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-        io.IniFilename = nullptr;
-
-        ImGui::StyleColorsDark();
 
         // Set custom font
         const char* fontFilename = "resources/fonts/Roboto-Medium.ttf";
