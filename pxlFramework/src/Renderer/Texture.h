@@ -10,7 +10,6 @@ namespace pxl
         Tex1D,
         Tex2D,
         Tex3D,
-        CubeMap,
     };
 
     enum class TextureFormat
@@ -32,6 +31,9 @@ namespace pxl
         TextureType Type = TextureType::Tex2D;
         TextureWrap WrapMode = TextureWrap::ClampToEdge;
         SampleFilter Filter = SampleFilter::Linear;
+
+        // -1.0 will use max anisotropy defined by renderer/device
+        float MaxAnisotropy = -1.0f;
     };
 
     /// @brief An image stored in the GPU's memory which can be used in the graphics pipeline.
