@@ -1,7 +1,7 @@
 #pragma once
 
 #include <volk/volk.h>
-// #include <vulkan/vk_enum_string_helper.h>
+#include <vulkan/vk_enum_string_helper.h>
 
 #include "Renderer/GPUBuffer.h"
 #include "Renderer/GraphicsDevice.h"
@@ -24,7 +24,7 @@ namespace pxl
         {
             if (result != VK_SUCCESS)
             {
-                // PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
+                PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
                 PXL_DEBUG_BREAK;
             }
         }
@@ -132,6 +132,23 @@ namespace pxl
             return queueFamilies;
         }
 
+        inline std::vector<VkQueueFamilyProperties2> GetQueueFamilies2(VkPhysicalDevice physicalDevice)
+        {
+            uint32_t queueFamilyCount = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice, &queueFamilyCount, nullptr);
+
+            std::vector<VkQueueFamilyProperties2> queueFamilies(queueFamilyCount);
+
+            for (auto& family : queueFamilies)
+            {
+                family.sType = { VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2 };
+            }
+
+            vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+            return queueFamilies;
+        }
+
         inline std::vector<VkExtensionProperties> GetDeviceExtensions(VkPhysicalDevice physicalDevice)
         {
             uint32_t extensionCount = 0;
@@ -203,11 +220,14 @@ namespace pxl
             // Select most suitable surface format
             for (const auto& surfaceFormat : surfaceFormats)
             {
-                if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                if ((surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM || surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) &&
+                    surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                {
                     return surfaceFormat;
             }
 
-            return { VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR };
+            // This combination is guaranteed to be available everywhere
+            return { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
         }
 
         inline std::vector<VkImage> GetSwapchainImages(VkDevice device, VkSwapchainKHR swapchain)
@@ -235,10 +255,10 @@ namespace pxl
         {
             for (const auto& gpu : physicalDevices)
             {
-                VkPhysicalDeviceProperties properties;
-                vkGetPhysicalDeviceProperties(gpu, &properties);
+                VkPhysicalDeviceProperties2 props = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+                vkGetPhysicalDeviceProperties2(gpu, &props);
 
-                if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                if (props.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                     return gpu;
             }
 
@@ -379,13 +399,13 @@ namespace pxl
             }
         }
 
-        inline VkPhysicalDeviceType ToVkPhysicalDeviceType(GPUPreference preference)
+        inline VkPhysicalDeviceType ToVkPhysicalDeviceType(GPUType type)
         {
-            switch (preference)
+            switch (type)
             {
-                case GPUPreference::Discrete:   return VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
-                case GPUPreference::Integrated: return VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
-                default:                        return VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM;
+                case GPUType::Discrete:   return VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+                case GPUType::Integrated: return VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+                default:                  return VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM;
             }
         }
     };
