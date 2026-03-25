@@ -5,6 +5,11 @@
 
 namespace pxl
 {
+    namespace ApplicationConstants
+    {
+        static const uint32_t k_DefaultCustomFPSLimit = 60;
+    }
+
     enum class FramerateMode
     {
         Unlimited,
@@ -96,7 +101,7 @@ namespace pxl
 
         float m_LastFrameTime = 0.0f;
         std::chrono::steady_clock::time_point m_FrameStartTime;
-        uint32_t m_CustomFPSLimit = 60; // TODO: make constant with config.h
+        uint32_t m_CustomFPSLimit = ApplicationConstants::k_DefaultCustomFPSLimit;
         uint32_t m_AdaptiveSyncFPSLimit = 0;
         FramerateMode m_FramerateMode = FramerateMode::Unlimited;
 

@@ -127,26 +127,19 @@ namespace pxl
 
     void Application::LimitFPS()
     {
-        auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
-        uint32_t limit = 0;
+        auto elapsedAlready = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
 
-        // TODO: use a function to return a suitable limit, and skip the next steps if its 0 (unlimited)
+        uint32_t limit = 0;
         if (m_FramerateMode == FramerateMode::Custom)
             limit = m_CustomFPSLimit;
         else if (m_FramerateMode == FramerateMode::AdaptiveSync)
             limit = m_AdaptiveSyncFPSLimit;
 
-        auto us = std::chrono::microseconds(1s) / limit;
-        auto overhead = us - frameTime;
+        auto nsToWait = std::chrono::nanoseconds(1s) / limit;
 
-        if (overhead > 0us)
+        while ((nsToWait - elapsedAlready) > 0ns)
         {
-            // TODO: Stopwatch uses high resolution clock, which can go backwards, and therefore breaks if the time is changed on the OS
-            // To fix, this should be using a steady clock stopwatch variant
-            Stopwatch wait;
-            while (wait.GetElapsedMicroSec() < overhead.count())
-            {
-            }
+            elapsedAlready = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_FrameStartTime);
         }
     }
 }
