@@ -3,8 +3,15 @@
 // Asserts check for a true statement otherwise they terminate execution if they catch invalid state
 // ------------------------------------------------------------------------------------------------
 
-#ifdef _MSC_VER
-    #define PXL_DEBUG_BREAK __debugbreak()
+#ifdef PXL_DEBUG
+    #if defined(_MSC_VER)
+        #define PXL_DEBUG_BREAK __debugbreak()
+    #elif __has_include("signal.h")
+        #include <signal.h>
+        #define PXL_DEBUG_BREAK raise(SIGTRAP)
+    #else
+        #define PXL_DEBUG_BREAK
+    #endif
 #else
     #define PXL_DEBUG_BREAK
 #endif
