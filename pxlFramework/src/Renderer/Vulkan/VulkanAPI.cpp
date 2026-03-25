@@ -1,12 +1,12 @@
 #include "VulkanAPI.h"
 
-#define VMA_IMPLEMENTATION
-#include <vma/vk_mem_alloc.h>
-
 #include "Core/Window.h"
 #include "VulkanGraphicsContext.h"
 #include "VulkanGraphicsDevice.h"
 #include "VulkanUtils.h"
+
+#define VMA_IMPLEMENTATION
+#include <vma/vk_mem_alloc.h>
 
 namespace pxl
 {
@@ -26,7 +26,6 @@ namespace pxl
         if (VulkanUtils::ValidateLayer(validationLayer, availableLayers))
         {
             requestedLayers.push_back(validationLayer);
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan validation layer found");
         }
         else
         {
@@ -38,11 +37,22 @@ namespace pxl
         {
             requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             useDebugUtils = true;
-            PXL_LOG_INFO(LogArea::Vulkan, "Debug utils extension found");
         }
         else
         {
             PXL_LOG_WARN(LogArea::Vulkan, "Debug utils extension NOT found");
+        }
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Required instance extensions selected:")
+        for (const auto& extensionName : requiredExtensions)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "- {}", extensionName);
+        }
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Requested instance layers selected:")
+        for (const auto& layerName : requestedLayers)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "- {}", layerName);
         }
 #endif
 
@@ -77,8 +87,6 @@ namespace pxl
         VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));
         volkLoadInstance(m_Instance);
 
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan instance created");
-
 #ifdef PXL_DEBUG
         if (useDebugUtils)
         {
@@ -94,14 +102,12 @@ namespace pxl
         {
             vkDestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
             m_DebugMessenger = VK_NULL_HANDLE;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan debug utils messenger destroyed");
         }
 
         if (m_Instance)
         {
             vkDestroyInstance(m_Instance, nullptr);
             m_Instance = VK_NULL_HANDLE;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan instance destroyed");
         }
     }
 
@@ -117,7 +123,6 @@ namespace pxl
 
     VkBool32 VulkanAPI::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT types, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData)
     {
-        // TODO: support other severity levels
         if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
             PXL_LOG_ERROR(LogArea::Vulkan, "Validation Layer - Error: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
@@ -126,7 +131,16 @@ namespace pxl
         {
             PXL_LOG_WARN(LogArea::Vulkan, "Validation Layer - Warning: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
         }
+        else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "Validation Layer - Info: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
+        }
+        else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "Validation Layer - Verbose: {} - {}", callbackData->pMessageIdName, callbackData->pMessage);
+        }
 
+        // We must return false, true is reserved for in layer development
         return VK_FALSE;
     }
 }

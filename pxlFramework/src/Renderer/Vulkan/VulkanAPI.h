@@ -1,6 +1,5 @@
 #pragma once
 
-// #define VOLK_IMPLEMENTATION
 #include <volk/volk.h>
 
 #include "Renderer/GraphicsAPI.h"
