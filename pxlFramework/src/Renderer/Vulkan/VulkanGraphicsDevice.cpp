@@ -155,7 +155,7 @@ namespace pxl
 
         for (auto& resource : std::views::reverse(m_Resources))
         {
-            resource->Free();
+            resource.lock()->Free();
         }
 
         if (m_Allocator)

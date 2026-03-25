@@ -88,6 +88,6 @@ namespace pxl
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
         // Allocated resources
-        std::vector<std::shared_ptr<GPUResource>> m_Resources;
+        std::vector<std::weak_ptr<GPUResource>> m_Resources;
     };
 }
