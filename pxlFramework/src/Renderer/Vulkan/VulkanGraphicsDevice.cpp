@@ -10,66 +10,13 @@
 namespace pxl
 {
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceSpecs& specs, VkInstance instance)
-        : m_Instance(instance)
+        : GraphicsDevice(specs), m_Instance(instance)
     {
-        m_Surface = specs.RendererConfig.Window->CreateVKSurface(m_Instance);
-
-        // Find a suitable physical device (gpu)
-        auto gpus = VulkanUtils::GetAvailablePhysicalDevices(m_Instance);
-        for (const auto& gpu : gpus)
-        {
-            VkPhysicalDeviceProperties props;
-            vkGetPhysicalDeviceProperties(gpu, &props);
-
-            if (props.deviceType != VulkanUtils::ToVkPhysicalDeviceType(specs.Preference))
-                continue;
-
-            if (props.apiVersion < VK_API_VERSION_1_3)
-                continue;
-
-            auto queueFamilies = VulkanUtils::GetQueueFamilies(gpu);
-            for (size_t i = 0; i < queueFamilies.size(); i++)
-            {
-                VkBool32 supportsPresent = VK_FALSE;
-                VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, m_Surface, &supportsPresent));
-
-                if ((queueFamilies.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) && supportsPresent)
-                {
-                    m_GraphicsQueueFamily = i;
-                    break;
-                }
-            }
-
-            if (!m_GraphicsQueueFamily.has_value())
-                continue;
-
-            m_GPU = gpu;
-            break;
-        }
-
-        if (!m_GPU)
-            throw std::runtime_error("Failed to find suitable GPU for vulkan");
-
-        // Query for vulkan 1.3 features
-        VkPhysicalDeviceFeatures2 deviceFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-        VkPhysicalDeviceVulkan13Features vulkan13Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
-        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT };
-
-        deviceFeatures.pNext = &vulkan13Features;
-        vulkan13Features.pNext = &extendedDynamicStateFeatures;
-
-        vkGetPhysicalDeviceFeatures2(m_GPU, &deviceFeatures);
-
-        if (!vulkan13Features.dynamicRendering)
-            throw std::runtime_error("GPU doesn't support dynamic rendering feature");
-
-        if (!vulkan13Features.synchronization2)
-            throw std::runtime_error("GPU doesn't support synchronization2 feature");
-
-        if (!extendedDynamicStateFeatures.extendedDynamicState)
-            throw std::runtime_error("GPU doesn't support extended dynamic state feature");
-
-        Init(specs);
+        InitSurface(specs.Window);
+        SelectGPU();
+        InitDevice();
+        InitAllocator();
+        InitSwapchain();
     }
 
     std::shared_ptr<GPUBuffer> VulkanGraphicsDevice::CreateBuffer(const GPUBufferSpecs& specs)
@@ -87,20 +34,6 @@ namespace pxl
 
     std::shared_ptr<Shader> VulkanGraphicsDevice::CreateShader(const ShaderSpecs& specs)
     {
-        // TODO: probably move this elsewhere
-        if (!std::filesystem::exists(specs.FilePath))
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create Shader, shader file '{}' does not exist", specs.FilePath.string());
-            return nullptr;
-        }
-
-        auto ext = specs.FilePath.extension();
-        if (ext != ".glsl" && ext != ".spv")
-        {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to create shader, File extension '{}' isn't supported");
-            return nullptr;
-        }
-
         auto shader = std::make_shared<VulkanShader>(specs, m_Device);
         m_Resources.push_back(shader);
         return shader;
@@ -132,26 +65,15 @@ namespace pxl
         vkQueuePresentKHR(m_GraphicsQueue, &presentInfo);
     }
 
-    void VulkanGraphicsDevice::WaitIdle() const
+    void VulkanGraphicsDevice::OnWindowResize()
     {
-        VK_CHECK(vkDeviceWaitIdle(m_Device));
-    }
-
-    void VulkanGraphicsDevice::QueueWaitIdle(QueueType queueType) const
-    {
-        VkQueue queue = VK_NULL_HANDLE;
-        switch (queueType)
-        {
-            case QueueType::Graphics: queue = m_GraphicsQueue; break;
-            default:                  break;
-        }
-
-        VK_CHECK(vkQueueWaitIdle(queue));
+        // TODO: Providing specs here feels unnecessary as a private function
+        m_SwapchainInvalid = true;
     }
 
     void VulkanGraphicsDevice::FreeResources()
     {
-        WaitIdle();
+        VK_CHECK(vkDeviceWaitIdle(m_Device));
 
         for (auto& resource : std::views::reverse(m_Resources))
         {
@@ -162,7 +84,6 @@ namespace pxl
         {
             vmaDestroyAllocator(m_Allocator);
             m_Allocator = VK_NULL_HANDLE;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan allocator destroyed");
         }
 
         for (auto& semaphore : m_RecycledSemaphores)
@@ -186,21 +107,18 @@ namespace pxl
         {
             vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
             m_Swapchain = nullptr;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain destroyed");
         }
 
         if (m_Device)
         {
             vkDestroyDevice(m_Device, nullptr);
             m_Device = VK_NULL_HANDLE;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan device destroyed");
         }
 
         if (m_Surface)
         {
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             m_Surface = VK_NULL_HANDLE;
-            PXL_LOG_INFO(LogArea::Vulkan, "Vulkan surface destroyed");
         }
     }
 
@@ -223,30 +141,132 @@ namespace pxl
         VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, frame.RenderFinishedFence));
     }
 
-    void VulkanGraphicsDevice::Init(const GraphicsDeviceSpecs& specs)
+    void VulkanGraphicsDevice::SelectGPU()
     {
-        InitDevice();
-        InitSwapchain(specs);
-        InitAllocator();
+        auto gpus = VulkanUtils::GetAvailablePhysicalDevices(m_Instance);
+
+        // Select GPU using device index if it is specified
+        if (m_Specs.DeviceIndex > -1 && m_Specs.DeviceIndex < gpus.size())
+        {
+            if (m_Specs.DeviceIndex < gpus.size())
+            {
+                m_GPU = gpus.at(m_Specs.DeviceIndex);
+            }
+            else
+            {
+                PXL_LOG_WARN(LogArea::Vulkan, "Physical device index {} wasn't found, using first available GPU instead");
+                m_GPU = gpus.front();
+            }
+        }
+
+        // Otherwise, find a suitable GPU matching the GPU preference
+        if (!m_GPU)
+        {
+            for (const auto& gpu : gpus)
+            {
+                VkPhysicalDeviceProperties2 props = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+                vkGetPhysicalDeviceProperties2(gpu, &props);
+
+                if (props.properties.deviceType != VulkanUtils::ToVkPhysicalDeviceType(m_Specs.TypePreference))
+                    continue;
+
+                if (props.properties.apiVersion < VK_API_VERSION_1_3)
+                    continue;
+
+                // Find a queue family supporting both graphics and present operations
+                auto queueFamilies = VulkanUtils::GetQueueFamilies2(gpu);
+                bool foundSuitableGraphicsQueueFamily = false;
+                uint32_t graphicsQueueFamilyIndex = 0;
+                for (size_t i = 0; i < queueFamilies.size(); i++)
+                {
+                    VkBool32 supportsPresent = VK_FALSE;
+                    VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, m_Surface, &supportsPresent));
+
+                    if ((queueFamilies.at(i).queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) && supportsPresent)
+                    {
+                        graphicsQueueFamilyIndex = i;
+                        foundSuitableGraphicsQueueFamily = true;
+                        break;
+                    }
+                }
+
+                if (!foundSuitableGraphicsQueueFamily)
+                    continue;
+
+                // Query for vulkan 1.3 features
+                VkPhysicalDeviceFeatures2 deviceFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+                VkPhysicalDeviceVulkan13Features vulkan13Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
+                VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT };
+
+                deviceFeatures.pNext = &vulkan13Features;
+                vulkan13Features.pNext = &extendedDynamicStateFeatures;
+
+                vkGetPhysicalDeviceFeatures2(gpu, &deviceFeatures);
+
+                if (!vulkan13Features.dynamicRendering)
+                    continue;
+
+                if (!vulkan13Features.synchronization2)
+                    continue;
+
+                if (!extendedDynamicStateFeatures.extendedDynamicState)
+                    continue;
+
+                m_GPU = gpu;
+                m_GraphicsQueueFamily = graphicsQueueFamilyIndex;
+                break;
+            }
+        }
+    }
+
+    void VulkanGraphicsDevice::InitSurface(const std::shared_ptr<Window>& window)
+    {
+        m_Surface = window->CreateVKSurface(m_Instance);
     }
 
     void VulkanGraphicsDevice::InitDevice()
     {
         // Enable the specific features we will use
         VkPhysicalDeviceFeatures2 enabledDeviceFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-        VkPhysicalDeviceVulkan13Features enabledVulkan13Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
-        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT enabledExtendedDynamicStateFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT };
 
+        // Enable Vulkan 1.0 features
+        enabledDeviceFeatures.features.samplerAnisotropy = VK_TRUE;
+
+        // Enable Vulkan 1.1 features
+        VkPhysicalDeviceVulkan11Features enabledVulkan11Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES };
+
+        // Enable Vulkan 1.2 features
+        VkPhysicalDeviceVulkan12Features enabledVulkan12Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+        enabledVulkan12Features.bufferDeviceAddress = VK_TRUE;
+
+        // Enable Vulkan 1.3 features
+        VkPhysicalDeviceVulkan13Features enabledVulkan13Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
         enabledVulkan13Features.dynamicRendering = VK_TRUE;
         enabledVulkan13Features.synchronization2 = VK_TRUE;
+
+        // Enable extended dynamic state features
+        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT enabledExtendedDynamicStateFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT };
         enabledExtendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
 
-        enabledVulkan13Features.pNext = &enabledExtendedDynamicStateFeatures;
+        enabledVulkan11Features.pNext = &enabledExtendedDynamicStateFeatures;
+        enabledVulkan12Features.pNext = &enabledVulkan11Features;
+        enabledVulkan13Features.pNext = &enabledVulkan12Features;
         enabledDeviceFeatures.pNext = &enabledVulkan13Features;
 
         // The swapchain extension is needed to display to the screen
-        std::vector<const char*> requiredExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+        std::vector<const char*> requiredExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        };
+
         auto availableExtensions = VulkanUtils::GetDeviceExtensions(m_GPU);
+
+#ifdef PXL_DEBUG
+        PXL_LOG_INFO(LogArea::Vulkan, "Required device extensions selected:")
+        for (const auto& extensionName : requiredExtensions)
+        {
+            PXL_LOG_INFO(LogArea::Vulkan, "- {}", extensionName);
+        }
+#endif
 
         if (VulkanUtils::ValidateExtensions(requiredExtensions, availableExtensions))
             std::runtime_error("Failed to validate all device extensions");
@@ -291,8 +311,11 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Vulkan, "Vulkan allocator created");
     }
 
-    void VulkanGraphicsDevice::InitSwapchain(const GraphicsDeviceSpecs& specs)
+    void VulkanGraphicsDevice::InitSwapchain()
     {
+        // Graphics device must not be performing any operations when we recreate the swapchain
+        VK_CHECK(vkDeviceWaitIdle(m_Device));
+
         // Select a suitable surface format based on what the surface supports
         auto surfaceFormats = VulkanUtils::GetSurfaceFormats(m_GPU, m_Surface);
         auto surfaceCapabilities = VulkanUtils::GetSurfaceCapabilities(m_GPU, m_Surface);
@@ -302,7 +325,7 @@ namespace pxl
         // NOTE: 0xFFFFFFFF is a special value indicating the surface size will be determined by the swapchain
         if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF)
         {
-            auto size = specs.RendererConfig.Window->GetFramebufferSize();
+            auto size = m_Specs.Window->GetFramebufferSize();
             m_SwapchainExtent = { size.Width, size.Height };
         }
         else
@@ -315,7 +338,7 @@ namespace pxl
         m_SurfaceFormat = VulkanUtils::GetSuitableSurfaceFormat(surfaceFormats);
 
         // Determine a suitable present mode
-        if (specs.RendererConfig.VerticalSync)
+        if (m_Specs.VerticalSync)
         {
             m_SwapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
         }
@@ -341,17 +364,22 @@ namespace pxl
             }
         }
 
-        // TODO: Check if triple buffering is supported first
         // Determine the minimum swapchain image count
-        // auto desiredImageCount = specs.RendererConfig.TripleBuffering
-        //     ? surfaceCapabilities.minImageCount + 2
-        //     : surfaceCapabilities.minImageCount + 1;
-        auto desiredImageCount = surfaceCapabilities.minImageCount;
-
-        // Cap the image count if it exceeds the surfaces max capable image count
-        // NOTE: A maxImageCount of 0 means there is no limit
-        if (surfaceCapabilities.maxImageCount != 0 && desiredImageCount > surfaceCapabilities.maxImageCount)
-            desiredImageCount = surfaceCapabilities.maxImageCount;
+        auto minCount = surfaceCapabilities.minImageCount;
+        auto maxCount = surfaceCapabilities.maxImageCount;
+        auto desiredImageCount = minCount;
+        if (m_Specs.TripleBuffering)
+        {
+            if (minCount <= 3 && (maxCount >= 3 || maxCount == 0))
+            {
+                // Triple buffering is supported
+                desiredImageCount = 3;
+            }
+            else if (minCount < 3)
+            {
+                PXL_LOG_WARN(LogArea::Vulkan, "Triple buffering not supported by window surface");
+            }
+        }
 
         auto oldSwapchain = m_Swapchain;
 
@@ -365,12 +393,13 @@ namespace pxl
         swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         swapchainInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // TODO: verify if this is more important than I think
+        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         swapchainInfo.presentMode = m_SwapchainPresentMode;
         swapchainInfo.clipped = true;
         swapchainInfo.oldSwapchain = oldSwapchain;
 
         VK_CHECK(vkCreateSwapchainKHR(m_Device, &swapchainInfo, nullptr, &m_Swapchain));
+        m_SwapchainInvalid = false;
 
         // If we used the old swapchain, we must destroy it and its resources
         if (oldSwapchain)
@@ -391,6 +420,7 @@ namespace pxl
         }
 
         m_SwapchainImages = VulkanUtils::GetSwapchainImages(m_Device, m_Swapchain);
+        m_Specs.TripleBuffering = m_SwapchainImages.size() >= 3;
 
         // Create an image view for each swapchain image
         for (const auto& image : m_SwapchainImages)
@@ -421,6 +451,12 @@ namespace pxl
         {
             CreateFrameData(m_PerFrameData.at(i));
         }
+
+        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created:");
+        PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_SwapchainImages.size());
+        PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Triple buffering: {}", m_Specs.TripleBuffering);
     }
 
     void VulkanGraphicsDevice::CreateFrameData(VulkanFrame& frame)
@@ -485,6 +521,9 @@ namespace pxl
 
     void VulkanGraphicsDevice::AcquireNextSwapchainImage()
     {
+        if (m_SwapchainInvalid)
+            InitSwapchain();
+
         VkSemaphore newImageAcquiredSemaphore;
 
         // Use recycled semaphores if they're available
@@ -530,5 +569,11 @@ namespace pxl
         }
 
         m_PerFrameData.at(m_SwapchainImageIndex).ImageAcquiredSemaphore = newImageAcquiredSemaphore;
+    }
+
+    void VulkanGraphicsDevice::SetVerticalSync(bool enable)
+    {
+        m_Specs.VerticalSync = enable;
+        m_SwapchainInvalid = true;
     }
 }

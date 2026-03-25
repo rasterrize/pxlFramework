@@ -20,9 +20,12 @@ namespace pxl
 
         m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext();
 
+        // Init graphics device
         GraphicsDeviceSpecs deviceSpecs = {
-            .Preference = GPUPreference::Discrete,
-            .RendererConfig = config,
+            .TypePreference = GPUType::Discrete,
+            .Window = config.Window,
+            .VerticalSync = config.VerticalSync,
+            .TripleBuffering = config.TripleBuffering,
         };
 
         m_GraphicsDevice = m_GraphicsAPI->CreateGraphicsDevice(deviceSpecs);
@@ -32,6 +35,7 @@ namespace pxl
             { { 0.0f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }, // Vertex 2: Green
             { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }  // Vertex 3: Blue
         };
+        PXL_CREATE_AND_REGISTER_HANDLER(m_WindowFBResizeHandler, WindowFBResizeEvent, OnWindowFBResize);
 
         // Init shader manager
         ShaderManagerConfig shaderManagerConfig = {};
@@ -408,5 +412,13 @@ namespace pxl
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
             * glm::scale(glm::mat4(1.0f), { scale.x, scale.y, scale.z });
         // clang-format on
+    }
+
+    void Renderer::OnWindowFBResize(const WindowFBResizeEvent& e)
+    {
+        if (e.GetWindow() != m_Config.Window)
+            return;
+
+        m_GraphicsDevice->OnWindowResize();
     }
 }

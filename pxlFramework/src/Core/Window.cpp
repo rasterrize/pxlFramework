@@ -399,6 +399,9 @@ namespace pxl
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        WindowFBResizeEvent event({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) }, windowInstance->m_Handle.lock());
+        windowInstance->m_EventCallback(event);
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)

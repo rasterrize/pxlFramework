@@ -41,12 +41,16 @@ namespace pxl
 
         virtual void Present() override;
 
-        virtual void WaitIdle() const override;
-        virtual void QueueWaitIdle(QueueType queueType) const override;
+        virtual void OnWindowResize() override;
 
         virtual void FreeResources() override;
 
         virtual GraphicsDeviceLimits GetLimits() const override { return GraphicsDeviceLimits(); }
+        virtual void SetVerticalSync(bool enable) override;
+
+        virtual uint32_t GetSwapchainImageIndex() const override { return m_SwapchainImageIndex; }
+
+        virtual uint32_t GetSwapchainImageCount() const override { return m_SwapchainImages.size(); }
 
         void AcquireNextSwapchainImage();
 
@@ -59,17 +63,18 @@ namespace pxl
         void SubmitCurrentFrame();
 
     private:
-        void Init(const GraphicsDeviceSpecs& specs);
+        void SelectGPU();
+
+        void InitSurface(const std::shared_ptr<Window>& window);
         void InitDevice();
         void InitAllocator();
-        void InitSwapchain(const GraphicsDeviceSpecs& specs);
+        void InitSwapchain();
 
         void CreateFrameData(VulkanFrame& frame);
         void DestroyFrameData(VulkanFrame& frame);
 
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
-
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
@@ -85,6 +90,7 @@ namespace pxl
         uint32_t m_SwapchainImageIndex = 0;
         std::vector<VkSemaphore> m_RecycledSemaphores;
         VkSurfaceFormatKHR m_SurfaceFormat;
+        bool m_SwapchainInvalid = false;
 
         // Queue data
         std::optional<uint32_t> m_GraphicsQueueFamily;

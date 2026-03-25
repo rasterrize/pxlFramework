@@ -30,6 +30,11 @@ namespace pxl
 
     Application::~Application()
     {
+        FrameworkConfig::Shutdown();
+        ShutdownRenderer();
+        Input::Shutdown();
+        Window::Shutdown();
+
         s_Instance = nullptr;
 
         PXL_LOG_INFO(LogArea::Core, "Application destroyed");
@@ -43,11 +48,14 @@ namespace pxl
 
             m_FrameStartTime = std::chrono::steady_clock::now();
 
+            // Calculate deltaTime
             float time = static_cast<float>(Platform::GetTime());
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
-            Window::ProcessEvents();
+            if (Window::IsInitialized())
+                Window::ProcessEvents();
+
             m_EventManager->ProcessQueue();
 
             if (m_Running)
@@ -89,11 +97,6 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Core, "Application closing...");
 
         OnClose();
-
-        FrameworkConfig::Shutdown();
-        ShutdownRenderer();
-        Input::Shutdown();
-        Window::Shutdown();
     }
 
     const std::unique_ptr<Renderer>& Application::InitRenderer(const RendererConfig& config)

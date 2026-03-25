@@ -38,11 +38,11 @@ namespace pxl
         colorAttachment.clearValue = m_ClearValue;
 
         // Begin rendering
-        auto extent = vulkanDevice->GetSwapchainExtent();
+        auto scExtent = vulkanDevice->GetSwapchainExtent();
         VkRenderingInfo renderingInfo = { VK_STRUCTURE_TYPE_RENDERING_INFO };
         renderingInfo.renderArea = {
             .offset = { 0, 0 },
-            .extent = extent,
+            .extent = scExtent,
         };
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1,
@@ -53,12 +53,12 @@ namespace pxl
         // Set global dynamic state
 
         // Set viewport dynamically
-        // NOTE: Flip the y coordinate to get a right-hand instead of left-hand coordinate system
+        // NOTE: We flip the y coordinate to get a right-hand instead of left-hand coordinate system (similar to OpenGL)
         VkViewport viewport = {
             .x = 0.0f,
-            .y = static_cast<float>(extent.height),
-            .width = static_cast<float>(extent.width),
-            .height = -static_cast<float>(extent.height),
+            .y = static_cast<float>(scExtent.height),
+            .width = static_cast<float>(scExtent.width),
+            .height = -static_cast<float>(scExtent.height),
             .minDepth = 0.0f,
             .maxDepth = 0.0f,
         };
@@ -67,7 +67,7 @@ namespace pxl
 
         // Set scissor dynamically
         VkRect2D scissor = {
-            .extent = extent,
+            .extent = scExtent,
         };
 
         vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);

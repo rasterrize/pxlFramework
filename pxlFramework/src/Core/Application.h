@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Events/EventManager.h"
-#include "Renderer/Renderer.h"
 
 namespace pxl
 {
+    template<typename EventT>
+    class EventHandler;
+
+    class Renderer;
+    struct RendererConfig;
+
     namespace ApplicationConstants
     {
         static const uint32_t k_DefaultCustomFPSLimit = 60;
@@ -99,14 +104,14 @@ namespace pxl
         bool m_Running = true;
         bool m_Minimized = false;
 
+        std::unique_ptr<Renderer> m_Renderer;
+        std::unique_ptr<EventManager> m_EventManager = nullptr;
+
         float m_LastFrameTime = 0.0f;
         std::chrono::steady_clock::time_point m_FrameStartTime;
         uint32_t m_CustomFPSLimit = ApplicationConstants::k_DefaultCustomFPSLimit;
         uint32_t m_AdaptiveSyncFPSLimit = 0;
         FramerateMode m_FramerateMode = FramerateMode::Unlimited;
-
-        std::unique_ptr<Renderer> m_Renderer = nullptr;
-        std::unique_ptr<EventManager> m_EventManager = nullptr;
     };
 
     namespace Utils

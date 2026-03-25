@@ -39,6 +39,25 @@ namespace pxl
         Size2D m_Size;
     };
 
+    class WindowFBResizeEvent : public WindowEvent
+    {
+    public:
+        WindowFBResizeEvent(Size2D size, const std::shared_ptr<Window>& window)
+            : WindowEvent(EventType::WindowFBResize, window), m_Size(size)
+        {
+        }
+
+        Size2D GetSize() const { return m_Size; }
+
+        static EventType GetStaticType() { return EventType::WindowFBResize; }
+
+    protected:
+        virtual std::string DataToString() const override { return std::format("Size = {}, {}", m_Size.Width, m_Size.Height); }
+
+    private:
+        Size2D m_Size;
+    };
+
     class WindowRepositionEvent : public WindowEvent
     {
     public:

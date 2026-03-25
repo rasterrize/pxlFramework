@@ -22,6 +22,7 @@ namespace pxl
         WindowMinimize,
         WindowModeChange,
         WindowPathDrop,
+        WindowFBResize,
 
         // Gamepad events
         GamepadAxisChange = 80,

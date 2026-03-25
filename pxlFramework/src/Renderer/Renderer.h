@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Camera.h"
+#include "Core/Events/EventHandler.h"
+#include "Core/Events/WindowEvents.h"
 #include "Core/Window.h"
 #include "GraphicsAPI.h"
 #include "GraphicsContext.h"
@@ -61,8 +63,11 @@ namespace pxl
 
         void SetClearColour(const glm::vec4& colour) { m_GraphicsContext->SetClearColour(colour); }
 
+        void SetVerticalSync(bool value);
+
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(const Quad& quad);
+
         /// @brief Submits a line primitive to the renderer to be drawn.
         void Submit(const Line& line);
         void Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
@@ -94,6 +99,8 @@ namespace pxl
 
         void ResetFrameStats() { memset(&m_FrameStats, 0, sizeof(FrameStats)); }
 
+        void OnWindowFBResize(const WindowFBResizeEvent& e);
+
     private:
         RendererConfig m_Config;
 
@@ -104,6 +111,9 @@ namespace pxl
         std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer = nullptr;
 
         std::unique_ptr<ShaderManager> m_ShaderManager = nullptr;
+
+        std::shared_ptr<EventHandler<WindowFBResizeEvent>> m_WindowFBResizeHandler = nullptr;
+
         std::shared_ptr<GPUBuffer> m_TriangleBuffer;
         std::shared_ptr<GraphicsPipeline> m_TrianglePipeline;
 

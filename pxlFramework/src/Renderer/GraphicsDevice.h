@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Core/Window.h"
 #include "GPUBuffer.h"
 #include "GraphicsPipeline.h"
-#include "RendererConfig.h"
+#include "ImGuiRenderer.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "ImGuiRenderer.h"
 
 namespace pxl
 {
@@ -22,7 +22,7 @@ namespace pxl
         Compute,
     };
 
-    enum class GPUPreference
+    enum class GPUType
     {
         Discrete,
         Integrated,
@@ -30,8 +30,20 @@ namespace pxl
 
     struct GraphicsDeviceSpecs
     {
-        GPUPreference Preference;
-        RendererConfig RendererConfig;
+        /// @brief If specified, selects the GPU by indexing into the available GPUs, and ignores TypePreference.
+        int32_t DeviceIndex = -1;
+
+        /// @brief Ignored if DeviceIndex is specified. Selects a suitable GPU based on a GPU type preference.
+        GPUType TypePreference;
+
+        /// @brief Window to associate the internal swapchain to.
+        std::shared_ptr<Window> Window = nullptr;
+
+        /// @brief Whether to enable vertical synchronization or not.
+        bool VerticalSync = true;
+
+        /// @brief Whether to triple buffering on the swapchain, setting the desired number swapchain images to at least 3.
+        bool TripleBuffering = true;
     };
 
     /// @brief Represents a GPU (Graphics Processing Unit) used for allocating GPU resources and
@@ -39,6 +51,11 @@ namespace pxl
     class GraphicsDevice
     {
     public:
+        GraphicsDevice(const GraphicsDeviceSpecs& specs)
+            : m_Specs(specs)
+        {
+        }
+
         virtual ~GraphicsDevice() = default;
 
         /// @brief Creates a new GPUBuffer object used to host various kinds of data in memory on the GPU.
@@ -69,14 +86,25 @@ namespace pxl
         /// @brief Presents the next rendered image to the window.
         virtual void Present() = 0;
 
-        virtual void WaitIdle() const = 0;
-        virtual void QueueWaitIdle(QueueType queueType) const = 0;
-
         /// @brief Frees/destroys all the resources allocated on this GraphicsDevice.
         virtual void FreeResources() = 0;
 
+        virtual void OnWindowResize() = 0;
 
-        virtual GraphicsDeviceLimits GetLimits() const = 0;
+        virtual void SetVerticalSync(bool enable) = 0;
+
+        virtual uint32_t GetSwapchainImageIndex() const = 0;
+
+        virtual uint32_t GetSwapchainImageCount() const = 0;
+
+        GraphicsDeviceSpecs GetSpecs() const { return m_Specs; }
+        GraphicsDeviceLimits GetLimits() const { return m_Limits; }
+        GraphicsDeviceStats GetStats() const { return m_Stats; }
+
+    protected:
+        GraphicsDeviceSpecs m_Specs = {};
+        GraphicsDeviceLimits m_Limits = {};
+        GraphicsDeviceStats m_Stats = {};
     };
 
     namespace Utils
