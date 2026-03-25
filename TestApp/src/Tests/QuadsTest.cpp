@@ -185,7 +185,7 @@ namespace TestApp
         s_TexturedDynamicQuad.Rotation.z -= 25.0f * dt;
     }
 
-    void QuadsTest::OnRender(const std::unique_ptr<pxl::Renderer>& renderer)
+    void QuadsTest::OnRender(pxl::Renderer& renderer)
     {
         // Draw other quads
         pxl::Renderer::AddQuad(s_DynamicQuad);

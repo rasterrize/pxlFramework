@@ -58,7 +58,7 @@ namespace pxl
                 {
                     Camera::UpdateAll(); // TODO: Do something else here
                     m_Renderer->Begin();
-                    OnRender(m_Renderer);
+                    OnRender(*m_Renderer.get());
 
                     if (m_Renderer->IsImGuiInitialized())
                     {

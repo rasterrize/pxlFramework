@@ -10,7 +10,7 @@ namespace TestApp
             m_Test->OnUpdate(dt);
     }
 
-    void TestApplication::OnRender(const std::unique_ptr<pxl::Renderer>& renderer)
+    void TestApplication::OnRender(pxl::Renderer& renderer)
     {
         PXL_PROFILE_SCOPE;
 

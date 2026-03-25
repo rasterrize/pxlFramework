@@ -41,10 +41,10 @@ namespace pxl
         /// This can be used to sync variables correctly when the frame rate is fluctuating (e.g uncapped).
         virtual void OnUpdate(float dt) {}
 
-        virtual void OnRender(const std::unique_ptr<Renderer>& renderer) {}
         /// @brief Called once every frame. Use this function for any kind of rendering purposes.
         /// @note Will only be called if this application's renderer is initialized.
         /// @param renderer The renderer to submit renderer operations to.
+        virtual void OnRender(pxl::Renderer& renderer) {}
 
         /// @brief Called once every frame. Convenience function for holding ImGui related functions.
         /// @note Will only be called if this application's renderer has its ImGui renderer initialized.

@@ -9,7 +9,7 @@ namespace TestApp
     public:
         virtual void OnStart(pxl::WindowSpecs& windowSpecs) {}
         virtual void OnUpdate(float dt) {}
-        virtual void OnRender(const std::unique_ptr<pxl::Renderer>& renderer) {}
+        virtual void OnRender(pxl::Renderer& renderer) {}
         virtual void OnGUIRender() {}
         virtual void OnClose() {}
 

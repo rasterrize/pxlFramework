@@ -10,7 +10,7 @@ namespace TestApp
     {
     public:
         virtual void OnUpdate(float dt) override;
-        virtual void OnRender(const std::unique_ptr<pxl::Renderer>& renderer) override;
+        virtual void OnRender(pxl::Renderer& renderer) override;
         virtual void OnGUIRender() override;
         virtual void OnClose() override;
 

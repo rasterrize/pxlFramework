@@ -62,7 +62,7 @@ namespace TestApp
         m_Camera->SetPosition(cameraPosition);
     }
 
-    void ModelViewer::OnRender()
+    void ModelViewer::OnRender(pxl::Renderer& renderer)
     {
         PXL_PROFILE_SCOPE;
 
