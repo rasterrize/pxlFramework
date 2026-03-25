@@ -35,5 +35,9 @@ namespace TestApp
 
     private:
         std::unique_ptr<Test> m_Test = nullptr;
+
+        pxl::RendererConfig m_DefaultRendererConfig = {};
+
+        pxl::RendererStats m_RendererStats = {};
     };
 }
