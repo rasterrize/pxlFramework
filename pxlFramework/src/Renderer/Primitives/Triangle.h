@@ -17,35 +17,23 @@ namespace pxl
         std::optional<std::shared_ptr<Texture>> Texture;
         std::optional<std::array<glm::vec2, 4>> TextureUV;
 
-        // bool Contains(const glm::vec2& position)
-        // {
-        //     auto newPosition = position;
-
-        //     auto left = Position.x - Size.x / 2.0f;
-        //     auto right = Position.x + Size.x / 2.0f;
-        //     auto bottom = Position.y - Size.y / 2.0f;
-        //     auto top = Position.y + Size.y / 2.0f;
-
-        //     return newPosition.x >= left && newPosition.x <= right && newPosition.y >= bottom && newPosition.y <= top;
-        // }
-
-        static constexpr std::array<QuadVertex, 3> GetDefaultVertices()
+        static constexpr std::array<TexturedVertex, 3> GetDefaultVertices()
         {
             auto texCoords = GetDefaultTexCoords();
             return {
                 // clang-format off
-                QuadVertex({  0.0f,  0.5f, 0.0f }, glm::vec4(1.0f), texCoords[0]), 
-                QuadVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), texCoords[1]),
-                QuadVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), texCoords[2]),
+                TexturedVertex({  0.0f,  0.5f, 0.0f }, glm::vec4(1.0f), texCoords[0]), 
+                TexturedVertex({ -0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), texCoords[1]),
+                TexturedVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), texCoords[2]),
             }; // clang-format on
         }
         
-        static constexpr std::array<uint32_t, 6> GetDefaultIndices()
+        static constexpr std::array<uint32_t, 3> GetDefaultIndices()
         {
             return { 0, 1, 2 };
         }
         
-        static constexpr std::array<glm::vec2, 4> GetDefaultTexCoords()
+        static constexpr std::array<glm::vec2, 3> GetDefaultTexCoords()
         {
             // TODO: sort out texture UVs
             return {

@@ -40,6 +40,7 @@ namespace pxl
         }
 
         Size2D GetSize() { return { Width, Height }; }
+        std::string ToString() { return std::format("{}x{}, {}hz", Width, Height, RefreshRate); }
 
         uint32_t Width = 0;
         uint32_t Height = 0;

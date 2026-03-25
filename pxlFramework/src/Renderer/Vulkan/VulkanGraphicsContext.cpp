@@ -21,7 +21,7 @@ namespace pxl
 
         VK_CHECK(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo));
 
-        // Before rendering, transition the swapchain image to COLOR_ATTACHMENT_OPTIMAL so we can use it as a color attachment
+        // Before rendering, transition the swapchain image to COLOR_ATTACHMENT_OPTIMAL so we can use it as a color attachment for rendering
         auto swapchainImage = vulkanDevice->GetCurrentSwapchainImage();
         TransitionImageLayout(
             swapchainImage,
@@ -82,6 +82,7 @@ namespace pxl
 
         VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
 
+        // Transition the swapchain image to an optimal presentation format
         auto image = vulkanDevice->GetCurrentSwapchainImage();
         TransitionImageLayout(
             image,

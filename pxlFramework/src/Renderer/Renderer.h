@@ -58,6 +58,8 @@ namespace pxl
 
         RendererConfig GetConfig() const { return m_Config; }
 
+        /// @brief Collects stats from the various renderer components, combines them, and
+        /// returns them as one structure
         RendererStats GetStats() const;
 
         /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
@@ -99,7 +101,7 @@ namespace pxl
         /// @brief Clears the shader cache directory
         void ClearShaderCache() { m_ShaderManager->ClearCache(); }
 
-        std::shared_ptr<Camera> Get3DCamera() const { return m_Camera3D; }
+        std::shared_ptr<Camera> GetCamera3D() const { return m_Camera3D; }
 
     private:
         friend class Application;
