@@ -33,39 +33,60 @@ namespace pxl
             { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }  // Vertex 3: Blue
         };
 
-        GPUBufferSpecs triangleBufferSpecs = {};
-        triangleBufferSpecs.Size = sizeof(ColouredVertex) * vertices.size();
-        triangleBufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
-        triangleBufferSpecs.Usage = GPUBufferUsage::Vertex;
-        triangleBufferSpecs.Data = vertices.data();
+        // Init shader manager
+        ShaderManagerConfig shaderManagerConfig = {};
+        shaderManagerConfig.ShaderDirectories.push_back(RendererConstants::k_FrameworkShaderDirectory);
+        shaderManagerConfig.CacheDirectory = m_Config.ShaderCacheDirectory;
+        shaderManagerConfig.UseCache = m_Config.UseShaderCache;
 
-        m_TriangleBuffer = m_GraphicsDevice->CreateBuffer(triangleBufferSpecs);
+        m_ShaderManager = std::make_unique<ShaderManager>(shaderManagerConfig);
 
-        ShaderSpecs colouredVertexShaderSpecs = {};
-        colouredVertexShaderSpecs.FilePath = "resources/shaders/compiled/coloured_vertex_vert.spv";
-        colouredVertexShaderSpecs.Stage = ShaderStage::Vertex;
-        auto colouredVertexVert = m_GraphicsDevice->CreateShader(colouredVertexShaderSpecs);
+        // Add pxlFramework shaders to shader manager
+        m_ShaderManager->Add({ "coloured_vertex.vert", ShaderStage::Vertex });
+        m_ShaderManager->Add({ "coloured_vertex.frag", ShaderStage::Fragment });
 
-        colouredVertexShaderSpecs.FilePath = "resources/shaders/compiled/coloured_vertex_frag.spv";
-        colouredVertexShaderSpecs.Stage = ShaderStage::Fragment;
-        auto colouredVertexFrag = m_GraphicsDevice->CreateShader(colouredVertexShaderSpecs);
+        m_ShaderManager->Add({ "textured_vertex.vert", ShaderStage::Vertex });
+        m_ShaderManager->Add({ "textured_vertex.frag", ShaderStage::Fragment });
 
-        GraphicsPipelineSpecs trianglePipelineSpecs = {};
-        trianglePipelineSpecs.BufferLayout = ColouredVertex::GetLayout();
-        trianglePipelineSpecs.CullMode = CullMode::None;
-        trianglePipelineSpecs.FrontFace = FrontFace::CounterClockwise;
-        trianglePipelineSpecs.PolygonMode = PolygonMode::Fill;
-        trianglePipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
-        trianglePipelineSpecs.Shaders[ShaderStage::Vertex] = colouredVertexVert;
-        trianglePipelineSpecs.Shaders[ShaderStage::Fragment] = colouredVertexFrag;
+        // Append user list of shaders to shader manager
+        m_ShaderManager->Add(m_Config.UserShadersToCompile);
 
-        m_TrianglePipeline = m_GraphicsDevice->CreateGraphicsPipeline(trianglePipelineSpecs);
+        // Compile shaders
+        m_ShaderManager->CompileAll(m_GraphicsDevice);
 
-        // m_Limits = m_GraphicsContext->GetLimits();
-        // m_TextureHandler = m_GraphicsAPI->CreateTextureHandler(m_Limits);
-        // PXL_ASSERT_MSG(m_TextureHandler, "Failed to create texture handler");
+#define PXL_DRAW_HELLO_TRIANGLE 1
+#if PXL_DRAW_HELLO_TRIANGLE
+        {
+            const std::vector<ColouredVertex> vertices = {
+                { { -1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } }, // Vertex 1: Red
+                {  { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }, // Vertex 2: Green
+                { { 0.5f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }  // Vertex 3: Blue
+            };
 
-        // Compile and create shaders
+            GPUBufferSpecs triangleBufferSpecs = {};
+            triangleBufferSpecs.Size = sizeof(ColouredVertex) * vertices.size();
+            triangleBufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
+            triangleBufferSpecs.Usage = GPUBufferUsage::Vertex;
+            triangleBufferSpecs.Data = vertices.data();
+
+            m_TriangleBuffer = m_GraphicsDevice->CreateBuffer(triangleBufferSpecs);
+
+            GraphicsPipelineSpecs trianglePipelineSpecs = {};
+            trianglePipelineSpecs.BufferLayout = ColouredVertex::GetLayout();
+            trianglePipelineSpecs.CullMode = CullMode::None;
+            trianglePipelineSpecs.FrontFace = FrontFace::CounterClockwise;
+            trianglePipelineSpecs.PolygonMode = PolygonMode::Fill;
+            trianglePipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
+            trianglePipelineSpecs.Shaders[ShaderStage::Vertex] = m_ShaderManager->Get("coloured_vertex.vert");
+            trianglePipelineSpecs.Shaders[ShaderStage::Fragment] = m_ShaderManager->Get("coloured_vertex.frag");
+
+            UniformLayout uniformLayout = {};
+            uniformLayout.Add({ "ubo", UniformDataType::Mat4, ShaderStage::Vertex, sizeof(glm::mat4) });
+            trianglePipelineSpecs.UniformLayout = uniformLayout;
+
+            m_TrianglePipeline = m_GraphicsDevice->CreateGraphicsPipeline(trianglePipelineSpecs);
+        }
+#endif
 
         // --------------------
         // Prepare Quad Data
@@ -97,14 +118,7 @@ namespace pxl
             bufferSpecs.Data = indices.data();
             m_QuadIndexBuffer = m_GraphicsDevice->CreateBuffer(bufferSpecs);
 
-            ShaderSpecs quadShaderSpecs = {};
-            quadShaderSpecs.FilePath = "resources/shaders/compiled/textured_vertex_vert.spv";
-            quadShaderSpecs.Stage = ShaderStage::Vertex;
-            auto quadShaderVert = m_GraphicsDevice->CreateShader(quadShaderSpecs);
 
-            quadShaderSpecs.FilePath = "resources/shaders/compiled/textured_vertex_frag.spv";
-            quadShaderSpecs.Stage = ShaderStage::Fragment;
-            auto quadShaderFrag = m_GraphicsDevice->CreateShader(quadShaderSpecs);
 
             // Create graphics pipeline
             GraphicsPipelineSpecs quadPipelineSpecs = {};
@@ -113,8 +127,8 @@ namespace pxl
             quadPipelineSpecs.FrontFace = FrontFace::CounterClockwise;
             quadPipelineSpecs.PolygonMode = PolygonMode::Fill;
             quadPipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
-            quadPipelineSpecs.Shaders[ShaderStage::Vertex] = quadShaderVert;
-            quadPipelineSpecs.Shaders[ShaderStage::Fragment] = quadShaderFrag;
+            quadPipelineSpecs.Shaders[ShaderStage::Vertex] = m_ShaderManager->Get("textured_vertex.vert");
+            quadPipelineSpecs.Shaders[ShaderStage::Fragment] = m_ShaderManager->Get("textured_vertex.frag");
 
             m_QuadPipeline = m_GraphicsDevice->CreateGraphicsPipeline(quadPipelineSpecs);
         }

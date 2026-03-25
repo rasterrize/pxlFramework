@@ -13,12 +13,9 @@ namespace pxl
 
         virtual void Free() override;
 
-        virtual void Reload() override;
+        virtual bool Reload(const std::vector<uint32_t>& code) override;
 
         VkShaderModule GetModule() const { return m_Module; }
-
-    private:
-        void Load();
 
     private:
         VkShaderModule m_Module = nullptr;

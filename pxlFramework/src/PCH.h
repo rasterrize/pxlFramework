@@ -16,6 +16,7 @@
 #include <cstring>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <functional>
 #include <map>
 #include <memory>

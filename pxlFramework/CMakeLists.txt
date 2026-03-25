@@ -128,7 +128,7 @@ if(MSVC)
 endif()
 
 # Find Vulkan SDK
-find_package(Vulkan REQUIRED COMPONENTS shaderc_combined volk)
+find_package(Vulkan REQUIRED COMPONENTS volk shaderc_combined)
 
 message(STATUS "PXL: Finished restoring dependencies")
 
@@ -141,6 +141,7 @@ target_link_libraries(pxl
     assimp
     yaml-cpp
     Vulkan::volk
+    Vulkan::shaderc_combined
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
 )
 
@@ -154,53 +155,27 @@ if(PXL_MODULE_DISCORD)
     target_compile_definitions(pxl PUBLIC PXL_ENABLE_MODULE_DISCORD)
 endif()
 
-target_compile_definitions(pxl PUBLIC
+set(PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<$<PLATFORM_ID:Windows>:GLFW_EXPOSE_NATIVE_WIN32>
     $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN> # Tell Win32 API to use less headers
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
+    PXL_SOURCE_RESOURCE_DIRECTORY="${PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY}"
 )
 
 # Specify source directory as an include folder for simplified '#include's in code
 # TODO: This currently causes the problem that applications now have access to all source files, which isn't ideal
 # and should instead only expose pxl.h (I am unsure if this is even possible)
-target_include_directories(pxl PUBLIC src)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC src
+    INTERFACE include
+)
 
-# Specify include directories for projects using pxlFramework via add_subdirectory()
-target_include_directories(pxl INTERFACE include)
-
-# Due to certain variables being named their own type, we must ignore this warning for now
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(pxl PUBLIC "-Wno-changes-meaning")
-endif()
-
-# Copy internal framework resources to bin directory
-# Copy fonts
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
+# Copy framework resources to bin directory
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # Copy necessary framework dependency DLLs to bin directory
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
-
-# Compile shaders to SPIR-V
-set(PXL_SHADER_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders")
-set(PXL_SHADER_COMPILE_DIR "${CMAKE_BINARY_DIR}/bin/resources/shaders/compiled")
-
-file(MAKE_DIRECTORY ${PXL_SHADER_COMPILE_DIR})
-
-add_custom_command(TARGET pxl POST_BUILD COMMAND
-    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/coloured_vertex.vert -o ${PXL_SHADER_COMPILE_DIR}/coloured_vertex_vert.spv
-)
-
-add_custom_command(TARGET pxl POST_BUILD COMMAND
-    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/coloured_vertex.frag -o ${PXL_SHADER_COMPILE_DIR}/coloured_vertex_frag.spv
-)
-
-add_custom_command(TARGET pxl POST_BUILD COMMAND
-    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/textured_vertex.vert -o ${PXL_SHADER_COMPILE_DIR}/textured_vertex_vert.spv
-)
-
-add_custom_command(TARGET pxl POST_BUILD COMMAND
-    ${Vulkan_GLSLC_EXECUTABLE} ${PXL_SHADER_SOURCE_DIR}/textured_vertex.frag -o ${PXL_SHADER_COMPILE_DIR}/textured_vertex_frag.spv
-)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deps/BASS/lib/x64/bass.dll DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

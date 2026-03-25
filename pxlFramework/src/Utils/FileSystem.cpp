@@ -54,6 +54,7 @@ namespace pxl
             return std::string();
         }
 
+        // TODO: rewrite
         std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
 
         if (!file.is_open())
@@ -76,7 +77,7 @@ namespace pxl
         return src;
     }
 
-    std::vector<char> FileSystem::LoadSPIRV(const std::filesystem::path& path)
+    std::vector<uint32_t> FileSystem::LoadSPIRV(const std::filesystem::path& path)
     {
         std::ifstream file(path, std::ios::ate | std::ios::binary); // the 'ate' means read from the end of the file
 
@@ -90,7 +91,16 @@ namespace pxl
         file.seekg(0); // return back to the start of the file
         file.read(buffer.data(), fileSize);
 
-        return buffer;
+        std::vector<uint32_t> code;
+        for (size_t i = 0; i < buffer.size(); i += 4)
+        {
+            uint32_t num;
+            memcpy(&num, &buffer[i], 4);
+
+            code.push_back(num);
+        }
+
+        return code;
     }
 
     std::vector<std::shared_ptr<Mesh>> FileSystem::LoadModel(const std::filesystem::path& path)

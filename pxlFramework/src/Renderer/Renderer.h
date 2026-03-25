@@ -11,6 +11,7 @@
 #include "Primitives/Quad.h"
 #include "RendererConfig.h"
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "Texture.h"
 #include "VertexBatch.h"
 
@@ -33,6 +34,15 @@ namespace pxl
         float LastFrameTime = 0.0f;
         double TimeAtLastFrame = 0.0;
     };
+
+    namespace RendererConstants
+    {
+#ifdef PXL_DEBUG
+        static const std::filesystem::path k_FrameworkShaderDirectory = PXL_SOURCE_RESOURCE_DIRECTORY "/shaders";
+#else
+        static const std::filesystem::path k_FrameworkShaderDirectory = "resources/shaders";
+#endif
+    }
 
     class Renderer
     {
@@ -70,7 +80,9 @@ namespace pxl
         bool IsImGuiInitialized() const { return m_ImGuiRenderer != nullptr; }
 
         /// @brief Recreates all pipelines and reloads their shaders.
+        void ReloadPipelines();
         /// @brief Clears the shader cache directory
+        void ClearShaderCache() { m_ShaderManager->ClearCache(); }
     private:
         friend class Application;
         void Begin();
@@ -91,6 +103,7 @@ namespace pxl
 
         std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer = nullptr;
 
+        std::unique_ptr<ShaderManager> m_ShaderManager = nullptr;
         std::shared_ptr<GPUBuffer> m_TriangleBuffer;
         std::shared_ptr<GraphicsPipeline> m_TrianglePipeline;
 

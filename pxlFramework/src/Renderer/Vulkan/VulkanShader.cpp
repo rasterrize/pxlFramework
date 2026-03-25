@@ -1,6 +1,5 @@
 #include "VulkanShader.h"
 
-#include "Utils/FileSystem.h"
 #include "VulkanUtils.h"
 
 namespace pxl
@@ -8,11 +7,7 @@ namespace pxl
     VulkanShader::VulkanShader(const ShaderSpecs& specs, VkDevice device)
         : Shader(specs), m_Device(device)
     {
-        if (specs.FilePath.extension() == ".spv")
-        {
-            auto code = FileSystem::LoadSPIRV(specs.FilePath);
-            m_Module = VulkanUtils::CreateShaderModule(m_Device, code);
-        }
+        m_Module = VulkanUtils::CreateShaderModule(m_Device, specs.Code);
     }
 
     void VulkanShader::Free()
@@ -24,18 +19,11 @@ namespace pxl
         }
     }
 
-    void VulkanShader::Reload()
+    bool VulkanShader::Reload(const std::vector<uint32_t>& code)
     {
+        m_Specs.Code = code;
+        m_Module = VulkanUtils::CreateShaderModule(m_Device, m_Specs.Code);
+        return m_Module;
     }
 
-    void VulkanShader::Load()
-    {
-        if (std::filesystem::exists(m_Specs.FilePath))
-        {
-            // if (m_Specs)
-            //     auto code = FileSystem::LoadSPIRV
-            // TODO: reload shader
-            // It is then up to the user to call recreate on their pipelines referencing this shader
-        }
-    }
 }
