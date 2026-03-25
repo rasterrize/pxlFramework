@@ -25,10 +25,6 @@ namespace TestApp
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Line, m_Camera);
-
-
-        // pxl::DiscordRPC::Init(RPCCLIENT_ID);
-        // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'LinesTest' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});
     }
 
     void LinesTest::OnUpdate(float dt)

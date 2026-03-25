@@ -8,27 +8,18 @@ namespace TestApp
 
         m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(m_Window);
+        auto& renderer = pxl::Application::Get().InitRenderer({ m_Window });
         pxl::Input::Init(m_Window);
 
-        pxl::Renderer::SetClearColour(m_ClearColour);
+        m_Camera = static_pointer_cast<pxl::PerspectiveCamera>(renderer->GetCamera3D());
 
-        m_Camera = pxl::Camera::CreatePerspective({ .FOV = 60.0f,
-            .AspectRatio = m_Window->GetAspectRatio(),
-            .NearClip = 0.001f,
-            .FarClip = 1000.0f });
+        // LoadMesh("assets/models/star.obj");
 
-        m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
+        // pxl::GUI::Init(m_Window);
 
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Quad, m_Camera);
-
-        LoadMesh("assets/models/star.obj");
-
-        pxl::GUI::Init(m_Window);
-
-        PXL_REGISTER_HANDLER(m_ResizeHandler, pxl::WindowResizeEvent, OnWindowResizeEvent);
-        PXL_REGISTER_HANDLER(m_PathDropHandler, pxl::WindowPathDropEvent, OnWindowPathDropEvent);
-        PXL_REGISTER_HANDLER(m_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
+        PXL_CREATE_AND_REGISTER_HANDLER(m_ResizeHandler, pxl::WindowResizeEvent, OnWindowResizeEvent);
+        PXL_CREATE_AND_REGISTER_HANDLER(m_PathDropHandler, pxl::WindowPathDropEvent, OnWindowPathDropEvent);
+        PXL_CREATE_AND_REGISTER_HANDLER(m_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
     }
 
     void ModelViewer::OnUpdate(float dt)
@@ -66,10 +57,10 @@ namespace TestApp
     {
         PXL_PROFILE_SCOPE;
 
-        for (const auto& mesh : m_LoadedModels[m_CurrentModelIndex])
-        {
-            pxl::Renderer::DrawMesh(mesh, m_MeshPosition, m_MeshRotation, glm::vec3(1.0f));
-        }
+        // for (const auto& mesh : m_LoadedModels[m_CurrentModelIndex])
+        // {
+        //     pxl::Renderer::DrawMesh(mesh, m_MeshPosition, m_MeshRotation, glm::vec3(1.0f));
+        // }
     }
 
     void ModelViewer::OnGUIRender()
@@ -78,8 +69,8 @@ namespace TestApp
 
         ImGui::Begin("ModelViewer");
 
-        ImGui::DragFloat3("MeshRotation: %.2f, %.2f, %.2f", reinterpret_cast<float*>(&m_MeshRotation));
-        ImGui::Text("CursorDelta: %.2f, %.2f", pxl::Input::GetCursorDelta().x, pxl::Input::GetCursorDelta().y);
+        ImGui::DragFloat3("Mesh Rotation", reinterpret_cast<float*>(&m_MeshRotation));
+        ImGui::Text("Cursor Delta: %.2f, %.2f", pxl::Input::GetCursorDelta().x, pxl::Input::GetCursorDelta().y);
 
         if (ImGui::BeginListBox("Models"))
         {
@@ -118,8 +109,8 @@ namespace TestApp
         if (e.IsModsAndKey(pxl::KeyModFlags::Alt, pxl::KeyCode::Enter))
             m_Window->NextWindowMode();
 
-        if (e.IsKey(pxl::KeyCode::F7))
-            m_Window->GetGraphicsContext()->SetVSync(!m_Window->GetGraphicsContext()->GetVSync());
+        // if (e.IsKey(pxl::KeyCode::F7))
+        //     m_Window->GetGraphicsContext()->SetVSync(!m_Window->GetGraphicsContext()->GetVSync());
 
         if (e.IsKey(pxl::KeyCode::F1))
         {
