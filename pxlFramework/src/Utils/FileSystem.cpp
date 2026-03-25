@@ -184,16 +184,4 @@ namespace pxl
     {
         stbi_write_png_compression_level = level;
     }
-
-    // std::shared_ptr<AudioTrack> FileSystem::LoadAudioTrack(const std::string& filePath)
-    // {
-    //     HSTREAM stream = BASS_StreamCreateFile(FALSE, filePath.c_str(), 0, 0, BASS_SAMPLE_FLOAT);
-
-    //     if (stream)
-    //         Logger::LogInfo("Loaded audio: '" + filePath + "'");
-    //     else
-    //         Logger::LogError("Failed to load audio: '" + filePath + "'");
-
-    //     return std::make_shared<AudioTrack>(stream);
-    // }
 }
