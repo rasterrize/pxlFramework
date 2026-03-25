@@ -51,7 +51,6 @@
 #include "../src/Debug/Profiler.h"
 
 // Utils
-#include "../src/Utils/EnumStringHelper.h"
 #include "../src/Utils/FileSystem.h"
 #include "../src/Utils/Random.h"
 

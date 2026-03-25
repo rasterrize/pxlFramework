@@ -42,4 +42,19 @@ namespace pxl
     private:
         GLFWcursor* m_Cursor = nullptr;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(CursorMode mode)
+        {
+            switch (mode)
+            {
+                case CursorMode::Normal:   return "Normal";
+                case CursorMode::Hidden:   return "Hidden";
+                case CursorMode::Disabled: return "Disabled";
+                case CursorMode::Captured: return "Captured";
+                default:                   return "Unknown";
+            }
+        }
+    }
 }

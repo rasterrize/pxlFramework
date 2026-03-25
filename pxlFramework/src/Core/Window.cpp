@@ -6,7 +6,6 @@
 #include "Platform.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Vulkan/VulkanUtils.h"
-#include "Utils/EnumStringHelper.h"
 #include "Utils/FileSystem.h"
 
 namespace pxl
@@ -240,7 +239,7 @@ namespace pxl
         WindowModeChangeEvent event(mode, m_Handle.lock());
         m_EventCallback(event);
 
-        PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, EnumStringHelper::ToString(m_WindowMode));
+        PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, Utils::ToString(m_WindowMode));
     }
 
     void Window::SetMonitor(uint8_t monitorIndex)

@@ -65,4 +65,53 @@ namespace pxl
     protected:
         GraphicsPipelineSpecs m_Specs;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(PrimitiveTopology topology)
+        {
+            switch (topology)
+            {
+                case PrimitiveTopology::Triangle:      return "Triangle";
+                case PrimitiveTopology::TriangleStrip: return "TriangleStrip";
+                case PrimitiveTopology::TriangleFan:   return "TriangleFan";
+                case PrimitiveTopology::Line:          return "Line";
+                case PrimitiveTopology::LineStrip:     return "LineStrip";
+                case PrimitiveTopology::Point:         return "Point";
+                default:                               return "Unknown";
+            }
+        }
+
+        inline std::string ToString(PolygonMode mode)
+        {
+            switch (mode)
+            {
+                case PolygonMode::Fill:  return "Fill";
+                case PolygonMode::Line:  return "Line";
+                case PolygonMode::Point: return "Point";
+                default:                 return "Unknown";
+            }
+        }
+
+        inline std::string ToString(CullMode mode)
+        {
+            switch (mode)
+            {
+                case CullMode::None:  return "None";
+                case CullMode::Front: return "Front";
+                case CullMode::Back:  return "Back";
+                default:              return "Unknown";
+            }
+        }
+
+        inline std::string ToString(FrontFace face)
+        {
+            switch (face)
+            {
+                case FrontFace::Clockwise:        return "Clockwise";
+                case FrontFace::CounterClockwise: return "Counter-Clockwise";
+                default:                          return "Unknown";
+            }
+        }
+    }
 }

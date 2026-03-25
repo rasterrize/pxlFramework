@@ -50,9 +50,8 @@ namespace pxl
                 case EventType::GamepadAxisChange: return "GamepadAxisChange";
                 case EventType::GamepadButtonDown: return "GamepadButtonDown";
                 case EventType::GamepadButtonUp:   return "GamepadButtonUp";
+                default:                           return "Unknown";
             }
-
-            return "Undefined";
         }
     }
 }

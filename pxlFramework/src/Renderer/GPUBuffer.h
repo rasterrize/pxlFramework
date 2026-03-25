@@ -45,4 +45,28 @@ namespace pxl
 
         virtual void SetData(uint64_t size, uint64_t offset, const void* data) = 0;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(GPUBufferUsage usage)
+        {
+            switch (usage)
+            {
+                case GPUBufferUsage::Vertex:  return "Vertex";
+                case GPUBufferUsage::Index:   return "Index";
+                case GPUBufferUsage::Uniform: return "Uniform";
+                default:                      return "Unknown";
+            }
+        }
+
+        inline std::string ToString(GPUBufferDrawHint hint)
+        {
+            switch (hint)
+            {
+                case GPUBufferDrawHint::Static:  return "Static";
+                case GPUBufferDrawHint::Dynamic: return "Dynamic";
+                default:                         return "Unknown";
+            }
+        }
+    }
 }

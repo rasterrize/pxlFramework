@@ -64,6 +64,7 @@ namespace TestApp
         buildTypeString = "Distribute x64";
 #endif
 
+        graphicsAPITypeString = pxl::Utils::ToString(m_DefaultRendererConfig.APIType);
         windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPITypeString, m_Test->ToString());
 
         pxl::WindowSpecs windowSpecs = {};

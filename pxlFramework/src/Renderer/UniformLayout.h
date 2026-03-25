@@ -75,4 +75,28 @@ namespace pxl
     private:
         std::vector<UniformElement> m_Elements;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(UniformDataType type)
+        {
+            switch (type)
+            {
+                case UniformDataType::None:     return "None";
+                case UniformDataType::Float:    return "Float";
+                case UniformDataType::Float2:   return "Float2";
+                case UniformDataType::Float3:   return "Float3";
+                case UniformDataType::Float4:   return "Float4";
+                case UniformDataType::Int:      return "Int";
+                case UniformDataType::Int2:     return "Int2";
+                case UniformDataType::Int3:     return "Int3";
+                case UniformDataType::Int4:     return "Int4";
+                case UniformDataType::Mat3:     return "Mat3";
+                case UniformDataType::Mat4:     return "Mat4";
+                case UniformDataType::Bool:     return "Bool";
+                case UniformDataType::IntArray: return "IntArray";
+                default:                        return "Unknown";
+            }
+        }
+    }
 }

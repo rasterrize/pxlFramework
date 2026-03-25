@@ -35,9 +35,8 @@ namespace pxl
                 case MouseCode::Button6: return "Mouse Button 6";
                 case MouseCode::Button7: return "Mouse Button 7";
                 case MouseCode::Button8: return "Mouse Button 8";
+                default:                 return "Unknown";
             }
-
-            return "Unknown Mouse Button";
         }
     }
 }

@@ -263,4 +263,18 @@ namespace pxl
         // The function to process window events every application update
         static inline std::function<void()> s_EventProcessFunc = glfwPollEvents;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(WindowMode mode)
+        {
+            switch (mode)
+            {
+                case WindowMode::Windowed:   return "Windowed";
+                case WindowMode::Borderless: return "Borderless";
+                case WindowMode::Fullscreen: return "Fullscreen";
+                default:                     return "Unknown";
+            }
+        }
+    }
 }

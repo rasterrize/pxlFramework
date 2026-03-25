@@ -13,7 +13,6 @@ namespace pxl
 
     enum class SampleFilter
     {
-        Undefined,
         Nearest,
         Linear,
     };
@@ -57,4 +56,28 @@ namespace pxl
         std::vector<uint8_t> Buffer;
         ImageMetadata Metadata = {};
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(ImageFormat format)
+        {
+            switch (format)
+            {
+                case ImageFormat::Undefined: return "Undefined";
+                case ImageFormat::RGB8:      return "RGB8";
+                case ImageFormat::RGBA8:     return "RGBA8";
+                default:                     return "Unknown";
+            }
+        }
+
+        inline std::string ToString(SampleFilter filter)
+        {
+            switch (filter)
+            {
+                case SampleFilter::Nearest: return "Nearest";
+                case SampleFilter::Linear:  return "Linear";
+                default:                    return "Unknown";
+            }
+        }
+    }
 }

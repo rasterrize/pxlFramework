@@ -26,7 +26,6 @@ namespace TestApp
 
         pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Line, m_Camera);
 
-        //std::string rendererAPIString = pxl::EnumStringHelper::ToString(windowSpecs.RendererAPI);
 
         // pxl::DiscordRPC::Init(RPCCLIENT_ID);
         // pxl::DiscordRPC::SetPresence({ RPCCLIENT_ID, "Test App", "Running test 'LinesTest' utilizing " + rendererAPIString, pxl::DiscordRPCActivityType::Playing, "ta"});

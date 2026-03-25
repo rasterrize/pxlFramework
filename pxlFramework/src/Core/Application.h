@@ -90,4 +90,18 @@ namespace pxl
         std::unique_ptr<Renderer> m_Renderer = nullptr;
         std::unique_ptr<EventManager> m_EventManager = nullptr;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(FramerateMode mode)
+        {
+            switch (mode)
+            {
+                case FramerateMode::Unlimited:    return "Unlimited";
+                case FramerateMode::Custom:       return "Custom";
+                case FramerateMode::AdaptiveSync: return "Adaptive Sync";
+                default:                          return "Unknown";
+            }
+        }
+    }
 }

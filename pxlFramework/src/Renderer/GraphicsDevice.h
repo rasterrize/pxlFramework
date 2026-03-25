@@ -62,4 +62,17 @@ namespace pxl
 
         virtual GraphicsDeviceLimits GetLimits() const = 0;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(QueueType type)
+        {
+            switch (type)
+            {
+                case QueueType::Graphics: return "Graphics";
+                case QueueType::Compute:  return "Compute";
+                default:                  return "Unknown";
+            }
+        }
+    }
 }

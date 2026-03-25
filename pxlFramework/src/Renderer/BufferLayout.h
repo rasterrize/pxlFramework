@@ -62,4 +62,27 @@ namespace pxl
         // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
         uint32_t m_Stride = 0;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(BufferDataType type)
+        {
+            switch (type)
+            {
+                case BufferDataType::None:  return "None";
+                case BufferDataType::Float: return "Float";
+                case BufferDataType::Vec2:  return "Vec2";
+                case BufferDataType::Vec3:  return "Vec3";
+                case BufferDataType::Vec4:  return "Vec4";
+                case BufferDataType::Int:   return "Int";
+                case BufferDataType::IVec2: return "IVec2";
+                case BufferDataType::IVec3: return "IVec3";
+                case BufferDataType::IVec4: return "IVec4";
+                case BufferDataType::Mat3:  return "Mat3";
+                case BufferDataType::Mat4:  return "Mat4";
+                case BufferDataType::Bool:  return "Bool";
+                default:                    return "Unknown";
+            }
+        }
+    }
 }

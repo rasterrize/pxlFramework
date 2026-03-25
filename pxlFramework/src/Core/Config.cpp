@@ -4,8 +4,6 @@
 
 #include <fstream>
 
-#include "Utils/EnumStringHelper.h"
-
 #ifdef PXL_DEBUG
     #define CONFIG_FILE_NAME_STRING "FrameworkConfig-dev.yaml"
 #else
@@ -90,8 +88,8 @@ namespace pxl
     void FrameworkConfig::SaveToFile()
     {
         YAML::Node saveNode;
-        saveNode["RendererAPI"] = EnumStringHelper::ToString(s_Settings.GraphicsAPIType);
-        saveNode["WindowMode"] = EnumStringHelper::ToString(s_Settings.WindowMode);
+        saveNode["RendererAPI"] = Utils::ToString(s_Settings.GraphicsAPIType);
+        saveNode["WindowMode"] = Utils::ToString(s_Settings.WindowMode);
         saveNode["VSync"] = s_Settings.VSync;
         saveNode["WindowPositionX"] = s_Settings.WindowPosition.x;
         saveNode["WindowPositionY"] = s_Settings.WindowPosition.y;

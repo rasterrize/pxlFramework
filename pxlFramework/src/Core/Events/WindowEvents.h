@@ -2,7 +2,6 @@
 
 #include "Core/Window.h"
 #include "Event.h"
-#include "Utils/EnumStringHelper.h"
 
 namespace pxl
 {
@@ -72,7 +71,7 @@ namespace pxl
         static EventType GetStaticType() { return EventType::WindowModeChange; }
 
     protected:
-        virtual std::string DataToString() const override { return std::format("Mode = {}", EnumStringHelper::ToString(m_WindowMode)); }
+        virtual std::string DataToString() const override { return std::format("Mode = {}", Utils::ToString(m_WindowMode)); }
 
     private:
         WindowMode m_WindowMode;

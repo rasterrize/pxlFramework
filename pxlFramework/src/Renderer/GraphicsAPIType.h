@@ -6,4 +6,16 @@ namespace pxl
     {
         Vulkan,
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(GraphicsAPIType type)
+        {
+            switch (type)
+            {
+                case GraphicsAPIType::Vulkan: return "Vulkan";
+                default:                      return "Unknown";
+            }
+        }
+    }
 }

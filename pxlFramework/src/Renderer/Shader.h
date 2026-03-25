@@ -11,6 +11,7 @@ namespace pxl
         Geometry,
         TessellationControl,
         TessellationEvaluation,
+        Compute,
     };
 
     struct ShaderSpecs
@@ -40,4 +41,21 @@ namespace pxl
     protected:
         ShaderSpecs m_Specs;
     };
+
+    namespace Utils
+    {
+        inline std::string ToString(ShaderStage stage)
+        {
+            switch (stage)
+            {
+                case ShaderStage::Vertex:                 return "Vertex";
+                case ShaderStage::Fragment:               return "Fragment";
+                case ShaderStage::Geometry:               return "Geometry";
+                case ShaderStage::TessellationControl:    return "TessellationControl";
+                case ShaderStage::TessellationEvaluation: return "TessellationEvaluation";
+                case ShaderStage::Compute:                return "Compute";
+                default:                                  return "Unknown";
+            }
+        }
+    }
 }
