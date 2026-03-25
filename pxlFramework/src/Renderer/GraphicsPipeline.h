@@ -56,6 +56,7 @@ namespace pxl
             : m_Specs(specs)
         {
         }
+
         virtual ~GraphicsPipeline() = default;
 
         /// @brief Recreates the pipeline using its predefined specifications.

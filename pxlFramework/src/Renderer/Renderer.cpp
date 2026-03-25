@@ -434,6 +434,19 @@ namespace pxl
         // clang-format on
     }
 
+    RendererStats Renderer::GetStats() const
+    {
+        auto stats = m_RendererStats;
+
+        if (m_GraphicsContext)
+            stats.GraphicsContextStats = m_GraphicsContext->GetStats();
+
+        if (m_GraphicsDevice)
+            stats.GraphicsDeviceStats = m_GraphicsDevice->GetStats();
+
+        return stats;
+    }
+
     void Renderer::OnWindowFBResize(const WindowFBResizeEvent& e)
     {
         if (e.GetWindow() != m_Config.Window)

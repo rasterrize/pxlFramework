@@ -45,7 +45,6 @@ namespace pxl
 
         virtual void FreeResources() override;
 
-        virtual GraphicsDeviceLimits GetLimits() const override { return GraphicsDeviceLimits(); }
         virtual void SetVerticalSync(bool enable) override;
 
         virtual uint32_t GetSwapchainImageIndex() const override { return m_SwapchainImageIndex; }

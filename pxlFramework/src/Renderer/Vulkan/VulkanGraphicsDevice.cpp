@@ -23,6 +23,7 @@ namespace pxl
     {
         auto buffer = std::make_shared<VulkanGPUBuffer>(specs, m_Device, m_Allocator);
         m_Resources.push_back(buffer);
+        m_Stats.BufferCount++;
         return buffer;
     }
 
@@ -36,6 +37,7 @@ namespace pxl
     {
         auto shader = std::make_shared<VulkanShader>(specs, m_Device);
         m_Resources.push_back(shader);
+        m_Stats.ShaderCount++;
         return shader;
     }
 
@@ -43,6 +45,7 @@ namespace pxl
     {
         auto pipeline = std::make_shared<VulkanGraphicsPipeline>(specs, m_Device, m_SurfaceFormat.format);
         m_Resources.push_back(pipeline);
+        m_Stats.GraphicsPipelineCount++;
         return pipeline;
     }
 
@@ -292,6 +295,22 @@ namespace pxl
 
         // Get the newly created graphics queue
         vkGetDeviceQueue(m_Device, m_GraphicsQueueFamily.value(), 0, &m_GraphicsQueue);
+
+        // Load GPU properties
+        VkPhysicalDeviceDriverProperties driverProps = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES };
+        VkPhysicalDeviceProperties2 gpuProps = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+        gpuProps.pNext = &driverProps;
+
+        vkGetPhysicalDeviceProperties2(m_GPU, &gpuProps);
+
+        m_GPUName = gpuProps.properties.deviceName;
+        m_DriverInfo = driverProps.driverInfo;
+        m_Limits.MaxAnisotropicLevel = gpuProps.properties.limits.maxSamplerAnisotropy;
+
+#ifdef PXL_DEBUG
+        PXL_LOG_INFO(LogArea::Vulkan, "Selected GPU: {}", m_GPUName);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Driver info: {}", m_DriverInfo);
+#endif
     }
 
     void VulkanGraphicsDevice::InitAllocator()

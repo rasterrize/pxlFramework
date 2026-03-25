@@ -8,6 +8,9 @@ namespace pxl
 {
     void VulkanGraphicsContext::Begin(const std::unique_ptr<GraphicsDevice>& device)
     {
+        // Reset stats
+        memset(&m_Stats, 0, sizeof(GraphicsContextStats));
+
         VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
         vulkanDevice->AcquireNextSwapchainImage();
         m_CommandBuffer = vulkanDevice->GetCurrentFrame().CommandBuffer;
@@ -128,11 +131,13 @@ namespace pxl
             VkDeviceSize offset = { 0 };
             // TODO: check if binding matters here
             vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &handle, &offset);
+            m_Stats.VertexBufferBinds++;
         }
         else if (vulkanBuffer->GetVkBufferUsage() & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
         {
             VkDeviceSize offset = { 0 };
             vkCmdBindIndexBuffer(m_CommandBuffer, handle, offset, VK_INDEX_TYPE_UINT32);
+            m_Stats.IndexBufferBinds++;
         }
     }
 
@@ -140,6 +145,8 @@ namespace pxl
     {
         BindParams(params);
         vkCmdDraw(m_CommandBuffer, params.VertexCount, 1, 0, 0);
+
+        m_Stats.DrawCalls++;
     }
 
     void VulkanGraphicsContext::DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer)
@@ -151,6 +158,8 @@ namespace pxl
         // vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0,
 
         vkCmdDrawIndexed(m_CommandBuffer, params.IndexCount, 1, 0, 0, 0);
+
+        m_Stats.DrawCalls++;
     }
 
     void VulkanGraphicsContext::SetClearColour(const glm::vec4& colour)

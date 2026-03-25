@@ -9,13 +9,6 @@
 
 namespace pxl
 {
-    struct GraphicsDeviceLimits
-    {
-        uint32_t MaxTextureSlots = 32;
-        float VRAMLimit = 128.0f; // VRAM limit in megabytes
-        float MaxAnisotropicLevel = 1.0f;
-    };
-
     enum class QueueType
     {
         Graphics,
@@ -44,6 +37,20 @@ namespace pxl
 
         /// @brief Whether to triple buffering on the swapchain, setting the desired number swapchain images to at least 3.
         bool TripleBuffering = true;
+    };
+
+    struct GraphicsDeviceStats
+    {
+        uint32_t BufferCount;
+        uint32_t ShaderCount;
+        uint32_t GraphicsPipelineCount;
+        uint32_t TextureCount;
+        uint32_t AllocatedBytes;
+    };
+
+    struct GraphicsDeviceLimits
+    {
+        float MaxAnisotropicLevel = 0.0f;
     };
 
     /// @brief Represents a GPU (Graphics Processing Unit) used for allocating GPU resources and
@@ -101,10 +108,18 @@ namespace pxl
         GraphicsDeviceLimits GetLimits() const { return m_Limits; }
         GraphicsDeviceStats GetStats() const { return m_Stats; }
 
+        std::string GetGPUName() const { return m_GPUName; }
+        std::string GetDriverInfo() const { return m_DriverInfo; }
+        GPUType GetGPUType() const { return m_GPUType; }
+
     protected:
         GraphicsDeviceSpecs m_Specs = {};
         GraphicsDeviceLimits m_Limits = {};
         GraphicsDeviceStats m_Stats = {};
+
+        std::string m_GPUName;
+        std::string m_DriverInfo;
+        GPUType m_GPUType;
     };
 
     namespace Utils
@@ -115,6 +130,16 @@ namespace pxl
             {
                 case QueueType::Graphics: return "Graphics";
                 case QueueType::Compute:  return "Compute";
+                default:                  return "Unknown";
+            }
+        }
+
+        inline std::string ToString(GPUType type)
+        {
+            switch (type)
+            {
+                case GPUType::Discrete:   return "Discrete";
+                case GPUType::Integrated: return "Integrated";
                 default:                  return "Unknown";
             }
         }
