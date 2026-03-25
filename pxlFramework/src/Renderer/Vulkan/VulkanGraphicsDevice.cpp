@@ -276,15 +276,15 @@ namespace pxl
 
     void VulkanGraphicsDevice::InitAllocator()
     {
-        VmaVulkanFunctions funcs = {};
-        funcs.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
-        funcs.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
-
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
+        allocatorCreateInfo.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT | VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
         allocatorCreateInfo.physicalDevice = m_GPU;
         allocatorCreateInfo.device = m_Device;
         allocatorCreateInfo.instance = m_Instance;
         allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+
+        VmaVulkanFunctions funcs;
+        VK_CHECK(vmaImportVulkanFunctionsFromVolk(&allocatorCreateInfo, &funcs));
         allocatorCreateInfo.pVulkanFunctions = &funcs;
 
         VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &m_Allocator));
