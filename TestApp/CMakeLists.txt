@@ -25,7 +25,7 @@ add_executable(TestApp
 )
 
 # Set project c++ standard
-target_compile_features(TestApp PRIVATE cxx_std_20)
+set_target_properties(TestApp PROPERTIES CXX_STANDARD 20)
 
 # Set pxlFramework settings
 set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
@@ -35,7 +35,7 @@ set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
 # Link to pxlFramework
 target_link_libraries(TestApp pxl)
 
-# Set exe as Win32 for release builds (TODO: use only for distribution builds)
+# Use WinMain for release builds
 set_target_properties(TestApp PROPERTIES WIN32_EXECUTABLE $<CONFIG:Release>)
 
 # Set Visual Studio working directory

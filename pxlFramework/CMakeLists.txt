@@ -13,35 +13,40 @@ target_sources(${PROJECT_NAME}
     ${headers}
 )
 
-# Set project c++ standard
-target_compile_features(pxl PRIVATE cxx_std_20)
+# Set library c++ standard
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
 # Enable logging if desired
 if(PXL_ENABLE_LOGGING)
-    target_compile_definitions(pxl PRIVATE PXL_ENABLE_LOGGING)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_LOGGING)
 endif()
 
 # Enable asserts if desired
 if(PXL_ENABLE_ASSERTS)
-    target_compile_definitions(pxl PRIVATE PXL_ENABLE_ASSERTS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_ASSERTS)
 endif()
 
 # Set MSVC settings
 if(MSVC)
     # Set MSVC runtime library based on build type
-    set_target_properties(pxl PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
     # Set MSBuild multi-processor compilation
-    target_compile_options(pxl PRIVATE "/MP")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/MP")
 
     # Set compiler warning level
-    target_compile_options(pxl PRIVATE "/W3")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/W3")
 
     # Treat warnings as errors
-    target_compile_options(pxl PRIVATE "/WX")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
 
     # Ignore missing PDB warnings (currently because of shaderc)
-    target_link_options(pxl PUBLIC "/ignore:4099")
+    target_link_options(${PROJECT_NAME} PUBLIC "/ignore:4099")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # Due to certain variables being named their own type, we must ignore this warning for now
+    target_compile_options(${PROJECT_NAME} PUBLIC "-Wno-changes-meaning")
 endif()
 
 # download CPM.cmake
@@ -54,85 +59,91 @@ file(
 
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
+# Use external CPM cache if defined
 if(DEFINED ENV{CPM_CACHE})
     set(CPM_SOURCE_CACHE $ENV{CPM_CACHE})
 else()
     set(CPM_SOURCE_CACHE ${CMAKE_BINARY_DIR}/cpm_cache)
 endif()
 
-# Set GLFW settings
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-# Set GLM settings
-set(GLM_ENABLE_CXX_20 ON CACHE BOOL "" FORCE)
-
-# Set ASSIMP settings
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
-set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
-
-# Set YAMLCPP settings
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
-
-# Set ImGui settings
-set(IMGUI_USE_BACKEND_GLFW ON CACHE BOOL "" FORCE)
-set(IMGUI_USE_BACKEND_VULKAN ON CACHE BOOL "" FORCE)
-set(IMGUI_USE_STDLIB ON CACHE BOOL "" FORCE)
-set(IMGUI_USE_VOLK ON CACHE BOOL "" FORCE)
-
-# Add Dependencies (CMake projects)
+# Add dependencies (CMake projects)
 message(STATUS "PXL: Restoring dependencies")
 
 CPMAddPackage("gh:glfw/glfw#3.4")
 CPMAddPackage("gh:gabime/spdlog#v1.14.1")
-CPMAddPackage("gh:g-truc/glm#1.0.2")
-CPMAddPackage("gh:rasterrize/imgui#0b6e01053c60c828b5625bd2eb80a9b9525e31d1")
-CPMAddPackage("gh:assimp/assimp#v6.0.2")
-CPMAddPackage("gh:jbeder/yaml-cpp#yaml-cpp-0.9.0")
+
+CPMAddPackage(
+    NAME glm
+    GITHUB_REPOSITORY g-truc/glm
+    GIT_TAG 1.0.2
+    OPTIONS
+    "GLM_ENABLE_CXX_20 ON"
+)
+
+CPMAddPackage(
+    NAME imgui
+    GITHUB_REPOSITORY rasterrize/imgui
+    GIT_TAG 0b6e01053c60c828b5625bd2eb80a9b9525e31d1
+    OPTIONS
+    "IMGUI_USE_BACKEND_GLFW ON"
+    "IMGUI_USE_BACKEND_VULKAN ON"
+    "IMGUI_USE_STDLIB ON"
+    "IMGUI_USE_VOLK ON"
+)
+
+CPMAddPackage(
+    NAME assimp
+    GITHUB_REPOSITORY assimp/assimp
+    GIT_TAG v6.0.2
+    OPTIONS
+    "ASSIMP_BUILD_TESTS OFF"
+    "ASSIMP_INSTALL OFF"
+    "ASSIMP_NO_EXPORT ON"
+    "ASSIMP_BUILD_ZLIB ON"
+    "ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF"
+    "ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF"
+    "ASSIMP_BUILD_FBX_IMPORTER ON"
+    "ASSIMP_BUILD_OBJ_IMPORTER ON"
+    "ASSIMP_BUILD_GLTF_IMPORTER ON"
+)
+
+CPMAddPackage(
+    NAME yaml-cpp
+    GITHUB_REPOSITORY jbeder/yaml-cpp
+    GIT_TAG yaml-cpp-0.9.0
+    OPTIONS
+    "YAML_CPP_BUILD_TESTS OFF"
+    "YAML_CPP_BUILD_CONTRIB OFF"
+    "YAML_CPP_BUILD_TOOLS OFF"
+)
 
 if(PXL_ENABLE_PROFILING)
-    option(TRACY_ENABLE "" ON)
-    option(TRACY_ON_DEMAND "" ON)
+    CPMAddPackage(
+        NAME tracy
+        GITHUB_REPOSITORY wolfpld/tracy
+        GIT_TAG v0.11.0
+        OPTIONS
+        "TRACY_ENABLE ON"
+        "TRACY_ON_DEMAND ON"
+    )
 
-    CPMAddPackage("gh:wolfpld/tracy#v0.11.0")
-
-    target_compile_definitions(pxlFramework PRIVATE PXL_ENABLE_PROFILING)
-    target_link_libraries(pxlFramework Tracy::TracyClient)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_PROFILING)
+    target_link_libraries(${PROJECT_NAME} Tracy::TracyClient)
     message(STATUS "PXL: Profiling enabled")
-else()
-    option(TRACY_ENABLE "" OFF)
 endif()
 
 add_subdirectory(deps/stb)
 
-target_include_directories(pxl PUBLIC deps/BASS/include)
-target_link_directories(pxl PUBLIC deps/BASS/lib/x64)
-
-# Set libraries to build with multi-processor compilation
-if(MSVC)
-    target_compile_options(glfw PUBLIC "/MP")
-    target_compile_options(imgui PUBLIC "/MP")
-    target_compile_options(stb PUBLIC "/MP")
-    target_compile_options(yaml-cpp PUBLIC "/MP")
-endif()
+target_include_directories(${PROJECT_NAME} PUBLIC deps/BASS/include)
+target_link_directories(${PROJECT_NAME} PUBLIC deps/BASS/lib/x64)
 
 # Find Vulkan SDK
 find_package(Vulkan REQUIRED COMPONENTS volk shaderc_combined)
 
 message(STATUS "PXL: Finished restoring dependencies")
 
-target_link_libraries(pxl
+# Link dependencies
+target_link_libraries(${PROJECT_NAME}
     glfw
     spdlog
     glm
@@ -145,14 +156,15 @@ target_link_libraries(pxl
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
 )
 
-target_precompile_headers(pxl PUBLIC src/PCH.h)
+# TODO: find out how to make this private (pxlFramework consumers should not have access to this)
+target_precompile_headers(${PROJECT_NAME} PUBLIC src/PCH.h)
 
 # Framework Modules
 if(PXL_MODULE_DISCORD)
     message(STATUS "PXL: Discord module enabled")
     add_subdirectory(modules/discord)
-    target_link_libraries(pxl pxlFramework-discord)
-    target_compile_definitions(pxl PUBLIC PXL_ENABLE_MODULE_DISCORD)
+    target_link_libraries(${PROJECT_NAME} pxlFramework-discord)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PXL_ENABLE_MODULE_DISCORD)
 endif()
 
 set(PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources)
