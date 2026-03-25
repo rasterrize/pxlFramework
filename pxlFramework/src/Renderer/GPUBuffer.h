@@ -19,23 +19,23 @@ namespace pxl
 
     struct GPUBufferSpecs
     {
-        /// @brief The type of data used in the GPUBuffer
+        /// @brief The type of data used in the GPUBuffer.
         GPUBufferUsage Usage;
 
-        /// @brief Hint for the underlying API. Set based on the frequency of data setting
+        /// @brief Hint for the underlying API. Set based on the frequency of data setting.
         GPUBufferDrawHint DrawHint;
 
-        /// @brief Size of the GPUBuffer in bytes
+        /// @brief Size of the GPUBuffer in bytes.
         uint64_t Size = 0;
 
-        /// @brief (Optional) an offset to for the initial data in the GPUBuffer
+        /// @brief (Optional) an offset to for the initial data in the GPUBuffer.
         uint64_t Offset = 0;
 
-        /// @brief (Optional) Initial set of data to be uploaded to the GPUBuffer
+        /// @brief (Optional) Initial set of data to be uploaded to the GPUBuffer.
         const void* Data = nullptr;
     };
 
-    /// @brief Represents a buffer of memory allocated on a GraphicsDevice
+    /// @brief Represents a buffer of memory allocated on a GraphicsDevice.
     class GPUBuffer : public GPUResource
     {
     public:

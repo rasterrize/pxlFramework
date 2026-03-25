@@ -20,9 +20,9 @@ namespace pxl
 
     namespace Utils
     {
-        /// @brief Gets the size of a buffer data type in bytes
-        /// @param type The BufferDataType
-        /// @return The number of bytes
+        /// @brief Gets the size of a buffer data type in bytes.
+        /// @param type The BufferDataType.
+        /// @return The number of bytes.
         inline constexpr uint32_t SizeOfBufferDataType(BufferDataType type)
         {
             switch (type)
@@ -43,7 +43,7 @@ namespace pxl
         }
     }
 
-    /// @brief Describes the layout of data in a GPUBuffer
+    /// @brief Describes the layout of data in a GPUBuffer.
     class BufferLayout
     {
     public:

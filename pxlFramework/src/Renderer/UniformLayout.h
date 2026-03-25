@@ -50,7 +50,7 @@ namespace pxl
         ShaderStage ShaderStage = ShaderStage::Vertex;
     };
 
-    /// @brief Describes the layout of uniform variables used in a pipeline
+    /// @brief Describes the layout of uniform variables used in a pipeline.
     class UniformLayout
     {
     public:

@@ -85,11 +85,11 @@ namespace pxl
         bool DarkMode = true;
     };
 
-    /// @brief A desktop window used to display stuff to the user
+    /// @brief A desktop window used to display stuff to the user.
     class Window
     {
     public:
-        /// @brief Closes the window. If this is the only window left, the application closes automatically
+        /// @brief Closes the window. If this is the only window left, the application closes automatically.
         void Close() const;
 
         const glm::ivec2& GetPosition() const { return m_Position; }
@@ -98,61 +98,61 @@ namespace pxl
         WindowMode GetWindowMode() const { return m_WindowMode; }
         void SetWindowMode(WindowMode mode);
 
-        /// @brief Moves the window to the specified monitor
-        /// @param index The index of the monitor determined by the OS
+        /// @brief Moves the window to the specified monitor.
+        /// @param index The index of the monitor determined by the OS.
         void SetMonitor(uint8_t index);
 
-        /// @brief Moves the window to the specified monitor
-        /// @param monitor A valid monitor object
+        /// @brief Moves the window to the specified monitor.
+        /// @param monitor A valid monitor object.
         void SetMonitor(const Monitor& monitor);
 
-        /// @brief Gets the underlying window system API handle of this window
-        /// @return The GLFWwindow handle of this window
+        /// @brief Gets the underlying window system API handle of this window.
+        /// @return The GLFWwindow handle of this window.
         GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
         Size2D GetSize() const { return m_Size; }
         void SetSize(uint32_t width, uint32_t height);
 
-        /// @brief Sets limits for the dimensions of the window
-        /// @param minWidth Minimum window width in screen coordinates
-        /// @param minHeight Minimum window height in screen coordinates
-        /// @param maxWidth Maximum window width in screen coordinates
-        /// @param maxHeight Maximum window height in screen coordinates
-        /// @note You can specify just a minimum or maximum by using -1 for width AND height of the opposite pair
+        /// @brief Sets limits for the dimensions of the window.
+        /// @param minWidth Minimum window width in screen coordinates.
+        /// @param minHeight Minimum window height in screen coordinates.
+        /// @param maxWidth Maximum window width in screen coordinates.
+        /// @param maxHeight Maximum window height in screen coordinates.
+        /// @note You can specify just a minimum or maximum by using -1 for width AND height of the opposite pair.
         void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
 
         /// @brief Gets a floating point representation of the aspect ratio of this window (e.g 16:9 returns 1.7777)
-        /// by dividing the width and height
-        /// @return The aspect ratio of the window
+        /// by dividing the width and height.
+        /// @return The aspect ratio of the window.
         float GetAspectRatio() const { return static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
 
         Size2D GetFramebufferSize() const;
 
         /// @brief Switches to the next window mode in the order of Windowed -> Borderless -> Fullscreen.
-        /// This function will automatically wrap around from Fullscreen to Windowed
+        /// This function will automatically wrap around from Fullscreen to Windowed.
         void NextWindowMode();
 
         /// @brief Toggles between Fullscreen and Windowed window modes.
-        /// @note This function will always switch to exclusive fullscreen mode from windowed mode
+        /// @note This function will always switch to exclusive fullscreen mode from windowed mode.
         void ToggleFullscreen();
 
-        /// @brief Minimizes the window
+        /// @brief Minimizes the window.
         void Minimize() const;
 
-        /// @brief Maximizes the window
+        /// @brief Maximizes the window.
         void Maximize() const;
 
-        /// @brief Restores the window if it's minimized
+        /// @brief Restores the window if it's minimized.
         void Restore() const;
 
-        /// @brief Gets the visibility status of this window
-        /// @return True if visible, false if hidden
+        /// @brief Gets the visibility status of this window.
+        /// @return True if visible, false if hidden.
         bool GetVisibility() const;
 
-        /// @brief Shows the window
+        /// @brief Shows the window.
         void Show() const;
 
-        /// @brief Hides the window
+        /// @brief Hides the window.
         void Hide() const;
 
         const std::string& GetTitle() const { return m_Title; }
@@ -160,24 +160,24 @@ namespace pxl
 
         void SetIcon(const std::shared_ptr<Image>& image);
 
-        /// @brief Enforces an aspect ratio for the window's dimensions
-        /// @param numerator The width value of the ratio
-        /// @param denominator The height value of the ratio
+        /// @brief Enforces an aspect ratio for the window's dimensions.
+        /// @param numerator The width value of the ratio.
+        /// @param denominator The height value of the ratio.
         void EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const;
 
-        /// @brief Requests the users attention by highlighting the application's icon in the operating system taskbar
+        /// @brief Requests the users attention by highlighting the application's icon in the operating system taskbar.
         void RequestUserAttention() const;
 
         const Monitor& GetCurrentMonitor() { return m_CurrentMonitor; }
 
-        /// @brief Creates a Vulkan surface for this window
-        /// @note This surface will NOT be automatically destroyed by the window class
+        /// @brief Creates a Vulkan surface for this window.
+        /// @note This surface will NOT be automatically destroyed by the window class.
         VkSurfaceKHR CreateVKSurface(VkInstance instance);
 
     public:
         /// @brief Creates and prepares a new window object. Do not try to create windows another way as things will break.
-        /// @param windowSpecs The specifications for the window
-        /// @return The new window
+        /// @param windowSpecs The specifications for the window.
+        /// @return The new window.
         [[nodiscard]] static std::shared_ptr<Window> Create(const WindowSpecs& windowSpecs);
 
         static const std::vector<Monitor>& GetAvailableMonitors() { return s_Monitors; }

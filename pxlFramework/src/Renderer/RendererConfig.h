@@ -9,6 +9,7 @@ namespace pxl
 {
     struct RendererConfig
     {
+        /// @brief The window to associate the renderer to. Must be a valid window pointer.
         std::shared_ptr<Window> Window = nullptr;
         GraphicsAPIType APIType = GraphicsAPIType::Vulkan;
         bool TripleBuffering = true;

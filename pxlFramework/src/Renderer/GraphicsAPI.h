@@ -7,7 +7,9 @@
 
 namespace pxl
 {
-    /// @brief Represents the base level functionality of a graphics API
+    
+
+    /// @brief Represents the base level functionality of a graphics API.
     class GraphicsAPI
     {
     public:

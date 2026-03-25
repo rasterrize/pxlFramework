@@ -34,7 +34,7 @@ namespace pxl
         SampleFilter Filter = SampleFilter::Linear;
     };
 
-    /// @brief An image stored in the GPU's memory which can be used in the graphics pipeline
+    /// @brief An image stored in the GPU's memory which can be used in the graphics pipeline.
     class Texture : public GPUResource
     {
     public:

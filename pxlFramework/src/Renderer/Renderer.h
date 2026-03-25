@@ -42,23 +42,35 @@ namespace pxl
 
         RendererConfig GetConfig() const { return m_Config; }
 
+        /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
+        /// @return The renderer's GraphicsContext.
         const std::unique_ptr<GraphicsContext>& GetGraphicsContext() const { return m_GraphicsContext; }
+        /// @brief Gets this renderer's GraphicsDevice. It's not recommended you interact with this outside of the renderer class.
+        /// @return The renderer's GraphicsContext.
         const std::unique_ptr<GraphicsDevice>& GetGraphicsDevice() const { return m_GraphicsDevice; }
 
         void SetClearColour(const glm::vec4& colour) { m_GraphicsContext->SetClearColour(colour); }
 
+        /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(const Quad& quad);
+        /// @brief Submits a line primitive to the renderer to be drawn.
         void Submit(const Line& line);
         void Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         FrameStats& GetFrameStats() { return m_FrameStats; }
         RendererStats& GetRendererStats() { return m_RendererStats; }
+        /// @brief Submits a mesh to the renderer to be drawn using a position, rotation, and scale.
 
         float GetFramesPerSecond() const { return 1000.0f / m_RendererStats.LastFrameTime; }
+        /// @brief Convenience function that returns the renderer's previous frame time as an FPS value.
+        /// @return The frames-per-second calculated.
 
+        /// @brief Initializes ImGui. When this renderer is associated with an application, the application's OnGUIRender function will be called.
         void InitImGui();
         bool IsImGuiInitialized() const { return m_ImGuiRenderer != nullptr; }
 
+        /// @brief Recreates all pipelines and reloads their shaders.
+        /// @brief Clears the shader cache directory
     private:
         friend class Application;
         void Begin();

@@ -14,21 +14,28 @@ namespace pxl
         uint32_t IndexCount = 0;
     };
 
-    /// @brief Represents a context used for recording graphics operations.
+    /// @brief Represents a context used for recording graphics operations..
     class GraphicsContext
     {
     public:
         virtual ~GraphicsContext() = default;
 
+        /// @brief Begin rendering a new frame.
         virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) = 0;
+        /// @brief End rendering the current frame.
         virtual void End(const std::unique_ptr<GraphicsDevice>& device) = 0;
 
         virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline) = 0;
+        /// @brief Binds a GraphicsPipeline to the current frames state.
+        /// @brief Binds a GPUBuffer to the current frames state.
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;
 
+        /// @brief Records a non-indexed (no index buffer) draw call.
         virtual void Draw(const DrawParams& params) = 0;
+        /// @brief Records an indexed draw call.
         virtual void DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer) = 0;
 
+        /// @brief Sets the clear colour used when a new frame begins rendering.
         virtual void SetClearColour(const glm::vec4& colour) = 0;
     };
 }

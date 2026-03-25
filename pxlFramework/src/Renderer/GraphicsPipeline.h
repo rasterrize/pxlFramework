@@ -47,6 +47,7 @@ namespace pxl
         // std::optional<UniformLayout> UniformLayout;
     };
 
+    /// @brief A pipeline representing the various stages geometry data will pass through.
     class GraphicsPipeline : public GPUResource
     {
     public:
@@ -56,6 +57,7 @@ namespace pxl
         }
         virtual ~GraphicsPipeline() = default;
 
+        /// @brief Recreates the pipeline using its predefined specifications.
         virtual void Recreate() = 0;
 
         virtual void Free() override = 0;

@@ -4,7 +4,7 @@
 
 namespace pxl
 {
-    /// @brief A 2D uint vector represented as width and height
+    /// @brief A 2D uint vector represented as width and height.
     struct Size2D
     {
         Size2D() = default;
@@ -34,7 +34,7 @@ namespace pxl
         std::string ToString() const { return std::format("{}, {}", Width, Height); }
     };
 
-    /// @brief A 3D uint vector represented as width, height, and depth
+    /// @brief A 3D uint vector represented as width, height, and depth.
     struct Size3D
     {
         Size3D() = default;

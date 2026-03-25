@@ -6,7 +6,7 @@ namespace pxl
 {
     class GraphicsDevice;
 
-    /// @brief Base class of an API-specific representation of an ImGui implementation
+    /// @brief Base class of an API-specific representation of an ImGui implementation.
     class ImGuiRenderer : public GPUResource
     {
     public:

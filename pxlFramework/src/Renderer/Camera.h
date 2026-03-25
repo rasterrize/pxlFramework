@@ -48,15 +48,15 @@ namespace pxl
         glm::mat4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
         glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
-        /// @brief Create and return a new PerspectiveCamera
-        /// @param settings Perspective camera settings
-        /// @return The camera
+        /// @brief Create and return a new PerspectiveCamera.
+        /// @param settings Perspective camera settings.
+        /// @return The camera.
         static std::shared_ptr<PerspectiveCamera> CreatePerspective(const PerspectiveSettings& settings);
         static std::shared_ptr<Camera> Create(const PerspectiveSettings& settings);
 
-        /// @brief Create and return a new OrthographicCamera
-        /// @param settings Orthographic camera settings
-        /// @return The camera
+        /// @brief Create and return a new OrthographicCamera.
+        /// @param settings Orthographic camera settings.
+        /// @return The camera.
         static std::shared_ptr<OrthographicCamera> CreateOrthographic(const OrthographicSettings& settings);
         static std::shared_ptr<Camera> Create(const OrthographicSettings& settings);
 

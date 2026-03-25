@@ -12,9 +12,8 @@ namespace pxl
         AdaptiveSync,
     };
 
-    /** @brief The core that runs a pxlFramework application.
-        IMPORTANT: You must inherit from this class and override specific methods (OnUpdate, OnRender, etc) to add anything custom to your app.
-    */
+    /// @brief The core that runs a pxlFramework application.
+    /// @note You must inherit from this class and override specific methods (OnUpdate, OnRender, etc) to add anything custom to your app.
     class Application
     {
     public:
@@ -27,29 +26,41 @@ namespace pxl
         // Enforces this class as abstract
         virtual ~Application() = 0;
 
+        /// @brief Begins the running loop of the application. Only returns once the application closes.
+        /// It's recommended to call this from your main function.
         void Run();
+
+        /// @brief Immediately closes the application, force shutting down all internal systems.
         void Close();
 
         bool IsRunning() const { return m_Running; }
 
-        /* Called every update cycle for this application.
-           Use this function for application/game logic. */
+        /// @brief Called once every update cycle for this application.
+        /// Use this function for application/game logic.
+        /// @param dt The deltaTime between the start of the last update cycle and the start of the current update cycle.
+        /// This can be used to sync variables correctly when the frame rate is fluctuating (e.g uncapped).
         virtual void OnUpdate(float dt) {}
 
-        /* Called every frame for this application's renderer. Will only be called if the renderer is initialized.
-           Use this function for any kind of rendering. */
         virtual void OnRender(const std::unique_ptr<Renderer>& renderer) {}
+        /// @brief Called once every frame. Use this function for any kind of rendering purposes.
+        /// @note Will only be called if this application's renderer is initialized.
+        /// @param renderer The renderer to submit renderer operations to.
 
-        // Called every frame. Convenience function for holding ImGui related functions.
+        /// @brief Called once every frame. Convenience function for holding ImGui related functions.
+        /// @note Will only be called if this application's renderer has its ImGui renderer initialized.
         virtual void OnGUIRender() {}
 
-        // Called once when the application closes.
+        /// @brief Called once when the application closes.
         virtual void OnClose() {}
 
-        // Called for every event that passes through the event system. Only use this in special cases.
+        /// @brief Called once per every event that passes through the event system. Only use this in special cases.
         virtual void OnEvent(const Event& e) {}
 
         const std::unique_ptr<Renderer>& GetRenderer() const { return m_Renderer; }
+
+        /// @brief Initializes the renderer for the application.
+        /// @param config The configuration of the renderer.
+        /// @return A reference to the renderer object to perform any additional configurations with the renderer.
         const std::unique_ptr<Renderer>& InitRenderer(const RendererConfig& config);
         void ShutdownRenderer();
 
@@ -64,6 +75,8 @@ namespace pxl
         const std::unique_ptr<EventManager>& GetEventManager() const { return m_EventManager; }
 
     public:
+        /// @brief Gets the singleton instance of the application class.
+        /// @return A reference to the application instance.
         static Application& Get()
         {
             PXL_ASSERT(s_Instance);
