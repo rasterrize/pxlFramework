@@ -39,11 +39,21 @@ namespace pxl
     class GPUBuffer : public GPUResource
     {
     public:
+        GPUBuffer(const GPUBufferSpecs& specs)
+            : m_Specs(specs)
+        {
+        }
+
         virtual ~GPUBuffer() = default;
 
         virtual void Free() override = 0;
 
         virtual void SetData(uint64_t size, uint64_t offset, const void* data) = 0;
+
+        const GPUBufferSpecs& GetSpecs() const { return m_Specs; }
+
+    protected:
+        GPUBufferSpecs m_Specs = {};
     };
 
     namespace Utils

@@ -34,6 +34,7 @@ namespace pxl
             : m_Specs(specs)
         {
         }
+
         virtual ~Shader() = default;
 
         virtual void Free() override = 0;

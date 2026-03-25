@@ -10,6 +10,7 @@ namespace pxl
     {
         std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
         std::shared_ptr<GraphicsPipeline> Pipeline = nullptr;
+        std::shared_ptr<GPUBuffer> UniformBuffer = nullptr;
         uint32_t VertexCount = 0;
         uint32_t IndexCount = 0;
     };
@@ -22,16 +23,19 @@ namespace pxl
 
         /// @brief Begin rendering a new frame.
         virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) = 0;
+
         /// @brief End rendering the current frame.
         virtual void End(const std::unique_ptr<GraphicsDevice>& device) = 0;
 
-        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline) = 0;
         /// @brief Binds a GraphicsPipeline to the current frames state.
+        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) = 0;
+
         /// @brief Binds a GPUBuffer to the current frames state.
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;
 
         /// @brief Records a non-indexed (no index buffer) draw call.
         virtual void Draw(const DrawParams& params) = 0;
+
         /// @brief Records an indexed draw call.
         virtual void DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer) = 0;
 

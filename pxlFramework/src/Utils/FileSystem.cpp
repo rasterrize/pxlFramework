@@ -36,16 +36,6 @@ namespace pxl
         return image;
     }
 
-    std::shared_ptr<Texture> FileSystem::LoadTextureFromImage(const std::filesystem::path& path, const TextureSpecs& specs, bool flipVertical)
-    {
-        // auto image = LoadImageFile(path, flipVertical);
-
-        // std::shared_ptr<Texture> texture = Texture::Create(image, specs);
-
-        // return texture;
-        return nullptr;
-    }
-
     std::string FileSystem::LoadGLSL(const std::filesystem::path& path)
     {
         if (!std::filesystem::exists(path))

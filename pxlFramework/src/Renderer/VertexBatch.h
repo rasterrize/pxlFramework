@@ -18,11 +18,12 @@ namespace pxl
             specs.Size = m_MaxVertexCount * sizeof(VertexType);
             specs.DrawHint = GPUBufferDrawHint::Dynamic;
             specs.Usage = GPUBufferUsage::Vertex;
-            m_VertexBuffer = device->CreateBuffer(specs);
+            m_VertexBuffers.push_back(device->CreateBuffer(specs));
         }
 
         const std::vector<VertexType>& GetVertices() const { return m_Vertices; }
-        std::shared_ptr<GPUBuffer> GetVertexBuffer() const { return m_VertexBuffer; }
+
+        std::shared_ptr<GPUBuffer> GetCurrentVertexBuffer() const { return m_VertexBuffers.at(m_VertexBufferIndex); }
 
         void AddVertices(const std::vector<VertexType>& vertices)
         {
@@ -33,18 +34,40 @@ namespace pxl
 
         bool CanFlush() const { return !m_Vertices.empty(); }
 
+        void Reset()
+        {
+            m_Vertices.clear();
+
+            m_VertexBufferIndex = 0;
+        }
+
         void UploadData()
         {
-            m_VertexBuffer->SetData(m_Vertices.size() * sizeof(VertexType), 0, m_Vertices.data());
+            m_VertexBuffers.at(m_VertexBufferIndex)->SetData(m_Vertices.size() * sizeof(VertexType), 0, m_Vertices.data());
 
             m_Vertices.clear();
         }
 
+        void NextVertexBuffer(const std::unique_ptr<GraphicsDevice>& device)
+        {
+            uint32_t nextIndex = m_VertexBufferIndex + 1;
+            if (m_VertexBuffers.size() < nextIndex)
+            {
+                GPUBufferSpecs specs;
+                specs.Size = m_MaxVertexCount * sizeof(VertexType);
+                specs.DrawHint = GPUBufferDrawHint::Dynamic;
+                specs.Usage = GPUBufferUsage::Vertex;
+                m_VertexBuffers.push_back(device->CreateBuffer(specs));
+            }
+
+            m_VertexBufferIndex++;
+        }
+
     private:
         size_t m_MaxVertexCount;
-
         std::vector<VertexType> m_Vertices;
 
-        std::shared_ptr<GPUBuffer> m_VertexBuffer = nullptr;
+        uint32_t m_VertexBufferIndex = 0;
+        std::vector<std::shared_ptr<GPUBuffer>> m_VertexBuffers;
     };
 }

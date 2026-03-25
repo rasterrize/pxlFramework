@@ -10,18 +10,12 @@ namespace pxl
     class FileSystem
     {
     public:
-        /// @brief Load an image from disk
-        /// @param path The path of the file. Always include the file format at the end (eg .png)
-        /// @param flipVertical Whether to flip the image vertically on load
-        /// @return Image struct with all the loaded data
-        static std::shared_ptr<Image> LoadImageFile(const std::filesystem::path& path, bool flipVertical = false); // NOTE: Must not be 'LoadImage' because stupid windows header defines it as something else
-
-        /// @brief Helper function that just loads an image and immediately creates a texture for use.
-        /// @param path The file path of the image to create the texture with.
-        /// @param specs The specifications for how the texture is created and rendered
-        /// @param flipVertical Whether to flip the image vertically on load
-        /// @return The new texture
-        static std::shared_ptr<Texture> LoadTextureFromImage(const std::filesystem::path& path, const TextureSpecs& specs, bool flipVertical = false);
+        /// @brief Load an image from disk.
+        /// @param path The path of the file. Always include the file format at the end (eg .png).
+        /// @param flipVertical Whether to flip the image vertically on load.
+        /// @return Image struct with all the loaded data.
+        // NOTE: Must not be 'LoadImage' because stupid windows header defines it as something else
+        static std::shared_ptr<Image> LoadImageFile(const std::filesystem::path& path, bool flipVertical = false);
 
         static std::string LoadGLSL(const std::filesystem::path& path);
         static std::vector<uint32_t> LoadSPIRV(const std::filesystem::path& path);

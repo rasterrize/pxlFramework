@@ -13,6 +13,12 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Recreate()
     {
+        // Wait for any GPU work to finish
+        VK_CHECK(vkDeviceWaitIdle(m_Device));
+
+        // Free any existing resources
+        Free();
+
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages; // Store these for graphics pipeline creation
 
         // Create Shader Stages
@@ -101,14 +107,55 @@ namespace pxl
         pipelineRenderingInfo.colorAttachmentCount = 1;
         pipelineRenderingInfo.pColorAttachmentFormats = &m_RenderingFormat;
 
+        std::vector<VkPushConstantRange> pushConstants;
+        if (m_Specs.UniformLayout.has_value())
+        {
+            VkPushConstantRange range = {
+                .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                .size = sizeof(VkDeviceAddress),
+            };
+
+            pushConstants.push_back(range);
+        }
+
         // Pipeline layout (uniforms, etc)
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
         pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pSetLayouts = nullptr;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
+        pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 
-        VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_Layout));
+        // Create descriptor set layouts
+        // if (m_Specs.UniformLayout.has_value())
+        // {
+        //     // TODO: this is temp
+        //     auto& uniformLayout = m_Specs.UniformLayout.value();
+        //     uint32_t bindingOffset = 0;
+        //     std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
+        //     for (const auto& element : uniformLayout.GetElements())
+        //     {
+        //         VkDescriptorSetLayoutBinding elementBinding = {};
+        //         elementBinding.binding = bindingOffset;
+        //         elementBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //         elementBinding.descriptorCount = 1;
+        //         elementBinding.stageFlags = VulkanUtils::ToVkShaderStage(element.ShaderStage);
+
+        //         layoutBindings.push_back(elementBinding);
+
+        //         bindingOffset++;
+        //     }
+
+        //     VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+        //     descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
+        //     descriptorLayoutInfo.pBindings = layoutBindings.data();
+
+        //     VK_CHECK(vkCreateDescriptorSetLayout(m_Device, &descriptorLayoutInfo, nullptr, &m_DescriptorLayout));
+
+        //     pipelineLayoutInfo.setLayoutCount = 1;
+        //     pipelineLayoutInfo.pSetLayouts = &m_DescriptorLayout;
+        // }
+
+        VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout));
 
         VkGraphicsPipelineCreateInfo graphicsPipelineInfo = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
         graphicsPipelineInfo.pNext = &pipelineRenderingInfo;
@@ -122,7 +169,7 @@ namespace pxl
         graphicsPipelineInfo.pDepthStencilState = nullptr;
         graphicsPipelineInfo.pColorBlendState = &colorBlending;
         graphicsPipelineInfo.pDynamicState = &dynamicStateInfo;
-        graphicsPipelineInfo.layout = m_Layout;
+        graphicsPipelineInfo.layout = m_PipelineLayout;
         graphicsPipelineInfo.renderPass = VK_NULL_HANDLE; // We are using dynamic rendering so this can just be null
         graphicsPipelineInfo.subpass = 0;
         graphicsPipelineInfo.basePipelineHandle = m_Pipeline; // Used for deriving off previous graphics pipelines, which is less expensive.
@@ -134,10 +181,16 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Free()
     {
-        if (m_Layout)
+        if (m_DescriptorLayout)
         {
-            vkDestroyPipelineLayout(m_Device, m_Layout, nullptr);
-            m_Layout = VK_NULL_HANDLE;
+            vkDestroyDescriptorSetLayout(m_Device, m_DescriptorLayout, nullptr);
+            m_DescriptorLayout = VK_NULL_HANDLE;
+        }
+
+        if (m_PipelineLayout)
+        {
+            vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
+            m_PipelineLayout = VK_NULL_HANDLE;
         }
 
         if (m_Pipeline)

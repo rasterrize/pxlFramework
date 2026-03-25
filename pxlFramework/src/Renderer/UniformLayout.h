@@ -48,6 +48,7 @@ namespace pxl
         std::string Name;
         UniformDataType Type = UniformDataType::None;
         ShaderStage ShaderStage = ShaderStage::Vertex;
+        uint32_t Size = 0;
     };
 
     /// @brief Describes the layout of uniform variables used in a pipeline.

@@ -15,10 +15,18 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        m_GraphicsAPI = GraphicsAPI::Create(m_Config.APIType);
-        PXL_ASSERT_MSG(m_GraphicsAPI, "Failed to create GraphicsAPI for renderer");
+        PXL_ASSERT_MSG(m_Config.Window, "Renderer must be created with a valid Window");
 
+        // Init graphics API
+        m_GraphicsAPI = GraphicsAPI::Create(m_Config.APIType);
+        PXL_ASSERT(m_GraphicsAPI);
+
+        // Init graphics context
         m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext();
+        PXL_ASSERT(m_GraphicsContext);
+
+        // Set initial clear colour
+        m_GraphicsContext->SetClearColour(config.ClearColour);
 
         // Init graphics device
         GraphicsDeviceSpecs deviceSpecs = {
@@ -29,12 +37,8 @@ namespace pxl
         };
 
         m_GraphicsDevice = m_GraphicsAPI->CreateGraphicsDevice(deviceSpecs);
+        PXL_ASSERT(m_GraphicsDevice);
 
-        const std::vector<ColouredVertex> vertices = {
-            {  { 0.5f, 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } }, // Vertex 1: Red
-            { { 0.0f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }, // Vertex 2: Green
-            { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }  // Vertex 3: Blue
-        };
         PXL_CREATE_AND_REGISTER_HANDLER(m_WindowFBResizeHandler, WindowFBResizeEvent, OnWindowFBResize);
 
         // Init shader manager
@@ -92,10 +96,11 @@ namespace pxl
         }
 #endif
 
-        // --------------------
-        // Prepare Quad Data
-        // --------------------
         {
+            // --------------------
+            // Prepare Quad Data
+            // --------------------
+
             // Prepare quad indices
             std::vector<uint32_t> indices(m_Config.VerticesPerBatch * 1.5f);
             constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
@@ -122,7 +127,21 @@ namespace pxl
             bufferSpecs.Data = indices.data();
             m_QuadIndexBuffer = m_GraphicsDevice->CreateBuffer(bufferSpecs);
 
+            PerspectiveSettings settings = {};
+            m_Camera3D = pxl::Camera::Create(settings);
+            m_Camera3D->SetPosition({ 0.0f, 0.0f, 5.0f });
 
+            // Create uniform buffers
+            // TODO: resize this to swapchain image count
+            m_UniformBuffers.resize(m_GraphicsDevice->GetSwapchainImageCount());
+            for (size_t i = 0; i < m_UniformBuffers.size(); i++)
+            {
+                GPUBufferSpecs uboSpecs = {};
+                uboSpecs.Usage = GPUBufferUsage::Uniform;
+                uboSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
+                uboSpecs.Size = sizeof(glm::mat4);
+                m_UniformBuffers[i] = m_GraphicsDevice->CreateBuffer(uboSpecs);
+            }
 
             // Create graphics pipeline
             GraphicsPipelineSpecs quadPipelineSpecs = {};
@@ -140,35 +159,10 @@ namespace pxl
         // --------------------
         // Prepare Line Data
         // --------------------
-        // {
-        // const auto bufferLayout = LineVertex::GetLayout();
-
-        // Prepare Buffers
-        // m_LineVBO = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, k_MaxLineVertexCount * sizeof(LineVertex), nullptr);
-
-        // GraphicsPipelineSpecs pipelineSpecs;
-        // pipelineSpecs.PrimitiveTopology = PrimitiveTopology::Line;
-        // pipelineSpecs.BufferLayout = bufferLayout;
-        // pipelineSpecs.Shaders[ShaderStage::Vertex] = ShaderManager::Get("line_ogl.vert");
-        // pipelineSpecs.Shaders[ShaderStage::Fragment] = ShaderManager::Get("line_ogl.frag");
-
-        // m_DefaultPipelines[RendererGeometryTarget::Line] = GraphicsPipeline::Create(pipelineSpecs);
-        // }
 
         // --------------------
         // Prepare Mesh Data
         // --------------------
-        // {
-        //     const auto bufferLayout = MeshVertex::GetLayout();
-
-        //     GraphicsPipelineSpecs pipelineSpecs;
-        //     pipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
-        //     pipelineSpecs.BufferLayout = bufferLayout;
-        //     pipelineSpecs.PolygonMode = PolygonMode::Fill;
-        //     pipelineSpecs.CullMode = CullMode::Back;
-
-        //     // m_DefaultPipelines[RendererGeometryTarget::Mesh] = GraphicsPipeline::Create(pipelineSpecs);
-        // }
 
         // Prepare white pixel texture
         // std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
@@ -199,85 +193,45 @@ namespace pxl
         m_ImGuiRenderer = m_GraphicsDevice->CreateImGuiRenderer(m_Config.Window);
     }
 
-    void Renderer::Begin()
-    {
-        PXL_PROFILE_SCOPE;
-
-        m_GraphicsContext->Begin(m_GraphicsDevice);
-
-        if (m_ImGuiRenderer)
-            m_ImGuiRenderer->NewFrame();
-        
-        // Set first texture unit as white pixel texture
-        // m_TextureHandler->UseTexture(m_WhitePixelTexture);
-    }
-
-    void Renderer::End()
-    {
-        PXL_PROFILE_SCOPE;
-
-        // Flush();
-
-        // if (GUI::IsInitialized())
-        // {
-        //     GUI::Update();
-        //     GUI::Render();
-        // }
-
-        // TODO TEMP
-        DrawParams params;
-        params.Pipeline = m_TrianglePipeline;
-        params.VertexBuffers.push_back(m_TriangleBuffer);
-        params.VertexCount = 3;
-        m_GraphicsContext->Draw(params);
-
-        // Draw ImGui data
-        if (m_ImGuiRenderer)
-            m_ImGuiRenderer->Render(m_GraphicsDevice);
-
-        m_GraphicsContext->End(m_GraphicsDevice);
-
-        m_GraphicsDevice->Present();
-
-        ResetFrameStats();
-
-        m_RendererStats.FrameCount++;
-    }
-
     void Renderer::Submit(const Quad& quad)
     {
         PXL_PROFILE_SCOPE;
 
-        if (m_QuadBatch->GetVertexSpaceLeft() < 4)
-        {
-            m_QuadBatch->UploadData();
+        // if (m_QuadBatch->GetVertexSpaceLeft() < 4)
+        // {
+        //     // Upload vertex batch to GPU
+        //     m_QuadBatch->UploadData();
 
-            DrawParams params;
-            params.Pipeline = m_QuadPipeline;
-            params.VertexBuffers.push_back(m_QuadBatch->GetVertexBuffer());
-            params.VertexCount = static_cast<uint32_t>(m_QuadBatch->GetVertices().size());
-            m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);
-        }
+        //     // Send draw call with the current vertex buffer
+        //     DrawParams params;
+        //     params.Pipeline = m_QuadPipeline;
+        //     params.VertexBuffers.push_back(m_QuadBatch->GetCurrentVertexBuffer());
+        //     params.VertexCount = static_cast<uint32_t>(m_QuadBatch->GetVertices().size());
+        //     m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);
 
-        std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();
-        if (quad.TextureUV.has_value())
-            texCoords = quad.TextureUV.value();
+        //     // Use a new vertex buffer for vertex batch
+        //     m_QuadBatch->NextVertexBuffer(m_GraphicsDevice);
+        // }
 
-        std::array<TexturedVertex, 4> defaultVertices = Quad::GetDefaultVerticesWithOrigin(quad.Origin);
-        glm::mat4 transform = CalculateTransform(quad.Position, quad.Rotation, glm::vec3(quad.Size, 1.0f));
+        // std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();
+        // if (quad.TextureUV.has_value())
+        //     texCoords = quad.TextureUV.value();
 
-        std::vector<TexturedVertex> vertices(4);
-        for (uint32_t i = 0; i < 4; i++)
-        {
-            vertices[i] = {
-                .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-                .Colour = quad.Colour,
-                .TexCoords = texCoords[i],
-                .TexIndex = 0,
-            };
-        }
+        // std::array<TexturedVertex, 4> defaultVertices = Quad::GetDefaultVerticesWithOrigin(quad.Origin);
+        // glm::mat4 transform = CalculateTransform(quad.Position, quad.Rotation, glm::vec3(quad.Size, 1.0f));
 
-        m_QuadBatch->AddVertices(vertices);
+        // std::vector<TexturedVertex> vertices(4);
+        // for (uint32_t i = 0; i < 4; i++)
+        // {
+        //     vertices[i] = {
+        //         .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
+        //         .Colour = quad.Colour,
+        //         .TexCoords = texCoords[i],
+        //         .TexIndex = 0,
+        //     };
+        // }
+
+        // m_QuadBatch->AddVertices(vertices);
     }
 
     void Renderer::Submit(const Line& line)
@@ -309,11 +263,11 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        // if (!mesh)
-        // {
-        //     PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh as it was invalid");
-        //     return;
-        // }
+        if (!mesh)
+        {
+            PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh. Mesh is null");
+            return;
+        }
 
         // glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
         // glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -339,16 +293,6 @@ namespace pxl
         //         s_MeshVAOs[mesh]->AddVertexBuffer(s_MeshVBOs[mesh], MeshVertex::GetLayout());
         //         s_MeshVAOs[mesh]->SetIndexBuffer(s_MeshIBOs[mesh]);
         //     }
-        // }
-
-        // if (s_RendererAPIType == RendererAPIType::OpenGL)
-        // {
-        //     s_MeshVAOs[mesh]->Bind();
-        // }
-        // else
-        // {
-        //     s_MeshVBOs[mesh]->Bind();
-        //     s_MeshIBOs[mesh]->Bind();
         // }
 
         // auto vp = m_Camera->GetViewProjectionMatrix();
@@ -401,6 +345,82 @@ namespace pxl
 
         //     s_LineCount = 0;
         // }
+    }
+
+    void Renderer::Begin()
+    {
+        PXL_PROFILE_SCOPE;
+
+        m_GraphicsContext->Begin(m_GraphicsDevice);
+
+        if (m_ImGuiRenderer)
+            m_ImGuiRenderer->NewFrame();
+
+        // Reset vertex batches
+        m_QuadBatch->Reset();
+
+        // Set first texture unit as white pixel texture
+        // m_TextureHandler->UseTexture(m_WhitePixelTexture);
+    }
+
+    void Renderer::End()
+    {
+        PXL_PROFILE_SCOPE;
+
+#if PXL_DRAW_HELLO_TRIANGLE
+
+        auto vp = m_Camera3D->GetViewProjectionMatrix();
+        // TODO: use frames in flight, not swapchain index
+        auto uniformBuffer = m_UniformBuffers.at(m_GraphicsDevice->GetSwapchainImageIndex());
+        uniformBuffer->SetData(sizeof(glm::mat4), 0, &vp);
+
+        DrawParams params;
+        params.Pipeline = m_TrianglePipeline;
+        params.VertexBuffers.push_back(m_TriangleBuffer);
+        params.VertexCount = 3;
+        params.UniformBuffer = uniformBuffer;
+        m_GraphicsContext->Draw(params);
+#endif
+
+        // Draw ImGui data
+        if (m_ImGuiRenderer)
+            m_ImGuiRenderer->Render(m_GraphicsDevice);
+
+        m_GraphicsContext->End(m_GraphicsDevice);
+
+        m_GraphicsDevice->Present();
+
+        ResetFrameStats();
+
+        m_RendererStats.FrameCount++;
+    }
+
+    void Renderer::SetVerticalSync(bool value)
+    {
+        m_Config.VerticalSync = value;
+        m_GraphicsDevice->SetVerticalSync(value);
+    }
+
+    void Renderer::ReloadPipelines()
+    {
+        std::vector<std::shared_ptr<GraphicsPipeline>> pipelines;
+        pipelines.push_back(m_TrianglePipeline);
+
+        for (const auto& pipeline : pipelines)
+        {
+            auto specs = pipeline->GetSpecs();
+
+            for (const auto& [stage, shader] : specs.Shaders)
+            {
+                if (m_ShaderManager->Reload(shader) != true)
+                {
+                    // Shader couldn't be reloaded continue
+                    continue;
+                }
+            }
+
+            pipeline->Recreate();
+        }
     }
 
     glm::mat4 Renderer::CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)

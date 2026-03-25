@@ -5,7 +5,7 @@
 namespace pxl
 {
     VulkanGPUBuffer::VulkanGPUBuffer(const GPUBufferSpecs& specs, VkDevice device, VmaAllocator allocator)
-        : m_Allocator(allocator), m_Usage(VulkanUtils::ToVkBufferUsage(specs.Usage))
+        : GPUBuffer(specs), m_Allocator(allocator), m_Usage(VulkanUtils::ToVkBufferUsage(specs.Usage))
     {
         bool useStagingBuffer = false;
         switch (specs.DrawHint)
@@ -19,7 +19,7 @@ namespace pxl
                 break;
         }
 
-        // TODO 
+        // TODO
         // Staging buffer
 
         if (useStagingBuffer)
@@ -40,6 +40,15 @@ namespace pxl
 
         // Create buffer and its associated memory
         VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
+
+        if (m_Usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+        {
+            // Get the buffers address as we might need it later
+            VkBufferDeviceAddressInfo addressInfo = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
+            addressInfo.buffer = m_Buffer;
+
+            m_DeviceAddress = vkGetBufferDeviceAddress(device, &addressInfo);
+        }
 
         // Set the data inside the memory of the buffer
         if (specs.Data)

@@ -94,17 +94,29 @@ namespace pxl
         vulkanDevice->SubmitCurrentFrame();
     }
 
-    void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline)
+    void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer)
     {
         // Bind the pipeline
-        auto handle = static_pointer_cast<VulkanGraphicsPipeline>(pipeline)->GetVkPipeline();
-        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, handle);
-
+        auto vulkanPipeline = static_pointer_cast<VulkanGraphicsPipeline>(pipeline);
+        auto pipelineHandle = vulkanPipeline->GetVkPipeline();
+        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineHandle);
+        
         // Bind pipeline dynamic state
         auto specs = pipeline->GetSpecs();
         vkCmdSetCullMode(m_CommandBuffer, VulkanUtils::ToVkCullMode(specs.CullMode));
         vkCmdSetFrontFace(m_CommandBuffer, VulkanUtils::ToVkFrontFace(specs.FrontFace));
         vkCmdSetPrimitiveTopology(m_CommandBuffer, VulkanUtils::ToVkPrimitiveTopology(specs.PrimitiveTopology));
+        
+        // Upload pipeline layout data
+        if (pipeline->GetSpecs().UniformLayout.has_value())
+        {
+            auto layout = vulkanPipeline->GetVkPipelineLayout();
+            auto vulkanUniformBuffer = static_pointer_cast<VulkanGPUBuffer>(uniformBuffer);
+            auto address = vulkanUniformBuffer->GetDeviceAddress();
+            vkCmdPushConstants(m_CommandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkDeviceAddress), &address);
+        }
+
+        m_Stats.PipelineBinds++;
     }
 
     void VulkanGraphicsContext::Bind(const std::shared_ptr<GPUBuffer>& buffer)
@@ -135,6 +147,9 @@ namespace pxl
         BindParams(params);
         Bind(indexBuffer);
 
+        // auto pipelineLayout = static_pointer_cast<VulkanGraphicsPipeline>(params.Pipeline)->GetVkPipelineLayout();
+        // vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0,
+
         vkCmdDrawIndexed(m_CommandBuffer, params.IndexCount, 1, 0, 0, 0);
     }
 
@@ -145,7 +160,7 @@ namespace pxl
 
     void VulkanGraphicsContext::BindParams(const DrawParams& params)
     {
-        Bind(params.Pipeline);
+        Bind(params.Pipeline, params.UniformBuffer);
 
         for (const auto& buffer : params.VertexBuffers)
             Bind(buffer);

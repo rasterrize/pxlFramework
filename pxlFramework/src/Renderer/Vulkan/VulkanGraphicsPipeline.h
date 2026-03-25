@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Renderer/GraphicsPipeline.h"
-
 #include <volk/volk.h>
+
+#include "Renderer/GraphicsPipeline.h"
 
 namespace pxl
 {
@@ -16,15 +16,19 @@ namespace pxl
         virtual void Free() override;
 
         VkPipeline GetVkPipeline() const { return m_Pipeline; }
+        VkPipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
 
         static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout);
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout);
 
     private:
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
-        VkPipelineLayout m_Layout = VK_NULL_HANDLE;
+        VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
+        VkDescriptorSetLayout m_DescriptorLayout = VK_NULL_HANDLE;
 
         VkDevice m_Device = VK_NULL_HANDLE;
         VkFormat m_RenderingFormat = VK_FORMAT_UNDEFINED;
+
+        VkDeviceAddress m_UniformBufferAddress = UINT64_MAX;
     };
 }

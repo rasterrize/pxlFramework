@@ -3,6 +3,7 @@
 #include "BufferLayout.h"
 #include "GPUResource.h"
 #include "Shader.h"
+#include "UniformLayout.h"
 
 namespace pxl
 {
@@ -44,7 +45,7 @@ namespace pxl
         PolygonMode PolygonMode = PolygonMode::Fill;
         CullMode CullMode = CullMode::None;
         FrontFace FrontFace = FrontFace::CounterClockwise;
-        // std::optional<UniformLayout> UniformLayout;
+        std::optional<UniformLayout> UniformLayout;
     };
 
     /// @brief A pipeline representing the various stages geometry data will pass through.
@@ -62,7 +63,7 @@ namespace pxl
 
         virtual void Free() override = 0;
 
-        const GraphicsPipelineSpecs& GetSpecs() { return m_Specs; }
+        const GraphicsPipelineSpecs& GetSpecs() const { return m_Specs; }
 
     protected:
         GraphicsPipelineSpecs m_Specs;

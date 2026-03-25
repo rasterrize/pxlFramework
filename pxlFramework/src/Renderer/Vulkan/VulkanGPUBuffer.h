@@ -52,11 +52,13 @@ namespace pxl
 
         VkBufferUsageFlagBits GetVkBufferUsage() const { return m_Usage; }
 
+        VkDeviceAddress GetDeviceAddress() const { return m_DeviceAddress; }
+
     private:
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
-        
+        VkDeviceAddress m_DeviceAddress = UINT64_MAX;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
     };
 }

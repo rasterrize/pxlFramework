@@ -224,6 +224,7 @@ namespace pxl
                     surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
                 {
                     return surfaceFormat;
+                }
             }
 
             // This combination is guaranteed to be available everywhere
@@ -377,7 +378,7 @@ namespace pxl
             {
                 case GPUBufferUsage::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
                 case GPUBufferUsage::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-                case GPUBufferUsage::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+                case GPUBufferUsage::Uniform: return VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
                 default:                      return VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
             }
         }

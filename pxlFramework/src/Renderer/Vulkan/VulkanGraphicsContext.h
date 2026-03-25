@@ -15,7 +15,7 @@ namespace pxl
         // End command buffer recording
         virtual void End(const std::unique_ptr<GraphicsDevice>& device) override;
 
-        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline) override;
+        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) override;
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) override;
 
         // GPU draw commands
@@ -39,7 +39,6 @@ namespace pxl
 
     private:
         VkClearValue m_ClearValue;
-
         VkCommandBuffer m_CommandBuffer;
     };
 }
