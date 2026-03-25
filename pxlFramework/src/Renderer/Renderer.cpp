@@ -192,7 +192,7 @@ namespace pxl
 
     void Renderer::InitImGui()
     {
-        m_ImGuiRenderer = m_GraphicsDevice->CreateImGuiRenderer(m_Config.Window);
+        m_ImGuiRenderer = m_GraphicsDevice->CreateImGuiRenderer({ m_Config.Window });
     }
 
     void Renderer::Submit(const Quad& quad)

@@ -88,7 +88,7 @@ namespace pxl
         /// @brief Creates a new ImGuiRenderer backend for rendering ImGui.
         /// @param window The window associated with the renderer.
         /// @return A new ImGuiRenderer shared resource object.
-        virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const std::shared_ptr<Window>& window) = 0;
+        virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) = 0;
 
         /// @brief Presents the next rendered image to the window.
         virtual void Present() = 0;

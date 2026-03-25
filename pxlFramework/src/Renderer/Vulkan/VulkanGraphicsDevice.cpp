@@ -49,9 +49,9 @@ namespace pxl
         return pipeline;
     }
 
-    std::shared_ptr<ImGuiRenderer> VulkanGraphicsDevice::CreateImGuiRenderer(const std::shared_ptr<Window>& window)
+    std::shared_ptr<ImGuiRenderer> VulkanGraphicsDevice::CreateImGuiRenderer(const ImGuiSpecs& specs)
     {
-        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(window, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, m_SwapchainImages.size());
+        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(specs, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, m_SwapchainImages.size());
         m_Resources.push_back(imguiRenderer);
         return imguiRenderer;
     }

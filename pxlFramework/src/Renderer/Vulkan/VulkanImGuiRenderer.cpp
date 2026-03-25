@@ -9,14 +9,14 @@
 namespace pxl
 {
     VulkanImGuiRenderer::VulkanImGuiRenderer(
-        const std::shared_ptr<Window>& window,
+        const ImGuiSpecs& specs,
         VkInstance instance,
         VkPhysicalDevice gpu,
         VkDevice device,
         VkQueue queue,
         VkFormat format,
         uint32_t imageCount)
-        : m_Device(device)
+        : ImGuiRenderer(specs), m_Device(device)
     {
         // Create descriptor pool
         // NOTE: The sizes are purposefully oversize
@@ -50,7 +50,7 @@ namespace pxl
         const char* fontFilename = "resources/fonts/Roboto-Medium.ttf";
         std::filesystem::exists(fontFilename) ? io.Fonts->AddFontFromFileTTF(fontFilename, 16) : io.Fonts->AddFontDefault();
 
-        ImGui_ImplGlfw_InitForVulkan(window->GetNativeWindow(), true);
+        ImGui_ImplGlfw_InitForVulkan(m_Specs.Window->GetNativeWindow(), true);
 
         // Pipeline rendering info (for dynamic rendering)
         VkPipelineRenderingCreateInfo pipelineRenderingInfo = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };

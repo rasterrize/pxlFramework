@@ -10,7 +10,7 @@ namespace pxl
     class VulkanImGuiRenderer : public ImGuiRenderer
     {
     public:
-        VulkanImGuiRenderer(const std::shared_ptr<Window>& window, VkInstance instance, VkPhysicalDevice gpu, VkDevice device, VkQueue queue, VkFormat format, uint32_t imageCount);
+        VulkanImGuiRenderer(const ImGuiSpecs& specs, VkInstance instance, VkPhysicalDevice gpu, VkDevice device, VkQueue queue, VkFormat format, uint32_t imageCount);
 
         virtual void Free() override;
 
