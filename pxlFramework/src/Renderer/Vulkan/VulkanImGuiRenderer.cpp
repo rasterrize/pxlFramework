@@ -108,7 +108,7 @@ namespace pxl
 #ifdef PXL_ENABLE_IMGUI
         ImGui::Render();
 
-        VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
+        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanDevice->GetCurrentFrame().CommandBuffer);
 #endif
     }

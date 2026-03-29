@@ -11,7 +11,7 @@ namespace pxl
         // Reset stats
         memset(&m_Stats, 0, sizeof(GraphicsContextStats));
 
-        VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
+        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
         vulkanDevice->AcquireNextSwapchainImage();
         m_CommandBuffer = vulkanDevice->GetCurrentFrame().CommandBuffer;
 
@@ -83,7 +83,7 @@ namespace pxl
     {
         vkCmdEndRendering(m_CommandBuffer);
 
-        VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
+        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
 
         // Transition the swapchain image to an optimal presentation format
         auto image = vulkanDevice->GetCurrentSwapchainImage();
