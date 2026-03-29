@@ -128,8 +128,7 @@ namespace TestApp
 
     void QuadsTest::OnGUIRender()
     {
-        PXL_PROFILE_SCOPE;
-
+#ifdef PXL_ENABLE_IMGUI
         if (selectedQuad)
         {
             ImGui::SetNextWindowPos({ 400.0f, 50.0f }, ImGuiCond_Once);
@@ -143,5 +142,6 @@ namespace TestApp
 
             ImGui::End();
         }
+#endif
     }
 }

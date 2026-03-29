@@ -20,6 +20,7 @@ namespace TestApp
             m_Test->OnRender(renderer);
     }
 
+#ifdef PXL_ENABLE_IMGUI
     void TestApplication::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
@@ -245,6 +246,7 @@ namespace TestApp
         if (m_Test)
             m_Test->OnClose();
     }
+#endif
 
     pxl::WindowSpecs TestApplication::CreateWindowSpecs()
     {

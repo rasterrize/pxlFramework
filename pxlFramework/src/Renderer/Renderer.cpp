@@ -192,7 +192,9 @@ namespace pxl
 
     void Renderer::InitImGui()
     {
+#ifdef PXL_ENABLE_IMGUI
         m_ImGuiRenderer = m_GraphicsDevice->CreateImGuiRenderer({ m_Config.Window });
+#endif
     }
 
     void Renderer::Submit(const Quad& quad)
@@ -384,9 +386,11 @@ namespace pxl
         m_GraphicsContext->Draw(params);
 #endif
 
+#ifdef PXL_ENABLE_IMGUI
         // Draw ImGui data
         if (m_ImGuiRenderer)
             m_ImGuiRenderer->Render(m_GraphicsDevice);
+#endif
 
         m_GraphicsContext->End(m_GraphicsDevice);
 

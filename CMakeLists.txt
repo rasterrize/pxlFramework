@@ -16,6 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 option(PXL_ENABLE_LOGGING "Enable framework logging" ON)
 option(PXL_ENABLE_ASSERTS "Enable framework asserts" ON)
 option(PXL_ENABLE_PROFILING "Enable profiling using tracy" OFF)
+option(PXL_ENABLE_IMGUI "Enable ImGui support" ON)
 option(PXL_BUILD_TESTS "Build TestApp/Tests" ${PROJECT_IS_TOP_LEVEL})
 
 # User optional framework modules

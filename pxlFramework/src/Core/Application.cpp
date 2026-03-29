@@ -68,10 +68,10 @@ namespace pxl
                     m_Renderer->Begin();
                     OnRender(*m_Renderer.get());
 
+#ifdef PXL_ENABLE_IMGUI
                     if (m_Renderer->IsImGuiInitialized())
-                    {
                         OnGUIRender();
-                    }
+#endif
 
                     m_Renderer->End();
                 }

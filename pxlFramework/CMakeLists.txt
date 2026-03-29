@@ -80,16 +80,22 @@ CPMAddPackage(
     "GLM_ENABLE_CXX_20 ON"
 )
 
-CPMAddPackage(
-    NAME imgui
-    GITHUB_REPOSITORY rasterrize/imgui
-    GIT_TAG 0b6e01053c60c828b5625bd2eb80a9b9525e31d1
-    OPTIONS
-    "IMGUI_USE_BACKEND_GLFW ON"
-    "IMGUI_USE_BACKEND_VULKAN ON"
-    "IMGUI_USE_STDLIB ON"
-    "IMGUI_USE_VOLK ON"
-)
+if(PXL_ENABLE_IMGUI)
+    CPMAddPackage(
+        NAME imgui
+        GITHUB_REPOSITORY rasterrize/imgui
+        GIT_TAG 0b6e01053c60c828b5625bd2eb80a9b9525e31d1
+        OPTIONS
+        "IMGUI_USE_BACKEND_GLFW ON"
+        "IMGUI_USE_BACKEND_VULKAN ON"
+        "IMGUI_USE_STDLIB ON"
+        "IMGUI_USE_VOLK ON"
+    )
+
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PXL_ENABLE_IMGUI)
+    target_link_libraries(${PROJECT_NAME} imgui)
+    message(STATUS "PXL: ImGui support enabled")
+endif()
 
 CPMAddPackage(
     NAME assimp
@@ -147,7 +153,6 @@ target_link_libraries(${PROJECT_NAME}
     glfw
     spdlog
     glm
-    imgui
     stb
     assimp
     yaml-cpp

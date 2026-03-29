@@ -35,7 +35,11 @@ namespace TestApp
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::S))
             cameraPosition.z += 20.0f * dt;
 
-        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::LeftButton) && !ImGui::GetIO().WantCaptureMouse)
+        bool imguiWCM = false;
+#ifdef PXL_ENABLE_IMGUI
+        imguiWCM = ImGui::GetIO().WantCaptureMouse;
+#endif
+        if (pxl::Input::IsMouseButtonHeld(pxl::MouseCode::LeftButton) && !imguiWCM)
         {
             m_MeshRotation.y += pxl::Input::GetCursorDelta().x;
             m_MeshRotation.x += pxl::Input::GetCursorDelta().y;
@@ -65,8 +69,7 @@ namespace TestApp
 
     void ModelViewer::OnGUIRender()
     {
-        PXL_PROFILE_SCOPE;
-
+#ifdef PXL_ENABLE_IMGUI
         ImGui::Begin("ModelViewer");
 
         ImGui::DragFloat3("Mesh Rotation", reinterpret_cast<float*>(&m_MeshRotation));
@@ -95,6 +98,7 @@ namespace TestApp
         }
 
         ImGui::End();
+#endif
     }
 
     void ModelViewer::OnKeyDownEvent(pxl::KeyDownEvent& e)

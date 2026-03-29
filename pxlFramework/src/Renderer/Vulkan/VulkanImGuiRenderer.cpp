@@ -1,7 +1,9 @@
 #include "VulkanImGuiRenderer.h"
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
+#ifdef PXL_ENABLE_IMGUI
+    #include <backends/imgui_impl_glfw.h>
+    #include <backends/imgui_impl_vulkan.h>
+#endif
 
 #include "VulkanGraphicsDevice.h"
 #include "VulkanUtils.h"
@@ -18,6 +20,7 @@ namespace pxl
         uint32_t imageCount)
         : ImGuiRenderer(specs), m_Device(device)
     {
+#ifdef PXL_ENABLE_IMGUI
         // Create descriptor pool
         // NOTE: The sizes are purposefully oversize
         VkDescriptorPoolSize poolSizes[] = {
@@ -70,10 +73,12 @@ namespace pxl
         initInfo.ImageCount = imageCount;
 
         ImGui_ImplVulkan_Init(&initInfo);
+#endif
     }
 
     void VulkanImGuiRenderer::Free()
     {
+#ifdef PXL_ENABLE_IMGUI
         ImGui_ImplVulkan_Shutdown();
 
         if (m_Pool)
@@ -85,21 +90,26 @@ namespace pxl
         ImGui_ImplGlfw_Shutdown();
 
         ImGui::DestroyContext();
+#endif
     }
 
     void VulkanImGuiRenderer::NewFrame()
     {
+#ifdef PXL_ENABLE_IMGUI
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
 
         ImGui::NewFrame();
+#endif
     }
 
     void VulkanImGuiRenderer::Render(const std::unique_ptr<GraphicsDevice>& device)
     {
+#ifdef PXL_ENABLE_IMGUI
         ImGui::Render();
 
         VulkanGraphicsDevice* vulkanDevice = dynamic_cast<VulkanGraphicsDevice*>(device.get());
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanDevice->GetCurrentFrame().CommandBuffer);
+#endif
     }
 }

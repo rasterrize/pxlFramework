@@ -63,7 +63,9 @@
 #endif
 
 // Allows applications to use ImGui functions
-#include <imgui.h>
+#ifdef PXL_ENABLE_IMGUI
+    #include <imgui.h>
+#endif
 
 // NOTE: For now we provide glm to the user, since it's the only math library we use.
 #include <glm/glm.hpp>

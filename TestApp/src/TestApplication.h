@@ -11,8 +11,11 @@ namespace TestApp
     public:
         virtual void OnUpdate(float dt) override;
         virtual void OnRender(pxl::Renderer& renderer) override;
-        virtual void OnGUIRender() override;
         virtual void OnClose() override;
+
+#ifdef PXL_ENABLE_IMGUI
+        virtual void OnGUIRender() override;
+#endif
 
         template<typename TestT>
         void LaunchTest()
