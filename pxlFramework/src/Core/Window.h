@@ -169,6 +169,8 @@ namespace pxl
         /// @brief Requests the users attention by highlighting the application's icon in the operating system taskbar.
         void RequestUserAttention() const;
 
+        /// @brief Get the current monitor this window is on
+        /// @return The window's current monitor
         const Monitor& GetCurrentMonitor() { return m_CurrentMonitor; }
 
         /// @brief Creates a Vulkan surface for this window.
