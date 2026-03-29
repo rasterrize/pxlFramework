@@ -12,7 +12,7 @@ namespace pxl
         VulkanAPI();
         ~VulkanAPI();
 
-        virtual std::unique_ptr<GraphicsContext> CreateGraphicsContext() override;
+        virtual std::unique_ptr<GraphicsContext> CreateGraphicsContext(const GraphicsContextSpecs& specs) override;
 
         virtual std::unique_ptr<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceSpecs& specs) override;
 

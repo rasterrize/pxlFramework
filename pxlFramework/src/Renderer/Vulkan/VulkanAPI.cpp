@@ -111,9 +111,9 @@ namespace pxl
         }
     }
 
-    std::unique_ptr<GraphicsContext> VulkanAPI::CreateGraphicsContext()
+    std::unique_ptr<GraphicsContext> VulkanAPI::CreateGraphicsContext(const GraphicsContextSpecs& specs)
     {
-        return std::make_unique<VulkanGraphicsContext>();
+        return std::make_unique<VulkanGraphicsContext>(specs);
     }
 
     std::unique_ptr<GraphicsDevice> VulkanAPI::CreateGraphicsDevice(const GraphicsDeviceSpecs& specs)

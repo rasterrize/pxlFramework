@@ -70,11 +70,7 @@ namespace pxl
         /// @return The renderer's GraphicsContext.
         const std::unique_ptr<GraphicsDevice>& GetGraphicsDevice() const { return m_GraphicsDevice; }
 
-        void SetClearColour(const glm::vec4& colour)
-        {
-            m_Config.ClearColour = colour;
-            m_GraphicsContext->SetClearColour(colour);
-        }
+        void SetClearColour(const glm::vec4& colour);
 
         void SetVerticalSync(bool value);
 

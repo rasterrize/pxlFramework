@@ -9,6 +9,11 @@ namespace pxl
     class VulkanGraphicsContext : public GraphicsContext
     {
     public:
+        VulkanGraphicsContext(const GraphicsContextSpecs& specs)
+            : m_Specs(specs)
+        {
+        }
+
         // Begin command buffer recording
         virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) override;
 
@@ -38,7 +43,7 @@ namespace pxl
         );
 
     private:
-        VkClearValue m_ClearValue;
-        VkCommandBuffer m_CommandBuffer;
+        GraphicsContextSpecs m_Specs = {};
+        VkCommandBuffer m_CommandBuffer = VK_NULL_HANDLE;
     };
 }

@@ -33,12 +33,15 @@ namespace pxl
             VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT);
 
         // Prepare color attachment
+        VkClearValue clearValue;
+        clearValue.color = { m_Specs.ClearColour.r, m_Specs.ClearColour.g, m_Specs.ClearColour.b, m_Specs.ClearColour.a };
+
         VkRenderingAttachmentInfo colorAttachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
         colorAttachment.imageView = vulkanDevice->GetCurrentSwapchainImageView();
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue = m_ClearValue;
+        colorAttachment.clearValue = clearValue;
 
         // Begin rendering
         auto scExtent = vulkanDevice->GetSwapchainExtent();
@@ -165,7 +168,7 @@ namespace pxl
 
     void VulkanGraphicsContext::SetClearColour(const glm::vec4& colour)
     {
-        m_ClearValue.color = { colour.r, colour.g, colour.b, colour.a };
+        m_Specs.ClearColour = colour;
     }
 
     void VulkanGraphicsContext::BindParams(const DrawParams& params)

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GPUBuffer.h"
-#include "GraphicsPipeline.h"
 #include "GraphicsDevice.h"
+#include "GraphicsPipeline.h"
 
 namespace pxl
 {
@@ -22,6 +22,11 @@ namespace pxl
         uint32_t VertexBufferBinds;
         uint32_t IndexBufferBinds;
         // uint32_t UniformBufferBinds;
+    };
+
+    struct GraphicsContextSpecs
+    {
+        glm::vec4 ClearColour;
     };
 
     /// @brief Represents a context used for recording graphics operations..

@@ -21,7 +21,7 @@ namespace pxl
         PXL_ASSERT(m_GraphicsAPI);
 
         // Init graphics context
-        m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext();
+        m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext({ config.ClearColour });
         PXL_ASSERT(m_GraphicsContext);
 
         // Set initial clear colour
