@@ -99,10 +99,10 @@ namespace pxl
         OnClose();
     }
 
-    const std::unique_ptr<Renderer>& Application::InitRenderer(const RendererConfig& config)
+    Renderer& Application::InitRenderer(const RendererConfig& config)
     {
         m_Renderer = std::make_unique<Renderer>(config);
-        return m_Renderer;
+        return *m_Renderer;
     }
 
     void Application::ShutdownRenderer()

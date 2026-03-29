@@ -118,7 +118,7 @@ namespace pxl
             return;
         }
 
-        if (Application::Get().GetRenderer()->GetConfig().Window == m_Handle.lock())
+        if (Application::Get().GetRenderer().GetConfig().Window == m_Handle.lock())
         {
             Application::Get().ShutdownRenderer();
         }

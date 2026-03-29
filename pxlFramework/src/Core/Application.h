@@ -66,12 +66,12 @@ namespace pxl
         /// @brief Called once per every event that passes through the event system. Only use this in special cases.
         virtual void OnEvent(const Event& e) {}
 
-        const std::unique_ptr<Renderer>& GetRenderer() const { return m_Renderer; }
+        Renderer& GetRenderer() const { return *m_Renderer; }
 
         /// @brief Initializes the renderer for the application.
         /// @param config The configuration of the renderer.
         /// @return A reference to the renderer object to perform any additional configurations with the renderer.
-        const std::unique_ptr<Renderer>& InitRenderer(const RendererConfig& config);
+        Renderer& InitRenderer(const RendererConfig& config);
         void ShutdownRenderer();
 
         void SetMinimization(bool minimized) { m_Minimized = minimized; }

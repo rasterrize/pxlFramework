@@ -64,11 +64,11 @@ namespace pxl
 
         /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
         /// @return The renderer's GraphicsContext.
-        const std::unique_ptr<GraphicsContext>& GetGraphicsContext() const { return m_GraphicsContext; }
+        GraphicsContext& GetGraphicsContext() const { return *m_GraphicsContext; }
 
         /// @brief Gets this renderer's GraphicsDevice. It's not recommended you interact with this outside of the renderer class.
-        /// @return The renderer's GraphicsContext.
-        const std::unique_ptr<GraphicsDevice>& GetGraphicsDevice() const { return m_GraphicsDevice; }
+        /// @return The renderer's GraphicsDevice.
+        GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
 
         void SetClearColour(const glm::vec4& colour);
 
