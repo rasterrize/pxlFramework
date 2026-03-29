@@ -171,7 +171,7 @@ namespace pxl
 
         // Cache the shader
         if (m_Config.UseCache)
-            CacheShaderToDisk(spirv, shaderFilePath);
+            CacheShaderToDisk(spirv, shaderFilePath.filename());
 
         // Reload the shader using the newly loaded SPIRV
         shader->Reload(spirv);

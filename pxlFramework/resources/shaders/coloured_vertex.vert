@@ -19,7 +19,7 @@ layout(std430, push_constant) uniform Uniforms {
 void main()
 {
     v_Position = a_Position;
-    v_Colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    v_Colour = a_Colour;
 
     gl_Position = ubo.bufferPtr.vp * vec4(a_Position, 1.0);
 }

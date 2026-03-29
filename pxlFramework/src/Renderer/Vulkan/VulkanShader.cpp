@@ -21,6 +21,8 @@ namespace pxl
 
     bool VulkanShader::Reload(const std::vector<uint32_t>& code)
     {
+        Free();
+
         m_Specs.Code = code;
         m_Module = VulkanUtils::CreateShaderModule(m_Device, m_Specs.Code);
         return m_Module;
