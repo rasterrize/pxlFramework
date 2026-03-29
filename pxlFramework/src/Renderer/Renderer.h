@@ -116,8 +116,8 @@ namespace pxl
         RendererConfig m_Config;
 
         std::unique_ptr<GraphicsAPI> m_GraphicsAPI = nullptr;
-        std::unique_ptr<GraphicsDevice> m_GraphicsDevice = nullptr;
         std::unique_ptr<GraphicsContext> m_GraphicsContext = nullptr;
+        std::unique_ptr<GraphicsDevice> m_GraphicsDevice = nullptr;
 
         std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer = nullptr;
 
@@ -125,17 +125,15 @@ namespace pxl
 
         std::shared_ptr<EventHandler<WindowFBResizeEvent>> m_WindowFBResizeHandler = nullptr;
 
-        std::shared_ptr<GPUBuffer> m_TriangleBuffer;
-        std::shared_ptr<GraphicsPipeline> m_TrianglePipeline;
+        std::shared_ptr<GPUBuffer> m_TriangleBuffer = nullptr;
+        std::shared_ptr<GraphicsPipeline> m_TrianglePipeline = nullptr;
 
         std::shared_ptr<Texture> m_WhitePixelTexture = nullptr;
         std::shared_ptr<Texture> m_ErrorTexture = nullptr;
 
-        // std::unique_ptr<TextureHandler> m_TextureHandler = nullptr;
-
-        std::unique_ptr<VertexBatch<TexturedVertex>> m_QuadBatch;
-        std::shared_ptr<GPUBuffer> m_QuadIndexBuffer;
-        std::shared_ptr<GraphicsPipeline> m_QuadPipeline;
+        std::unique_ptr<VertexBatch<TexturedVertex>> m_QuadBatch = nullptr;
+        std::shared_ptr<GPUBuffer> m_QuadIndexBuffer = nullptr;
+        std::shared_ptr<GraphicsPipeline> m_QuadPipeline = nullptr;
 
         uint32_t m_UniformIndex = 0;
         std::vector<std::shared_ptr<GPUBuffer>> m_UniformBuffers;

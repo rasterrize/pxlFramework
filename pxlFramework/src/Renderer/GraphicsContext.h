@@ -47,7 +47,7 @@ namespace pxl
         /// @brief Binds a GPUBuffer to the current frames state.
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;
 
-        /// @brief Records a non-indexed (no index buffer) draw call.
+        /// @brief Records a non-indexed draw call.
         virtual void Draw(const DrawParams& params) = 0;
 
         /// @brief Records an indexed draw call.

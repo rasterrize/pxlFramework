@@ -155,14 +155,6 @@ namespace pxl
             m_QuadPipeline = m_GraphicsDevice->CreateGraphicsPipeline(quadPipelineSpecs);
         }
 
-        // --------------------
-        // Prepare Line Data
-        // --------------------
-
-        // --------------------
-        // Prepare Mesh Data
-        // --------------------
-
         // Prepare white pixel texture
         // std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
         // Image image(pixelBytes, Size2D(1), ImageFormat::RGBA8);
@@ -176,16 +168,7 @@ namespace pxl
 
     Renderer::~Renderer()
     {
-        // m_TextureHandler.reset();
-        // m_WhitePixelTexture.reset();
-        // m_QuadBatch.reset();
-
         m_GraphicsDevice->FreeResources();
-        m_GraphicsDevice.reset();
-
-        m_GraphicsContext.reset();
-
-        m_GraphicsAPI.reset();
 
         PXL_LOG_INFO(LogArea::Renderer, "Renderer shutdown");
     }
@@ -200,67 +183,11 @@ namespace pxl
     void Renderer::Submit(const Quad& quad)
     {
         PXL_PROFILE_SCOPE;
-
-        // if (m_QuadBatch->GetVertexSpaceLeft() < 4)
-        // {
-        //     // Upload vertex batch to GPU
-        //     m_QuadBatch->UploadData();
-
-        //     // Send draw call with the current vertex buffer
-        //     DrawParams params;
-        //     params.Pipeline = m_QuadPipeline;
-        //     params.VertexBuffers.push_back(m_QuadBatch->GetCurrentVertexBuffer());
-        //     params.VertexCount = static_cast<uint32_t>(m_QuadBatch->GetVertices().size());
-        //     m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);
-
-        //     // Use a new vertex buffer for vertex batch
-        //     m_QuadBatch->NextVertexBuffer(m_GraphicsDevice);
-        // }
-
-        // std::array<glm::vec2, 4> texCoords = Quad::GetDefaultTexCoords();
-        // if (quad.TextureUV.has_value())
-        //     texCoords = quad.TextureUV.value();
-
-        // std::array<TexturedVertex, 4> defaultVertices = Quad::GetDefaultVerticesWithOrigin(quad.Origin);
-        // glm::mat4 transform = CalculateTransform(quad.Position, quad.Rotation, glm::vec3(quad.Size, 1.0f));
-
-        // std::vector<TexturedVertex> vertices(4);
-        // for (uint32_t i = 0; i < 4; i++)
-        // {
-        //     vertices[i] = {
-        //         .Position = transform * glm::vec4(defaultVertices[i].Position, 1.0f),
-        //         .Colour = quad.Colour,
-        //         .TexCoords = texCoords[i],
-        //         .TexIndex = 0,
-        //     };
-        // }
-
-        // m_QuadBatch->AddVertices(vertices);
     }
 
     void Renderer::Submit(const Line& line)
     {
         PXL_PROFILE_SCOPE;
-
-        // if (m_LineCount >= k_MaxLineCount)
-        //     Flush();
-
-        // const auto vertexCount = s_LineCount * 2;
-
-        // glm::vec3 centerPos = (line.StartPosition + line.EndPosition) / 2.0f;
-
-        // glm::mat4 transform = CalculateTransform(centerPos, line.Rotation, glm::vec3(1.0f));
-
-        // s_LineVertices[vertexCount + 0] = {
-        //     .Position = transform * glm::vec4(line.StartPosition, 1.0f),
-        //     .Colour = line.Colour,
-        // };
-        // s_LineVertices[vertexCount + 1] = {
-        //     .Position = transform * glm::vec4(line.EndPosition, 1.0f),
-        //     .Colour = line.Colour,
-        // };
-
-        // s_LineCount++;
     }
 
     void Renderer::Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
@@ -272,83 +199,11 @@ namespace pxl
             PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh. Mesh is null");
             return;
         }
-
-        // glm::quat rotationY = glm::angleAxis(glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        // glm::quat rotationZ = glm::angleAxis(glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        // glm::quat rotationX = glm::angleAxis(glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        // glm::quat rotationQuat = rotationY * rotationZ * rotationX;
-
-        // glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), position);
-        // glm::mat4 rotationMat = glm::mat4_cast(rotationQuat);
-        // glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
-        // glm::mat4 transform = translateMat * rotationMat * scaleMat;
-
-        // meshPipeline->Bind();
-        // meshPipeline->SetUniformData("u_Transform", UniformDataType::Mat4, &transform);
-
-        // if (!s_MeshVBOs.contains(mesh))
-        // {
-        //     s_MeshVBOs[mesh] = GPUBuffer::Create(GPUBufferUsage::Vertex, GPUBufferDrawHint::Dynamic, static_cast<uint32_t>(mesh->Vertices.size() * sizeof(MeshVertex)), mesh->Vertices.data());
-        //     s_MeshIBOs[mesh] = GPUBuffer::Create(GPUBufferUsage::Index, GPUBufferDrawHint::Static, static_cast<uint32_t>(mesh->Indices.size() * sizeof(uint32_t)), mesh->Indices.data());
-
-        //     if (s_RendererAPIType == RendererAPIType::OpenGL)
-        //     {
-        //         s_MeshVAOs[mesh] = VertexArray::Create();
-        //         s_MeshVAOs[mesh]->AddVertexBuffer(s_MeshVBOs[mesh], MeshVertex::GetLayout());
-        //         s_MeshVAOs[mesh]->SetIndexBuffer(s_MeshIBOs[mesh]);
-        //     }
-        // }
-
-        // auto vp = m_Camera->GetViewProjectionMatrix();
-        // meshPipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
-
-        // m_GraphicsAPI->DrawIndexed(static_cast<uint32_t>(mesh->Indices.size()));
-
-        // m_FrameStats.PipelineBinds++;
-        // m_FrameStats.DrawCalls++;
     }
 
     void Renderer::Flush()
     {
         PXL_PROFILE_SCOPE;
-
-        // m_TextureHandler->BindTextures();
-
-        // Flush quads if necessary
-
-        // m_TextureHandler->UploadShaderData(m_QuadPipeline);
-
-        // auto vp = m_Camera->GetViewProjectionMatrix();
-        // m_QuadPipeline->SetUniformData("u_VP", UniformDataType::Mat4, &vp);
-
-        // m_GraphicsAPI->DrawIndexed(m_QuadBatch->GetVertices().size() / 4 * 6);
-
-        // m_FrameStats.PipelineBinds++;
-        // m_FrameStats.DrawCalls++;
-
-        // Flush lines if necessary
-        // if (s_LineCount > 0)
-        // {
-        //     PXL_PROFILE_SCOPE_NAMED("Flush Lines");
-
-        //     PXL_ASSERT_MSG(s_LineCamera, "Line camera isn't set");
-        //     PXL_ASSERT_MSG(linePipeline, "Line pipeline isn't set");
-
-        //     s_LineVBO->SetData(s_LineCount * 2 * sizeof(LineVertex), s_LineVertices.data());
-
-        //     s_LineBindFunc();
-
-        //     linePipeline->Bind();
-
-        //     s_SetViewProjectionFunc(linePipeline, s_LineCamera->GetViewProjectionMatrix());
-
-        //     s_RendererAPI->DrawLines(s_LineCount * 2);
-
-        //     m_FrameStats.PipelineBinds++;
-        //     m_FrameStats.DrawCalls++;
-
-        //     s_LineCount = 0;
-        // }
     }
 
     void Renderer::Begin()
@@ -372,7 +227,6 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
 #if PXL_DRAW_HELLO_TRIANGLE
-
         auto vp = m_Camera3D->GetViewProjectionMatrix();
         // TODO: use frames in flight, not swapchain index
         auto uniformBuffer = m_UniformBuffers.at(m_GraphicsDevice->GetSwapchainImageIndex());
@@ -395,10 +249,12 @@ namespace pxl
         m_GraphicsContext->End(m_GraphicsDevice);
 
         m_GraphicsDevice->Present();
+    }
 
-        ResetFrameStats();
-
-        m_RendererStats.FrameCount++;
+    void Renderer::SetClearColour(const glm::vec4& colour)
+    {
+        m_Config.ClearColour = colour;
+        m_GraphicsContext->SetClearColour(colour);
     }
 
     void Renderer::SetVerticalSync(bool value)

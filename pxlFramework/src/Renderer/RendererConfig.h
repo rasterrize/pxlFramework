@@ -29,7 +29,7 @@ namespace pxl
 
         std::filesystem::path ShaderCacheDirectory = ".shadercache";
 
-        /// @brief A list of shader files to be added to the shader manager
+        /// @brief A list of shader files to be added to the shader manager.
         std::vector<ShaderFile> UserShadersToCompile;
 
         /// @brief Automatically initialize ImGui after renderer is initialized.

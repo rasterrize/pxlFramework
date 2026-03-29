@@ -18,12 +18,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
 # Enable logging if desired
 if(PXL_ENABLE_LOGGING)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_LOGGING)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PXL_ENABLE_LOGGING)
 endif()
 
 # Enable asserts if desired
 if(PXL_ENABLE_ASSERTS)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_ASSERTS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PXL_ENABLE_ASSERTS)
 endif()
 
 # Set MSVC settings

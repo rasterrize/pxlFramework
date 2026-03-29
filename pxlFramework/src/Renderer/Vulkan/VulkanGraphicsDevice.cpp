@@ -471,7 +471,7 @@ namespace pxl
             CreateFrameData(m_PerFrameData.at(i));
         }
 
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created:");
+        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created");
         PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
         PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_SwapchainImages.size());
         PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
