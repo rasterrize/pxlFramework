@@ -33,17 +33,24 @@ namespace pxl
 
         // Check the shader cache
         auto cacheFilePath = GenerateShaderCachePath(shader.FileName);
+        bool cacheLoaded = false;
         if (std::filesystem::exists(cacheFilePath) && m_Config.UseCache)
         {
             // Load cache spirv
             auto spirv = FileSystem::LoadSPIRV(cacheFilePath);
 
-            PXL_LOG_INFO(LogArea::Renderer, "Loaded cached shader '{}'", cacheFilePath.string());
+            if (!spirv.empty())
+            {
+                cacheLoaded = true;
+                PXL_LOG_INFO(LogArea::Renderer, "Loaded cached shader '{}'", cacheFilePath.filename().string());
 
-            // Queue shader for creation
-            m_CreationQueue.push_back({ shader.Stage, spirv, sourcePath });
-            return;
+                // Queue shader for creation
+                m_CreationQueue.push_back({ shader.Stage, spirv, sourcePath });
+            }
         }
+
+        if (cacheLoaded)
+            return;
 
         // If cache isn't available, queue the shader for compilation
         m_CompilationQueue.push_back({ sourcePath, shader });
