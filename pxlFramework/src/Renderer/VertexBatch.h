@@ -30,33 +30,44 @@ namespace pxl
             m_Vertices.insert(m_Vertices.end(), vertices.begin(), vertices.end());
         }
 
+        void AddVertex(const VertexType& vertex)
+        {
+            m_Vertices.push_back(vertex);
+        }
+
         size_t GetVertexSpaceLeft() const { return m_MaxVertexCount - m_Vertices.size(); }
 
         bool CanFlush() const { return !m_Vertices.empty(); }
 
-        void Reset()
+        void Flush(const std::unique_ptr<GraphicsDevice>& device)
         {
-            m_Vertices.clear();
-
-            m_VertexBufferIndex = 0;
+            UploadData();
+            NextVertexBuffer(device);
         }
 
-        void UploadData()
+        uint32_t UploadData()
         {
             m_VertexBuffers.at(m_VertexBufferIndex)->SetData(m_Vertices.size() * sizeof(VertexType), 0, m_Vertices.data());
-
+            uint32_t vertexCount = m_Vertices.size();
             m_Vertices.clear();
+            return vertexCount;
         }
 
         void NextVertexBuffer(const std::unique_ptr<GraphicsDevice>& device)
         {
             uint32_t nextIndex = m_VertexBufferIndex + 1;
-            if (m_VertexBuffers.size() < nextIndex)
+            if (m_VertexBuffers.size() <= nextIndex)
             {
                 m_VertexBuffers.push_back(device->CreateBuffer(m_GPUBufferSpecs));
             }
 
             m_VertexBufferIndex++;
+        }
+
+        void Reset()
+        {
+            m_VertexBufferIndex = 0;
+            m_Vertices.clear();
         }
 
     private:
