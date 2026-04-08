@@ -3,6 +3,7 @@
 #include "GPUBuffer.h"
 #include "GraphicsDevice.h"
 #include "GraphicsPipeline.h"
+#include "TextureHandler.h"
 
 namespace pxl
 {
@@ -11,6 +12,9 @@ namespace pxl
         std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
         std::shared_ptr<GraphicsPipeline> Pipeline = nullptr;
         std::shared_ptr<GPUBuffer> UniformBuffer = nullptr;
+
+        std::shared_ptr<TextureHandler> TextureHandler = nullptr;
+
         uint32_t VertexCount = 0;
         uint32_t IndexCount = 0;
 
@@ -35,7 +39,7 @@ namespace pxl
         virtual void EndFrame(const std::unique_ptr<GraphicsDevice>& device) = 0;
 
         /// @brief Binds a GraphicsPipeline to the current frames state.
-        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) = 0;
+        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer, const std::shared_ptr<TextureHandler>& textureHandler) = 0;
 
         /// @brief Binds a GPUBuffer to the current frames state.
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;

@@ -11,12 +11,6 @@ namespace pxl
         RGBA8,
     };
 
-    enum class SampleFilter
-    {
-        Nearest,
-        Linear,
-    };
-
     enum class ImageFileFormat
     {
         JPG,
@@ -26,33 +20,12 @@ namespace pxl
 
     struct ImageMetadata
     {
-        Size2D Size = Size2D(0);
+        Size2D Size = {};
         ImageFormat Format = ImageFormat::Undefined;
     };
 
     struct Image
     {
-        Image() = default;
-
-        Image(unsigned char* bytePtr, Size2D size, uint32_t channels)
-        {
-            Buffer = std::vector<uint8_t>(bytePtr, bytePtr + size.Width * size.Height * channels);
-            Metadata.Size = size;
-
-            // Move this to Utils
-            switch (channels)
-            {
-                case 3: Metadata.Format = ImageFormat::RGB8; break;
-                case 4: Metadata.Format = ImageFormat::RGBA8; break;
-            }
-        }
-
-        Image(std::vector<uint8_t> pixels, Size2D size, ImageFormat format)
-            : Buffer(pixels), Metadata({ size, format })
-        {
-        }
-
-        /* TODO: It might make more sense to arrange this data in uint32_t's. but then we have to take care of images (jpg's) without alpha values. */
         std::vector<uint8_t> Buffer;
         ImageMetadata Metadata = {};
     };
@@ -70,13 +43,24 @@ namespace pxl
             }
         }
 
-        inline std::string ToString(SampleFilter filter)
+        inline uint32_t ToNumOfChannels(ImageFormat format)
         {
-            switch (filter)
+            switch (format)
             {
-                case SampleFilter::Nearest: return "Nearest";
-                case SampleFilter::Linear:  return "Linear";
-                default:                    return "Unknown";
+                case ImageFormat::Undefined: return 0;
+                case ImageFormat::RGB8:      return 3;
+                case ImageFormat::RGBA8:     return 4;
+                default:                     return 0;
+            }
+        }
+
+        inline ImageFormat ToImageFormat(uint32_t channels)
+        {
+            switch (channels)
+            {
+                case 3:  return ImageFormat::RGB8;
+                case 4:  return ImageFormat::RGBA8;
+                default: return ImageFormat::Undefined;
             }
         }
     }

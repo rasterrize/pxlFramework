@@ -60,6 +60,7 @@ namespace pxl
         // Compile shaders
         m_ShaderManager->CompileAll(m_GraphicsDevice);
 
+        m_TextureHandler = m_GraphicsDevice->CreateTextureHandler();
 
         {
             // --------------------
@@ -108,6 +109,11 @@ namespace pxl
             quadPipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
             quadPipelineSpecs.Shaders[ShaderStage::Vertex] = m_ShaderManager->Get("textured_vertex.vert");
             quadPipelineSpecs.Shaders[ShaderStage::Fragment] = m_ShaderManager->Get("textured_vertex.frag");
+            quadPipelineSpecs.TextureHandler = m_TextureHandler;
+
+            UniformLayout uniformLayout = {};
+            uniformLayout.Add({ "ubo", UniformDataType::Mat4, ShaderStage::Vertex, sizeof(glm::mat4) });
+            quadPipelineSpecs.UniformLayout = uniformLayout;
 
             m_QuadPipeline = m_GraphicsDevice->CreateGraphicsPipeline(quadPipelineSpecs);
         }
@@ -124,9 +130,18 @@ namespace pxl
         }
 
         // Prepare white pixel texture
-        // std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
-        // Image image(pixelBytes, Size2D(1), ImageFormat::RGBA8);
-        // m_WhitePixelTexture = Texture::Create(image, { .Filter = SampleFilter::Nearest });
+        std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
+        ImageMetadata metadata = { Size2D(1), ImageFormat::RGBA8 };
+        auto image = std::make_shared<Image>(pixelBytes, metadata);
+
+        TextureSpecs whitePixelSpecs = {};
+        whitePixelSpecs.Image = image;
+        whitePixelSpecs.Filter = SampleFilter::Nearest;
+        whitePixelSpecs.UseAnistropicFiltering = false;
+
+        m_WhitePixelTexture = m_GraphicsDevice->CreateTexture(whitePixelSpecs);
+
+        m_TextureHandler->Add(m_WhitePixelTexture);
 
         if (m_Config.InitImGui)
             InitImGui();

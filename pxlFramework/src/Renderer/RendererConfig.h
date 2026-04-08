@@ -4,6 +4,7 @@
 
 #include "Core/Window.h"
 #include "GraphicsAPIType.h"
+#include "Texture.h"
 
 namespace pxl
 {
@@ -39,5 +40,7 @@ namespace pxl
 
         /// @brief Automatically initialize ImGui after renderer is initialized.
         bool InitImGui = false;
+
+        float AnisotropicFilteringLevel = 1.0f;
     };
 }

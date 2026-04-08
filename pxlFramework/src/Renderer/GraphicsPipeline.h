@@ -3,6 +3,7 @@
 #include "BufferLayout.h"
 #include "GPUResource.h"
 #include "Shader.h"
+#include "TextureHandler.h"
 #include "UniformLayout.h"
 
 namespace pxl
@@ -46,6 +47,7 @@ namespace pxl
         CullMode CullMode = CullMode::None;
         FrontFace FrontFace = FrontFace::CounterClockwise;
         std::optional<UniformLayout> UniformLayout;
+        std::shared_ptr<TextureHandler> TextureHandler;
     };
 
     /// @brief A pipeline representing the various stages geometry data will pass through.

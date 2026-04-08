@@ -100,6 +100,7 @@ namespace pxl
 
         std::shared_ptr<EventHandler<WindowFBResizeEvent>> m_WindowFBResizeHandler = nullptr;
 
+        std::shared_ptr<TextureHandler> m_TextureHandler;
 
         std::shared_ptr<Texture> m_WhitePixelTexture = nullptr;
         std::shared_ptr<Texture> m_ErrorTexture = nullptr;

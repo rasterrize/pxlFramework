@@ -18,8 +18,11 @@ namespace pxl
         // NOTE: The renderer expects things to have their y values start at the bottom, but images are stored from top to bottom, so we automatically flip it unless specified not to.
         stbi_set_flip_vertically_on_load(!flipVertical);
 
+        const int desiredChannels = 4;
+
         int width, height, channels = 0;
-        unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
+        unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &channels, desiredChannels);
+        uint64_t numOfBytes = width * height * desiredChannels;
 
         if (!bytes)
         {
@@ -29,7 +32,12 @@ namespace pxl
 
         PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", path.string());
 
-        auto image = std::make_shared<Image>(bytes, Size2D(width, height), channels);
+        std::vector<uint8_t> buffer;
+        buffer.insert(buffer.end(), bytes, bytes + numOfBytes);
+        ImageMetadata metadata = { Size2D(width, height), Utils::ToImageFormat(desiredChannels) };
+        auto image = std::make_shared<Image>(buffer, metadata);
+
+        PXL_ASSERT(buffer.size() == numOfBytes);
 
         stbi_image_free(bytes);
 

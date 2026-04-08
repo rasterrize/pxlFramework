@@ -437,6 +437,15 @@ namespace pxl
             }
         }
 
+        inline VkFormat ToVkFormat(TextureFormat type)
+        {
+            switch (type)
+            {
+                case TextureFormat::RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
+                default:                   return VK_FORMAT_UNDEFINED;
+            }
+        }
+
         inline VkPhysicalDeviceType ToVkPhysicalDeviceType(GPUType type)
         {
             switch (type)
@@ -445,6 +454,38 @@ namespace pxl
                 case GPUType::Integrated: return VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
                 case GPUType::Other:      return VK_PHYSICAL_DEVICE_TYPE_OTHER;
                 default:                  return VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM;
+            }
+        }
+
+        inline VkImageType ToVkImageType(TextureType type)
+        {
+            switch (type)
+            {
+                case TextureType::Tex1D: return VK_IMAGE_TYPE_1D;
+                case TextureType::Tex2D: return VK_IMAGE_TYPE_2D;
+                case TextureType::Tex3D: return VK_IMAGE_TYPE_3D;
+                default:                 return VK_IMAGE_TYPE_MAX_ENUM;
+            }
+        }
+
+        inline VkImageViewType ToVkImageViewType(TextureType type)
+        {
+            switch (type)
+            {
+                case TextureType::Tex1D: return VK_IMAGE_VIEW_TYPE_1D;
+                case TextureType::Tex2D: return VK_IMAGE_VIEW_TYPE_2D;
+                case TextureType::Tex3D: return VK_IMAGE_VIEW_TYPE_3D;
+                default:                 return VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+            }
+        }
+
+        inline VkFilter ToVkFilter(SampleFilter filter)
+        {
+            switch (filter)
+            {
+                case SampleFilter::Nearest: return VK_FILTER_NEAREST;
+                case SampleFilter::Linear:  return VK_FILTER_LINEAR;
+                default:                    return VK_FILTER_MAX_ENUM;
             }
         }
     };

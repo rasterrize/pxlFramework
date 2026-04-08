@@ -1,5 +1,6 @@
 #include "VulkanGraphicsContext.h"
 
+#include "VulkanBindlessTextureHandler.h"
 #include "VulkanGPUBuffer.h"
 #include "VulkanGraphicsDevice.h"
 #include "VulkanGraphicsPipeline.h"
@@ -98,7 +99,7 @@ namespace pxl
         VK_CHECK(vkEndCommandBuffer(m_CommandBuffer));
     }
 
-    void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer)
+    void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer, const std::shared_ptr<TextureHandler>& textureHandler)
     {
         PXL_ASSERT(pipeline);
 
@@ -106,17 +107,17 @@ namespace pxl
         auto vulkanPipeline = static_pointer_cast<VulkanGraphicsPipeline>(pipeline);
         auto pipelineHandle = vulkanPipeline->GetVkPipeline();
         vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineHandle);
-        
+
         // Bind pipeline dynamic state
         auto specs = pipeline->GetSpecs();
         vkCmdSetCullMode(m_CommandBuffer, VulkanUtils::ToVkCullMode(specs.CullMode));
         vkCmdSetFrontFace(m_CommandBuffer, VulkanUtils::ToVkFrontFace(specs.FrontFace));
         vkCmdSetPrimitiveTopology(m_CommandBuffer, VulkanUtils::ToVkPrimitiveTopology(specs.PrimitiveTopology));
-        
+
         // Upload pipeline layout data
+        auto layout = vulkanPipeline->GetVkPipelineLayout();
         if (pipeline->GetSpecs().UniformLayout.has_value())
         {
-            auto layout = vulkanPipeline->GetVkPipelineLayout();
             auto vulkanUniformBuffer = static_pointer_cast<VulkanGPUBuffer>(uniformBuffer);
             auto address = vulkanUniformBuffer->GetDeviceAddress();
             vkCmdPushConstants(m_CommandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkDeviceAddress), &address);
@@ -175,7 +176,7 @@ namespace pxl
 
     void VulkanGraphicsContext::BindParams(const DrawParams& params)
     {
-        Bind(params.Pipeline, params.UniformBuffer);
+        Bind(params.Pipeline, params.UniformBuffer, params.TextureHandler);
 
         for (const auto& buffer : params.VertexBuffers)
             Bind(buffer);

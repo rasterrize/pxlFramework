@@ -81,6 +81,8 @@ namespace pxl
         /// @return A new GraphicsPipeline shared resource object.
         virtual std::shared_ptr<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineSpecs& specs) = 0;
 
+        virtual std::shared_ptr<TextureHandler> CreateTextureHandler() = 0;
+
         /// @brief Creates a new ImGuiRenderer backend for rendering ImGui.
         /// @param window The window associated with the renderer.
         /// @return A new ImGuiRenderer shared resource object.

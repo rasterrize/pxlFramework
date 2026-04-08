@@ -20,7 +20,7 @@ namespace pxl
         // End recording commands of the current frame
         virtual void EndFrame(const std::unique_ptr<GraphicsDevice>& device) override;
 
-        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) override;
+        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer, const std::shared_ptr<TextureHandler>& textureHandler) override;
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) override;
 
         // GPU draw commands

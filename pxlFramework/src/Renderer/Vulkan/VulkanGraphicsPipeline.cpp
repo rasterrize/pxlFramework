@@ -1,5 +1,6 @@
 #include "VulkanGraphicsPipeline.h"
 
+#include "VulkanBindlessTextureHandler.h"
 #include "VulkanShader.h"
 #include "VulkanUtils.h"
 
@@ -85,9 +86,8 @@ namespace pxl
         // TODO LATER
 
         // Colour Blending
-        // TODO: Enable colour blending later
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // ColorBlendAttachment is per framebuffer, and ColorBlendState is global
-        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.blendEnable = VK_TRUE;
         colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
         colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
@@ -119,10 +119,17 @@ namespace pxl
             pushConstants.push_back(range);
         }
 
+        std::vector<VkDescriptorSetLayout> descriptorLayouts;
+        if (m_Specs.TextureHandler)
+        {
+            auto bindlessHandler = static_pointer_cast<VulkanBindlessTextureHandler>(m_Specs.TextureHandler);
+            descriptorLayouts.push_back(bindlessHandler->GetDescriptorLayout());
+        }
+
         // Pipeline layout (uniforms, etc)
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
         pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 

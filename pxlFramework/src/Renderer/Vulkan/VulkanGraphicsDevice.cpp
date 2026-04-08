@@ -1,5 +1,6 @@
 #include "VulkanGraphicsDevice.h"
 
+#include "VulkanBindlessTextureHandler.h"
 #include "VulkanGPUBuffer.h"
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanImGuiRenderer.h"
@@ -84,8 +85,9 @@ namespace pxl
 
     std::shared_ptr<Texture> VulkanGraphicsDevice::CreateTexture(const TextureSpecs& specs)
     {
-        PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan textures are not implemented yet");
-        return nullptr;
+        auto texture = std::make_shared<VulkanTexture>(specs, m_Device, m_Allocator, m_OneTimeCommandPool, m_GraphicsQueue);
+        m_Resources.push_back(texture);
+        return texture;
     }
 
     std::shared_ptr<Shader> VulkanGraphicsDevice::CreateShader(const ShaderSpecs& specs)
@@ -100,6 +102,13 @@ namespace pxl
         auto pipeline = std::make_shared<VulkanGraphicsPipeline>(specs, m_Device, m_SurfaceFormat.format);
         m_Resources.push_back(pipeline);
         return pipeline;
+    }
+
+    std::shared_ptr<TextureHandler> VulkanGraphicsDevice::CreateTextureHandler()
+    {
+        auto textureHandler = std::make_shared<VulkanBindlessTextureHandler>(m_Device);
+        m_Resources.push_back(textureHandler);
+        return textureHandler;
     }
 
     std::shared_ptr<ImGuiRenderer> VulkanGraphicsDevice::CreateImGuiRenderer(const ImGuiSpecs& specs)
@@ -271,6 +280,9 @@ namespace pxl
         // Enable Vulkan 1.2 features
         VkPhysicalDeviceVulkan12Features enabledVulkan12Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
         enabledVulkan12Features.bufferDeviceAddress = VK_TRUE;
+        enabledVulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+        enabledVulkan12Features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+        enabledVulkan12Features.runtimeDescriptorArray = VK_TRUE;
 
         // Enable Vulkan 1.3 features
         VkPhysicalDeviceVulkan13Features enabledVulkan13Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
