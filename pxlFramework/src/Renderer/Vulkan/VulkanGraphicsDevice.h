@@ -114,7 +114,7 @@ namespace pxl
         VkCommandPool m_OneTimeCommandPool = VK_NULL_HANDLE;
 
         // Allocated resources
-        std::vector<std::weak_ptr<GPUResource>> m_Resources;
+        std::vector<std::shared_ptr<GPUResource>> m_Resources;
     };
 
     namespace VulkanUtils
