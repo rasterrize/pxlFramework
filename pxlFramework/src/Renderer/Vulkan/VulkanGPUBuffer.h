@@ -59,6 +59,8 @@ namespace pxl
 
         virtual void SetData(uint64_t size, uint64_t offset, const void* data) override;
 
+        virtual const GPUBufferSpecs& GetSpecs() const override { return m_Specs; }
+
         VkBuffer GetVkBuffer() const { return m_Buffer; }
 
         VkBufferUsageFlagBits GetVkBufferUsage() const { return m_Usage; }
@@ -66,6 +68,8 @@ namespace pxl
         VkDeviceAddress GetDeviceAddress() const { return m_DeviceAddress; }
 
     private:
+        GPUBufferSpecs m_Specs = {};
+
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = nullptr;
         VkBufferUsageFlagBits m_Usage = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;

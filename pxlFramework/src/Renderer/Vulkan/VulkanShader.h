@@ -15,9 +15,14 @@ namespace pxl
 
         virtual bool Reload(const std::vector<uint32_t>& code) override;
 
+        virtual const ShaderSpecs& GetSpecs() const override { return m_Specs; }
+        virtual void SetSpecs(const ShaderSpecs& specs) override { m_Specs = specs; }
+
         VkShaderModule GetModule() const { return m_Module; }
 
     private:
+        ShaderSpecs m_Specs = {};
+
         VkShaderModule m_Module = nullptr;
         VkDevice m_Device = nullptr;
     };

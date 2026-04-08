@@ -443,6 +443,7 @@ namespace pxl
             {
                 case GPUType::Discrete:   return VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
                 case GPUType::Integrated: return VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+                case GPUType::Other:      return VK_PHYSICAL_DEVICE_TYPE_OTHER;
                 default:                  return VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM;
             }
         }

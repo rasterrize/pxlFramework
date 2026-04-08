@@ -35,10 +35,16 @@ namespace pxl
 
         virtual void FreeResources() override;
 
-        virtual void SetVerticalSync(bool enable) override;
+        virtual void SetVerticalSync(bool value) override;
 
 
 
+        virtual const GraphicsDeviceSpecs& GetSpecs() const override { return m_Specs; }
+        virtual const GraphicsDeviceLimits& GetLimits() const override { return m_Limits; }
+
+        virtual const std::string& GetGPUName() const override { return m_GPUName; }
+        virtual const std::string& GetDriverInfo() const override { return m_DriverInfo; }
+        virtual GPUType GetGPUType() const override { return m_GPUType; }
 
         VkImage GetCurrentSwapchainImage() const { return m_PerImageData.at(m_SwapchainImageIndex).Image; }
         VkImageView GetCurrentSwapchainImageView() const { return m_PerImageData.at(m_SwapchainImageIndex).View; }
@@ -81,6 +87,13 @@ namespace pxl
         VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
 
+        GraphicsDeviceSpecs m_Specs = {};
+        GraphicsDeviceLimits m_Limits = {};
+
+        std::string m_GPUName;
+        std::string m_DriverInfo;
+        GPUType m_GPUType;
+
         // Swapchain data
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
@@ -100,4 +113,17 @@ namespace pxl
         // Allocated resources
         std::vector<std::weak_ptr<GPUResource>> m_Resources;
     };
+
+    namespace VulkanUtils
+    {
+        inline GPUType ToGPUType(VkPhysicalDeviceType type)
+        {
+            switch (type)
+            {
+                case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: return GPUType::Integrated;
+                case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   return GPUType::Discrete;
+                default:                                     return GPUType::Other;
+            }
+        }
+    }
 }

@@ -21,6 +21,7 @@ namespace pxl
     {
         Discrete,
         Integrated,
+        Other,
     };
 
     struct GraphicsDeviceSpecs
@@ -43,15 +44,6 @@ namespace pxl
         bool TripleBuffering = true;
     };
 
-    struct GraphicsDeviceStats
-    {
-        uint32_t BufferCount;
-        uint32_t ShaderCount;
-        uint32_t GraphicsPipelineCount;
-        uint32_t TextureCount;
-        uint32_t AllocatedBytes;
-    };
-
     struct GraphicsDeviceLimits
     {
         float MaxAnisotropicLevel = 0.0f;
@@ -62,11 +54,6 @@ namespace pxl
     class GraphicsDevice
     {
     public:
-        GraphicsDevice(const GraphicsDeviceSpecs& specs)
-            : m_Specs(specs)
-        {
-        }
-
         virtual ~GraphicsDevice() = default;
 
         /// @brief Creates a new GPUBuffer object used to host various kinds of data in memory on the GPU.
@@ -106,24 +93,16 @@ namespace pxl
 
         virtual void OnWindowResize() = 0;
 
-        virtual void SetVerticalSync(bool enable) = 0;
+        virtual void SetVerticalSync(bool value) = 0;
 
-        GraphicsDeviceSpecs GetSpecs() const { return m_Specs; }
-        GraphicsDeviceLimits GetLimits() const { return m_Limits; }
-        GraphicsDeviceStats GetStats() const { return m_Stats; }
 
-        std::string GetGPUName() const { return m_GPUName; }
-        std::string GetDriverInfo() const { return m_DriverInfo; }
-        GPUType GetGPUType() const { return m_GPUType; }
 
-    protected:
-        GraphicsDeviceSpecs m_Specs = {};
-        GraphicsDeviceLimits m_Limits = {};
-        GraphicsDeviceStats m_Stats = {};
+        virtual const GraphicsDeviceSpecs& GetSpecs() const = 0;
+        virtual const GraphicsDeviceLimits& GetLimits() const = 0;
 
-        std::string m_GPUName;
-        std::string m_DriverInfo;
-        GPUType m_GPUType;
+        virtual const std::string& GetGPUName() const = 0;
+        virtual const std::string& GetDriverInfo() const = 0;
+        virtual GPUType GetGPUType() const = 0;
     };
 
     namespace Utils

@@ -24,12 +24,7 @@ namespace pxl
 
         bool IsZero() const { return Width == 0 && Height == 0; }
 
-        glm::vec2 ToVec2() const
-        {
-            return {
-                Width, Height
-            };
-        }
+        glm::vec2 ToVec2() const { return { Width, Height }; }
 
         std::string ToString() const { return std::format("{}, {}", Width, Height); }
     };
@@ -55,12 +50,7 @@ namespace pxl
 
         bool IsZero() const { return Width == 0 && Height == 0 && Depth == 0; }
 
-        glm::vec3 ToVec3() const
-        {
-            return {
-                Width, Height, Depth
-            };
-        }
+        glm::vec3 ToVec3() const { return { Width, Height, Depth }; }
 
         std::string ToString() const { return std::format("{}, {}, {}", Width, Height, Depth); }
     };

@@ -14,7 +14,7 @@ namespace pxl
         /// @param path The path of the file. Always include the file format at the end (eg .png).
         /// @param flipVertical Whether to flip the image vertically on load.
         /// @return Image struct with all the loaded data.
-        // NOTE: Must not be 'LoadImage' because stupid windows header defines it as something else
+        /// @note (For API developer) This function must not be named 'LoadImage' because stupid windows header defines it as something else
         static std::shared_ptr<Image> LoadImageFile(const std::filesystem::path& path, bool flipVertical = false);
 
         static std::string LoadGLSL(const std::filesystem::path& path);

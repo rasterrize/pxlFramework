@@ -10,7 +10,7 @@
 namespace pxl
 {
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceSpecs& specs, VkInstance instance)
-        : GraphicsDevice(specs), m_Instance(instance)
+        : m_Specs(specs), m_Instance(instance)
     {
         InitSurface(specs.Window);
         SelectGPU();
@@ -79,7 +79,6 @@ namespace pxl
     {
         auto buffer = std::make_shared<VulkanGPUBuffer>(specs, m_Device, m_Allocator, m_OneTimeCommandPool, m_GraphicsQueue);
         m_Resources.push_back(buffer);
-        m_Stats.BufferCount++;
         return buffer;
     }
 
@@ -93,7 +92,6 @@ namespace pxl
     {
         auto shader = std::make_shared<VulkanShader>(specs, m_Device);
         m_Resources.push_back(shader);
-        m_Stats.ShaderCount++;
         return shader;
     }
 
@@ -101,7 +99,6 @@ namespace pxl
     {
         auto pipeline = std::make_shared<VulkanGraphicsPipeline>(specs, m_Device, m_SurfaceFormat.format);
         m_Resources.push_back(pipeline);
-        m_Stats.GraphicsPipelineCount++;
         return pipeline;
     }
 
@@ -161,7 +158,6 @@ namespace pxl
 
     void VulkanGraphicsDevice::OnWindowResize()
     {
-        // TODO: Providing specs here feels unnecessary as a private function
         m_SwapchainInvalid = true;
     }
 
@@ -305,8 +301,8 @@ namespace pxl
         }
 #endif
 
-        if (VulkanUtils::ValidateExtensions(requiredExtensions, availableExtensions))
-            std::runtime_error("Failed to validate all device extensions");
+        if (!VulkanUtils::ValidateExtensions(requiredExtensions, availableExtensions))
+            throw std::runtime_error("Failed to validate all device extensions");
 
         // The graphics queue will be the highest priority (for now)
         float queuePriority = 1.0f;
@@ -344,6 +340,7 @@ namespace pxl
         vkGetPhysicalDeviceProperties2(m_GPU, &gpuProps);
 
         m_GPUName = gpuProps.properties.deviceName;
+        m_GPUType = VulkanUtils::ToGPUType(gpuProps.properties.deviceType);
         m_DriverInfo = driverProps.driverInfo;
         m_Limits.MaxAnisotropicLevel = gpuProps.properties.limits.maxSamplerAnisotropy;
 
@@ -393,7 +390,6 @@ namespace pxl
         }
 
         // Determine a suitable surface format
-        // TODO: verify this covers all bases
         m_SurfaceFormat = VulkanUtils::GetSuitableSurfaceFormat(surfaceFormats);
 
         // Determine a suitable present mode
@@ -423,7 +419,7 @@ namespace pxl
             }
         }
 
-        // Determine the minimum swapchain image count
+        // Determine the minimum image count
         auto minCount = surfaceCapabilities.minImageCount;
         auto maxCount = surfaceCapabilities.maxImageCount;
         auto desiredImageCount = minCount;
@@ -440,6 +436,8 @@ namespace pxl
             }
         }
 
+
+        // Create the swapchain
         auto oldSwapchain = m_Swapchain;
 
         VkSwapchainCreateInfoKHR swapchainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };

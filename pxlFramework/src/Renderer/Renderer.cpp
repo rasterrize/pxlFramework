@@ -24,9 +24,6 @@ namespace pxl
         m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext({ config.ClearColour });
         PXL_ASSERT(m_GraphicsContext);
 
-        // Set initial clear colour
-        m_GraphicsContext->SetClearColour(config.ClearColour);
-
         // Init graphics device
         GraphicsDeviceSpecs deviceSpecs = {
             .TypePreference = GPUType::Discrete,
@@ -62,39 +59,6 @@ namespace pxl
         // Compile shaders
         m_ShaderManager->CompileAll(m_GraphicsDevice);
 
-#define PXL_DRAW_HELLO_TRIANGLE 1
-#if PXL_DRAW_HELLO_TRIANGLE
-        {
-            const std::vector<ColouredVertex> vertices = {
-                { { -1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } }, // Vertex 1: Red
-                {  { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }, // Vertex 2: Green
-                { { 0.5f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }  // Vertex 3: Blue
-            };
-
-            GPUBufferSpecs triangleBufferSpecs = {};
-            triangleBufferSpecs.Size = sizeof(ColouredVertex) * vertices.size();
-            triangleBufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
-            triangleBufferSpecs.Usage = GPUBufferUsage::Vertex;
-            triangleBufferSpecs.Data = vertices.data();
-
-            m_TriangleBuffer = m_GraphicsDevice->CreateBuffer(triangleBufferSpecs);
-
-            GraphicsPipelineSpecs trianglePipelineSpecs = {};
-            trianglePipelineSpecs.BufferLayout = ColouredVertex::GetLayout();
-            trianglePipelineSpecs.CullMode = CullMode::None;
-            trianglePipelineSpecs.FrontFace = FrontFace::CounterClockwise;
-            trianglePipelineSpecs.PolygonMode = PolygonMode::Fill;
-            trianglePipelineSpecs.PrimitiveTopology = PrimitiveTopology::Triangle;
-            trianglePipelineSpecs.Shaders[ShaderStage::Vertex] = m_ShaderManager->Get("coloured_vertex.vert");
-            trianglePipelineSpecs.Shaders[ShaderStage::Fragment] = m_ShaderManager->Get("coloured_vertex.frag");
-
-            UniformLayout uniformLayout = {};
-            uniformLayout.Add({ "ubo", UniformDataType::Mat4, ShaderStage::Vertex, sizeof(glm::mat4) });
-            trianglePipelineSpecs.UniformLayout = uniformLayout;
-
-            m_TrianglePipeline = m_GraphicsDevice->CreateGraphicsPipeline(trianglePipelineSpecs);
-        }
-#endif
 
         {
             // --------------------
@@ -105,15 +69,15 @@ namespace pxl
             std::vector<uint32_t> indices(m_Config.VerticesPerBatch * 1.5f);
             constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
 
-            uint32_t offset;
-            for (size_t i = 0; i < indices.size(); i += 6)
+            uint32_t offset = 0;
+            for (size_t i = 0; i < indices.size(); i += RendererConstants::k_IndicesPerQuad)
             {
-                for (uint32_t j = 0; j < 6; j++)
+                for (uint32_t j = 0; j < RendererConstants::k_IndicesPerQuad; j++)
                 {
                     indices[i + j] = defaultIndices[j] + offset;
                 }
 
-                offset += 4;
+                offset += RendererConstants::k_VerticesPerQuad;
             }
 
             // Prepare vertex batching
@@ -297,17 +261,10 @@ namespace pxl
         // clang-format on
     }
 
-    RendererStats Renderer::GetStats() const
     {
-        auto stats = m_RendererStats;
 
-        if (m_GraphicsContext)
-            stats.GraphicsContextStats = m_GraphicsContext->GetStats();
 
-        if (m_GraphicsDevice)
-            stats.GraphicsDeviceStats = m_GraphicsDevice->GetStats();
 
-        return stats;
     }
 
     void Renderer::OnWindowFBResize(const WindowFBResizeEvent& e)

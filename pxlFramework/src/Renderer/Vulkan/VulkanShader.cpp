@@ -5,7 +5,7 @@
 namespace pxl
 {
     VulkanShader::VulkanShader(const ShaderSpecs& specs, VkDevice device)
-        : Shader(specs), m_Device(device)
+        : m_Specs(specs), m_Device(device)
     {
         m_Module = VulkanUtils::CreateShaderModule(m_Device, specs.Code);
     }

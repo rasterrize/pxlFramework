@@ -28,7 +28,7 @@ namespace pxl
         uint32_t VerticesPerBatch = 1000;
 
         /// @brief Cache compiled shaders to disk.
-        bool UseShaderCache = PXL_DEBUG;
+        bool UseShaderCache = true;
 
         std::filesystem::path ShaderCacheDirectory = ".shadercache";
 
@@ -36,6 +36,6 @@ namespace pxl
         std::vector<ShaderFile> UserShadersToCompile;
 
         /// @brief Automatically initialize ImGui after renderer is initialized.
-        bool InitImGui = PXL_DEBUG;
+        bool InitImGui = false;
     };
 }

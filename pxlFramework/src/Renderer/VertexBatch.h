@@ -14,11 +14,11 @@ namespace pxl
         {
             m_Vertices.reserve(maxVertexCount);
 
-            GPUBufferSpecs specs;
-            specs.Size = m_MaxVertexCount * sizeof(VertexType);
-            specs.DrawHint = GPUBufferDrawHint::Dynamic;
-            specs.Usage = GPUBufferUsage::Vertex;
-            m_VertexBuffers.push_back(device->CreateBuffer(specs));
+            m_GPUBufferSpecs.Size = m_MaxVertexCount * sizeof(VertexType);
+            m_GPUBufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
+            m_GPUBufferSpecs.Usage = GPUBufferUsage::Vertex;
+
+            m_VertexBuffers.push_back(device->CreateBuffer(m_GPUBufferSpecs));
         }
 
         const std::vector<VertexType>& GetVertices() const { return m_Vertices; }
@@ -53,21 +53,18 @@ namespace pxl
             uint32_t nextIndex = m_VertexBufferIndex + 1;
             if (m_VertexBuffers.size() < nextIndex)
             {
-                GPUBufferSpecs specs;
-                specs.Size = m_MaxVertexCount * sizeof(VertexType);
-                specs.DrawHint = GPUBufferDrawHint::Dynamic;
-                specs.Usage = GPUBufferUsage::Vertex;
-                m_VertexBuffers.push_back(device->CreateBuffer(specs));
+                m_VertexBuffers.push_back(device->CreateBuffer(m_GPUBufferSpecs));
             }
 
             m_VertexBufferIndex++;
         }
 
     private:
-        size_t m_MaxVertexCount;
+        size_t m_MaxVertexCount = 0;
         std::vector<VertexType> m_Vertices;
 
         uint32_t m_VertexBufferIndex = 0;
         std::vector<std::shared_ptr<GPUBuffer>> m_VertexBuffers;
+        GPUBufferSpecs m_GPUBufferSpecs = {};
     };
 }

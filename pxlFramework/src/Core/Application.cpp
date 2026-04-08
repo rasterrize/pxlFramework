@@ -4,8 +4,6 @@
 #include "Input.h"
 #include "Platform.h"
 #include "Renderer/Camera.h"
-#include "Renderer/Renderer.h"
-#include "Stopwatch.h"
 #include "Window.h"
 
 using namespace std::literals;

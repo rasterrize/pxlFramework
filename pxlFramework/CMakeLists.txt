@@ -180,7 +180,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
     $<$<CONFIG:Debug>:PXL_DEBUG>
     $<$<CONFIG:Release>:PXL_RELEASE>
-    PXL_SOURCE_RESOURCE_DIRECTORY="${PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY}"
+    $<IF:$<CONFIG:Debug>, PXL_RESOURCE_DIRECTORY="${PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY}", PXL_RESOURCE_DIRECTORY="resources">
 )
 
 # Specify source directory as an include folder for simplified '#include's in code

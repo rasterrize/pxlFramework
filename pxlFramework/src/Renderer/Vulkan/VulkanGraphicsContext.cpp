@@ -100,6 +100,8 @@ namespace pxl
 
     void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer)
     {
+        PXL_ASSERT(pipeline);
+
         // Bind the pipeline
         auto vulkanPipeline = static_pointer_cast<VulkanGraphicsPipeline>(pipeline);
         auto pipelineHandle = vulkanPipeline->GetVkPipeline();
@@ -120,7 +122,12 @@ namespace pxl
             vkCmdPushConstants(m_CommandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkDeviceAddress), &address);
         }
 
-        m_Stats.PipelineBinds++;
+        if (textureHandler)
+        {
+            auto vulkanBindlessHandler = static_pointer_cast<VulkanBindlessTextureHandler>(textureHandler);
+            auto set = vulkanBindlessHandler->GetDescriptorSet();
+            vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &set, 0, nullptr);
+        }
     }
 
     void VulkanGraphicsContext::Bind(const std::shared_ptr<GPUBuffer>& buffer)
@@ -132,35 +139,33 @@ namespace pxl
             VkDeviceSize offset = { 0 };
             // TODO: check if binding matters here
             vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &handle, &offset);
-            m_Stats.VertexBufferBinds++;
         }
         else if (vulkanBuffer->GetVkBufferUsage() & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
         {
             VkDeviceSize offset = { 0 };
             vkCmdBindIndexBuffer(m_CommandBuffer, handle, offset, VK_INDEX_TYPE_UINT32);
-            m_Stats.IndexBufferBinds++;
         }
     }
 
     void VulkanGraphicsContext::Draw(const DrawParams& params)
     {
+        PXL_ASSERT(params.VertexCount > 0);
+        PXL_ASSERT(!params.VertexBuffers.empty());
+
         BindParams(params);
         vkCmdDraw(m_CommandBuffer, params.VertexCount, 1, 0, 0);
-
-        m_Stats.DrawCalls++;
     }
 
     void VulkanGraphicsContext::DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer)
     {
+        PXL_ASSERT(params.IndexCount > 0);
+        PXL_ASSERT(!params.VertexBuffers.empty());
+        PXL_ASSERT(indexBuffer);
+
         BindParams(params);
         Bind(indexBuffer);
 
-        // auto pipelineLayout = static_pointer_cast<VulkanGraphicsPipeline>(params.Pipeline)->GetVkPipelineLayout();
-        // vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0,
-
         vkCmdDrawIndexed(m_CommandBuffer, params.IndexCount, 1, 0, 0, 0);
-
-        m_Stats.DrawCalls++;
     }
 
     void VulkanGraphicsContext::SetClearColour(const glm::vec4& colour)

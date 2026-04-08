@@ -30,14 +30,7 @@ namespace pxl
     class Shader : public GPUResource
     {
     public:
-        Shader(const ShaderSpecs& specs)
-            : m_Specs(specs)
-        {
-        }
-
         virtual ~Shader() = default;
-
-        virtual void Free() override = 0;
 
         /// @brief Reloads this shader from disk
         /// @return Whether or not reloading was successful, use this to determine whether
@@ -45,11 +38,9 @@ namespace pxl
         /// @note Any pipelines using this shader must be recreated manually for any visible changes
         virtual bool Reload(const std::vector<uint32_t>& code) = 0;
 
-        ShaderSpecs GetSpecs() const { return m_Specs; }
-        void SetSpecs(const ShaderSpecs& specs) { m_Specs = specs; }
+        virtual const ShaderSpecs& GetSpecs() const = 0;
+        virtual void SetSpecs(const ShaderSpecs& specs) = 0;
 
-    protected:
-        ShaderSpecs m_Specs;
     };
 
     namespace Utils

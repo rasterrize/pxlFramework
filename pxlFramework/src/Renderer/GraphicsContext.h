@@ -13,15 +13,8 @@ namespace pxl
         std::shared_ptr<GPUBuffer> UniformBuffer = nullptr;
         uint32_t VertexCount = 0;
         uint32_t IndexCount = 0;
-    };
 
-    struct GraphicsContextStats
-    {
-        uint32_t DrawCalls;
-        uint32_t PipelineBinds;
-        uint32_t VertexBufferBinds;
-        uint32_t IndexBufferBinds;
-        // uint32_t UniformBufferBinds;
+        // TODO: extend with vertex/index offsets, instance count, etc
     };
 
     struct GraphicsContextSpecs
@@ -56,9 +49,6 @@ namespace pxl
         /// @brief Sets the clear colour used when a new frame begins rendering.
         virtual void SetClearColour(const glm::vec4& colour) = 0;
 
-        GraphicsContextStats GetStats() const { return m_Stats; }
 
-    protected:
-        GraphicsContextStats m_Stats;
     };
 }

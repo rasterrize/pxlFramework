@@ -15,7 +15,7 @@ namespace pxl
         IVec4,
         Mat3,
         Mat4,
-        Bool,
+        Bool = Int,
     };
 
     namespace Utils
@@ -37,7 +37,6 @@ namespace pxl
                 case BufferDataType::IVec4: return 4 * 4;
                 case BufferDataType::Mat3:  return 4 * 3 * 3;
                 case BufferDataType::Mat4:  return 4 * 4 * 4;
-                case BufferDataType::Bool:  return 4;
                 default:                    return 0;
             }
         }
@@ -80,7 +79,6 @@ namespace pxl
                 case BufferDataType::IVec4: return "IVec4";
                 case BufferDataType::Mat3:  return "Mat3";
                 case BufferDataType::Mat4:  return "Mat4";
-                case BufferDataType::Bool:  return "Bool";
                 default:                    return "Unknown";
             }
         }

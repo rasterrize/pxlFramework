@@ -52,22 +52,13 @@ namespace pxl
     class GraphicsPipeline : public GPUResource
     {
     public:
-        GraphicsPipeline(const GraphicsPipelineSpecs& specs)
-            : m_Specs(specs)
-        {
-        }
-
         virtual ~GraphicsPipeline() = default;
 
         /// @brief Recreates the pipeline using its predefined specifications.
         virtual void Recreate() = 0;
 
-        virtual void Free() override = 0;
 
-        const GraphicsPipelineSpecs& GetSpecs() const { return m_Specs; }
-
-    protected:
-        GraphicsPipelineSpecs m_Specs;
+        virtual const GraphicsPipelineSpecs& GetSpecs() const = 0;
     };
 
     namespace Utils

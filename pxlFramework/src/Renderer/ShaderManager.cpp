@@ -175,7 +175,7 @@ namespace pxl
 
         // Reload the shader using the newly loaded SPIRV
         shader->Reload(spirv);
-        PXL_LOG_INFO(LogArea::Renderer, "Reloaded shader '{}'", shaderFilePath.string());
+        PXL_LOG_INFO(LogArea::Renderer, "Reloaded shader '{}'", shaderFilePath.filename().string());
 
         return true;
     }

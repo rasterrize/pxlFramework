@@ -14,7 +14,6 @@ namespace pxl
 
     enum class TextureFormat
     {
-        RGB8,
         RGBA8,
     };
 

@@ -6,7 +6,7 @@
 namespace pxl
 {
     VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSpecs& specs, VkDevice device, VkFormat renderingFormat)
-        : GraphicsPipeline(specs), m_Device(device), m_RenderingFormat(renderingFormat)
+        : m_Specs(specs), m_Device(device), m_RenderingFormat(renderingFormat)
     {
         Recreate();
     }
@@ -71,10 +71,10 @@ namespace pxl
         rasterizationInfo.depthClampEnable = VK_FALSE;                                     // requires enabling a gpu feature
         rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;                              // disables geometry passing this stage, we don't want that
         rasterizationInfo.polygonMode = VulkanUtils::ToVkPolygonMode(m_Specs.PolygonMode); // Can be lines and points, but requires enabling a gpu feature
-        rasterizationInfo.lineWidth = 1.0f;
         rasterizationInfo.cullMode = VulkanUtils::ToVkCullMode(m_Specs.CullMode);
         rasterizationInfo.frontFace = VulkanUtils::ToVkFrontFace(m_Specs.FrontFace);
         rasterizationInfo.depthBiasEnable = VK_FALSE;
+        rasterizationInfo.lineWidth = 1.0f;
 
         // Multisampling // REQUIRES ENABLING A GPU FEATURE
         VkPipelineMultisampleStateCreateInfo multisamplingInfo = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
@@ -110,6 +110,7 @@ namespace pxl
         std::vector<VkPushConstantRange> pushConstants;
         if (m_Specs.UniformLayout.has_value())
         {
+            // TODO: Layout details aren't used in here, should specs be reevaluated?
             VkPushConstantRange range = {
                 .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
                 .size = sizeof(VkDeviceAddress),
@@ -124,36 +125,6 @@ namespace pxl
         pipelineLayoutInfo.pSetLayouts = nullptr;
         pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
         pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
-
-        // Create descriptor set layouts
-        // if (m_Specs.UniformLayout.has_value())
-        // {
-        //     // TODO: this is temp
-        //     auto& uniformLayout = m_Specs.UniformLayout.value();
-        //     uint32_t bindingOffset = 0;
-        //     std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
-        //     for (const auto& element : uniformLayout.GetElements())
-        //     {
-        //         VkDescriptorSetLayoutBinding elementBinding = {};
-        //         elementBinding.binding = bindingOffset;
-        //         elementBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        //         elementBinding.descriptorCount = 1;
-        //         elementBinding.stageFlags = VulkanUtils::ToVkShaderStage(element.ShaderStage);
-
-        //         layoutBindings.push_back(elementBinding);
-
-        //         bindingOffset++;
-        //     }
-
-        //     VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-        //     descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
-        //     descriptorLayoutInfo.pBindings = layoutBindings.data();
-
-        //     VK_CHECK(vkCreateDescriptorSetLayout(m_Device, &descriptorLayoutInfo, nullptr, &m_DescriptorLayout));
-
-        //     pipelineLayoutInfo.setLayoutCount = 1;
-        //     pipelineLayoutInfo.pSetLayouts = &m_DescriptorLayout;
-        // }
 
         VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout));
 
@@ -181,12 +152,6 @@ namespace pxl
 
     void VulkanGraphicsPipeline::Free()
     {
-        if (m_DescriptorLayout)
-        {
-            vkDestroyDescriptorSetLayout(m_Device, m_DescriptorLayout, nullptr);
-            m_DescriptorLayout = VK_NULL_HANDLE;
-        }
-
         if (m_PipelineLayout)
         {
             vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
