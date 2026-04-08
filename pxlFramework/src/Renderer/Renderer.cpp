@@ -30,6 +30,7 @@ namespace pxl
             .Window = config.Window,
             .FramesInFlightCount = RendererConstants::k_MaxFramesInFlight,
             .VerticalSync = config.VerticalSync,
+            .AllowTearing = config.AllowTearing,
             .TripleBuffering = config.TripleBuffering,
         };
 
@@ -226,6 +227,18 @@ namespace pxl
     {
         m_Config.VerticalSync = value;
         m_GraphicsDevice->SetVerticalSync(value);
+    }
+
+    void Renderer::SetTripleBuffering(bool value)
+    {
+        m_Config.TripleBuffering = value;
+        m_GraphicsDevice->SetTripleBuffering(value);
+    }
+
+    void Renderer::SetAllowTearing(bool value)
+    {
+        m_Config.AllowTearing = value;
+        m_GraphicsDevice->SetAllowTearing(value);
     }
 
     void Renderer::ReloadPipelines()

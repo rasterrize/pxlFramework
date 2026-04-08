@@ -399,7 +399,11 @@ namespace pxl
         }
         else
         {
-            std::array<VkPresentModeKHR, 2> modePriority = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR };
+            std::vector<VkPresentModeKHR> modePriority;
+            if (m_Specs.AllowTearing)
+                modePriority = { VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_MAILBOX_KHR };
+            else
+                modePriority = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR };
 
             bool foundSuitableMode = false;
             for (const auto& mode : modePriority)
@@ -423,19 +427,29 @@ namespace pxl
         auto minCount = surfaceCapabilities.minImageCount;
         auto maxCount = surfaceCapabilities.maxImageCount;
         auto desiredImageCount = minCount;
+
         if (m_Specs.TripleBuffering)
         {
-            if (minCount <= 3 && (maxCount >= 3 || maxCount == 0))
+            // A max image count of 0 means no limit
+            if (maxCount >= 3 || maxCount == 0)
             {
                 // Triple buffering is supported
-                desiredImageCount = 3;
+                desiredImageCount = std::max(3, static_cast<int>(minCount));
+                m_Limits.TripleBufferingSupported = true;
             }
-            else if (minCount < 3)
+            else
             {
                 PXL_LOG_WARN(LogArea::Vulkan, "Triple buffering not supported by window surface");
             }
         }
 
+        // Triple buffering may be forced by the graphics device
+        m_Limits.ForcedTripleBuffering = minCount > 2;
+
+        if (!m_Specs.TripleBuffering && m_Limits.ForcedTripleBuffering)
+        {
+            PXL_LOG_WARN(LogArea::Vulkan, "Triple buffering not enabled but is forced by the driver/OS");
+        }
 
         // Create the swapchain
         auto oldSwapchain = m_Swapchain;
@@ -496,11 +510,14 @@ namespace pxl
             m_PerImageData[i].RenderFinishedSemaphore = VulkanUtils::CreateSemaphore(m_Device);
         }
 
+#ifdef PXL_DEBUG
         PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created");
         PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
         PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_PerImageData.size());
         PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Allow tearing: {}", m_Specs.AllowTearing);
         PXL_LOG_INFO(LogArea::Vulkan, "- Triple buffering: {}", m_Specs.TripleBuffering);
+#endif
     }
 
     void VulkanGraphicsDevice::DestroyPerImageData(PerImageData& data)
@@ -569,13 +586,21 @@ namespace pxl
         }
     }
 
+    void VulkanGraphicsDevice::SetVerticalSync(bool value)
     {
-
+        m_Specs.VerticalSync = value;
+        m_SwapchainInvalid = true;
     }
 
-    void VulkanGraphicsDevice::SetVerticalSync(bool enable)
+    void VulkanGraphicsDevice::SetTripleBuffering(bool value)
     {
-        m_Specs.VerticalSync = enable;
+        m_Specs.TripleBuffering = value;
+        m_SwapchainInvalid = true;
+    }
+
+    void VulkanGraphicsDevice::SetAllowTearing(bool value)
+    {
+        m_Specs.AllowTearing = value;
         m_SwapchainInvalid = true;
     }
 }

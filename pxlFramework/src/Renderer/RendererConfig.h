@@ -22,6 +22,8 @@ namespace pxl
         /// @brief Sync frame presentation with the refresh interval of the display.
         bool VerticalSync = true;
 
+        bool AllowTearing = false;
+
         /// @brief A colour to clear the initial screen with.
         glm::vec4 ClearColour = { 0.0f, 0.0f, 0.0f, 1.0f };
 

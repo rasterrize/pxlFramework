@@ -40,6 +40,9 @@ namespace pxl
         /// @brief Whether to enable vertical synchronization or not.
         bool VerticalSync = true;
 
+        /// @brief Whether presentation should allow screen tearing when vertical sync is not enabled. This affects display latency.
+        bool AllowTearing = true;
+
         /// @brief Whether to triple buffering on the swapchain, setting the desired number swapchain images to at least 3.
         bool TripleBuffering = true;
     };
@@ -47,6 +50,8 @@ namespace pxl
     struct GraphicsDeviceLimits
     {
         float MaxAnisotropicLevel = 0.0f;
+        bool TripleBufferingSupported = false;
+        bool ForcedTripleBuffering = false;
     };
 
     /// @brief Represents a GPU (Graphics Processing Unit) used for allocating GPU resources and
@@ -95,7 +100,9 @@ namespace pxl
 
         virtual void SetVerticalSync(bool value) = 0;
 
+        virtual void SetTripleBuffering(bool value) = 0;
 
+        virtual void SetAllowTearing(bool value) = 0;
 
         virtual const GraphicsDeviceSpecs& GetSpecs() const = 0;
         virtual const GraphicsDeviceLimits& GetLimits() const = 0;

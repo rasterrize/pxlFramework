@@ -49,6 +49,10 @@ namespace pxl
 
         void SetVerticalSync(bool value);
 
+        void SetTripleBuffering(bool value);
+
+        void SetAllowTearing(bool value);
+
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(const Quad& quad);
 

@@ -37,7 +37,9 @@ namespace pxl
 
         virtual void SetVerticalSync(bool value) override;
 
+        virtual void SetTripleBuffering(bool value) override;
 
+        virtual void SetAllowTearing(bool value) override;
 
         virtual const GraphicsDeviceSpecs& GetSpecs() const override { return m_Specs; }
         virtual const GraphicsDeviceLimits& GetLimits() const override { return m_Limits; }
