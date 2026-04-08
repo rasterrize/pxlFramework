@@ -4,29 +4,12 @@
 
 namespace pxl
 {
-    VulkanGPUBuffer::VulkanGPUBuffer(const GPUBufferSpecs& specs, VkDevice device, VmaAllocator allocator)
-        : GPUBuffer(specs), m_Allocator(allocator), m_Usage(VulkanUtils::ToVkBufferUsage(specs.Usage))
+    VulkanGPUBuffer::VulkanGPUBuffer(const GPUBufferSpecs& specs, VkDevice device, VmaAllocator allocator, VkCommandPool oneTimePool, VkQueue graphicsQueue)
+        : m_Specs(specs), m_Device(device), m_Allocator(allocator), m_Usage(VulkanUtils::ToVkBufferUsage(specs.Usage)), m_OneTimeCommandPool(oneTimePool), m_GraphicsQueue(graphicsQueue)
     {
-        bool useStagingBuffer = false;
-        switch (specs.DrawHint)
-        {
-            case GPUBufferDrawHint::Static:
-                useStagingBuffer = true;
-                break;
+        PXL_ASSERT(specs.Size > 0);
 
-            case GPUBufferDrawHint::Dynamic:
-                useStagingBuffer = false;
-                break;
-        }
-
-        // TODO
-        // Staging buffer
-
-        if (useStagingBuffer)
-        {
-            VulkanStagingBuffer stagingBuffer(allocator, specs.Size);
-            // m_UploadCommandBuffer = m_Device->AllocateCommandBuffers(QueueType::Graphics, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1).at(0);
-        }
+        bool useStagingBuffer = specs.DrawHint == GPUBufferDrawHint::Static;
 
         VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         bufferInfo.size = specs.Size;
@@ -36,7 +19,7 @@ namespace pxl
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocInfo.flags = useStagingBuffer ? VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT
-                                           : VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+                                           : VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
         // Create buffer and its associated memory
         VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr));
@@ -67,7 +50,54 @@ namespace pxl
 
     void VulkanGPUBuffer::SetData(uint64_t size, uint64_t offset, const void* data)
     {
-        // TODO: support staging buffer
-        VK_CHECK(vmaCopyMemoryToAllocation(m_Allocator, data, m_Allocation, offset, size));
+        PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT(offset + size <= m_Specs.Size);
+
+        switch (m_Specs.DrawHint)
+        {
+            case GPUBufferDrawHint::Static:
+            {
+                VulkanStagingBuffer stagingBuffer(m_Allocator, size, data);
+
+                // Allocate one time command buffer
+                auto cmdBuffer = VulkanUtils::AllocateCommandBuffer(m_Device, m_OneTimeCommandPool);
+
+                VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+                VK_CHECK(vkBeginCommandBuffer(cmdBuffer, &beginInfo));
+
+                VkBufferCopy copyRegion = {};
+                copyRegion.srcOffset = 0;
+                copyRegion.dstOffset = offset;
+                copyRegion.size = m_Specs.Size;
+                stagingBuffer.CopyToBuffer(cmdBuffer, m_Buffer, copyRegion);
+
+                VK_CHECK(vkEndCommandBuffer(cmdBuffer));
+
+                VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                submitInfo.commandBufferCount = 1;
+                submitInfo.pCommandBuffers = &cmdBuffer;
+
+                VkFence submitFence = VulkanUtils::CreateFence(m_Device, false);
+                vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, submitFence);
+
+                VK_CHECK(vkWaitForFences(m_Device, 1, &submitFence, VK_TRUE, UINT64_MAX));
+                vkDestroyFence(m_Device, submitFence, nullptr);
+
+                return;
+            }
+            case GPUBufferDrawHint::Dynamic:
+            {
+                VK_CHECK(vmaCopyMemoryToAllocation(m_Allocator, data, m_Allocation, offset, size));
+                return;
+            }
+            default:
+            {
+                PXL_LOG_ERROR(LogArea::Vulkan, "Failed to set GPUBuffer data, GPUBufferDrawHint is unsupported");
+                return;
+            }
+        }
     }
 }

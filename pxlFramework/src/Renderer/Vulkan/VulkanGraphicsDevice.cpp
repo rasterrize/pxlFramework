@@ -21,7 +21,7 @@ namespace pxl
 
     std::shared_ptr<GPUBuffer> VulkanGraphicsDevice::CreateBuffer(const GPUBufferSpecs& specs)
     {
-        auto buffer = std::make_shared<VulkanGPUBuffer>(specs, m_Device, m_Allocator);
+        auto buffer = std::make_shared<VulkanGPUBuffer>(specs, m_Device, m_Allocator, m_OneTimeCommandPool, m_GraphicsQueue);
         m_Resources.push_back(buffer);
         m_Stats.BufferCount++;
         return buffer;
@@ -295,6 +295,12 @@ namespace pxl
 
         // Get the newly created graphics queue
         vkGetDeviceQueue(m_Device, m_GraphicsQueueFamily.value(), 0, &m_GraphicsQueue);
+
+        // Init one time command pool
+        VkCommandPoolCreateInfo poolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+        poolInfo.queueFamilyIndex = static_cast<uint32_t>(m_GraphicsQueueFamily.value());
+        VK_CHECK(vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_OneTimeCommandPool));
 
         // Load GPU properties
         VkPhysicalDeviceDriverProperties driverProps = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES };

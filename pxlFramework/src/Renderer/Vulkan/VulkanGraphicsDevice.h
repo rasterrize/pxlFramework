@@ -94,6 +94,7 @@ namespace pxl
         // Queue data
         std::optional<uint32_t> m_GraphicsQueueFamily;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
+        VkCommandPool m_OneTimeCommandPool = VK_NULL_HANDLE;
 
         // Allocated resources
         std::vector<std::weak_ptr<GPUResource>> m_Resources;

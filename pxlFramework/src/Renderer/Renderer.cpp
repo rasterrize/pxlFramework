@@ -121,7 +121,7 @@ namespace pxl
             // Create index buffer
             GPUBufferSpecs bufferSpecs = {};
             bufferSpecs.Usage = GPUBufferUsage::Index;
-            bufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
+            bufferSpecs.DrawHint = GPUBufferDrawHint::Static;
             bufferSpecs.Size = indices.size() * sizeof(uint32_t);
             bufferSpecs.Data = indices.data();
             m_QuadIndexBuffer = m_GraphicsDevice->CreateBuffer(bufferSpecs);
