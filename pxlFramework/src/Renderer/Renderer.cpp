@@ -10,7 +10,7 @@
 namespace pxl
 {
     Renderer::Renderer(const RendererConfig& config)
-        : m_Config(config)
+        : m_Config(config), m_PerFrameData(RendererConstants::k_MaxFramesInFlight)
     {
         PXL_PROFILE_SCOPE;
 
@@ -31,6 +31,7 @@ namespace pxl
         GraphicsDeviceSpecs deviceSpecs = {
             .TypePreference = GPUType::Discrete,
             .Window = config.Window,
+            .FramesInFlightCount = RendererConstants::k_MaxFramesInFlight,
             .VerticalSync = config.VerticalSync,
             .TripleBuffering = config.TripleBuffering,
         };
@@ -116,7 +117,10 @@ namespace pxl
             }
 
             // Prepare vertex batching
-            m_QuadBatch = std::make_unique<VertexBatch<TexturedVertex>>(m_GraphicsDevice, m_Config.VerticesPerBatch);
+            for (auto& data : m_PerFrameData)
+            {
+                data.QuadBatch = std::make_unique<VertexBatch<TexturedVertex>>(m_GraphicsDevice, m_Config.VerticesPerBatch);
+            }
 
             // Create index buffer
             GPUBufferSpecs bufferSpecs = {};
@@ -130,18 +134,6 @@ namespace pxl
             m_Camera3D = pxl::Camera::Create(settings);
             m_Camera3D->SetPosition({ 0.0f, 0.0f, 5.0f });
 
-            // Create uniform buffers
-            // TODO: resize this to swapchain image count
-            m_UniformBuffers.resize(m_GraphicsDevice->GetSwapchainImageCount());
-            for (size_t i = 0; i < m_UniformBuffers.size(); i++)
-            {
-                GPUBufferSpecs uboSpecs = {};
-                uboSpecs.Usage = GPUBufferUsage::Uniform;
-                uboSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
-                uboSpecs.Size = sizeof(glm::mat4);
-                m_UniformBuffers[i] = m_GraphicsDevice->CreateBuffer(uboSpecs);
-            }
-
             // Create graphics pipeline
             GraphicsPipelineSpecs quadPipelineSpecs = {};
             quadPipelineSpecs.BufferLayout = TexturedVertex::GetLayout();
@@ -153,6 +145,17 @@ namespace pxl
             quadPipelineSpecs.Shaders[ShaderStage::Fragment] = m_ShaderManager->Get("textured_vertex.frag");
 
             m_QuadPipeline = m_GraphicsDevice->CreateGraphicsPipeline(quadPipelineSpecs);
+        }
+
+        // Create uniform buffers
+        GPUBufferSpecs uboSpecs = {};
+        uboSpecs.Usage = GPUBufferUsage::Uniform;
+        uboSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
+        uboSpecs.Size = sizeof(glm::mat4);
+
+        for (auto& data : m_PerFrameData)
+        {
+            data.UniformBuffer = m_GraphicsDevice->CreateBuffer(uboSpecs);
         }
 
         // Prepare white pixel texture
@@ -210,45 +213,43 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        m_GraphicsContext->Begin(m_GraphicsDevice);
+        m_GraphicsDevice->WaitOnFrame(m_FrameIndex);
+
+        m_GraphicsContext->BeginFrame(m_GraphicsDevice, m_FrameIndex);
 
         if (m_ImGuiRenderer)
             m_ImGuiRenderer->NewFrame();
 
-        // Reset vertex batches
-        m_QuadBatch->Reset();
-
         // Set first texture unit as white pixel texture
         // m_TextureHandler->UseTexture(m_WhitePixelTexture);
+
+        m_CurrentFrameData = &m_PerFrameData.at(m_FrameIndex);
+
+        m_CurrentFrameData->QuadBatch->Reset();
     }
 
     void Renderer::End()
     {
         PXL_PROFILE_SCOPE;
 
-#if PXL_DRAW_HELLO_TRIANGLE
-        auto vp = m_Camera3D->GetViewProjectionMatrix();
-        // TODO: use frames in flight, not swapchain index
-        auto uniformBuffer = m_UniformBuffers.at(m_GraphicsDevice->GetSwapchainImageIndex());
-        uniformBuffer->SetData(sizeof(glm::mat4), 0, &vp);
+        Flush();
 
-        DrawParams params;
-        params.Pipeline = m_TrianglePipeline;
-        params.VertexBuffers.push_back(m_TriangleBuffer);
-        params.VertexCount = 3;
-        params.UniformBuffer = uniformBuffer;
-        m_GraphicsContext->Draw(params);
-#endif
+        auto vp = m_Camera2D->GetViewProjectionMatrix();
+        m_CurrentFrameData->UniformBuffer->SetData(sizeof(glm::mat4), 0, &vp);
 
 #ifdef PXL_ENABLE_IMGUI
         // Draw ImGui data
         if (m_ImGuiRenderer)
-            m_ImGuiRenderer->Render(m_GraphicsDevice);
+            m_ImGuiRenderer->Render(m_GraphicsDevice, m_FrameIndex);
 #endif
 
-        m_GraphicsContext->End(m_GraphicsDevice);
+        m_GraphicsContext->EndFrame(m_GraphicsDevice);
+
+        m_GraphicsDevice->Submit(*m_GraphicsContext, m_FrameIndex);
 
         m_GraphicsDevice->Present();
+
+        m_FrameIndex = (m_FrameIndex + 1) % RendererConstants::k_MaxFramesInFlight;
     }
 
     void Renderer::SetClearColour(const glm::vec4& colour)

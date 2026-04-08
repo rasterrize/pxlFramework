@@ -12,25 +12,11 @@
 
 namespace pxl
 {
-    struct VulkanFrame
-    {
-        VkCommandPool CommandPool = VK_NULL_HANDLE;
-        VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
-
-        // Signaled when an image is acquired from the swapchain
-        VkSemaphore ImageAcquiredSemaphore = VK_NULL_HANDLE;
-
-        // Signaled once all rendering commands have finished
-        VkSemaphore RenderingFinishedSemaphore = VK_NULL_HANDLE;
-
-        // Signaled once all rendering commands have finished
-        VkFence RenderFinishedFence = VK_NULL_HANDLE;
-    };
-
     class VulkanGraphicsDevice : public GraphicsDevice
     {
     public:
         VulkanGraphicsDevice(const GraphicsDeviceSpecs& specs, VkInstance instance);
+        ~VulkanGraphicsDevice();
 
         virtual std::shared_ptr<GPUBuffer> CreateBuffer(const GPUBufferSpecs& specs) override;
         virtual std::shared_ptr<Texture> CreateTexture(const TextureSpecs& specs) override;
@@ -38,6 +24,10 @@ namespace pxl
         virtual std::shared_ptr<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineSpecs& specs) override;
 
         virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) override;
+
+        virtual void Submit(const GraphicsContext& context, uint32_t frameIndex) override;
+
+        virtual void WaitOnFrame(uint32_t frameIndex) override;
 
         virtual void Present() override;
 
@@ -47,21 +37,32 @@ namespace pxl
 
         virtual void SetVerticalSync(bool enable) override;
 
-        virtual uint32_t GetSwapchainImageIndex() const override { return m_SwapchainImageIndex; }
 
-        virtual uint32_t GetSwapchainImageCount() const override { return m_SwapchainImages.size(); }
 
-        void AcquireNextSwapchainImage();
 
-        VkImage GetCurrentSwapchainImage() const { return m_SwapchainImages.at(m_SwapchainImageIndex); }
-        VkImageView GetCurrentSwapchainImageView() const { return m_SwapchainViews.at(m_SwapchainImageIndex); }
-        const VulkanFrame& GetCurrentFrame() const { return m_PerFrameData.at(m_SwapchainImageIndex); }
+        VkImage GetCurrentSwapchainImage() const { return m_PerImageData.at(m_SwapchainImageIndex).Image; }
+        VkImageView GetCurrentSwapchainImageView() const { return m_PerImageData.at(m_SwapchainImageIndex).View; }
 
         VkExtent2D GetSwapchainExtent() const { return m_SwapchainExtent; }
 
-        void SubmitCurrentFrame();
+        VkCommandBuffer GetFrameCommandBuffer(uint32_t frameIndex) const { return m_PerFrameData.at(frameIndex).CommandBuffer; }
 
     private:
+        struct PerImageData
+        {
+            VkImage Image;
+            VkImageView View;
+            VkSemaphore RenderFinishedSemaphore;
+        };
+
+        struct PerFrameData
+        {
+            VkCommandPool CommandPool = VK_NULL_HANDLE;
+            VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
+            VkSemaphore ImageAcquiredSemaphore = VK_NULL_HANDLE;
+            VkFence RenderFinishedFence = VK_NULL_HANDLE;
+        };
+
         void SelectGPU();
 
         void InitSurface(const std::shared_ptr<Window>& window);
@@ -69,8 +70,10 @@ namespace pxl
         void InitAllocator();
         void InitSwapchain();
 
-        void CreateFrameData(VulkanFrame& frame);
-        void DestroyFrameData(VulkanFrame& frame);
+        void CreatePerFrameData(PerFrameData& data);
+        void DestroyPerFrameData(PerFrameData& data);
+
+        void DestroyPerImageData(PerImageData& data);
 
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
@@ -83,11 +86,9 @@ namespace pxl
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkExtent2D m_SwapchainExtent;
         VkPresentModeKHR m_SwapchainPresentMode;
-        std::vector<VkImage> m_SwapchainImages;
-        std::vector<VkImageView> m_SwapchainViews;
-        std::vector<VulkanFrame> m_PerFrameData;
+        std::vector<PerImageData> m_PerImageData;
+        std::vector<PerFrameData> m_PerFrameData;
         uint32_t m_SwapchainImageIndex = 0;
-        std::vector<VkSemaphore> m_RecycledSemaphores;
         VkSurfaceFormatKHR m_SurfaceFormat;
         bool m_SwapchainInvalid = false;
 

@@ -6,14 +6,11 @@
 
 namespace pxl
 {
-    void VulkanGraphicsContext::Begin(const std::unique_ptr<GraphicsDevice>& device)
+    void VulkanGraphicsContext::BeginFrame(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex)
     {
-        // Reset stats
-        memset(&m_Stats, 0, sizeof(GraphicsContextStats));
+        auto vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
 
-        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
-        vulkanDevice->AcquireNextSwapchainImage();
-        m_CommandBuffer = vulkanDevice->GetCurrentFrame().CommandBuffer;
+        m_CommandBuffer = vulkanDevice->GetFrameCommandBuffer(frameIndex);
 
         // Command buffer will only be submitted once before being recycled
         VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
@@ -23,7 +20,8 @@ namespace pxl
 
         // Before rendering, transition the swapchain image to COLOR_ATTACHMENT_OPTIMAL so we can use it as a color attachment for rendering
         auto swapchainImage = vulkanDevice->GetCurrentSwapchainImage();
-        TransitionImageLayout(
+        VulkanUtils::TransitionImageLayout(
+            m_CommandBuffer,
             swapchainImage,
             VK_IMAGE_LAYOUT_UNDEFINED,                // old layout
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // new layout
@@ -79,15 +77,16 @@ namespace pxl
         vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
     }
 
-    void VulkanGraphicsContext::End(const std::unique_ptr<GraphicsDevice>& device)
+    void VulkanGraphicsContext::EndFrame(const std::unique_ptr<GraphicsDevice>& device)
     {
         vkCmdEndRendering(m_CommandBuffer);
 
-        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
+        auto vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
 
-        // Transition the swapchain image to an optimal presentation format
+        // Transition the swapchain image to an optimal presentation layout
         auto image = vulkanDevice->GetCurrentSwapchainImage();
-        TransitionImageLayout(
+        VulkanUtils::TransitionImageLayout(
+            m_CommandBuffer,
             image,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
@@ -97,8 +96,6 @@ namespace pxl
             VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT);
 
         VK_CHECK(vkEndCommandBuffer(m_CommandBuffer));
-
-        vulkanDevice->SubmitCurrentFrame();
     }
 
     void VulkanGraphicsContext::Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer)
@@ -177,40 +174,5 @@ namespace pxl
 
         for (const auto& buffer : params.VertexBuffers)
             Bind(buffer);
-    }
-
-    void VulkanGraphicsContext::TransitionImageLayout(
-        VkImage image,
-        VkImageLayout oldLayout,
-        VkImageLayout newLayout,
-        VkAccessFlags srcAccessMask,
-        VkAccessFlags dstAccessMask,
-        VkPipelineStageFlags2 srcStage,
-        VkPipelineStageFlags2 dstStage)
-    {
-        VkImageMemoryBarrier2 imageBarrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
-        imageBarrier.srcStageMask = srcStage;
-        imageBarrier.srcAccessMask = srcAccessMask;
-        imageBarrier.dstStageMask = dstStage;
-        imageBarrier.dstAccessMask = dstAccessMask;
-        imageBarrier.oldLayout = oldLayout;
-        imageBarrier.newLayout = newLayout;
-        imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageBarrier.image = image;
-        imageBarrier.subresourceRange = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = 0,
-            .layerCount = 1,
-        };
-
-        VkDependencyInfo dependencyInfo = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-        dependencyInfo.dependencyFlags = 0; // No special dependency flags
-        dependencyInfo.imageMemoryBarrierCount = 1;
-        dependencyInfo.pImageMemoryBarriers = &imageBarrier;
-
-        vkCmdPipelineBarrier2(m_CommandBuffer, &dependencyInfo);
     }
 }

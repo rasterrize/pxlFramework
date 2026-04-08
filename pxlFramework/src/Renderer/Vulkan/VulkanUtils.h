@@ -301,16 +301,53 @@ namespace pxl
             return shaderModule;
         }
 
-        inline VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code)
+        inline VkCommandBuffer AllocateCommandBuffer(VkDevice device, VkCommandPool pool, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         {
-            VkShaderModuleCreateInfo shaderModuleCreateInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-            shaderModuleCreateInfo.codeSize = code.size();
-            shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+            VkCommandBufferAllocateInfo allocInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+            allocInfo.commandPool = pool;
+            allocInfo.level = level;
+            allocInfo.commandBufferCount = 1;
 
-            VkShaderModule shaderModule = VK_NULL_HANDLE;
-            VK_CHECK(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule));
+            VkCommandBuffer buffer;
+            VK_CHECK(vkAllocateCommandBuffers(device, &allocInfo, &buffer));
 
-            return shaderModule;
+            return buffer;
+        }
+
+        inline void TransitionImageLayout(
+            VkCommandBuffer cmdBuffer,
+            VkImage image,
+            VkImageLayout oldLayout,
+            VkImageLayout newLayout,
+            VkAccessFlags srcAccessMask,
+            VkAccessFlags dstAccessMask,
+            VkPipelineStageFlags2 srcStage,
+            VkPipelineStageFlags2 dstStage)
+        {
+            VkImageMemoryBarrier2 imageBarrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
+            imageBarrier.srcStageMask = srcStage;
+            imageBarrier.srcAccessMask = srcAccessMask;
+            imageBarrier.dstStageMask = dstStage;
+            imageBarrier.dstAccessMask = dstAccessMask;
+            imageBarrier.oldLayout = oldLayout;
+            imageBarrier.newLayout = newLayout;
+            imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageBarrier.image = image;
+            imageBarrier.subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1,
+            };
+
+            VkDependencyInfo dependencyInfo = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+            dependencyInfo.dependencyFlags = 0; // No special dependency flags
+            dependencyInfo.imageMemoryBarrierCount = 1;
+            dependencyInfo.pImageMemoryBarriers = &imageBarrier;
+
+            vkCmdPipelineBarrier2(cmdBuffer, &dependencyInfo);
         }
 
         inline VkShaderStageFlagBits ToVkShaderStage(ShaderStage stage)

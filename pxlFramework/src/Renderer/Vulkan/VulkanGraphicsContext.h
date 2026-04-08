@@ -14,11 +14,11 @@ namespace pxl
         {
         }
 
-        // Begin command buffer recording
-        virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) override;
+        // Begin recording commands for a new frame of the specified frameIndex
+        virtual void BeginFrame(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) override;
 
-        // End command buffer recording
-        virtual void End(const std::unique_ptr<GraphicsDevice>& device) override;
+        // End recording commands of the current frame
+        virtual void EndFrame(const std::unique_ptr<GraphicsDevice>& device) override;
 
         virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) override;
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) override;
@@ -31,16 +31,6 @@ namespace pxl
 
     private:
         void BindParams(const DrawParams& params);
-
-        void TransitionImageLayout(
-            VkImage image,
-            VkImageLayout oldLayout,
-            VkImageLayout newLayout,
-            VkAccessFlags srcAccessMask,
-            VkAccessFlags dstAccessMask,
-            VkPipelineStageFlags2 srcStage,
-            VkPipelineStageFlags2 dstStage
-        );
 
     private:
         GraphicsContextSpecs m_Specs = {};

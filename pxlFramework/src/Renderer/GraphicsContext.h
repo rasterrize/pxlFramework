@@ -36,10 +36,10 @@ namespace pxl
         virtual ~GraphicsContext() = default;
 
         /// @brief Begin rendering a new frame.
-        virtual void Begin(const std::unique_ptr<GraphicsDevice>& device) = 0;
+        virtual void BeginFrame(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) = 0;
 
         /// @brief End rendering the current frame.
-        virtual void End(const std::unique_ptr<GraphicsDevice>& device) = 0;
+        virtual void EndFrame(const std::unique_ptr<GraphicsDevice>& device) = 0;
 
         /// @brief Binds a GraphicsPipeline to the current frames state.
         virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer) = 0;

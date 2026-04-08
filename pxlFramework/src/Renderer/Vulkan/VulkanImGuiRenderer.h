@@ -16,9 +16,11 @@ namespace pxl
 
         virtual void NewFrame() override;
 
-        virtual void Render(const std::unique_ptr<GraphicsDevice>& device) override;
+        virtual void Render(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) override;
 
     private:
+        ImGuiSpecs m_Specs = {};
+
         VkDescriptorPool m_Pool = VK_NULL_HANDLE;
 
         VkDevice m_Device = VK_NULL_HANDLE;

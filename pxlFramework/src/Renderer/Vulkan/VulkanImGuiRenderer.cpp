@@ -18,7 +18,7 @@ namespace pxl
         VkQueue queue,
         VkFormat format,
         uint32_t imageCount)
-        : ImGuiRenderer(specs), m_Device(device)
+        : m_Specs(specs), m_Device(device)
     {
 #ifdef PXL_ENABLE_IMGUI
         // Create descriptor pool
@@ -103,13 +103,13 @@ namespace pxl
 #endif
     }
 
-    void VulkanImGuiRenderer::Render(const std::unique_ptr<GraphicsDevice>& device)
+    void VulkanImGuiRenderer::Render(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex)
     {
 #ifdef PXL_ENABLE_IMGUI
         ImGui::Render();
 
         VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanDevice->GetCurrentFrame().CommandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanDevice->GetFrameCommandBuffer(frameIndex));
 #endif
     }
 }

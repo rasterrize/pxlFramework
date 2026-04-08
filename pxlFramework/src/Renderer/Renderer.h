@@ -48,6 +48,7 @@ namespace pxl
 #else
         static const std::filesystem::path k_FrameworkShaderDirectory = "resources/shaders";
 #endif
+        static const uint32_t k_MaxFramesInFlight = 2;
     }
 
     class Renderer
@@ -130,17 +131,22 @@ namespace pxl
 
         std::shared_ptr<Texture> m_WhitePixelTexture = nullptr;
         std::shared_ptr<Texture> m_ErrorTexture = nullptr;
+        struct PerFrameData
+        {
+            std::unique_ptr<VertexBatch<TexturedVertex>> QuadBatch;
+            std::shared_ptr<GPUBuffer> UniformBuffer;
+        };
 
-        std::unique_ptr<VertexBatch<TexturedVertex>> m_QuadBatch = nullptr;
         std::shared_ptr<GPUBuffer> m_QuadIndexBuffer = nullptr;
         std::shared_ptr<GraphicsPipeline> m_QuadPipeline = nullptr;
 
-        uint32_t m_UniformIndex = 0;
-        std::vector<std::shared_ptr<GPUBuffer>> m_UniformBuffers;
 
         FrameStats m_FrameStats = {};
         RendererStats m_RendererStats = {};
+        std::vector<PerFrameData> m_PerFrameData;
+        PerFrameData* m_CurrentFrameData;
 
         std::shared_ptr<Camera> m_Camera3D = nullptr;
+        uint32_t m_FrameIndex = 0;
     };
 }

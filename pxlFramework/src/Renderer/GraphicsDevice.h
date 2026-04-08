@@ -9,6 +9,8 @@
 
 namespace pxl
 {
+    class GraphicsContext;
+
     enum class QueueType
     {
         Graphics,
@@ -31,6 +33,8 @@ namespace pxl
 
         /// @brief Window to associate the internal swapchain to.
         std::shared_ptr<Window> Window = nullptr;
+
+        uint32_t FramesInFlightCount = 0;
 
         /// @brief Whether to enable vertical synchronization or not.
         bool VerticalSync = true;
@@ -90,6 +94,10 @@ namespace pxl
         /// @return A new ImGuiRenderer shared resource object.
         virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) = 0;
 
+        virtual void Submit(const GraphicsContext& context, uint32_t frameIndex) = 0;
+
+        virtual void WaitOnFrame(uint32_t frameIndex) = 0;
+
         /// @brief Presents the next rendered image to the window.
         virtual void Present() = 0;
 
@@ -99,10 +107,6 @@ namespace pxl
         virtual void OnWindowResize() = 0;
 
         virtual void SetVerticalSync(bool enable) = 0;
-
-        virtual uint32_t GetSwapchainImageIndex() const = 0;
-
-        virtual uint32_t GetSwapchainImageCount() const = 0;
 
         GraphicsDeviceSpecs GetSpecs() const { return m_Specs; }
         GraphicsDeviceLimits GetLimits() const { return m_Limits; }

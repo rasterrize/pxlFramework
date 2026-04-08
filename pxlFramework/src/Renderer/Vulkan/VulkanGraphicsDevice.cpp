@@ -17,6 +17,62 @@ namespace pxl
         InitDevice();
         InitAllocator();
         InitSwapchain();
+
+        // Init frame data
+        PXL_ASSERT(specs.FramesInFlightCount > 0);
+        m_PerFrameData.resize(specs.FramesInFlightCount);
+
+        for (auto& data : m_PerFrameData)
+        {
+            CreatePerFrameData(data);
+        }
+    }
+
+    VulkanGraphicsDevice::~VulkanGraphicsDevice()
+    {
+        VK_CHECK(vkDeviceWaitIdle(m_Device));
+
+        FreeResources();
+
+        if (m_Allocator)
+        {
+            vmaDestroyAllocator(m_Allocator);
+            m_Allocator = VK_NULL_HANDLE;
+        }
+
+        for (auto& frameData : m_PerFrameData)
+        {
+            DestroyPerFrameData(frameData);
+        }
+
+        for (auto& imageData : m_PerImageData)
+        {
+            DestroyPerImageData(imageData);
+        }
+
+        if (m_Swapchain)
+        {
+            vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
+            m_Swapchain = VK_NULL_HANDLE;
+        }
+
+        if (m_OneTimeCommandPool)
+        {
+            vkDestroyCommandPool(m_Device, m_OneTimeCommandPool, nullptr);
+            m_OneTimeCommandPool = VK_NULL_HANDLE;
+        }
+
+        if (m_Device)
+        {
+            vkDestroyDevice(m_Device, nullptr);
+            m_Device = VK_NULL_HANDLE;
+        }
+
+        if (m_Surface)
+        {
+            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+            m_Surface = VK_NULL_HANDLE;
+        }
     }
 
     std::shared_ptr<GPUBuffer> VulkanGraphicsDevice::CreateBuffer(const GPUBufferSpecs& specs)
@@ -51,16 +107,51 @@ namespace pxl
 
     std::shared_ptr<ImGuiRenderer> VulkanGraphicsDevice::CreateImGuiRenderer(const ImGuiSpecs& specs)
     {
-        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(specs, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, m_SwapchainImages.size());
+        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(specs, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, m_PerImageData.size());
         m_Resources.push_back(imguiRenderer);
         return imguiRenderer;
+    }
+
+    void VulkanGraphicsDevice::Submit(const GraphicsContext& context, uint32_t frameIndex)
+    {
+        // Wait at the top of pipeline before executing any commands, as we need to ensure the swapchain image is ready first
+        VkPipelineStageFlags waitStage = { VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT };
+
+        VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &m_PerFrameData.at(frameIndex).ImageAcquiredSemaphore;
+        submitInfo.pWaitDstStageMask = &waitStage;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_PerFrameData.at(frameIndex).CommandBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_PerImageData.at(m_SwapchainImageIndex).RenderFinishedSemaphore;
+
+        VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_PerFrameData.at(frameIndex).RenderFinishedFence));
+    }
+
+    void VulkanGraphicsDevice::WaitOnFrame(uint32_t frameIndex)
+    {
+        auto frame = m_PerFrameData.at(frameIndex);
+        VK_CHECK(vkWaitForFences(m_Device, 1, &frame.RenderFinishedFence, VK_TRUE, UINT64_MAX));
+        VK_CHECK(vkResetFences(m_Device, 1, &frame.RenderFinishedFence));
+
+        // Reset the frame's command buffer ready for a new set of commands
+        if (frame.CommandPool)
+        {
+            VK_CHECK(vkResetCommandPool(m_Device, frame.CommandPool, 0));
+        }
+
+        if (m_SwapchainInvalid)
+            InitSwapchain();
+
+        auto result = vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, frame.ImageAcquiredSemaphore, nullptr, &m_SwapchainImageIndex);
     }
 
     void VulkanGraphicsDevice::Present()
     {
         VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_PerFrameData.at(m_SwapchainImageIndex).RenderingFinishedSemaphore;
+        presentInfo.pWaitSemaphores = &m_PerImageData.at(m_SwapchainImageIndex).RenderFinishedSemaphore;
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &m_SwapchainImageIndex;
@@ -80,68 +171,11 @@ namespace pxl
 
         for (auto& resource : std::views::reverse(m_Resources))
         {
-            resource.lock()->Free();
+            resource->Free();
+            resource.reset();
         }
 
-        if (m_Allocator)
-        {
-            vmaDestroyAllocator(m_Allocator);
-            m_Allocator = VK_NULL_HANDLE;
-        }
-
-        for (auto& semaphore : m_RecycledSemaphores)
-        {
-            vkDestroySemaphore(m_Device, semaphore, nullptr);
-        }
-
-        m_RecycledSemaphores.clear();
-
-        for (auto& frame : m_PerFrameData)
-        {
-            DestroyFrameData(frame);
-        }
-
-        for (const auto& view : m_SwapchainViews)
-        {
-            vkDestroyImageView(m_Device, view, nullptr);
-        }
-
-        if (m_Swapchain)
-        {
-            vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
-            m_Swapchain = nullptr;
-        }
-
-        if (m_Device)
-        {
-            vkDestroyDevice(m_Device, nullptr);
-            m_Device = VK_NULL_HANDLE;
-        }
-
-        if (m_Surface)
-        {
-            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-            m_Surface = VK_NULL_HANDLE;
-        }
-    }
-
-    void VulkanGraphicsDevice::SubmitCurrentFrame()
-    {
-        auto& frame = m_PerFrameData.at(m_SwapchainImageIndex);
-
-        // Wait at the top of pipeline before executing any commands, as we need to ensure the swapchain image is ready first
-        VkPipelineStageFlags waitStage = { VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT };
-
-        VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &frame.ImageAcquiredSemaphore;
-        submitInfo.pWaitDstStageMask = &waitStage;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &frame.CommandBuffer;
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &frame.RenderingFinishedSemaphore;
-
-        VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, frame.RenderFinishedFence));
+        m_Resources.clear();
     }
 
     void VulkanGraphicsDevice::SelectGPU()
@@ -429,29 +463,26 @@ namespace pxl
         // If we used the old swapchain, we must destroy it and its resources
         if (oldSwapchain)
         {
-            for (auto& frame : m_PerFrameData)
+            for (auto& data : m_PerImageData)
             {
-                DestroyFrameData(frame);
+                DestroyPerImageData(data);
             }
-
-            for (const auto& view : m_SwapchainViews)
-            {
-                vkDestroyImageView(m_Device, view, nullptr);
-            }
-
-            m_SwapchainViews.clear();
 
             vkDestroySwapchainKHR(m_Device, oldSwapchain, nullptr);
         }
 
-        m_SwapchainImages = VulkanUtils::GetSwapchainImages(m_Device, m_Swapchain);
-        m_Specs.TripleBuffering = m_SwapchainImages.size() >= 3;
+        auto images = VulkanUtils::GetSwapchainImages(m_Device, m_Swapchain);
 
-        // Create an image view for each swapchain image
-        for (const auto& image : m_SwapchainImages)
+        m_PerImageData.clear();
+        m_PerImageData.resize(images.size());
+
+        // Init per image data
+        for (size_t i = 0; i < images.size(); i++)
         {
+            m_PerImageData[i].Image = images.at(i);
+
             VkImageViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-            viewInfo.image = image;
+            viewInfo.image = m_PerImageData[i].Image;
             viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             viewInfo.format = m_SurfaceFormat.format;
             viewInfo.subresourceRange = {
@@ -462,138 +493,86 @@ namespace pxl
                 .layerCount = 1,
             };
 
-            VkImageView imageView;
-            VK_CHECK(vkCreateImageView(m_Device, &viewInfo, nullptr, &imageView));
+            VK_CHECK(vkCreateImageView(m_Device, &viewInfo, nullptr, &m_PerImageData.at(i).View));
 
-            m_SwapchainViews.push_back(imageView);
-        }
-
-        m_PerFrameData.clear();
-        m_PerFrameData.resize(m_SwapchainImages.size());
-
-        // Create per frame data for each swapchain image
-        for (size_t i = 0; i < m_PerFrameData.size(); i++)
-        {
-            CreateFrameData(m_PerFrameData.at(i));
+            m_PerImageData[i].RenderFinishedSemaphore = VulkanUtils::CreateSemaphore(m_Device);
         }
 
         PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created");
         PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_SwapchainImages.size());
+        PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_PerImageData.size());
         PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
         PXL_LOG_INFO(LogArea::Vulkan, "- Triple buffering: {}", m_Specs.TripleBuffering);
     }
 
-    void VulkanGraphicsDevice::CreateFrameData(VulkanFrame& frame)
+    void VulkanGraphicsDevice::DestroyPerImageData(PerImageData& data)
+    {
+        if (data.RenderFinishedSemaphore)
+        {
+            vkDestroySemaphore(m_Device, data.RenderFinishedSemaphore, nullptr);
+            data.RenderFinishedSemaphore = VK_NULL_HANDLE;
+        }
+
+        if (data.View)
+        {
+            vkDestroyImageView(m_Device, data.View, nullptr);
+            data.View = VK_NULL_HANDLE;
+        }
+    }
+
+    void VulkanGraphicsDevice::CreatePerFrameData(PerFrameData& data)
     {
         // Create command pool
         VkCommandPoolCreateInfo poolInfo = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
         poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT; // Indicates the command buffers will be short-lived, and may affect underlying memory allocation
         poolInfo.queueFamilyIndex = static_cast<uint32_t>(m_GraphicsQueueFamily.value());
 
-        VK_CHECK(vkCreateCommandPool(m_Device, &poolInfo, nullptr, &frame.CommandPool));
+        VK_CHECK(vkCreateCommandPool(m_Device, &poolInfo, nullptr, &data.CommandPool));
 
         // Allocate primary command buffer
         VkCommandBufferAllocateInfo cmdBufferInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-        cmdBufferInfo.commandPool = frame.CommandPool;
+        cmdBufferInfo.commandPool = data.CommandPool;
         cmdBufferInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         cmdBufferInfo.commandBufferCount = 1;
 
-        VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdBufferInfo, &frame.CommandBuffer));
+        VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdBufferInfo, &data.CommandBuffer));
 
         // Create queue submit fence
-        frame.RenderFinishedFence = VulkanUtils::CreateFence(m_Device, true);
+        data.RenderFinishedFence = VulkanUtils::CreateFence(m_Device, true);
 
         // Create image acquired semaphore
-        frame.ImageAcquiredSemaphore = VulkanUtils::CreateSemaphore(m_Device);
-
-        // Create rendering finished semaphore
-        frame.RenderingFinishedSemaphore = VulkanUtils::CreateSemaphore(m_Device);
+        data.ImageAcquiredSemaphore = VulkanUtils::CreateSemaphore(m_Device);
     }
 
-    void VulkanGraphicsDevice::DestroyFrameData(VulkanFrame& frame)
+    void VulkanGraphicsDevice::DestroyPerFrameData(PerFrameData& data)
     {
-        if (frame.CommandBuffer)
+        if (data.CommandBuffer)
         {
-            vkFreeCommandBuffers(m_Device, frame.CommandPool, 1, &frame.CommandBuffer);
-            frame.CommandBuffer = VK_NULL_HANDLE;
+            vkFreeCommandBuffers(m_Device, data.CommandPool, 1, &data.CommandBuffer);
+            data.CommandBuffer = VK_NULL_HANDLE;
         }
 
-        if (frame.CommandPool)
+        if (data.CommandPool)
         {
-            vkDestroyCommandPool(m_Device, frame.CommandPool, nullptr);
-            frame.CommandPool = VK_NULL_HANDLE;
+            vkDestroyCommandPool(m_Device, data.CommandPool, nullptr);
+            data.CommandPool = VK_NULL_HANDLE;
         }
 
-        if (frame.RenderFinishedFence)
+        if (data.RenderFinishedFence)
         {
-            vkDestroyFence(m_Device, frame.RenderFinishedFence, nullptr);
-            frame.RenderFinishedFence = VK_NULL_HANDLE;
+            vkDestroyFence(m_Device, data.RenderFinishedFence, nullptr);
+            data.RenderFinishedFence = VK_NULL_HANDLE;
         }
 
-        if (frame.ImageAcquiredSemaphore)
+        if (data.ImageAcquiredSemaphore)
         {
-            vkDestroySemaphore(m_Device, frame.ImageAcquiredSemaphore, nullptr);
-            frame.ImageAcquiredSemaphore = VK_NULL_HANDLE;
-        }
-
-        if (frame.RenderingFinishedSemaphore)
-        {
-            vkDestroySemaphore(m_Device, frame.RenderingFinishedSemaphore, nullptr);
-            frame.RenderingFinishedSemaphore = VK_NULL_HANDLE;
+            vkDestroySemaphore(m_Device, data.ImageAcquiredSemaphore, nullptr);
+            data.ImageAcquiredSemaphore = VK_NULL_HANDLE;
         }
     }
 
-    void VulkanGraphicsDevice::AcquireNextSwapchainImage()
     {
-        if (m_SwapchainInvalid)
-            InitSwapchain();
 
-        VkSemaphore newImageAcquiredSemaphore;
-
-        // Use recycled semaphores if they're available
-        if (m_RecycledSemaphores.empty())
-        {
-            newImageAcquiredSemaphore = VulkanUtils::CreateSemaphore(m_Device);
-        }
-        else
-        {
-            newImageAcquiredSemaphore = m_RecycledSemaphores.back();
-            m_RecycledSemaphores.pop_back();
-        }
-
-        auto result = vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, newImageAcquiredSemaphore, nullptr, &m_SwapchainImageIndex);
-
-        if (result != VK_SUCCESS)
-        {
-            m_RecycledSemaphores.push_back(newImageAcquiredSemaphore);
-            return;
-        }
-
-        // Wait for any fences of the newly acquired image
-        auto frame = m_PerFrameData.at(m_SwapchainImageIndex);
-        auto queueSubmitFence = frame.RenderFinishedFence;
-        if (queueSubmitFence != VK_NULL_HANDLE)
-        {
-            VK_CHECK(vkWaitForFences(m_Device, 1, &queueSubmitFence, true, UINT64_MAX));
-            VK_CHECK(vkResetFences(m_Device, 1, &queueSubmitFence));
-        }
-
-        // Reset the frame's command buffer ready for a new set of commands
-        if (frame.CommandPool)
-        {
-            vkResetCommandPool(m_Device, frame.CommandPool, 0);
-        }
-
-        // Recycle the old semaphore
-        VkSemaphore oldSemaphore = m_PerFrameData.at(m_SwapchainImageIndex).ImageAcquiredSemaphore;
-
-        if (oldSemaphore)
-        {
-            m_RecycledSemaphores.push_back(oldSemaphore);
-        }
-
-        m_PerFrameData.at(m_SwapchainImageIndex).ImageAcquiredSemaphore = newImageAcquiredSemaphore;
     }
 
     void VulkanGraphicsDevice::SetVerticalSync(bool enable)
