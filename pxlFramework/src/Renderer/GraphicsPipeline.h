@@ -59,6 +59,14 @@ namespace pxl
         /// @brief Recreates the pipeline using its predefined specifications.
         virtual void Recreate() = 0;
 
+        /// @brief Sets the cull mode. No recreation is needed for this.
+        virtual void SetCullMode(CullMode mode) = 0;
+
+        /// @brief Sets the front face. No recreation is needed for this.
+        virtual void SetFrontFace(FrontFace face) = 0;
+
+        /// @brief Sets the primitive topology. No recreation is needed for this.
+        virtual void SetPrimitiveTopology(PrimitiveTopology topology) = 0;
 
         virtual const GraphicsPipelineSpecs& GetSpecs() const = 0;
     };

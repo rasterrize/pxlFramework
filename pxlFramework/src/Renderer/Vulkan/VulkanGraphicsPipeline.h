@@ -15,6 +15,12 @@ namespace pxl
 
         virtual void Free() override;
 
+        virtual void SetCullMode(CullMode mode) override { m_Specs.CullMode = mode; }
+
+        virtual void SetFrontFace(FrontFace face) override { m_Specs.FrontFace = face; }
+
+        virtual void SetPrimitiveTopology(PrimitiveTopology topology) override { m_Specs.PrimitiveTopology = topology; }
+
         virtual const GraphicsPipelineSpecs& GetSpecs() const { return m_Specs; }
 
         VkPipeline GetVkPipeline() const { return m_Pipeline; }
