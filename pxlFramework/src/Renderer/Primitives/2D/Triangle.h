@@ -1,6 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "Primitive.h"
 #include "Renderer/Texture.h"
@@ -14,8 +16,6 @@ namespace pxl
         glm::vec3 Rotation = glm::vec3(0.0f);
         glm::vec2 Size = glm::vec3(1.0f);
         glm::vec4 Colour = glm::vec4(1.0f);
-        std::optional<std::shared_ptr<Texture>> Texture;
-        std::optional<std::array<glm::vec2, 4>> TextureUV;
 
         static constexpr std::array<TexturedVertex, 3> GetDefaultVertices()
         {
@@ -27,12 +27,12 @@ namespace pxl
                 TexturedVertex({  0.5f, -0.5f, 0.0f }, glm::vec4(1.0f), texCoords[2]),
             }; // clang-format on
         }
-        
+
         static constexpr std::array<uint32_t, 3> GetDefaultIndices()
         {
             return { 0, 1, 2 };
         }
-        
+
         static constexpr std::array<glm::vec2, 3> GetDefaultTexCoords()
         {
             // TODO: sort out texture UVs
