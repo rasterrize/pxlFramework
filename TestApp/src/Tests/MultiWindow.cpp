@@ -5,21 +5,15 @@ namespace TestApp
     void MultiWindow::OnStart(pxl::WindowSpecs& windowSpecs)
     {
         pxl::WindowSpecs customSpecs = {};
-        customSpecs.RendererAPI = pxl::RendererAPIType::None;
         customSpecs.Title = "pxlFramework Test App - Window Test - Window A";
         customSpecs.WindowMode = pxl::WindowMode::Windowed;
         m_TestWindowA = pxl::Window::Create(customSpecs);
 
-        customSpecs.RendererAPI = pxl::RendererAPIType::OpenGL;
         customSpecs.Title = "pxlFramework Test App - Window Test - Window B";
         customSpecs.Size = { 800, 600 };
         m_TestWindowB = pxl::Window::Create(customSpecs);
 
-        pxl::Renderer::Init(m_TestWindowB);
         pxl::Input::Init(m_TestWindowB);
-        pxl::GUI::Init(m_TestWindowB);
-
-        pxl::Renderer::SetClearColour({ 0.5f, 0.5f, 0.7f, 1.0f });
     }
 
     void MultiWindow::OnUpdate(float dt)

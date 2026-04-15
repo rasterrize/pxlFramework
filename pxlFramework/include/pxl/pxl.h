@@ -73,3 +73,11 @@
 // NOTE: For now we provide glm to the user, since it's the only math library we use.
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+namespace pxl
+{
+    typedef glm::vec2 Vec2;
+    typedef glm::vec3 Vec3;
+    typedef glm::vec4 Vec4;
+    typedef glm::mat4 Mat4;
+}

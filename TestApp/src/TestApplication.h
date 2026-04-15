@@ -9,6 +9,8 @@ namespace TestApp
     class TestApplication : public pxl::Application
     {
     public:
+        TestApplication(const std::vector<std::string>& args);
+
         virtual void OnUpdate(float dt) override;
         virtual void OnRender(pxl::Renderer& renderer) override;
         virtual void OnClose() override;
@@ -40,7 +42,5 @@ namespace TestApp
         std::unique_ptr<Test> m_Test = nullptr;
 
         pxl::RendererConfig m_DefaultRendererConfig = {};
-
-        pxl::RendererStats m_RendererStats = {};
     };
 }

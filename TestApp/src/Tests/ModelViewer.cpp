@@ -11,7 +11,7 @@ namespace TestApp
         auto& renderer = pxl::Application::Get().InitRenderer({ m_Window });
         pxl::Input::Init(m_Window);
 
-        m_Camera = static_pointer_cast<pxl::PerspectiveCamera>(renderer->GetCamera3D());
+        // m_Camera = static_pointer_cast<pxl::PerspectiveCamera>(renderer->GetCamera3D());
 
         // LoadMesh("assets/models/star.obj");
 
@@ -141,7 +141,7 @@ namespace TestApp
     void ModelViewer::OnWindowResizeEvent(pxl::WindowResizeEvent& e)
     {
         auto newSize = e.GetSize();
-        m_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
+        // m_Camera->SetAspectRatio(static_cast<float>(newSize.Width) / static_cast<float>(newSize.Height));
     }
 
     void ModelViewer::LoadMesh(const std::filesystem::path& path)

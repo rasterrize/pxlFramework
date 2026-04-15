@@ -10,21 +10,16 @@ namespace TestApp
     {
         m_Window = pxl::Window::Create(windowSpecs);
 
-        pxl::Renderer::Init(m_Window);
         pxl::Input::Init(m_Window);
 
-        pxl::Renderer::SetClearColour({ 0.078f, 0.094f, 0.109f, 1.0f });
-
-        m_Camera = pxl::Camera::CreatePerspective({
-            .FOV = 45.0f,
-            .AspectRatio = 16.0f / 9.0f,
-            .NearClip = 0.01f,
-            .FarClip = 1000.0f,
-        });
+        // m_Camera = pxl::Camera::CreatePerspective({
+        //     .FOV = 45.0f,
+        //     .AspectRatio = 16.0f / 9.0f,
+        //     .NearClip = 0.01f,
+        //     .FarClip = 1000.0f,
+        // });
 
         m_Camera->SetPosition({ 0.0f, 0.0f, 5.0f });
-
-        pxl::Renderer::SetCamera(pxl::RendererGeometryTarget::Line, m_Camera);
     }
 
     void LinesTest::OnUpdate(float dt)
@@ -43,9 +38,6 @@ namespace TestApp
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
             m_Window->NextWindowMode();
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::F7))
-            m_Window->GetGraphicsContext()->ToggleVSync();
 
         if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftShift))
         {
@@ -103,10 +95,10 @@ namespace TestApp
         m_Camera->SetFOV(cameraFOV);
     }
 
-    void LinesTest::OnRender()
+    void LinesTest::OnRender(pxl::Renderer& renderer)
     {
         PXL_PROFILE_SCOPE;
 
-        pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, s_LineRotation, { 0.4f, 0.8f, 0.2f, 1.0f });
+        // pxl::Renderer::AddLine({ -0.5f, 1.0f, 1.0f }, { 0.5f, -1.0f, -1.0f }, s_LineRotation, { 0.4f, 0.8f, 0.2f, 1.0f });
     }
 }

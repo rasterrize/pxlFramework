@@ -13,5 +13,13 @@ namespace TestApp
         APP_LOG_INFO("Running empty app...");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        m_UpdateCount++;
+
+        if (m_UpdateCount >= m_MaxUpdateCount)
+        {
+            pxl::Application::Get().Close();
+            return;
+        }
     }
 }

@@ -2,6 +2,12 @@
 
 #include <pxl/pxl.h>
 
+#ifdef TA_DEBUG
+    #define TA_USE_IMGUI 1
+#else
+    #define TA_USE_IMGUI 0
+#endif
+
 namespace TestApp
 {
     class Test

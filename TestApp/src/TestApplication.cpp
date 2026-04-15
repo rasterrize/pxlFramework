@@ -1,12 +1,52 @@
 #include "TestApplication.h"
 
+#include "Tests/CubesTest.h"
+#include "Tests/EmptyApp.h"
+#include "Tests/LinesTest.h"
+#include "Tests/ModelViewer.h"
+#include "Tests/MultiWindow.h"
+#include "Tests/QuadsTest.h"
+
+#define TA_DEFAULT_TEST QuadsTest
+
 namespace TestApp
 {
+    TestApplication::TestApplication(const std::vector<std::string>& args)
+    {
+        // Parse launch arguments
+        for (auto& string : args)
+        {
+            // Check if this is a valid argument
+            if (string.front() != '-')
+                continue;
+
+            if (string.at(1) == 't')
+            {
+                auto testValue = string.substr(sizeof("-t"), string.length());
+
+                // TODO: simplify this
+                if (testValue == "ModelViewer")
+                    LaunchTest<TestApp::ModelViewer>();
+                // else if (testValue == "QuadsTest")
+                //     LaunchTest<TestApp::QuadsTest>();
+                // else if (testValue == "CubesTest")
+                //     LaunchTest<TestApp::CubesTest>();
+                // else if (testValue == "LinesTest")
+                //     LaunchTest<TestApp::LinesTest>();
+                else if (testValue == "EmptyApp")
+                    LaunchTest<TestApp::EmptyApp>();
+                else if (testValue == "MultiWindow")
+                    LaunchTest<TestApp::MultiWindow>();
+            }
+        }
+
+        if (!m_Test)
+            LaunchTest<TestApp::TA_DEFAULT_TEST>();
+    }
+
     void TestApplication::OnUpdate(float dt)
     {
         PXL_PROFILE_SCOPE;
-
-        m_RendererStats = Application::Get().GetRenderer()->GetStats();
 
         if (m_Test)
             m_Test->OnUpdate(dt);
@@ -20,14 +60,33 @@ namespace TestApp
             m_Test->OnRender(renderer);
     }
 
+    void TestApplication::OnClose()
+    {
+        auto window = m_Test->GetWindow();
+
+        if (window && false)
+        {
+            // Save framework settings
+            // NOTE: Using auto here causes the settings to be stored as value
+            pxl::FrameworkSettings& frameworkSettings = pxl::FrameworkConfig::GetSettings();
+            frameworkSettings.WindowMode = window->GetWindowMode();
+            frameworkSettings.WindowPosition = window->GetPosition();
+            frameworkSettings.WindowSize = window->GetSize();
+            frameworkSettings.CustomFramerateCap = GetFPSLimit();
+            frameworkSettings.MonitorIndex = window->GetCurrentMonitor().Index;
+            frameworkSettings.FullscreenRefreshRate = window->GetCurrentMonitor().GetCurrentVideoMode().RefreshRate;
+        }
+
+        if (m_Test)
+            m_Test->OnClose();
+    }
+
 #ifdef PXL_ENABLE_IMGUI
     void TestApplication::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
-
         // ImGui::ShowDemoWindow();
 
-        auto& app = Application::Get();
         auto& renderer = GetRenderer();
 
         static bool showApplicationStats = false;
@@ -50,7 +109,7 @@ namespace TestApp
             {
                 ImGui::SeparatorText("Application");
 
-                pxl::FramerateMode framerateMode = app.GetFramerateMode();
+                pxl::FramerateMode framerateMode = GetFramerateMode();
                 auto framerateModeString = pxl::Utils::ToString(framerateMode);
 
                 static int item_selected_idx = 0; // Here we store our selection data as an index.
@@ -74,13 +133,9 @@ namespace TestApp
                     ImGui::EndCombo();
                 }
 
-                int fpsLimit = static_cast<int>(app.GetFPSLimit());
+                int fpsLimit = static_cast<int>(GetFPSLimit());
 
-                bool disableFPSLimitWidget = false;
-                if (app.GetFramerateMode() != pxl::FramerateMode::Custom)
-                    disableFPSLimitWidget = true;
-
-                if (disableFPSLimitWidget)
+                if (GetFramerateMode() != pxl::FramerateMode::Custom)
                     ImGui::BeginDisabled();
 
                 if (ImGui::DragInt("FPS Limit", &fpsLimit, 1.0f, 3, 1000))
@@ -88,31 +143,60 @@ namespace TestApp
                     Application::Get().SetFPSLimit(fpsLimit);
                 }
 
-                if (disableFPSLimitWidget)
+                if (GetFramerateMode() != pxl::FramerateMode::Custom)
+                {
+                    ImGui::SetItemTooltip("Set framerate mode to custom to enable this setting");
                     ImGui::EndDisabled();
+                }
 
                 ImGui::SeparatorText("Renderer");
 
-                bool vsync = renderer->GetConfig().VerticalSync;
+                bool vsync = renderer.GetConfig().VerticalSync;
                 if (ImGui::Checkbox("Vertical Sync", &vsync))
                 {
-                    renderer->SetVerticalSync(vsync);
+                    renderer.SetVerticalSync(vsync);
                 }
 
-                glm::vec4 clearColour = renderer->GetConfig().ClearColour;
+                ImGui::BeginDisabled(vsync);
+
+                bool allowTearing = renderer.GetConfig().AllowTearing;
+                if (ImGui::Checkbox("Allow Tearing", &allowTearing))
+                {
+                    renderer.SetAllowTearing(allowTearing);
+                }
+
+                ImGui::EndDisabled();
+
+                if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
+                    ImGui::BeginDisabled();
+
+                bool tripleBuffering = renderer.GetConfig().TripleBuffering;
+                if (ImGui::Checkbox("Triple Buffering", &tripleBuffering))
+                {
+                    renderer.SetAllowTearing(tripleBuffering);
+                }
+                ImGui::SetItemTooltip("Sets the swapchains desired image count to 3 if supported");
+
+                if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
+                {
+                    ImGui::SetItemTooltip("Triple buffering is forced by device");
+                    ImGui::EndDisabled();
+                }
+
+                glm::vec4 clearColour = renderer.GetConfig().ClearColour;
                 if (ImGui::ColorEdit4("Clear Colour", &clearColour.x))
                 {
-                    renderer->SetClearColour(clearColour);
+                    renderer.SetClearColour(clearColour);
                 }
 
                 if (ImGui::Button("Reload pipelines"))
                 {
-                    renderer->ReloadPipelines();
+                    renderer.ReloadPipelines();
                 }
 
                 if (ImGui::Button("Clear shader cache"))
                 {
-                    renderer->ClearShaderCache();
+                    renderer.ClearShaderCache();
                 }
 
                 ImGui::SeparatorText("Window");
@@ -188,63 +272,40 @@ namespace TestApp
         {
             ImGui::Begin("Renderer Stats", &showRendererStats);
 
-            auto& stats = m_RendererStats;
-            ImGui::SeparatorText("Renderer");
-            ImGui::Text("FPS: %.3f", renderer->GetFramesPerSecond());
-            ImGui::Text("Frame Time: %.3f", stats.PreviousFrameTime);
-            ImGui::Text("Frame Count: %u", stats.FrameCount);
+            // auto& stats = m_RendererStats;
+            // ImGui::SeparatorText("Renderer");
+            // ImGui::Text("FPS: %.3f", renderer.GetFramesPerSecond());
+            // ImGui::Text("Frame Time: %.3f", stats.PreviousFrameTime);
+            // ImGui::Text("Frame Count: %u", stats.FrameCount);
 
-            ImGui::SeparatorText("Frame");
-            ImGui::Text("Draw calls: %u", stats.GraphicsContextStats.DrawCalls);
-            ImGui::Text("Vertex count: %u", stats.FrameStats.VertexCount);
-            ImGui::Text("Index count: %u", stats.FrameStats.IndexCount);
-            ImGui::Text("Triangle count: %u", stats.FrameStats.GetTriangleCount());
-            ImGui::Text("Pipeline binds: %u", stats.GraphicsContextStats.PipelineBinds);
-            ImGui::Text("Texture binds: %u", stats.FrameStats.TextureBinds);
+            // ImGui::SeparatorText("Frame");
+            // // ImGui::Text("Draw calls: %u", stats.GraphicsContextStats.DrawCalls);
+            // // ImGui::Text("Vertex count: %u", stats.FrameStats.VertexCount);
+            // // ImGui::Text("Index count: %u", stats.FrameStats.IndexCount);
+            // // ImGui::Text("Triangle count: %u", stats.FrameStats.GetTriangleCount());
+            // // ImGui::Text("Pipeline binds: %u", stats.GraphicsContextStats.PipelineBinds);
+            // // ImGui::Text("Texture binds: %u", stats.FrameStats.TextureBinds);
 
-            auto gpuName = renderer->GetGraphicsDevice()->GetGPUName();
-            auto driverVersion = renderer->GetGraphicsDevice()->GetDriverInfo();
-            auto gpuStats = renderer->GetGraphicsDevice()->GetStats();
+            auto gpuName = renderer.GetGraphicsDevice().GetGPUName();
+            auto driverVersion = renderer.GetGraphicsDevice().GetDriverInfo();
             ImGui::SeparatorText("Graphics Device");
             ImGui::Text("GPU name: %s", gpuName.c_str());
             ImGui::Text("Driver version: %s", driverVersion.c_str());
-            ImGui::Text("Buffer count: %u", gpuStats.BufferCount);
-            ImGui::Text("Shader count: %u", gpuStats.ShaderCount);
-            ImGui::Text("Graphics pipeline count: %u", gpuStats.GraphicsPipelineCount);
-            ImGui::Text("Texture count: %u", gpuStats.TextureCount);
+            // ImGui::Text("Buffer count: %u", gpuStats.BufferCount);
+            // ImGui::Text("Shader count: %u", gpuStats.ShaderCount);
+            // ImGui::Text("Graphics pipeline count: %u", gpuStats.GraphicsPipelineCount);
+            // ImGui::Text("Texture count: %u", gpuStats.TextureCount);
             ImGui::End();
         }
 
         if (showInputStats)
         {
             ImGui::Begin("Input Stats", &showInputStats);
-            // ImGui::Text("Window Title: %s", window->GetTitle().c_str());
             ImGui::End();
         }
 
         if (m_Test)
             m_Test->OnGUIRender();
-    }
-
-    void TestApplication::OnClose()
-    {
-        auto window = m_Test->GetWindow();
-
-        if (window)
-        {
-            // Save framework settings
-            // NOTE: Using auto here causes the settings to be stored as value
-            pxl::FrameworkSettings& frameworkSettings = pxl::FrameworkConfig::GetSettings();
-            frameworkSettings.WindowMode = window->GetWindowMode();
-            frameworkSettings.WindowPosition = window->GetPosition();
-            frameworkSettings.WindowSize = window->GetSize();
-            frameworkSettings.CustomFramerateCap = GetFPSLimit();
-            frameworkSettings.MonitorIndex = window->GetCurrentMonitor().Index;
-            frameworkSettings.FullscreenRefreshRate = window->GetCurrentMonitor().GetCurrentVideoMode().RefreshRate;
-        }
-
-        if (m_Test)
-            m_Test->OnClose();
     }
 #endif
 
@@ -252,9 +313,8 @@ namespace TestApp
     {
         pxl::FrameworkSettings frameworkSettings = {};
 
-        std::string windowTitle = "pxlFramework Test App";
         std::string buildTypeString = "Unknown Build Type";
-        std::string graphicsAPITypeString = "Unknown Renderer API";
+        std::string graphicsAPITypeString = "Unknown Graphics API";
         pxl::WindowMode windowMode = frameworkSettings.WindowMode;
 
 #ifdef TA_DEBUG
@@ -264,8 +324,9 @@ namespace TestApp
 #elif TA_DIST
         buildTypeString = "Distribute x64";
 #endif
-        graphicsAPITypeString = pxl::Utils::ToString(m_DefaultRendererConfig.APIType);
-        windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPITypeString, m_Test->ToString());
+        // TODO: unhardcode
+        graphicsAPITypeString = pxl::Utils::ToString(pxl::GraphicsAPIType::Vulkan);
+        std::string windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPITypeString, m_Test->ToString());
 
         pxl::WindowSpecs windowSpecs = {};
         windowSpecs.Size = frameworkSettings.WindowSize;
