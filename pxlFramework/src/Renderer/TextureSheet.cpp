@@ -11,9 +11,9 @@ namespace pxl
         glm::vec2 gridSize = glm::vec2(m_Columns, m_Rows);
         auto percentagePerRegion = glm::vec2(1) / gridSize;
 
-        for (int row = 1; row <= m_Rows; row++)
+        for (uint32_t row = 1; row <= m_Rows; row++)
         {
-            for (int column = 1; column <= m_Columns; column++)
+            for (uint32_t column = 1; column <= m_Columns; column++)
             {
                 glm::vec2 gridPos = glm::vec2(column, row) - glm::vec2(1);
 

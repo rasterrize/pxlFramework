@@ -59,7 +59,7 @@ namespace pxl
             {
                 OnUpdate(deltaTime);
 
-                if (m_Renderer)
+                if (m_Renderer && !m_Minimized)
                 {
                     m_Renderer->Begin();
                     OnRender(*m_Renderer.get());

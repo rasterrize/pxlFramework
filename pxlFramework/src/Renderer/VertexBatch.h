@@ -48,7 +48,7 @@ namespace pxl
         uint32_t UploadData()
         {
             m_VertexBuffers.at(m_VertexBufferIndex)->SetData(m_Vertices.size() * sizeof(VertexType), 0, m_Vertices.data());
-            uint32_t vertexCount = m_Vertices.size();
+            uint32_t vertexCount = static_cast<uint32_t>(m_Vertices.size());
             m_Vertices.clear();
             return vertexCount;
         }

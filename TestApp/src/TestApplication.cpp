@@ -25,18 +25,18 @@ namespace TestApp
                 auto testValue = string.substr(sizeof("-t"), string.length());
 
                 // TODO: simplify this
-                if (testValue == "ModelViewer")
-                    LaunchTest<TestApp::ModelViewer>();
-                // else if (testValue == "QuadsTest")
-                //     LaunchTest<TestApp::QuadsTest>();
+                // if (testValue == "ModelViewer")
+                //     LaunchTest<TestApp::ModelViewer>();
+                if (testValue == "QuadsTest")
+                    LaunchTest<TestApp::QuadsTest>();
                 // else if (testValue == "CubesTest")
                 //     LaunchTest<TestApp::CubesTest>();
                 // else if (testValue == "LinesTest")
                 //     LaunchTest<TestApp::LinesTest>();
-                else if (testValue == "EmptyApp")
-                    LaunchTest<TestApp::EmptyApp>();
-                else if (testValue == "MultiWindow")
-                    LaunchTest<TestApp::MultiWindow>();
+                // else if (testValue == "EmptyApp")
+                //     LaunchTest<TestApp::EmptyApp>();
+                // else if (testValue == "MultiWindow")
+                //     LaunchTest<TestApp::MultiWindow>();
             }
         }
 
@@ -62,21 +62,6 @@ namespace TestApp
 
     void TestApplication::OnClose()
     {
-        auto window = m_Test->GetWindow();
-
-        if (window && false)
-        {
-            // Save framework settings
-            // NOTE: Using auto here causes the settings to be stored as value
-            pxl::FrameworkSettings& frameworkSettings = pxl::FrameworkConfig::GetSettings();
-            frameworkSettings.WindowMode = window->GetWindowMode();
-            frameworkSettings.WindowPosition = window->GetPosition();
-            frameworkSettings.WindowSize = window->GetSize();
-            frameworkSettings.CustomFramerateCap = GetFPSLimit();
-            frameworkSettings.MonitorIndex = window->GetCurrentMonitor().Index;
-            frameworkSettings.FullscreenRefreshRate = window->GetCurrentMonitor().GetCurrentVideoMode().RefreshRate;
-        }
-
         if (m_Test)
             m_Test->OnClose();
     }
@@ -330,7 +315,7 @@ namespace TestApp
 
         pxl::WindowSpecs windowSpecs = {};
         windowSpecs.Size = frameworkSettings.WindowSize;
-        windowSpecs.Position = frameworkSettings.WindowPosition;
+        // windowSpecs.Position = frameworkSettings.WindowPosition;
         windowSpecs.Title = windowTitle;
         windowSpecs.WindowMode = windowMode;
         windowSpecs.MonitorIndex = frameworkSettings.MonitorIndex;

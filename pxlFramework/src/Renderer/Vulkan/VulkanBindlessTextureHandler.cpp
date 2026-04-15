@@ -93,7 +93,7 @@ namespace pxl
 
     uint32_t VulkanBindlessTextureHandler::Get(const std::shared_ptr<Texture>& texture)
     {
-        for (size_t i = 0; i < m_Textures.size(); i++)
+        for (uint32_t i = 0; i < static_cast<uint32_t>(m_Textures.size()); i++)
         {
             if (m_Textures.at(i) == texture)
                 return i;
@@ -123,7 +123,7 @@ namespace pxl
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.dstSet = m_DescriptorSet;
         writeSet.dstBinding = 0;
-        writeSet.descriptorCount = imageData.size();
+        writeSet.descriptorCount = static_cast<uint32_t>(imageData.size());
         writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         writeSet.pImageInfo = imageData.data();
 

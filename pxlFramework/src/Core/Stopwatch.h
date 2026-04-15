@@ -18,7 +18,7 @@ namespace pxl
 
         void Start()
         {
-            m_LastStartPoint = std::chrono::high_resolution_clock::now();
+            m_LastStartPoint = std::chrono::steady_clock::now();
             m_Running = true;
         }
 
@@ -30,7 +30,7 @@ namespace pxl
 
         void Reset()
         {
-            m_LastStartPoint = std::chrono::high_resolution_clock::now();
+            m_LastStartPoint = std::chrono::steady_clock::now();
             m_Elapsed = std::chrono::duration<float>::zero();
         }
 
@@ -60,8 +60,8 @@ namespace pxl
             if (!m_Running)
                 return;
 
-            m_Elapsed += std::chrono::high_resolution_clock::now() - m_LastStartPoint;
-            m_LastStartPoint = std::chrono::high_resolution_clock::now();
+            m_Elapsed += std::chrono::steady_clock::now() - m_LastStartPoint;
+            m_LastStartPoint = std::chrono::steady_clock::now();
         }
 
         template<typename timeT, typename outputT>
@@ -73,7 +73,7 @@ namespace pxl
     private:
         bool m_Running = false;
 
-        std::chrono::high_resolution_clock::time_point m_LastStartPoint;
+        std::chrono::steady_clock::time_point m_LastStartPoint;
         std::chrono::duration<float> m_Elapsed;
     };
 }

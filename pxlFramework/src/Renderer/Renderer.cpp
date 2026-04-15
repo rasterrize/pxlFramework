@@ -71,7 +71,7 @@ namespace pxl
             // --------------------
 
             // Prepare quad indices
-            std::vector<uint32_t> indices(m_Config.VerticesPerBatch * 1.5f);
+            std::vector<uint32_t> indices(static_cast<uint32_t>(m_Config.VerticesPerBatch * 1.5f));
             constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
 
             uint32_t offset = 0;
@@ -246,7 +246,7 @@ namespace pxl
             DrawParams params;
             params.Pipeline = m_QuadPipeline;
             params.VertexBuffers.push_back(quadBatch.GetCurrentVertexBuffer());
-            params.IndexCount = vertexCount * 1.5f;
+            params.IndexCount = static_cast<uint32_t>(vertexCount * 1.5f);
             params.UniformBuffer = m_CurrentFrameData->UniformBuffer;
             params.TextureHandler = m_TextureHandler;
             m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);

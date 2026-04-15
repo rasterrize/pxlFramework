@@ -54,7 +54,7 @@ namespace TestApp
         TextureSpecs texSpecs;
         texSpecs.Filter = SampleFilter::Nearest;
 
-        texSpecs.Image = FileSystem::LoadImageFile("assets/textures/hotbar.png");
+        texSpecs.Image = FileSystem::LoadImageFile("assets/textures/stone.png");
         m_StoneTexture = renderer.CreateTexture(texSpecs);
 
         // Load texture sheet
@@ -73,9 +73,6 @@ namespace TestApp
             Application::Get().Close();
             return;
         }
-
-        if (Input::IsKeyHeld(KeyCode::LeftAlt) && Input::IsKeyPressed(KeyCode::Enter))
-            m_Window->NextWindowMode();
 
         m_TextureQuad.Rotation = pxl::Utils::RotationWrap(m_TextureQuad.Rotation + m_RotationSpeed * dt);
         m_ColourQuad.Rotation = pxl::Utils::RotationWrap(m_ColourQuad.Rotation - m_RotationSpeed * dt);
@@ -131,6 +128,9 @@ namespace TestApp
     {
         if (e.IsKey(KeyCode::F7))
             m_Renderer->SetVerticalSync(!m_Renderer->GetConfig().VerticalSync);
+
+        if (e.IsModsAndKey(KeyModFlags::Alt, KeyCode::Enter))
+            m_Window->NextWindowMode();
     }
 
     void QuadsTest::OnMouseMoveEvent(const MouseMoveEvent& e)

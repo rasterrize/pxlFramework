@@ -176,6 +176,7 @@ set(PXL_ABSOLUTE_SOURCE_RESOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<$<PLATFORM_ID:Windows>:GLFW_EXPOSE_NATIVE_WIN32>
     $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN> # Tell Win32 API to use less headers
+    $<$<PLATFORM_ID:Windows>:NOMINMAX>
     GLFW_INCLUDE_NONE # Tell GLFW to not include it's own OpenGL headers
     VK_NO_PROTOTYPES # Tell vulkan.h to not use compile-time function prototypes
     $<$<CONFIG:Debug>:PXL_DEBUG>

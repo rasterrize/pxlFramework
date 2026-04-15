@@ -76,7 +76,7 @@ namespace pxl
         std::vector<ShaderSpecs> m_CreationQueue;
 
         // Stores shaders using a unique string identifier (usually the shader's file name)
-        std::unordered_map<std::string, std::shared_ptr<Shader>> m_Shaders;
+        std::unordered_map<std::filesystem::path, std::shared_ptr<Shader>> m_Shaders;
 
         ShaderCompiler m_Compiler;
     };

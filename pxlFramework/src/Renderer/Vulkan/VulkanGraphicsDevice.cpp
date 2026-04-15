@@ -113,7 +113,7 @@ namespace pxl
 
     std::shared_ptr<ImGuiRenderer> VulkanGraphicsDevice::CreateImGuiRenderer(const ImGuiSpecs& specs)
     {
-        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(specs, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, m_PerImageData.size());
+        auto imguiRenderer = std::make_shared<VulkanImGuiRenderer>(specs, m_Instance, m_GPU, m_Device, m_GraphicsQueue, m_SurfaceFormat.format, static_cast<uint32_t>(m_PerImageData.size()));
         m_Resources.push_back(imguiRenderer);
         return imguiRenderer;
     }
@@ -219,7 +219,7 @@ namespace pxl
                 auto queueFamilies = VulkanUtils::GetQueueFamilies2(gpu);
                 bool foundSuitableGraphicsQueueFamily = false;
                 uint32_t graphicsQueueFamilyIndex = 0;
-                for (size_t i = 0; i < queueFamilies.size(); i++)
+                for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); i++)
                 {
                     VkBool32 supportsPresent = VK_FALSE;
                     VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, m_Surface, &supportsPresent));

@@ -135,7 +135,7 @@ namespace pxl
                     glm::vec3(assVertex.x, assVertex.y, assVertex.z),
                     vertexColour,
                     glm::vec2(0.0f),
-                    -1.0f);
+                    0);
             }
 
             // Go through all the faces and indices of the current mesh

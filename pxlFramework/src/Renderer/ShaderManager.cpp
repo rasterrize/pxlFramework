@@ -91,7 +91,7 @@ namespace pxl
             auto glsl = FileSystem::LoadGLSL(sourcePath);
 
             // Compile glsl to spirv using ShaderCompiler
-            auto spirv = m_Compiler.CompileGLSLToSPIRV(shaderFile.Stage, glsl, shaderFile.FileName);
+            auto spirv = m_Compiler.CompileGLSLToSPIRV(shaderFile.Stage, glsl, shaderFile.FileName.string());
 
             // Cache the shader to disk if compilation succeeded
             if (m_Config.UseCache && !spirv.empty())
