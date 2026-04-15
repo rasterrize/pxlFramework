@@ -10,6 +10,12 @@ namespace pxl
 {
     struct ShaderFile;
 
+    struct PreTexture
+    {
+        std::shared_ptr<Texture> Texture;
+        TextureSpecs Specs;
+    };
+
     struct RendererConfig
     {
         /// @brief The window to associate the renderer to. Must be a valid window pointer.
@@ -37,6 +43,8 @@ namespace pxl
 
         /// @brief A list of shader files to be added to the shader manager.
         std::vector<ShaderFile> UserShadersToCompile;
+
+        std::vector<PreTexture> UserTextures;
 
         /// @brief Automatically initialize ImGui after renderer is initialized.
         bool InitImGui = false;

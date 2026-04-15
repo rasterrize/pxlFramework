@@ -13,11 +13,15 @@ namespace pxl
 
         virtual void Free() override;
 
-        virtual uint32_t Add(std::shared_ptr<Texture> texture) override;
+        virtual void Add(std::shared_ptr<Texture> texture) override;
 
-        virtual bool IsFull() const override { return false; }
+        virtual uint32_t Get(const std::shared_ptr<Texture>& texture) override;
 
         virtual void Upload() override;
+
+        virtual bool NeedsUpload() const { return m_NeedsUpload; }
+
+        virtual bool IsFull() const override { return false; }
 
         virtual void Reset() override { m_Textures.clear(); }
 
@@ -33,5 +37,7 @@ namespace pxl
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 
         VkDevice m_Device = VK_NULL_HANDLE;
+
+        bool m_NeedsUpload = false;
     };
 }

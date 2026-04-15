@@ -60,6 +60,7 @@ namespace pxl
         // Compile shaders
         m_ShaderManager->CompileAll(m_GraphicsDevice);
 
+        // Init texture handler
         m_TextureHandler = m_GraphicsDevice->CreateTextureHandler();
 
         {
@@ -137,7 +138,6 @@ namespace pxl
         TextureSpecs whitePixelSpecs = {};
         whitePixelSpecs.Image = image;
         whitePixelSpecs.Filter = SampleFilter::Nearest;
-        whitePixelSpecs.UseAnistropicFiltering = false;
 
         m_WhitePixelTexture = m_GraphicsDevice->CreateTexture(whitePixelSpecs);
 
@@ -197,11 +197,11 @@ namespace pxl
 
         m_GraphicsContext->BeginFrame(m_GraphicsDevice, m_FrameIndex);
 
+        if (m_TextureHandler->NeedsUpload())
+            m_TextureHandler->Upload();
+
         if (m_ImGuiRenderer)
             m_ImGuiRenderer->NewFrame();
-
-        // Set first texture unit as white pixel texture
-        // m_TextureHandler->UseTexture(m_WhitePixelTexture);
 
         m_CurrentFrameData = &m_PerFrameData.at(m_FrameIndex);
 
@@ -278,6 +278,12 @@ namespace pxl
 
             pipeline->Recreate();
         }
+    std::shared_ptr<Texture> Renderer::CreateTexture(const TextureSpecs& specs)
+    {
+        auto texture = m_GraphicsDevice->CreateTexture(specs);
+        m_TextureHandler->Add(texture);
+        m_TextureHandler->Upload();
+        return texture;
     }
 
     glm::mat4 Renderer::CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)

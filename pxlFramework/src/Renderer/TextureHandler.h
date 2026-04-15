@@ -9,13 +9,15 @@ namespace pxl
     public:
         virtual ~TextureHandler() = default;
 
-        /// @brief Adds a texture to the list of handled textures to be sent to the shader
-        /// @return The texture index in array of textures
-        virtual uint32_t Add(std::shared_ptr<Texture> texture) = 0;
+        virtual void Add(std::shared_ptr<Texture> texture) = 0;
 
-        virtual bool IsFull() const = 0;
+        virtual uint32_t Get(const std::shared_ptr<Texture>& texture) = 0;
 
         virtual void Upload() = 0;
+
+        virtual bool NeedsUpload() const = 0;
+
+        virtual bool IsFull() const = 0;
 
         virtual void Reset() = 0;
     };

@@ -70,24 +70,36 @@ namespace pxl
             m_SetLayout = VK_NULL_HANDLE;
         }
     }
-    uint32_t VulkanBindlessTextureHandler::Add(std::shared_ptr<Texture> texture)
+    void VulkanBindlessTextureHandler::Add(std::shared_ptr<Texture> texture)
     {
+        PXL_ASSERT(texture);
+
         bool found = false;
         for (size_t i = 0; i < m_Textures.size(); i++)
         {
             if (m_Textures.at(i) == texture)
             {
-                return i;
+                found = true;
+                return;
             }
         }
 
         if (!found)
         {
             m_Textures.push_back(texture);
-            return m_Textures.size() - 1;
+            m_NeedsUpload = true;
+        }
+    }
+
+    uint32_t VulkanBindlessTextureHandler::Get(const std::shared_ptr<Texture>& texture)
+    {
+        for (size_t i = 0; i < m_Textures.size(); i++)
+        {
+            if (m_Textures.at(i) == texture)
+                return i;
         }
 
-        return 0;
+        return UINT32_MAX;
     }
 
     void VulkanBindlessTextureHandler::Upload()
@@ -116,5 +128,7 @@ namespace pxl
         writeSet.pImageInfo = imageData.data();
 
         vkUpdateDescriptorSets(m_Device, 1, &writeSet, 0, nullptr);
+
+        m_NeedsUpload = false;
     }
 }
