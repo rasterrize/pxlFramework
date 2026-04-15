@@ -258,13 +258,15 @@ namespace pxl
 
     void Renderer::ReloadPipelines()
     {
-        std::vector<std::shared_ptr<GraphicsPipeline>> pipelines;
-        pipelines.push_back(m_TrianglePipeline);
+        std::vector<std::shared_ptr<GraphicsPipeline>> pipelines = {
+            m_QuadPipeline
+        };
 
         for (const auto& pipeline : pipelines)
         {
             auto specs = pipeline->GetSpecs();
 
+            // NOTE: will reload shaders multiple times if they are used by multiple pipelines
             for (const auto& [stage, shader] : specs.Shaders)
             {
                 if (m_ShaderManager->Reload(shader) != true)
