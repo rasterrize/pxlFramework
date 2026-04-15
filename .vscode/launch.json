@@ -18,7 +18,12 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
-            "environment": [],
+            "environment": [
+                {
+                    "name": "MANGOHUD",
+                    "value": "0"
+                }
+            ],
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
