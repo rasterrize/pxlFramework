@@ -27,6 +27,7 @@
 #include "../src/Core/Events/WindowEvents.h"
 
 // Renderer
+#include "../src/Renderer/AnimatedTexture.h"
 #include "../src/Renderer/BufferLayout.h"
 #include "../src/Renderer/Camera.h"
 #include "../src/Renderer/GPUBuffer.h"
@@ -47,6 +48,7 @@
 #include "../src/Renderer/ShaderManager.h"
 #include "../src/Renderer/Texture.h"
 #include "../src/Renderer/TextureHandler.h"
+#include "../src/Renderer/TextureSheet.h"
 #include "../src/Renderer/UniformLayout.h"
 #include "../src/Renderer/VertexBatch.h"
 #include "../src/Renderer/Vertices.h"

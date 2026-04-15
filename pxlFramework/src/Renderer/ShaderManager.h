@@ -43,6 +43,9 @@ namespace pxl
         /// @brief Reload a specific shader. The shader should already been added to the shader manager.
         bool Reload(const std::shared_ptr<Shader>& shader);
 
+        /// @brief Reload all the shaders stored in this shader manager.
+        void ReloadAll();
+
         void CompileAll(const std::unique_ptr<GraphicsDevice>& graphicsDevice);
 
         // TODO

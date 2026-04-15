@@ -62,6 +62,12 @@ namespace pxl
         virtual const TextureMetadata& GetMetadata() const = 0;
     };
 
+    struct SubTexture
+    {
+        std::weak_ptr<Texture> Texture;
+        std::array<glm::vec2, 4> Coords;
+    };
+
     namespace Utils
     {
         inline uint32_t ToNumOfChannels(TextureFormat format)

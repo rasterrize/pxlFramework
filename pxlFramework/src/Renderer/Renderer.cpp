@@ -99,10 +99,6 @@ namespace pxl
             bufferSpecs.Data = indices.data();
             m_QuadIndexBuffer = m_GraphicsDevice->CreateBuffer(bufferSpecs);
 
-            PerspectiveSettings settings = {};
-            m_Camera3D = pxl::Camera::Create(settings);
-            m_Camera3D->SetPosition({ 0.0f, 0.0f, 5.0f });
-
             // Create graphics pipeline
             GraphicsPipelineSpecs quadPipelineSpecs = {};
             quadPipelineSpecs.BufferLayout = TexturedVertex::GetLayout();
@@ -131,6 +127,15 @@ namespace pxl
         {
             data.UniformBuffer = m_GraphicsDevice->CreateBuffer(uboSpecs);
         }
+
+        auto windowSize = config.Window->GetFramebufferSize().ToVec2();
+
+        // Setup 2D camera
+        OrthographicSettings orthoSettings = {};
+        orthoSettings.CameraSettings.NearClip = -1.0f;
+        orthoSettings.CameraSettings.FarClip = 1.0f;
+        orthoSettings.Sides = { 0.0f, windowSize.x, 0.0f, windowSize.y };
+        m_Camera2D = std::make_shared<pxl::OrthographicCamera>(orthoSettings);
 
         // Prepare white pixel texture
         std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
@@ -167,7 +172,54 @@ namespace pxl
 
     void Renderer::Submit(const Quad& quad)
     {
+        Submit(quad, nullptr);
+    }
+
+    void Renderer::Submit(const Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords)
+    {
         PXL_PROFILE_SCOPE;
+
+        if (texture)
+        {
+            PXL_ASSERT(m_TextureHandler->Get(texture) != UINT32_MAX);
+        }
+
+        auto q = Process(quad);
+
+        auto& batch = *m_CurrentFrameData->QuadBatch;
+        if (batch.GetVertexSpaceLeft() < RendererConstants::k_VerticesPerQuad)
+            batch.Flush(m_GraphicsDevice);
+
+        // NOTE: Flip the rotation due to vulkan using inverted y coordinates
+        auto transform = CalculateTransform(q.Position, glm::vec3(0, 0, -q.Rotation), { q.Size, 1.0f });
+
+        auto vertices = Quad::GetDefaultVertices();
+
+        uint32_t i = 0;
+        for (auto& vertex : vertices)
+        {
+            vertex.Position = transform * glm::vec4(vertex.Position, 1.0f);
+            vertex.Colour = q.Colour;
+            vertex.TexCoords = texCoords.at(i);
+            vertex.TexIndex = texture ? m_TextureHandler->Get(texture) : 0;
+
+            batch.AddVertex(vertex);
+            i++;
+        }
+    }
+
+    void Renderer::Submit(const Quad& quad, const SubTexture& subTexture)
+    {
+        PXL_PROFILE_SCOPE;
+
+        Submit(quad, subTexture.Texture.lock(), subTexture.Coords);
+    }
+
+    void Renderer::Submit(const Quad& quad, AnimatedTexture& animatedSprite)
+    {
+        PXL_PROFILE_SCOPE;
+
+        Submit(quad, animatedSprite.GetCurrentFrame());
     }
 
     void Renderer::Submit(const Line& line)
@@ -185,6 +237,20 @@ namespace pxl
     void Renderer::Flush()
     {
         PXL_PROFILE_SCOPE;
+
+        auto& quadBatch = *m_CurrentFrameData->QuadBatch;
+        if (quadBatch.CanFlush())
+        {
+            auto vertexCount = quadBatch.UploadData();
+
+            DrawParams params;
+            params.Pipeline = m_QuadPipeline;
+            params.VertexBuffers.push_back(quadBatch.GetCurrentVertexBuffer());
+            params.IndexCount = vertexCount * 1.5f;
+            params.UniformBuffer = m_CurrentFrameData->UniformBuffer;
+            params.TextureHandler = m_TextureHandler;
+            m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);
+        }
     }
 
     void Renderer::Begin()
@@ -256,26 +322,11 @@ namespace pxl
 
     void Renderer::ReloadPipelines()
     {
-        std::vector<std::shared_ptr<GraphicsPipeline>> pipelines = {
-            m_QuadPipeline
-        };
+        m_ShaderManager->ReloadAll();
 
-        for (const auto& pipeline : pipelines)
-        {
-            auto specs = pipeline->GetSpecs();
+        m_QuadPipeline->Recreate();
+    }
 
-            // NOTE: will reload shaders multiple times if they are used by multiple pipelines
-            for (const auto& [stage, shader] : specs.Shaders)
-            {
-                if (m_ShaderManager->Reload(shader) != true)
-                {
-                    // Shader couldn't be reloaded continue
-                    continue;
-                }
-            }
-
-            pipeline->Recreate();
-        }
     std::shared_ptr<Texture> Renderer::CreateTexture(const TextureSpecs& specs)
     {
         auto texture = m_GraphicsDevice->CreateTexture(specs);
@@ -295,10 +346,96 @@ namespace pxl
         // clang-format on
     }
 
+    glm::vec2 Renderer::PositionOfAnchorOnRect(const RectF& rect, Anchor2D anchor)
     {
+        switch (anchor)
+        {
+            case Anchor2D::Centre:       return glm::vec2(rect.Right / 2.0f, rect.Top / 2.0f);
+            case Anchor2D::CentreLeft:   return glm::vec2(rect.Left, rect.Top / 2.0f);
+            case Anchor2D::CentreRight:  return glm::vec2(rect.Right, rect.Top / 2.0f);
+            case Anchor2D::TopLeft:      return glm::vec2(rect.Left, rect.Top);
+            case Anchor2D::TopCentre:    return glm::vec2(rect.Right / 2.0f, rect.Top);
+            case Anchor2D::TopRight:     return glm::vec2(rect.Right, rect.Top);
+            case Anchor2D::BottomLeft:   return glm::vec2(rect.Left, rect.Bottom);
+            case Anchor2D::BottomCentre: return glm::vec2(rect.Right / 2.0f, rect.Bottom);
+            case Anchor2D::BottomRight:  return glm::vec2(rect.Right, rect.Bottom);
+            default:                     return glm::vec2(0.0f);
+        }
+    }
 
+    glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad& quad)
+    {
+        auto offset = glm::vec2(0);
+        switch (quad.Origin)
+        {
+            case Origin2D::BottomLeft:
+            {
+                offset.x += quad.Size.x / 2.0f;
+                offset.y += quad.Size.y / 2.0f;
+                break;
+            }
+            case Origin2D::BottomCentre:
+            {
+                offset.y += quad.Size.y / 2.0f;
+                break;
+            }
+        }
 
+        return offset;
+    }
 
+    Quad Renderer::Process(const Quad& quad)
+    {
+        auto q = quad;
+        RectF fbRect = m_Camera2D->GetSides();
+        glm::vec2 fbSize = { fbRect.Right, fbRect.Top };
+        q.Position += glm::vec3(PositionOfAnchorOnRect(fbRect, q.Anchor), 0);
+
+        // TODO: condense the code
+        switch (q.Scaling)
+        {
+            case Scaling2D::RelativeX:    q.Size.x *= fbSize.x; break;
+            case Scaling2D::RelativeY:    q.Size.y *= fbSize.y; break;
+            case Scaling2D::RelativeBoth: q.Size *= fbSize; break;
+            case Scaling2D::ScaleUpToFit:
+            {
+                auto qAspect = q.Size.x / q.Size.y;
+                auto fbAspect = fbSize.x / fbSize.y;
+
+                if (fbAspect < qAspect)
+                {
+                    // scale by x
+                    q.Size *= fbSize.x / q.Size.x;
+                }
+                else
+                {
+                    // scale by y
+                    q.Size *= fbSize.y / q.Size.y;
+                }
+
+                break;
+            }
+            case Scaling2D::ScaleDownToFit:
+            {
+                if (q.Size.x > fbSize.x)
+                {
+                    // scale by x
+                    q.Size *= fbSize.x / q.Size.x;
+                }
+                else if (q.Size.y > fbSize.y)
+                {
+                    // scale by y
+                    q.Size *= fbSize.y / q.Size.y;
+                }
+
+                break;
+            }
+        }
+
+        // NOTE: must be done after scaling
+        q.Position += glm::vec3(OffsetOfOriginOnQuad(q), 0);
+
+        return q;
     }
 
     void Renderer::OnWindowFBResize(const WindowFBResizeEvent& e)
@@ -307,5 +444,8 @@ namespace pxl
             return;
 
         m_GraphicsDevice->OnWindowResize();
+
+        // TODO: TEMP
+        m_Camera2D->SetSides({ 0.0f, e.GetSize().ToVec2().x, 0.0f, e.GetSize().ToVec2().y });
     }
 }

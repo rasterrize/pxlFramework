@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Camera.h"
 #include "Core/Events/EventHandler.h"
 #include "Core/Events/WindowEvents.h"
+#include "Core/Rect.h"
 #include "Core/Window.h"
 #include "Renderer/AnimatedTexture.h"
 #include "Renderer/Camera.h"
@@ -51,6 +51,9 @@ namespace pxl
 
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(const Quad& quad);
+        void Submit(const Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords = Quad::GetDefaultTexCoords());
+        void Submit(const Quad& quad, const SubTexture& subTexture);
+        void Submit(const Quad& quad, AnimatedTexture& animatedSprite);
 
         /// @brief Submits a line primitive to the renderer to be drawn.
         void Submit(const Line& line);
@@ -76,7 +79,9 @@ namespace pxl
         /// @brief Clears the shader cache directory.
         void ClearShaderCache() { m_ShaderManager->ClearCache(); }
 
-        std::shared_ptr<Camera> GetCamera3D() const { return m_Camera3D; }
+        std::shared_ptr<Texture> CreateTexture(const TextureSpecs& specs);
+
+        std::shared_ptr<OrthographicCamera> GetCamera2D() const { return m_Camera2D; }
 
     private:
         friend class Application;
@@ -87,7 +92,11 @@ namespace pxl
 
         glm::mat4 CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
-        void ResetFrameStats() { memset(&m_FrameStats, 0, sizeof(FrameStats)); }
+        // TODO: general function, move into utils or something
+        glm::vec2 PositionOfAnchorOnRect(const RectF& rect, Anchor2D anchor);
+        glm::vec2 OffsetOfOriginOnQuad(const Quad& quad);
+
+        Quad Process(const Quad& quad);
 
         void OnWindowFBResize(const WindowFBResizeEvent& e);
 
@@ -118,6 +127,7 @@ namespace pxl
         std::shared_ptr<GraphicsPipeline> m_QuadPipeline = nullptr;
 
         std::shared_ptr<Camera> m_Camera3D = nullptr;
+        std::shared_ptr<OrthographicCamera> m_Camera2D = nullptr;
 
         std::vector<PerFrameData> m_PerFrameData;
         PerFrameData* m_CurrentFrameData;

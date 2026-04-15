@@ -75,6 +75,14 @@ namespace pxl
         return m_Shaders.at(fileName);
     }
 
+    void ShaderManager::ReloadAll()
+    {
+        for (auto& [id, shader] : m_Shaders)
+        {
+            Reload(shader);
+        }
+    }
+
     void ShaderManager::CompileAll(const std::unique_ptr<GraphicsDevice>& graphicsDevice)
     {
         for (const auto& [sourcePath, shaderFile] : m_CompilationQueue)
