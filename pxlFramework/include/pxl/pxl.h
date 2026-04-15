@@ -40,7 +40,6 @@
 #include "../src/Renderer/OrthographicCamera.h"
 #include "../src/Renderer/PerspectiveCamera.h"
 #include "../src/Renderer/Primitives/2D/Quad.h"
-#include "../src/Renderer/Primitives/2D/Sprite.h"
 #include "../src/Renderer/Renderer.h"
 #include "../src/Renderer/RendererConfig.h"
 #include "../src/Renderer/Shader.h"

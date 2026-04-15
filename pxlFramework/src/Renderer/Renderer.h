@@ -13,7 +13,6 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/Primitives/2D/Quad.h"
-#include "Renderer/Primitives/2D/Sprite.h"
 #include "Renderer/Primitives/3D/Line.h"
 #include "Renderer/RendererConfig.h"
 #include "Renderer/Shader.h"

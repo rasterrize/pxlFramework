@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cfloat>
 #include <random>
 
 namespace pxl
