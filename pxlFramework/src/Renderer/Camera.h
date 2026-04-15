@@ -3,69 +3,78 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 
+#include "Core/Rect.h"
+
 namespace pxl
 {
-    class OrthographicCamera;
-    class PerspectiveCamera;
+    struct CameraSettings
+    {
+        float NearClip = 0.001f;
+        float FarClip = 1000.0f;
+        float AspectRatio = 16.0f / 9.0f;
+    };
 
     struct PerspectiveSettings
     {
+        CameraSettings CameraSettings = {};
         float FOV = 60.0f;
-        float AspectRatio = 16.0f / 9.0f;
-        float NearClip = 0.001f;
-        float FarClip = 1000.0f;
     };
 
     struct OrthographicSettings
     {
-        float AspectRatio = 16.0f / 9.0f;
-        float NearClip = -1.0f;
-        float FarClip = 1.0f;
+        CameraSettings CameraSettings = {};
         float Zoom = 1.0f;
-        float Left, Right, Bottom, Top;
-        bool UseAspectRatio = true;
+        RectF Sides = { -1.0f, 1.0f, -1.0f, 1.0f };
     };
 
     class Camera
     {
     public:
-        Camera();
-        virtual ~Camera();
-
-        virtual void Update() = 0;
+        virtual ~Camera() = default;
 
         const glm::vec3& GetPosition() const { return m_Position; }
         const glm::vec3& GetRotation() const { return m_Rotation; }
+
+        void SetPosition(const glm::vec3& position)
+        {
+            m_Position = position;
+            RecalculateView();
+        }
+        void SetRotation(const glm::vec3& rotation)
+        {
+            m_Rotation = rotation;
+            RecalculateView();
+        }
+
+        void Translate(const glm::vec3& translation)
+        {
+            m_Position += translation;
+            RecalculateView();
+        }
+
+        void Translate(float translation, const glm::vec3& vector)
+        {
+            m_Position += vector * translation;
+            RecalculateView();
+        }
+
+        void Rotate(const glm::vec3& rotation)
+        {
+            m_Rotation += rotation;
+            RecalculateView();
+        }
 
         glm::vec3 GetForwardVector();
         glm::vec3 GetUpVector();
         glm::vec3 GetRightVector();
 
-        void SetPosition(const glm::vec3& position) { m_Position = position; }
-        void SetRotation(const glm::vec3& rotation) { m_Rotation = rotation; }
-
-        glm::mat4 GetViewMatrix() const { return m_ViewMatrix; }
-        glm::mat4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
+        const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
+        const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
         glm::mat4 GetViewProjectionMatrix() const { return m_ProjectionMatrix * m_ViewMatrix; }
-
-        /// @brief Create and return a new PerspectiveCamera.
-        /// @param settings Perspective camera settings.
-        /// @return The camera.
-        static std::shared_ptr<PerspectiveCamera> CreatePerspective(const PerspectiveSettings& settings);
-        static std::shared_ptr<Camera> Create(const PerspectiveSettings& settings);
-
-        /// @brief Create and return a new OrthographicCamera.
-        /// @param settings Orthographic camera settings.
-        /// @return The camera.
-        static std::shared_ptr<OrthographicCamera> CreateOrthographic(const OrthographicSettings& settings);
-        static std::shared_ptr<Camera> Create(const OrthographicSettings& settings);
 
     protected:
         virtual void RecalculateProjection() = 0;
-
-    private:
-        friend class Application;
-        static void UpdateAll();
+        virtual void RecalculateView() = 0;
 
     protected:
         glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
@@ -73,8 +82,5 @@ namespace pxl
 
         glm::vec3 m_Position = glm::vec3(0.0f);
         glm::vec3 m_Rotation = glm::vec3(0.0f);
-
-    private:
-        static inline std::vector<Camera*> s_Cameras;
     };
 }

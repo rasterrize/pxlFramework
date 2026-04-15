@@ -432,7 +432,6 @@ namespace pxl
                 case BufferDataType::IVec2: return VK_FORMAT_R32G32_SINT;
                 case BufferDataType::IVec3: return VK_FORMAT_R32G32B32_SINT;
                 case BufferDataType::IVec4: return VK_FORMAT_R32G32B32A32_SINT;
-                case BufferDataType::Bool:  return VK_FORMAT_R32_SINT; // TODO: check if this is correct
                 default:                    return VK_FORMAT_UNDEFINED;
             }
         }

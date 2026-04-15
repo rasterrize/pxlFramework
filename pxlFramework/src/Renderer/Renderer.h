@@ -49,14 +49,6 @@ namespace pxl
         /// @return The renderer's GraphicsDevice.
         GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
 
-        void SetClearColour(const glm::vec4& colour);
-
-        void SetVerticalSync(bool value);
-
-        void SetTripleBuffering(bool value);
-
-        void SetAllowTearing(bool value);
-
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(const Quad& quad);
 
@@ -69,6 +61,14 @@ namespace pxl
         /// @brief Initializes ImGui. When this renderer is associated with an application, the application's OnGUIRender function will be called.
         void InitImGui();
         bool IsImGuiInitialized() const { return m_ImGuiRenderer != nullptr; }
+
+        void SetClearColour(const glm::vec4& colour);
+
+        void SetVerticalSync(bool value);
+
+        void SetTripleBuffering(bool value);
+
+        void SetAllowTearing(bool value);
 
         /// @brief Recreates all pipelines and reloads their shaders.
         void ReloadPipelines();
@@ -117,11 +117,11 @@ namespace pxl
         std::shared_ptr<GPUBuffer> m_QuadIndexBuffer = nullptr;
         std::shared_ptr<GraphicsPipeline> m_QuadPipeline = nullptr;
 
+        std::shared_ptr<Camera> m_Camera3D = nullptr;
 
         std::vector<PerFrameData> m_PerFrameData;
         PerFrameData* m_CurrentFrameData;
 
-        std::shared_ptr<Camera> m_Camera3D = nullptr;
         uint32_t m_FrameIndex = 0;
     };
 }

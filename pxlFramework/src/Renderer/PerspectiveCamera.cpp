@@ -8,9 +8,17 @@ namespace pxl
         : m_Settings(settings)
     {
         RecalculateProjection();
+        RecalculateView();
     }
 
-    void PerspectiveCamera::Update()
+    void PerspectiveCamera::RecalculateProjection()
+    {
+        PXL_PROFILE_SCOPE;
+
+        // m_ProjectionMatrix = glm::perspective(glm::radians(m_Settings.FOV), m_Settings.AspectRatio, m_Settings.NearClip, m_Settings.FarClip);
+    }
+
+    void PerspectiveCamera::RecalculateView()
     {
         PXL_PROFILE_SCOPE;
 
@@ -22,12 +30,5 @@ namespace pxl
         // clang-format off
         
         m_ViewMatrix = glm::inverse(transform);
-    }
-
-    void PerspectiveCamera::RecalculateProjection()
-    {
-        PXL_PROFILE_SCOPE;
-        
-        m_ProjectionMatrix = glm::perspective(glm::radians(m_Settings.FOV), m_Settings.AspectRatio, m_Settings.NearClip, m_Settings.FarClip);
     }
 }

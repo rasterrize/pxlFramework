@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec4.hpp>
+
 #include "GPUBuffer.h"
 #include "GraphicsDevice.h"
 #include "GraphicsPipeline.h"
@@ -9,13 +11,21 @@ namespace pxl
 {
     struct DrawParams
     {
+        /// @brief Vertex buffers to bind for the draw call.
         std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
+
+        /// @brief Graphics pipeline to bind for the draw call
         std::shared_ptr<GraphicsPipeline> Pipeline = nullptr;
+
+        /// @brief Uniform buffer to bind for the draw call.
         std::shared_ptr<GPUBuffer> UniformBuffer = nullptr;
 
         std::shared_ptr<TextureHandler> TextureHandler = nullptr;
 
+        /// @brief Number of vertices to draw. Only applies to Draw() function.
         uint32_t VertexCount = 0;
+
+        /// @brief Number of indices to draw. Only applies to DrawIndexed function.
         uint32_t IndexCount = 0;
 
         // TODO: extend with vertex/index offsets, instance count, etc
@@ -52,7 +62,5 @@ namespace pxl
 
         /// @brief Sets the clear colour used when a new frame begins rendering.
         virtual void SetClearColour(const glm::vec4& colour) = 0;
-
-
     };
 }

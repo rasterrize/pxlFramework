@@ -6,7 +6,8 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 #include "Core/Image.h"
 #include "Core/Size.h"

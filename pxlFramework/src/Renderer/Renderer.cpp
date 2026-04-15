@@ -1,11 +1,13 @@
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
 #include <glm/gtc/quaternion.hpp>
 
-#include "BufferLayout.h"
-#include "GPUBuffer.h"
-#include "UniformLayout.h"
-#include "Vertices.h"
+#include "Renderer.h"
+#include "Renderer/BufferLayout.h"
+#include "Renderer/GPUBuffer.h"
+#include "Renderer/OrthographicCamera.h"
+#include "Renderer/UniformLayout.h"
+#include "Renderer/Vertices.h"
 
 namespace pxl
 {
@@ -171,17 +173,13 @@ namespace pxl
     void Renderer::Submit(const Line& line)
     {
         PXL_PROFILE_SCOPE;
+        PXL_LOG_ERROR(LogArea::Renderer, "Line rendering not implemented yet");
     }
 
     void Renderer::Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
         PXL_PROFILE_SCOPE;
-
-        if (!mesh)
-        {
-            PXL_LOG_WARN(LogArea::Renderer, "Failed to draw mesh. Mesh is null");
-            return;
-        }
+        PXL_LOG_ERROR(LogArea::Renderer, "Mesh rendering not implemented yet");
     }
 
     void Renderer::Flush()
@@ -293,7 +291,7 @@ namespace pxl
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
-            * glm::scale(glm::mat4(1.0f), { scale.x, scale.y, scale.z });
+            * glm::scale(glm::mat4(1.0f), scale);
         // clang-format on
     }
 

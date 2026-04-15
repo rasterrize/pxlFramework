@@ -3,7 +3,6 @@
 #include "Config.h"
 #include "Input.h"
 #include "Platform.h"
-#include "Renderer/Camera.h"
 #include "Window.h"
 
 using namespace std::literals;
@@ -62,7 +61,6 @@ namespace pxl
 
                 if (m_Renderer)
                 {
-                    Camera::UpdateAll(); // TODO: Do something else here
                     m_Renderer->Begin();
                     OnRender(*m_Renderer.get());
 

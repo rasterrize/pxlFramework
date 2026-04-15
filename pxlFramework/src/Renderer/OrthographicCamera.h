@@ -8,53 +8,18 @@ namespace pxl
     {
     public:
         OrthographicCamera(const OrthographicSettings& settings);
-        virtual ~OrthographicCamera() = default;
 
-        virtual void Update() override;
+        RectF GetSides() const { return m_Settings.Sides; }
 
-        void SetZoom(float zoom)
+        void SetSides(RectF rect)
         {
-            m_Settings.Zoom = zoom;
-            m_Settings.UseAspectRatio ? RecalculateSidesWithAspectRatio() : RecalculateSides();
-            RecalculateProjection();
-        }
-        float GetZoom() const { return m_Settings.Zoom; }
-
-        void SetSides(float left, float right, float bottom, float top)
-        {
-            m_Settings.Left = left;
-            m_Settings.Right = right;
-            m_Settings.Bottom = bottom;
-            m_Settings.Top = top;
-        }
-
-        void SetLeft(float left)
-        {
-            m_Settings.Left = left;
-            RecalculateProjection();
-        }
-        void SetRight(float right)
-        {
-            m_Settings.Right = right;
-            RecalculateProjection();
-        }
-        void SetBottom(float bottom)
-        {
-            m_Settings.Bottom = bottom;
-            RecalculateProjection();
-        }
-        void SetTop(float top)
-        {
-            m_Settings.Top = top;
+            m_Settings.Sides = rect;
             RecalculateProjection();
         }
 
     protected:
         virtual void RecalculateProjection() override;
-
-    private:
-        void RecalculateSides();
-        void RecalculateSidesWithAspectRatio();
+        virtual void RecalculateView() override;
 
     private:
         OrthographicSettings m_Settings = {};

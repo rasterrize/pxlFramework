@@ -10,24 +10,17 @@ namespace pxl
         PerspectiveCamera(const PerspectiveSettings& settings);
         virtual ~PerspectiveCamera() = default;
 
-        virtual void Update() override;
-
         void SetFOV(float fov)
         {
             m_Settings.FOV = fov;
             RecalculateProjection();
         }
-        float GetFOV() const { return m_Settings.FOV; }
 
-        void SetAspectRatio(float aspect)
-        {
-            m_Settings.AspectRatio = aspect;
-            RecalculateProjection();
-        }
-        float GetAspectRatio() const { return m_Settings.AspectRatio; }
+        float GetFOV() const { return m_Settings.FOV; }
 
     protected:
         virtual void RecalculateProjection() override;
+        virtual void RecalculateView() override;
 
     private:
         PerspectiveSettings m_Settings = {};
