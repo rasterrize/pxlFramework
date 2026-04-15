@@ -45,7 +45,7 @@ namespace TestApp
         pxl::Quad m_ColourQuad;
         pxl::Quad m_TextureQuad;
 
-        uint32_t m_RotationOffset = 0;
+        uint32_t m_RotationOffset = 3;
         uint32_t m_QuadCount = 1;
         float m_RotationSpeed = 10.0f;
 

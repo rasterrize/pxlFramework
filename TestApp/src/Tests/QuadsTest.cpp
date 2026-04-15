@@ -31,8 +31,8 @@ namespace TestApp
         m_ColourQuad = {
             .Position = Vec3(0),
             .Rotation = 0,
-            .Size     = Vec2(300, 3000),
-            .Colour   = Colour::RGBA(137.0f, 0.0f, 225.0f, 255.0f),
+            .Size     = Vec2(350, 350),
+            .Colour   = Colour::RGBA(86, 62, 223, 255),
             .Origin   = Origin2D::Centre,
             .Anchor   = Anchor2D::Centre,
         };

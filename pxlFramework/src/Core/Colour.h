@@ -8,12 +8,14 @@ namespace pxl
 {
     namespace Colour
     {
-        inline glm::vec3 RGB(float r, float g, float b)
+        template<typename T>
+        inline glm::vec3 RGB(T r, T g, T b)
         {
             return glm::clamp(glm::vec3(r, g, b) / glm::vec3(255.0f), 0.0f, 1.0f);
         }
 
-        inline glm::vec4 RGBA(float r, float g, float b, float a)
+        template<typename T>
+        inline glm::vec4 RGBA(T r, T g, T b, T a)
         {
             return glm::clamp(glm::vec4(r, g, b, a) / glm::vec4(255.0f), 0.0f, 1.0f);
         }
