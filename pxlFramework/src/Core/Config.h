@@ -59,6 +59,6 @@ namespace pxl
         static inline bool s_AutoCreate = true;
 
         // Auto-save when the app closes
-        static inline bool s_AutoSave = true;
+        static inline bool s_AutoSave = false;
     };
 }
