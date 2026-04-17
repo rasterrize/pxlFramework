@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.31)
 project(stb)
 
 add_library(stb STATIC stb_image.h stb_image.cpp stb_image_write.h stb_image_write.cpp)

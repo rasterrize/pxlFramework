@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.31)
 
 # Glob source and header files
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp)

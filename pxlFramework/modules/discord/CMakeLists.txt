@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.31)
 project(pxlFramework-discord VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(pxlFramework-discord STATIC src/DiscordRPC.h src/DiscordRPC.cpp)
