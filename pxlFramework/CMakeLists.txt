@@ -84,7 +84,7 @@ if(PXL_ENABLE_IMGUI)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY rasterrize/imgui
-        GIT_TAG 0b6e01053c60c828b5625bd2eb80a9b9525e31d1
+        GIT_TAG 1ba07ec10c7e143bf37c7d565bec90524bbb96d8
         OPTIONS
         "IMGUI_USE_BACKEND_GLFW ON"
         "IMGUI_USE_BACKEND_VULKAN ON"
