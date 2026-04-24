@@ -12,7 +12,7 @@
 namespace pxl
 {
     Renderer::Renderer(const RendererConfig& config)
-        : m_Config(config), m_PerFrameData(RendererConstants::k_MaxFramesInFlight)
+        : m_Config(config), m_PerFrameData(RendererConstants::MaxFramesInFlight)
     {
         PXL_PROFILE_SCOPE;
 
@@ -30,7 +30,7 @@ namespace pxl
         GraphicsDeviceSpecs deviceSpecs = {
             .TypePreference = GPUType::Discrete,
             .Window = config.Window,
-            .FramesInFlightCount = RendererConstants::k_MaxFramesInFlight,
+            .FramesInFlightCount = RendererConstants::MaxFramesInFlight,
             .VerticalSync = config.VerticalSync,
             .AllowTearing = config.AllowTearing,
             .TripleBuffering = config.TripleBuffering,
@@ -43,7 +43,7 @@ namespace pxl
 
         // Init shader manager
         ShaderManagerConfig shaderManagerConfig = {};
-        shaderManagerConfig.ShaderDirectories.push_back(RendererConstants::k_FrameworkShaderDirectory);
+        shaderManagerConfig.ShaderDirectories.push_back(RendererConstants::FrameworkShaderDirectory);
         shaderManagerConfig.CacheDirectory = m_Config.ShaderCacheDirectory;
         shaderManagerConfig.UseCache = m_Config.UseShaderCache;
 
@@ -75,14 +75,14 @@ namespace pxl
             constexpr std::array<uint32_t, 6> defaultIndices = Quad::GetDefaultIndices();
 
             uint32_t offset = 0;
-            for (size_t i = 0; i < indices.size(); i += RendererConstants::k_IndicesPerQuad)
+            for (size_t i = 0; i < indices.size(); i += RendererConstants::IndicesPerQuad)
             {
-                for (uint32_t j = 0; j < RendererConstants::k_IndicesPerQuad; j++)
+                for (uint32_t j = 0; j < RendererConstants::IndicesPerQuad; j++)
                 {
                     indices[i + j] = defaultIndices[j] + offset;
                 }
 
-                offset += RendererConstants::k_VerticesPerQuad;
+                offset += RendererConstants::VerticesPerQuad;
             }
 
             // Prepare vertex batching

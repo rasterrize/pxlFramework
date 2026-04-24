@@ -22,16 +22,6 @@
 
 namespace pxl
 {
-    namespace RendererConstants
-    {
-        static const std::filesystem::path k_FrameworkShaderDirectory = PXL_RESOURCE_DIRECTORY "/shaders";
-
-        static const uint32_t k_VerticesPerQuad = 4;
-        static const uint32_t k_IndicesPerQuad = 6;
-
-        static const uint32_t k_MaxFramesInFlight = 2;
-    }
-
     class Renderer
     {
     public:
