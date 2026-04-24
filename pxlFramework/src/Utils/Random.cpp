@@ -1,7 +1,7 @@
 
 #include "Random.h"
 
-#include "Core/Platform.h"
+#include "Platform/Platform.h"
 
 namespace pxl
 {
@@ -41,6 +41,6 @@ namespace pxl
     {
         // NOTE: The seed generation I chucked together is probably either incorrect
         // or unnecessarily complex, but I'm not a mathematician and it's good enough for now.
-        return static_cast<uint32_t>(Platform::GetTime() * 1000.0f + s_Seed + std::random_device()());
+        return static_cast<uint32_t>(Platform::GetTimeRunning() * 1000.0f + s_Seed + std::random_device()());
     }
 }

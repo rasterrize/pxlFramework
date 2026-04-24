@@ -26,6 +26,7 @@ namespace pxl
         Audio,
         Physics,
         Assert,
+        Platform,
         Other,
     };
 

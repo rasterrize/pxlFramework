@@ -159,6 +159,7 @@ target_link_libraries(${PROJECT_NAME}
     Vulkan::volk
     Vulkan::shaderc_combined
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>
+    $<$<PLATFORM_ID:Windows>:winmm.lib>
 )
 
 # TODO: find out how to make this private (pxlFramework consumers should not have access to this)

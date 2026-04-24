@@ -13,7 +13,6 @@
 #include "../src/Core/KeyCodes.h"
 #include "../src/Core/Logging/ApplicationLog.h"
 #include "../src/Core/MouseCodes.h"
-#include "../src/Core/Platform.h"
 #include "../src/Core/Size.h"
 #include "../src/Core/Stopwatch.h"
 #include "../src/Core/Window.h"
@@ -56,6 +55,9 @@
 #include "../src/Utils/Easing.h"
 #include "../src/Utils/FileSystem.h"
 #include "../src/Utils/Random.h"
+
+// Platform
+#include "../src/Platform/Platform.h"
 
 // Debug
 #include "../src/Debug/Profiler.h"

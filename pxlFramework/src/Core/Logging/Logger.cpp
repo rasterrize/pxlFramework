@@ -35,6 +35,7 @@ namespace pxl
             case LogArea::Audio:      return "Audio";
             case LogArea::Physics:    return "Physics";
             case LogArea::Assert:     return "Assert";
+            case LogArea::Platform:   return "Platform";
             case LogArea::Other:      return "Other";
         }
 

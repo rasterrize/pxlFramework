@@ -31,6 +31,7 @@ namespace pxl
         ShutdownRenderer();
         Input::Shutdown();
         Window::Shutdown();
+        ShutdownPlatformingBackend();
 
         s_Instance = nullptr;
 

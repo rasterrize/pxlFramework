@@ -8,6 +8,10 @@
 #include "Renderer/Vulkan/VulkanUtils.h"
 #include "Utils/FileSystem.h"
 
+#ifdef _WIN64
+    #include "Platform/Windows/WindowsUtils.h"
+#endif
+
 namespace pxl
 {
     static constexpr uint8_t k_MaxWindowCount = 5;

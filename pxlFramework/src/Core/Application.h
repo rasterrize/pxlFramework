@@ -97,6 +97,8 @@ namespace pxl
 
     private:
         void LimitFPS();
+        void InitPlatformingBackend();
+        void ShutdownPlatformingBackend();
 
     private:
         static inline Application* s_Instance = nullptr;

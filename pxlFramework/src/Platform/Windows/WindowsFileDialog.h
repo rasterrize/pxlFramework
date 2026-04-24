@@ -1,17 +1,15 @@
-#include "Platform.h"
-
-#include <GLFW/glfw3native.h>
-
+#pragma once
 #ifdef _WIN64
+
+    #include <GLFW/glfw3native.h>
     #include <commdlg.h>
-    #include <dwmapi.h>
-#endif
 
-namespace pxl
+    #include "Core/Window.h"
+
+namespace pxl::Platform::Windows
 {
-    std::string Platform::OpenFile(const std::shared_ptr<Window> window, const char* filter)
+    static std::string OpenFileDialog(const std::shared_ptr<Window>& window, const char* filter)
     {
-#ifdef _WIN64
         OPENFILENAMEA ofn;
         CHAR szFile[260] = { 0 };
         ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -22,17 +20,14 @@ namespace pxl
         ofn.lpstrFilter = filter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-        if (GetOpenFileNameA(&ofn) == TRUE)
-        {
+        if (GetOpenFileNameA(&ofn))
             return ofn.lpstrFile;
-        }
-#endif
+
         return std::string();
     }
 
-    std::string Platform::SaveFile(const std::shared_ptr<Window> window, const char* filter)
+    static std::string SaveFileDialog(const std::shared_ptr<Window>& window, const char* filter)
     {
-#ifdef _WIN64
         OPENFILENAMEA ofn;
         CHAR szFile[260] = { 0 };
         ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -43,20 +38,11 @@ namespace pxl
         ofn.lpstrFilter = filter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-        if (GetSaveFileNameA(&ofn) == TRUE)
-        {
+        if (GetSaveFileNameA(&ofn))
             return ofn.lpstrFile;
-        }
-#endif
-        return std::string();
-    }
 
-    void Platform::UseImmersiveDarkMode(GLFWwindow* window)
-    {
-#ifdef _WIN64
-        auto hwnd = glfwGetWin32Window(window);
-        int useImmersiveDarkMode = 1;
-        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useImmersiveDarkMode, sizeof(int));
-#endif
+        return std::string();
     }
 }
+
+#endif
