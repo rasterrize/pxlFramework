@@ -12,22 +12,22 @@ namespace pxl
         UpdateState();
     }
 
-    bool Gamepad::IsButtonHeld(GamepadButton button)
+    bool Gamepad::IsButtonHeld(GamepadButton button) const
     {
         return m_State.buttons[static_cast<int32_t>(button)] == GLFW_PRESS;
     }
 
-    float Gamepad::GetAxis(GamepadAxis axis)
+    float Gamepad::GetAxisValue(GamepadAxis axis) const
     {
         return m_State.axes[static_cast<int32_t>(axis)];
     }
 
-    std::string Gamepad::GetName()
+    std::string Gamepad::GetName() const
     {
         return glfwGetGamepadName(m_JID);
     }
 
-    std::string Gamepad::GetGUID()
+    std::string Gamepad::GetGUID() const
     {
         return glfwGetJoystickGUID(m_JID);
     }
@@ -55,6 +55,12 @@ namespace pxl
 
             if (axisValue == m_PreviousState.axes[i])
                 continue;
+
+            if (Utils::IsGamepadAxisAThumbstick(static_cast<GamepadAxis>(i)))
+            {
+                if (!(axisValue <= -m_ThumbstickDeadzone || axisValue >= m_ThumbstickDeadzone))
+                    continue;
+            }
 
             auto axisChangeEvent = std::make_unique<GamepadAxisChangeEvent>(m_JID, static_cast<GamepadAxis>(i), axisValue);
             m_EventCallback(std::move(axisChangeEvent));
