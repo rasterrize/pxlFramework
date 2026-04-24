@@ -43,7 +43,7 @@ namespace pxl
         }
 
     private:
-        std::function<void(EventT& e)> m_UserCallback = nullptr;
+        std::function<void(EventT& e)> m_UserCallback;
     };
 
     template<typename T>

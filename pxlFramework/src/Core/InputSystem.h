@@ -13,10 +13,10 @@ namespace pxl
         std::unordered_map<KeyCode, int> KeyStates;
         std::unordered_map<MouseCode, int> MBStates;
 
-        double VerticalScrollOffset = 0.0f;
-        double HorizontalScrollOffset = 0.0f;
+        double VerticalScrollOffset = 0.0;
+        double HorizontalScrollOffset = 0.0;
 
-        glm::dvec2 CursorPosition = glm::dvec2(0.0f);
+        glm::dvec2 CursorPosition = {};
     };
 
     class InputSystem
@@ -32,9 +32,9 @@ namespace pxl
     private:
         GLFWwindow* m_Window = nullptr;
 
-        InputState m_CurrentInputState;
-        InputState m_PreviousInputState;
+        InputState m_CurrentInputState = {};
+        InputState m_PreviousInputState = {};
 
-        std::function<void(std::unique_ptr<Event>)> m_EventCallback = nullptr;
+        std::function<void(std::unique_ptr<Event>)> m_EventCallback;
     };
 }

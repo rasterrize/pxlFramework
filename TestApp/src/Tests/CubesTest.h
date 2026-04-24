@@ -19,7 +19,7 @@ namespace TestApp
         virtual std::string ToString() const override { return "CubesTest"; }
 
     private:
-        std::shared_ptr<pxl::Window> m_Window = nullptr;
-        std::shared_ptr<pxl::PerspectiveCamera> m_Camera = nullptr;
+        std::shared_ptr<pxl::Window> m_Window;
+        std::shared_ptr<pxl::PerspectiveCamera> m_Camera;
     };
 }

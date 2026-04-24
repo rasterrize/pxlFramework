@@ -9,9 +9,9 @@ namespace pxl
     {
         std::vector<SubTexture> Frames;
         uint32_t Framerate = 24;
-        float SpeedMultiplier = 1.0f;
+        float PlaybackSpeed = 1.0f;
         uint32_t FrameIndex = 0;
-        Stopwatch m_Stopwatch;
+        Stopwatch m_Stopwatch = {};
 
         void Start() { m_Stopwatch.Start(); }
         void Stop() { m_Stopwatch.Stop(); }
@@ -19,7 +19,7 @@ namespace pxl
 
         const SubTexture& GetCurrentFrame()
         {
-            float msPerFrame = 1000.0f / (static_cast<float>(Framerate) * SpeedMultiplier);
+            float msPerFrame = 1000.0f / (static_cast<float>(Framerate) * PlaybackSpeed);
             uint32_t framesElapsed = static_cast<uint32_t>(m_Stopwatch.GetElapsedMilliSec() / msPerFrame);
             if (framesElapsed > 0)
             {

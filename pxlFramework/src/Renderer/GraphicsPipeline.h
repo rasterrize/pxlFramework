@@ -41,7 +41,7 @@ namespace pxl
     struct GraphicsPipelineSpecs
     {
         std::unordered_map<ShaderStage, std::shared_ptr<Shader>> Shaders;
-        BufferLayout BufferLayout;
+        BufferLayout BufferLayout = {};
         PrimitiveTopology PrimitiveTopology = PrimitiveTopology::Triangle;
         PolygonMode PolygonMode = PolygonMode::Fill;
         CullMode CullMode = CullMode::None;

@@ -8,7 +8,7 @@ namespace TestApp
     {
         m_Window = Window::Create(windowSpecs);
 
-        RendererConfig rendererConfig;
+        RendererConfig rendererConfig = {};
         rendererConfig.Window = m_Window;
         rendererConfig.ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
         rendererConfig.VerticalSync = false;

@@ -12,7 +12,7 @@ namespace pxl
         std::vector<uint32_t> CompileGLSLToSPIRV(ShaderStage stage, const std::string& shaderSource, const std::string& shaderFileName);
 
     private:
-        shaderc::Compiler m_Compiler;
+        shaderc::Compiler m_Compiler = {};
     };
 
     namespace ShadercUtils

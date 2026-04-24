@@ -18,7 +18,7 @@ namespace pxl
 
         void Start()
         {
-            m_LastStartPoint = std::chrono::steady_clock::now();
+            m_StartPoint = std::chrono::steady_clock::now();
             m_Running = true;
         }
 
@@ -30,26 +30,32 @@ namespace pxl
 
         void Reset()
         {
-            m_LastStartPoint = std::chrono::steady_clock::now();
-            m_Elapsed = std::chrono::duration<float>::zero();
+            m_StartPoint = std::chrono::steady_clock::now();
+            m_Elapsed = std::chrono::duration<double>::zero();
         }
 
-        float GetElapsedSec()
+        double GetElapsedSec()
         {
             CalculateElapsed();
             return m_Elapsed.count();
         }
 
-        float GetElapsedMilliSec()
+        double GetElapsedMilliSec()
         {
             CalculateElapsed();
-            return GetElapsed<std::chrono::milliseconds, float>();
+            return std::chrono::duration<double, std::milli>(m_Elapsed).count();
         }
 
-        float GetElapsedMicroSec()
+        double GetElapsedMicroSec()
         {
             CalculateElapsed();
-            return GetElapsed<std::chrono::microseconds, float>();
+            return std::chrono::duration<double, std::micro>(m_Elapsed).count();
+        }
+
+        double GetElapsedNanoSec()
+        {
+            CalculateElapsed();
+            return std::chrono::duration<double, std::nano>(m_Elapsed).count();
         }
 
         bool IsRunning() { return m_Running; }
@@ -60,20 +66,13 @@ namespace pxl
             if (!m_Running)
                 return;
 
-            m_Elapsed += std::chrono::steady_clock::now() - m_LastStartPoint;
-            m_LastStartPoint = std::chrono::steady_clock::now();
-        }
-
-        template<typename timeT, typename outputT>
-        outputT GetElapsed()
-        {
-            return static_cast<outputT>(std::chrono::duration_cast<timeT>(m_Elapsed).count());
+            m_Elapsed = std::chrono::steady_clock::now() - m_StartPoint;
         }
 
     private:
         bool m_Running = false;
 
-        std::chrono::steady_clock::time_point m_LastStartPoint;
-        std::chrono::duration<float> m_Elapsed;
+        std::chrono::steady_clock::time_point m_StartPoint = {};
+        std::chrono::duration<double> m_Elapsed = std::chrono::duration<double>::zero();
     };
 }

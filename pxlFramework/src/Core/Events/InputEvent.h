@@ -19,6 +19,6 @@ namespace pxl
         const InputState& GetPreviousInputState() const { return m_InputSystem.lock()->GetPreviousState(); }
 
     private:
-        std::weak_ptr<InputSystem> m_InputSystem = {};
+        std::weak_ptr<InputSystem> m_InputSystem;
     };
 }

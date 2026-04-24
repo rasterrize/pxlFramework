@@ -9,7 +9,7 @@ namespace pxl
     struct ShaderFile
     {
         std::filesystem::path FileName;
-        ShaderStage Stage;
+        ShaderStage Stage = {};
     };
 
     struct ShaderManagerConfig
@@ -21,7 +21,7 @@ namespace pxl
         std::filesystem::path CacheDirectory;
 
         /// @brief Whether or not to cache compiled shaders to disk
-        bool UseCache;
+        bool UseCache = false;
     };
 
     /// @brief A class used for handling various management processes for shaders,
@@ -78,6 +78,6 @@ namespace pxl
         // Stores shaders using a unique string identifier (usually the shader's file name)
         std::unordered_map<std::filesystem::path, std::shared_ptr<Shader>> m_Shaders;
 
-        ShaderCompiler m_Compiler;
+        ShaderCompiler m_Compiler = {};
     };
 }

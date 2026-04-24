@@ -105,7 +105,7 @@ namespace pxl
         bool m_Minimized = false;
 
         std::unique_ptr<Renderer> m_Renderer;
-        std::unique_ptr<EventManager> m_EventManager = nullptr;
+        std::unique_ptr<EventManager> m_EventManager;
 
         float m_LastFrameTime = 0.0f;
         std::chrono::steady_clock::time_point m_FrameStartTime;

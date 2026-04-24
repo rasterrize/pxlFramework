@@ -24,8 +24,8 @@ namespace pxl
         int32_t m_JID = 0;
         std::function<void(std::unique_ptr<pxl::Event>)> m_EventCallback;
 
-        GLFWgamepadstate m_State;
-        GLFWgamepadstate m_PreviousState;
+        GLFWgamepadstate m_State = {};
+        GLFWgamepadstate m_PreviousState = {};
 
         // NOTE: used to avoid propagating events on the first update cycle
         bool m_FirstStateCheck = true;

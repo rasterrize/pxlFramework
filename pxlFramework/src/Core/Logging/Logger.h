@@ -59,8 +59,8 @@ namespace pxl
         };
 
     private:
-        static inline std::unique_ptr<spdlog::logger> s_FrameworkLogger = nullptr; // NOTE: uses special flag for log areas
-        static inline std::unique_ptr<spdlog::logger> s_ApplicationLogger = nullptr;
+        static inline std::unique_ptr<spdlog::logger> s_FrameworkLogger; // NOTE: uses special flag for log areas
+        static inline std::unique_ptr<spdlog::logger> s_ApplicationLogger;
 
         static inline LogArea s_CurrentArea = LogArea::None;
     };

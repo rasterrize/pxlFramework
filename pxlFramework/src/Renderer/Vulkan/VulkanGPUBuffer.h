@@ -72,7 +72,7 @@ namespace pxl
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = nullptr;
-        VkBufferUsageFlagBits m_Usage = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
+        VkBufferUsageFlagBits m_Usage = {};
         VkDeviceAddress m_DeviceAddress = UINT64_MAX;
         VkDevice m_Device = VK_NULL_HANDLE;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;

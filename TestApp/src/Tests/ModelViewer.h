@@ -26,15 +26,15 @@ namespace TestApp
         void AddModelToList(const std::string& modelName);
 
     private:
-        std::shared_ptr<pxl::Window> m_Window = nullptr;
-        std::shared_ptr<pxl::PerspectiveCamera> m_Camera = nullptr;
+        std::shared_ptr<pxl::Window> m_Window;
+        std::shared_ptr<pxl::PerspectiveCamera> m_Camera;
 
         glm::vec4 m_ClearColour = { 0.078f, 0.094f, 0.109f, 1.0f };
 
-        glm::vec2 m_MouseDelta = glm::vec2(0.0f);
+        glm::vec2 m_MouseDelta = {};
 
-        glm::vec3 m_MeshPosition = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 m_MeshRotation = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 m_MeshPosition = {};
+        glm::vec3 m_MeshRotation = {};
 
         std::vector<std::vector<std::shared_ptr<pxl::Mesh>>> m_LoadedModels;
         std::vector<std::string> m_LoadedModelNames;

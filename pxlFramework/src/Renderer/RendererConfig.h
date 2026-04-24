@@ -19,7 +19,7 @@ namespace pxl
     struct RendererConfig
     {
         /// @brief The window to associate the renderer to. Must be a valid window pointer.
-        std::shared_ptr<Window> Window = nullptr;
+        std::shared_ptr<Window> Window;
 
         /// @brief The backend graphics API to use for rendering
         GraphicsAPIType APIType = GraphicsAPIType::Vulkan;

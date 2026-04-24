@@ -15,12 +15,12 @@ namespace pxl
         std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
 
         /// @brief Graphics pipeline to bind for the draw call
-        std::shared_ptr<GraphicsPipeline> Pipeline = nullptr;
+        std::shared_ptr<GraphicsPipeline> Pipeline;
 
         /// @brief Uniform buffer to bind for the draw call.
-        std::shared_ptr<GPUBuffer> UniformBuffer = nullptr;
+        std::shared_ptr<GPUBuffer> UniformBuffer;
 
-        std::shared_ptr<TextureHandler> TextureHandler = nullptr;
+        std::shared_ptr<TextureHandler> TextureHandler;
 
         /// @brief Number of vertices to draw. Only applies to Draw() function.
         uint32_t VertexCount = 0;
@@ -33,7 +33,7 @@ namespace pxl
 
     struct GraphicsContextSpecs
     {
-        glm::vec4 ClearColour;
+        glm::vec4 ClearColour = { 0.0f, 0.0f, 0.0f, 1.0f };
     };
 
     /// @brief Represents a context used for recording graphics operations..

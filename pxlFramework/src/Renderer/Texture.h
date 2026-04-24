@@ -44,7 +44,7 @@ namespace pxl
 
     struct TextureMetadata
     {
-        Size2D Size;
+        Size2D Size = {};
     };
 
     /// @brief An image stored in the GPU's memory which can be used for rendering in a graphics pipeline.

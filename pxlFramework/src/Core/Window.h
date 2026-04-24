@@ -53,10 +53,10 @@ namespace pxl
     struct Monitor
     {
         uint8_t Index = 1; // refers to the operating system's ID for the monitor
-        std::string Name;
-        glm::ivec2 Position;
+        std::string Name = "Unnamed Monitor";
+        glm::ivec2 Position = {};
         std::vector<VideoMode> VideoModes;
-        Size2D PhysicalSize;
+        Size2D PhysicalSize = {};
         bool IsPrimary = false;
         GLFWmonitor* GLFWMonitor = nullptr;
 
@@ -248,11 +248,11 @@ namespace pxl
         bool m_Minimized = false;
 
         // The size and position of the window when it was in windowed mode
-        glm::ivec2 m_LastWindowedPosition = { 0, 0 };
         Size2D m_LastWindowedSize = WindowConstants::k_DefaultWindowedSize;
+        glm::ivec2 m_LastWindowedPosition = {};
 
         // The current monitor this window is on
-        Monitor m_CurrentMonitor;
+        Monitor m_CurrentMonitor = {};
 
         bool m_ShowAfterFirstPresent = true;
 

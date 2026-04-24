@@ -17,7 +17,7 @@ namespace pxl
     struct ShaderSpecs
     {
         /// @brief The stage this shader accommodates in a pipeline
-        ShaderStage Stage;
+        ShaderStage Stage = ShaderStage::Vertex;
 
         /// @brief Compiled SPIRV code
         std::vector<uint32_t> Code;

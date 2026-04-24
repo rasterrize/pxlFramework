@@ -87,8 +87,8 @@ namespace pxl
 
         float m_Duration = 1000.0f;
 
-        T m_StartValue;
-        T m_EndValue;
+        T m_StartValue = {};
+        T m_EndValue = {};
 
         std::function<double(double)> m_EasingFunction;
 #if 0

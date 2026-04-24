@@ -17,7 +17,7 @@ namespace pxl
         static uint32_t GenerateSeed();
 
     private:
-        static inline std::mt19937 s_RandomEngine;
-        static inline uint32_t s_Seed;
+        static inline std::mt19937 s_RandomEngine = {};
+        static inline uint32_t s_Seed = 0;
     };
 }

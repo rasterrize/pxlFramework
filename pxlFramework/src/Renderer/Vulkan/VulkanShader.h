@@ -23,7 +23,7 @@ namespace pxl
     private:
         ShaderSpecs m_Specs = {};
 
-        VkShaderModule m_Module = nullptr;
-        VkDevice m_Device = nullptr;
+        VkShaderModule m_Module = VK_NULL_HANDLE;
+        VkDevice m_Device = VK_NULL_HANDLE;
     };
 }

@@ -30,7 +30,7 @@ namespace pxl
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions(const BufferLayout& layout);
 
     private:
-        GraphicsPipelineSpecs m_Specs;
+        GraphicsPipelineSpecs m_Specs = {};
 
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
         VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;

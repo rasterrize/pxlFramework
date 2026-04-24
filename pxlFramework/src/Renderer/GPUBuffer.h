@@ -20,10 +20,10 @@ namespace pxl
     struct GPUBufferSpecs
     {
         /// @brief The type of data used in the GPUBuffer.
-        GPUBufferUsage Usage;
+        GPUBufferUsage Usage = GPUBufferUsage::Vertex;
 
         /// @brief Hint for the underlying API. Set based on the frequency of data setting.
-        GPUBufferDrawHint DrawHint;
+        GPUBufferDrawHint DrawHint = GPUBufferDrawHint::Static;
 
         /// @brief Size of the GPUBuffer in bytes.
         uint64_t Size = 0;

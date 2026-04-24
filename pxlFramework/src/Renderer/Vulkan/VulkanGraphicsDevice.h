@@ -100,12 +100,12 @@ namespace pxl
         // Swapchain data
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
-        VkExtent2D m_SwapchainExtent;
-        VkPresentModeKHR m_SwapchainPresentMode;
+        VkExtent2D m_SwapchainExtent = {};
+        VkPresentModeKHR m_SwapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
         std::vector<PerImageData> m_PerImageData;
         std::vector<PerFrameData> m_PerFrameData;
         uint32_t m_SwapchainImageIndex = 0;
-        VkSurfaceFormatKHR m_SurfaceFormat;
+        VkSurfaceFormatKHR m_SurfaceFormat = {};
         bool m_SwapchainInvalid = false;
 
         // Queue data

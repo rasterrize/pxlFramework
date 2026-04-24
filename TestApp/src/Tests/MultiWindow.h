@@ -17,7 +17,7 @@ namespace TestApp
         virtual std::string ToString() const override { return "MultiWindow"; }
 
     private:
-        std::shared_ptr<pxl::Window> m_TestWindowA = nullptr;
-        std::shared_ptr<pxl::Window> m_TestWindowB = nullptr;
+        std::shared_ptr<pxl::Window> m_TestWindowA;
+        std::shared_ptr<pxl::Window> m_TestWindowB;
     };
 }

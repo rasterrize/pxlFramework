@@ -102,34 +102,31 @@ namespace pxl
     private:
         RendererConfig m_Config = {};
 
-        std::unique_ptr<GraphicsAPI> m_GraphicsAPI = nullptr;
-        std::unique_ptr<GraphicsContext> m_GraphicsContext = nullptr;
-        std::unique_ptr<GraphicsDevice> m_GraphicsDevice = nullptr;
+        std::unique_ptr<GraphicsAPI> m_GraphicsAPI;
+        std::unique_ptr<GraphicsContext> m_GraphicsContext;
+        std::unique_ptr<GraphicsDevice> m_GraphicsDevice;
 
-        std::unique_ptr<ShaderManager> m_ShaderManager = nullptr;
-
-        std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer = nullptr;
-
-        std::shared_ptr<EventHandler<WindowFBResizeEvent>> m_WindowFBResizeHandler = nullptr;
-
+        std::unique_ptr<ShaderManager> m_ShaderManager;
         std::shared_ptr<TextureHandler> m_TextureHandler;
+        std::shared_ptr<ImGuiRenderer> m_ImGuiRenderer;
 
-        std::shared_ptr<Texture> m_WhitePixelTexture = nullptr;
-        std::shared_ptr<Texture> m_ErrorTexture = nullptr;
+        std::shared_ptr<EventHandler<WindowFBResizeEvent>> m_WindowFBResizeHandler;
+
+        std::shared_ptr<Texture> m_WhitePixelTexture;
+
         struct PerFrameData
         {
             std::unique_ptr<VertexBatch<TexturedVertex>> QuadBatch;
             std::shared_ptr<GPUBuffer> UniformBuffer;
         };
 
-        std::shared_ptr<GPUBuffer> m_QuadIndexBuffer = nullptr;
-        std::shared_ptr<GraphicsPipeline> m_QuadPipeline = nullptr;
+        std::shared_ptr<GPUBuffer> m_QuadIndexBuffer;
+        std::shared_ptr<GraphicsPipeline> m_QuadPipeline;
 
-        std::shared_ptr<Camera> m_Camera3D = nullptr;
         std::shared_ptr<OrthographicCamera> m_Camera2D = nullptr;
 
         std::vector<PerFrameData> m_PerFrameData;
-        PerFrameData* m_CurrentFrameData;
+        PerFrameData* m_CurrentFrameData = nullptr;
 
         uint32_t m_FrameIndex = 0;
     };

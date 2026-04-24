@@ -17,8 +17,8 @@ namespace pxl
 
     private:
         std::shared_ptr<Texture> m_Texture = nullptr;
-        uint32_t m_Columns;
-        uint32_t m_Rows;
+        uint32_t m_Columns = 0;
+        uint32_t m_Rows = 0;
 
         std::vector<SubTexture> m_SubTextures;
     };

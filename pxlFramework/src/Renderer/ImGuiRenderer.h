@@ -9,7 +9,7 @@ namespace pxl
 
     struct ImGuiSpecs
     {
-        std::shared_ptr<Window> Window = nullptr;
+        std::shared_ptr<Window> Window;
     };
 
     /// @brief Base class of an API-specific representation of an ImGui implementation.

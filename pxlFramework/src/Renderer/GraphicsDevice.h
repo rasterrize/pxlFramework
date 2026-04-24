@@ -30,10 +30,10 @@ namespace pxl
         int32_t DeviceIndex = -1;
 
         /// @brief Ignored if DeviceIndex is specified. Selects a suitable GPU based on a GPU type preference.
-        GPUType TypePreference;
+        GPUType TypePreference = GPUType::Discrete;
 
         /// @brief Window to associate the internal swapchain to.
-        std::shared_ptr<Window> Window = nullptr;
+        std::shared_ptr<Window> Window;
 
         uint32_t FramesInFlightCount = 0;
 

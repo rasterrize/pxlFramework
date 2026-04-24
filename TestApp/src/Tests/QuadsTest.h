@@ -25,8 +25,8 @@ namespace TestApp
         std::shared_ptr<pxl::Window> m_Window = nullptr;
         std::shared_ptr<pxl::OrthographicCamera> m_Camera = nullptr;
 
-        pxl::Renderer* m_Renderer;
-        std::shared_ptr<pxl::Camera> m_Camera2D;
+        pxl::Renderer* m_Renderer = nullptr;
+        std::shared_ptr<pxl::Camera> m_Camera2D = nullptr;
 
         pxl::UserEventHandler<pxl::KeyDownEvent> m_KeyDownHandler;
         pxl::UserEventHandler<pxl::KeyUpEvent> m_KeyUpHandler;
@@ -36,14 +36,14 @@ namespace TestApp
         std::shared_ptr<pxl::Texture> m_CursorTexture = nullptr;
         std::shared_ptr<pxl::Texture> m_SheetTexture = nullptr;
 
-        pxl::AnimatedTexture m_AnimatedTexture;
 
         pxl::SubTexture m_TestSubTexture;
+        pxl::AnimatedTexture m_AnimatedTexture = {};
 
         std::vector<pxl::Quad*> m_Quads;
         uint32_t m_QuadIndex = 0;
-        pxl::Quad m_ColourQuad;
-        pxl::Quad m_TextureQuad;
+        pxl::Quad m_ColourQuad = {};
+        pxl::Quad m_TextureQuad = {};
 
         uint32_t m_RotationOffset = 3;
         uint32_t m_QuadCount = 1;
