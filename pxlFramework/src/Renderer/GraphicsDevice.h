@@ -88,7 +88,7 @@ namespace pxl
         /// @return A new ImGuiRenderer shared resource object.
         virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) = 0;
 
-        virtual void Submit(const GraphicsContext& context, uint32_t frameIndex) = 0;
+        virtual void Submit(uint32_t frameIndex) = 0;
 
         virtual void WaitOnFrame(uint32_t frameIndex) = 0;
 

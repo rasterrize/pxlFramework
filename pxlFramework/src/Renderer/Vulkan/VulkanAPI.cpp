@@ -21,7 +21,7 @@ namespace pxl
         auto availableLayers = VulkanUtils::GetAvailableInstanceLayers();
         std::vector<const char*> requestedLayers;
 
-#ifdef PXL_DEBUG
+#if defined(PXL_DEBUG) && defined(PXL_ENABLE_LOGGING)
         const char* validationLayer = "VK_LAYER_KHRONOS_validation";
         if (VulkanUtils::ValidateLayer(validationLayer, availableLayers))
         {
@@ -71,7 +71,7 @@ namespace pxl
         instanceInfo.enabledLayerCount = static_cast<uint32_t>(requestedLayers.size());
         instanceInfo.ppEnabledLayerNames = requestedLayers.data();
 
-#ifdef PXL_DEBUG
+#if defined(PXL_DEBUG) && defined(PXL_ENABLE_LOGGING)
         VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
         if (useDebugUtils)
         {
@@ -87,7 +87,7 @@ namespace pxl
         VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));
         volkLoadInstance(m_Instance);
 
-#ifdef PXL_DEBUG
+#if defined(PXL_DEBUG) && defined(PXL_ENABLE_LOGGING)
         if (useDebugUtils)
         {
             VK_CHECK(vkCreateDebugUtilsMessengerEXT(m_Instance, &debugMessengerInfo, nullptr, &m_DebugMessenger));
@@ -121,7 +121,7 @@ namespace pxl
         return std::make_unique<VulkanGraphicsDevice>(specs, m_Instance);
     }
 
-    VkBool32 VulkanAPI::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT types, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData)
+    VkBool32 VulkanAPI::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT, [[maybe_unused]] const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void*)
     {
         if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {

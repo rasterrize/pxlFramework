@@ -16,7 +16,7 @@ namespace pxl
         std::vector<SubTexture> GetSubTexturesRange(const glm::uvec2& startPos, const glm::uvec2& endPos);
 
     private:
-        std::shared_ptr<Texture> m_Texture = nullptr;
+        std::shared_ptr<Texture> m_Texture;
         uint32_t m_Columns = 0;
         uint32_t m_Rows = 0;
 

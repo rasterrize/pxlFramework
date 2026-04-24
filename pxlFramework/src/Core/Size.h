@@ -10,12 +10,12 @@ namespace pxl
     {
         Size2D() = default;
 
-        constexpr Size2D(uint32_t width, uint32_t height)
+        Size2D(uint32_t width, uint32_t height)
             : Width(width), Height(height)
         {
         }
 
-        constexpr Size2D(uint32_t scale)
+        Size2D(uint32_t scale)
             : Width(scale), Height(scale)
         {
         }
@@ -35,12 +35,12 @@ namespace pxl
     {
         Size3D() = default;
 
-        constexpr Size3D(uint32_t width, uint32_t height, uint32_t depth)
+        Size3D(uint32_t width, uint32_t height, uint32_t depth)
             : Width(width), Height(height), Depth(depth)
         {
         }
 
-        constexpr Size3D(uint32_t scale)
+        Size3D(uint32_t scale)
             : Width(scale), Height(scale), Depth(scale)
         {
         }

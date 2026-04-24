@@ -181,14 +181,14 @@ namespace pxl
 
         if (texture)
         {
-            PXL_ASSERT(m_TextureHandler->Get(texture) != UINT32_MAX);
+            PXL_ASSERT(m_TextureHandler->GetIndex(texture) != UINT32_MAX);
         }
 
         auto q = Process(quad);
 
         auto& batch = *m_CurrentFrameData->QuadBatch;
-        if (batch.GetVertexSpaceLeft() < RendererConstants::k_VerticesPerQuad)
-            batch.Flush(m_GraphicsDevice);
+        if (batch.GetVertexSpaceLeft() < RendererConstants::VerticesPerQuad)
+            batch.Flush(*m_GraphicsDevice);
 
         // NOTE: Flip the rotation due to vulkan using inverted y coordinates
         auto transform = CalculateTransform(q.Position, glm::vec3(0, 0, -q.Rotation), { q.Size, 1.0f });
@@ -201,7 +201,7 @@ namespace pxl
             vertex.Position = transform * glm::vec4(vertex.Position, 1.0f);
             vertex.Colour = q.Colour;
             vertex.TexCoords = texCoords.at(i);
-            vertex.TexIndex = texture ? m_TextureHandler->Get(texture) : 0;
+            vertex.TexIndex = texture ? m_TextureHandler->GetIndex(texture) : 0;
 
             batch.AddVertex(vertex);
             i++;

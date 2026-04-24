@@ -118,8 +118,10 @@ namespace pxl
         return imguiRenderer;
     }
 
-    void VulkanGraphicsDevice::Submit(const GraphicsContext& context, uint32_t frameIndex)
+    void VulkanGraphicsDevice::Submit(uint32_t frameIndex)
     {
+        PXL_PROFILE_SCOPE;
+
         // Wait at the top of pipeline before executing any commands, as we need to ensure the swapchain image is ready first
         VkPipelineStageFlags waitStage = { VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT };
 
@@ -137,6 +139,8 @@ namespace pxl
 
     void VulkanGraphicsDevice::WaitOnFrame(uint32_t frameIndex)
     {
+        PXL_PROFILE_SCOPE;
+
         auto frame = m_PerFrameData.at(frameIndex);
         VK_CHECK(vkWaitForFences(m_Device, 1, &frame.RenderFinishedFence, VK_TRUE, UINT64_MAX));
         VK_CHECK(vkResetFences(m_Device, 1, &frame.RenderFinishedFence));
@@ -150,11 +154,13 @@ namespace pxl
         if (m_SwapchainInvalid)
             InitSwapchain();
 
-        auto result = vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, frame.ImageAcquiredSemaphore, nullptr, &m_SwapchainImageIndex);
+        VK_CHECK(vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, frame.ImageAcquiredSemaphore, nullptr, &m_SwapchainImageIndex));
     }
 
     void VulkanGraphicsDevice::Present()
     {
+        PXL_PROFILE_SCOPE;
+
         VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &m_PerImageData.at(m_SwapchainImageIndex).RenderFinishedSemaphore;
@@ -273,6 +279,7 @@ namespace pxl
 
         // Enable Vulkan 1.0 features
         enabledDeviceFeatures.features.samplerAnisotropy = VK_TRUE;
+        enabledDeviceFeatures.features.fillModeNonSolid = VK_TRUE;
 
         // Enable Vulkan 1.1 features
         VkPhysicalDeviceVulkan11Features enabledVulkan11Features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES };
@@ -305,7 +312,7 @@ namespace pxl
 
         auto availableExtensions = VulkanUtils::GetDeviceExtensions(m_GPU);
 
-#ifdef PXL_DEBUG
+#if defined(PXL_DEBUG) && defined(PXL_ENABLE_LOGGING)
         PXL_LOG_INFO(LogArea::Vulkan, "Required device extensions selected:")
         for (const auto& extensionName : requiredExtensions)
         {

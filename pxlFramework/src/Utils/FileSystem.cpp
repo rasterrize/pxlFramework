@@ -26,11 +26,11 @@ namespace pxl
 
         if (!bytes)
         {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load image: '{}'", path.string());
+            PXL_LOG_ERROR(LogArea::FileSystem, "Failed to load image: '{}'", path.string());
             return nullptr;
         }
 
-        PXL_LOG_INFO(LogArea::Other, "Loaded image: '{}'", path.string());
+        PXL_LOG_INFO(LogArea::FileSystem, "Loaded image: '{}'", path.string());
 
         std::vector<uint8_t> buffer;
         buffer.insert(buffer.end(), bytes, bytes + numOfBytes);
@@ -48,7 +48,7 @@ namespace pxl
     {
         if (!std::filesystem::exists(path))
         {
-            PXL_LOG_ERROR(LogArea::Other, "Failed to load shader from path because the shader path doesn't exist '{}'", path.string());
+            PXL_LOG_ERROR(LogArea::FileSystem, "Failed to load shader from path because the shader path doesn't exist '{}'", path.string());
             return std::string();
         }
 

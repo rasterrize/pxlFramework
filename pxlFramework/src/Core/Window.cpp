@@ -3,7 +3,6 @@
 #include "Application.h"
 #include "Events/WindowEvents.h"
 #include "Input.h"
-#include "Platform.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Vulkan/VulkanUtils.h"
 #include "Utils/FileSystem.h"
@@ -28,7 +27,7 @@ namespace pxl
             if (specs.Position.has_value())
             {
                 m_Position = specs.Position.value();
-                UpdateCurrentMonitor();
+                DetectCurrentMonitor();
             }
             else
             {
@@ -57,7 +56,7 @@ namespace pxl
 
             // Ensure LastWindowedPosition is the middle of the monitor
             auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-            m_LastWindowedPosition = { vidMode.Width / 2 - WindowConstants::k_DefaultWindowedSize.Width / 2, vidMode.Height / 2 - WindowConstants::k_DefaultWindowedSize.Height / 2 };
+            m_LastWindowedPosition = { vidMode.Width / 2 - WindowConstants::DefaultWindowedSize.Width / 2, vidMode.Height / 2 - WindowConstants::DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
@@ -91,9 +90,9 @@ namespace pxl
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         InitWindowCallbacks();
 
-        // Use cool dark mode titlebar
-        if (specs.DarkMode)
-            Platform::UseImmersiveDarkMode(m_GLFWWindow);
+#ifdef _WIN64
+        Platform::Windows::EnableDarkModeIfSupported(m_GLFWWindow);
+#endif
 
         // Init event and input systems
         m_EventCallback = Application::Get().GetEventManager()->GetEventSendCallback();
@@ -139,14 +138,14 @@ namespace pxl
         glfwSetCursorEnterCallback(m_GLFWWindow, CursorEnterCallback);
     }
 
-    void Window::InitGLFWCallbacks()
+    void Window::InitStaticCallbacks()
     {
         glfwSetErrorCallback(GLFWErrorCallback);
         glfwSetMonitorCallback(MonitorCallback);
         glfwSetJoystickCallback(JoystickCallback);
     }
 
-    void Window::UpdateCurrentMonitor()
+    void Window::DetectCurrentMonitor()
     {
         PXL_PROFILE_SCOPE;
 
@@ -193,7 +192,7 @@ namespace pxl
         int windowWidth, windowHeight;
         glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
 
-        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' resolution to {}x{}", m_Title, width, height);
+        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' size to {}x{}", m_Title, width, height);
     }
 
     void Window::SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight)

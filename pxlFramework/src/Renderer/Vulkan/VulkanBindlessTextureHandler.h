@@ -15,11 +15,11 @@ namespace pxl
 
         virtual void Add(std::shared_ptr<Texture> texture) override;
 
-        virtual uint32_t Get(const std::shared_ptr<Texture>& texture) override;
+        virtual uint32_t GetIndex(const std::shared_ptr<Texture>& texture) override;
 
         virtual void Upload() override;
 
-        virtual bool NeedsUpload() const { return m_NeedsUpload; }
+        virtual bool NeedsUpload() const override { return m_NeedsUpload; }
 
         virtual bool IsFull() const override { return false; }
 

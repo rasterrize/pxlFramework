@@ -41,14 +41,12 @@ namespace pxl
 
     namespace Utils
     {
-        inline float RotationWrap(float rotation)
+        inline void WrapRotation(float& rotation)
         {
-            rotation = std::fmod(rotation, 360.0f);
-
-            if (rotation < 0.0f)
+            if (rotation > 360.0f)
+                rotation = std::fmod(rotation, 360.0f);
+            else if (rotation < -360.0f)
                 rotation = std::fmod(rotation, -360.0f);
-
-            return rotation;
         }
     }
 }

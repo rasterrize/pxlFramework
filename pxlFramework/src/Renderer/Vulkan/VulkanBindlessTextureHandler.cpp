@@ -91,7 +91,7 @@ namespace pxl
         }
     }
 
-    uint32_t VulkanBindlessTextureHandler::Get(const std::shared_ptr<Texture>& texture)
+    uint32_t VulkanBindlessTextureHandler::GetIndex(const std::shared_ptr<Texture>& texture)
     {
         for (uint32_t i = 0; i < static_cast<uint32_t>(m_Textures.size()); i++)
         {

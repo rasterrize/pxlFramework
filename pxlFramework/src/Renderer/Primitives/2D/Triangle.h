@@ -4,7 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include "Primitive.h"
+#include "Renderer/Primitives/Primitive.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Vertices.h"
 

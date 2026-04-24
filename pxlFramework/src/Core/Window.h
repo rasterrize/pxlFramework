@@ -16,18 +16,20 @@
 
 namespace pxl
 {
-    namespace WindowConstants
-    {
-        inline constexpr Size2D k_DefaultWindowedSize = { 1280, 720 };
-        inline constexpr std::string_view k_DefaultWindowTitle = "Default Window Title";
-    }
-
     enum class WindowMode
     {
         Windowed,
         Borderless,
         Fullscreen,
     };
+
+    namespace WindowConstants
+    {
+        static const Size2D DefaultWindowedSize = { 1280, 720 };
+        static const std::string_view DefaultWindowTitle = "Default Window Title";
+        static const WindowMode DefaultWindowMode = WindowMode::Windowed;
+        static const bool DefaultShowOnceRendererIsWorking = true;
+    }
 
     struct VideoMode
     {
@@ -66,10 +68,10 @@ namespace pxl
     struct WindowSpecs
     {
         // The title of the window (appears top left of window).
-        std::string Title = WindowConstants::k_DefaultWindowTitle.data();
+        std::string Title = WindowConstants::DefaultWindowTitle.data();
 
         // The size of the window in screen coordinates. Only used for Windowed mode. If not specified, defaults to k_DefaultWindowedSize.
-        Size2D Size = WindowConstants::k_DefaultWindowedSize;
+        Size2D Size = WindowConstants::DefaultWindowedSize;
 
         // The position of the window. Only used for Windowed mode. If not supplied, defaults to the center of Monitor.
         std::optional<glm::ivec2> Position;
@@ -83,14 +85,14 @@ namespace pxl
         // The path to load an icon from for this window. If not supplied, the window will have no icon.
         std::optional<std::string> IconPath;
 
-        // Use dark mode for window title
-        bool DarkMode = true;
     };
 
     /// @brief A desktop window used to display stuff to the user.
     class Window
     {
     public:
+        Window(const WindowSpecs& specs);
+
         /// @brief Closes the window. If this is the only window left, the application closes automatically.
         void Close() const;
 
@@ -138,23 +140,17 @@ namespace pxl
         /// @note This function will always switch to exclusive fullscreen mode from windowed mode.
         void ToggleFullscreen();
 
-        /// @brief Minimizes the window.
         void Minimize() const;
 
-        /// @brief Maximizes the window.
         void Maximize() const;
 
         /// @brief Restores the window if it's minimized.
         void Restore() const;
 
-        /// @brief Gets the visibility status of this window.
-        /// @return True if visible, false if hidden.
-        bool GetVisibility() const;
+        bool IsVisible() const;
 
-        /// @brief Shows the window.
         void Show() const;
 
-        /// @brief Hides the window.
         void Hide() const;
 
         const std::string& GetTitle() const { return m_Title; }
@@ -197,16 +193,15 @@ namespace pxl
         static std::shared_ptr<Gamepad> GetGamepad(int id);
 
     private:
-        Window(const WindowSpecs& specs);
 
         void Update();
 
-        void UpdateCurrentMonitor();
+        void DetectCurrentMonitor();
 
         void InitWindowCallbacks();
 
     private:
-        static void InitGLFWCallbacks();
+        static void InitStaticCallbacks();
 
         friend class InputSystem;
         friend class Input;
@@ -240,16 +235,15 @@ namespace pxl
         std::shared_ptr<InputSystem> m_InputSystem;
         std::function<void(Event&)> m_EventCallback;
 
-        Size2D m_Size = WindowConstants::k_DefaultWindowedSize;
-        glm::ivec2 m_Position = { 0, 0 };
-        std::string m_Title = WindowConstants::k_DefaultWindowTitle.data();
-        WindowMode m_WindowMode = WindowMode::Windowed;
-
+        Size2D m_Size = WindowConstants::DefaultWindowedSize;
+        glm::ivec2 m_Position = {};
+        std::string m_Title = WindowConstants::DefaultWindowTitle.data();
+        WindowMode m_WindowMode = WindowConstants::DefaultWindowMode;
         bool m_Minimized = false;
 
         // The size and position of the window when it was in windowed mode
-        Size2D m_LastWindowedSize = WindowConstants::k_DefaultWindowedSize;
         glm::ivec2 m_LastWindowedPosition = {};
+        Size2D m_LastWindowedSize = WindowConstants::DefaultWindowedSize;
 
         // The current monitor this window is on
         Monitor m_CurrentMonitor = {};

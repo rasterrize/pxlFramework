@@ -37,6 +37,11 @@ namespace pxl
             m_Cursor = glfwCreateCursor(&glfwImage, hotspotX, hotspotY);
         }
 
+        ~Cursor()
+        {
+            glfwDestroyCursor(m_Cursor);
+        }
+
         GLFWcursor* GetNativeCursor() const { return m_Cursor; }
 
     private:

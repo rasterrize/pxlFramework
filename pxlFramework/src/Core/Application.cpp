@@ -2,7 +2,7 @@
 
 #include "Config.h"
 #include "Input.h"
-#include "Platform.h"
+#include "Platform/Platform.h"
 #include "Window.h"
 
 using namespace std::literals;

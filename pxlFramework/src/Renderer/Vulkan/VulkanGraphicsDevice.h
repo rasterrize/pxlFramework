@@ -26,7 +26,7 @@ namespace pxl
 
         virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) override;
 
-        virtual void Submit(const GraphicsContext& context, uint32_t frameIndex) override;
+        virtual void Submit(uint32_t frameIndex) override;
 
         virtual void WaitOnFrame(uint32_t frameIndex) override;
 

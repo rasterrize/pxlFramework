@@ -2,11 +2,14 @@
 
 namespace pxl
 {
-    struct RectF
+    template<typename T>
+    struct Rect
     {
-        float Left;
-        float Right;
-        float Bottom;
-        float Top;
+        T Left = {};
+        T Right = {};
+        T Bottom = {};
+        T Top = {};
     };
+
+    using RectF = Rect<float>;
 }
