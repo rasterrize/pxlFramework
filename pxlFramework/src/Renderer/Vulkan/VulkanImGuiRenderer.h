@@ -16,7 +16,7 @@ namespace pxl
 
         virtual void NewFrame() override;
 
-        virtual void Render(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) override;
+        virtual void Render(const GraphicsDevice& device, uint32_t frameIndex) override;
 
     private:
         ImGuiSpecs m_Specs = {};

@@ -46,7 +46,7 @@ namespace pxl
         /// @brief Reload all the shaders stored in this shader manager.
         void ReloadAll();
 
-        void CompileAll(const std::unique_ptr<GraphicsDevice>& graphicsDevice);
+        void CompileAll(GraphicsDevice& graphicsDevice);
 
         // TODO
         void CompileAllAsync() {}

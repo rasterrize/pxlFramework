@@ -9,7 +9,7 @@ namespace pxl
     class VertexBatch
     {
     public:
-        VertexBatch(const std::unique_ptr<GraphicsDevice>& device, size_t maxVertexCount)
+        VertexBatch(GraphicsDevice& device, size_t maxVertexCount)
             : m_MaxVertexCount(maxVertexCount)
         {
             m_Vertices.reserve(maxVertexCount);
@@ -18,7 +18,7 @@ namespace pxl
             m_GPUBufferSpecs.DrawHint = GPUBufferDrawHint::Dynamic;
             m_GPUBufferSpecs.Usage = GPUBufferUsage::Vertex;
 
-            m_VertexBuffers.push_back(device->CreateBuffer(m_GPUBufferSpecs));
+            m_VertexBuffers.push_back(device.CreateBuffer(m_GPUBufferSpecs));
         }
 
         const std::vector<VertexType>& GetVertices() const { return m_Vertices; }
@@ -39,7 +39,7 @@ namespace pxl
 
         bool CanFlush() const { return !m_Vertices.empty(); }
 
-        void Flush(const std::unique_ptr<GraphicsDevice>& device)
+        void Flush(GraphicsDevice& device)
         {
             UploadData();
             NextVertexBuffer(device);
@@ -53,12 +53,12 @@ namespace pxl
             return vertexCount;
         }
 
-        void NextVertexBuffer(const std::unique_ptr<GraphicsDevice>& device)
+        void NextVertexBuffer(GraphicsDevice& device)
         {
             uint32_t nextIndex = m_VertexBufferIndex + 1;
             if (m_VertexBuffers.size() <= nextIndex)
             {
-                m_VertexBuffers.push_back(device->CreateBuffer(m_GPUBufferSpecs));
+                m_VertexBuffers.push_back(device.CreateBuffer(m_GPUBufferSpecs));
             }
 
             m_VertexBufferIndex++;

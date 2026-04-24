@@ -103,12 +103,12 @@ namespace pxl
 #endif
     }
 
-    void VulkanImGuiRenderer::Render(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex)
+    void VulkanImGuiRenderer::Render(const GraphicsDevice& device, uint32_t frameIndex)
     {
 #ifdef PXL_ENABLE_IMGUI
         ImGui::Render();
 
-        VulkanGraphicsDevice* vulkanDevice = static_cast<VulkanGraphicsDevice*>(device.get());
+        auto vulkanDevice = static_cast<const VulkanGraphicsDevice*>(&device);
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanDevice->GetFrameCommandBuffer(frameIndex));
 #endif
     }

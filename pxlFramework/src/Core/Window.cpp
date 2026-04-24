@@ -84,7 +84,7 @@ namespace pxl
         if (specs.IconPath.has_value())
         {
             auto image = FileSystem::LoadImageFile(specs.IconPath.value(), true);
-            SetIcon(image);
+            SetIcon(*image);
         }
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);

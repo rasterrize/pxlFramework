@@ -18,6 +18,6 @@ namespace pxl
     public:
         virtual void NewFrame() = 0;
 
-        virtual void Render(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) = 0;
+        virtual void Render(const GraphicsDevice& device, uint32_t frameIndex) = 0;
     };
 }

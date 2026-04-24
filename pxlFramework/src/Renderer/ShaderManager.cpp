@@ -83,7 +83,7 @@ namespace pxl
         }
     }
 
-    void ShaderManager::CompileAll(const std::unique_ptr<GraphicsDevice>& graphicsDevice)
+    void ShaderManager::CompileAll(GraphicsDevice& graphicsDevice)
     {
         for (const auto& [sourcePath, shaderFile] : m_CompilationQueue)
         {
@@ -105,7 +105,7 @@ namespace pxl
 
         for (const auto& specs : m_CreationQueue)
         {
-            m_Shaders[specs.SourcePath.filename()] = graphicsDevice->CreateShader(specs);
+            m_Shaders[specs.SourcePath.filename()] = graphicsDevice.CreateShader(specs);
             PXL_LOG_INFO(LogArea::Renderer, "Finished loading shader '{}'", specs.SourcePath.filename().string());
         }
 

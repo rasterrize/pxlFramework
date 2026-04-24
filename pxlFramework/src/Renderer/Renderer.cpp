@@ -62,7 +62,7 @@ namespace pxl
         m_ShaderManager->Add(m_Config.UserShadersToCompile);
 
         // Compile shaders
-        m_ShaderManager->CompileAll(m_GraphicsDevice);
+        m_ShaderManager->CompileAll(*m_GraphicsDevice);
 
         // Init texture handler
         m_TextureHandler = m_GraphicsDevice->CreateTextureHandler();
@@ -90,7 +90,7 @@ namespace pxl
             // Prepare vertex batching
             for (auto& data : m_PerFrameData)
             {
-                data.QuadBatch = std::make_unique<VertexBatch<TexturedVertex>>(m_GraphicsDevice, m_Config.VerticesPerBatch);
+                data.QuadBatch = std::make_unique<VertexBatch<TexturedVertex>>(*m_GraphicsDevice, m_Config.VerticesPerBatch);
             }
 
             // Create index buffer
@@ -269,7 +269,7 @@ namespace pxl
 
         m_BeginPoint = std::chrono::steady_clock::now();
 
-        m_GraphicsContext->BeginFrame(m_GraphicsDevice, m_FrameIndex);
+        m_GraphicsContext->BeginFrame(*m_GraphicsDevice, m_FrameInFlightIndex);
 
         if (m_TextureHandler->NeedsUpload())
             m_TextureHandler->Upload();
@@ -294,10 +294,11 @@ namespace pxl
 #ifdef PXL_ENABLE_IMGUI
         // Draw ImGui data
         if (m_ImGuiRenderer)
-            m_ImGuiRenderer->Render(m_GraphicsDevice, m_FrameIndex);
+            m_ImGuiRenderer->Render(*m_GraphicsDevice, m_FrameInFlightIndex);
 #endif
 
-        m_GraphicsContext->EndFrame(m_GraphicsDevice);
+        m_GraphicsContext->EndFrame(*m_GraphicsDevice);
+
         m_GraphicsDevice->Submit(m_FrameInFlightIndex);
 
         m_FrameStats.RenderTime = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - m_BeginPoint).count();

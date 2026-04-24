@@ -157,8 +157,8 @@ namespace pxl
 
         const std::string& GetTitle() const { return m_Title; }
         void SetTitle(const std::string_view& title);
+        void SetIcon(Image& image);
 
-        void SetIcon(const std::shared_ptr<Image>& image);
         bool WillShowOnceRendererIsWorking() const { return m_ShowOnceRendererIsWorking; }
 
         /// @brief Enforces an aspect ratio for the window's dimensions.

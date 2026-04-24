@@ -11,7 +11,7 @@ namespace pxl
 
         virtual void Add(std::shared_ptr<Texture> texture) = 0;
 
-        virtual uint32_t Get(const std::shared_ptr<Texture>& texture) = 0;
+        virtual uint32_t GetIndex(const std::shared_ptr<Texture>& texture) = 0;
 
         virtual void Upload() = 0;
 

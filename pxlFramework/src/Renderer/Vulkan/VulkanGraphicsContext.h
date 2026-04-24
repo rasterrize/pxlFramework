@@ -15,12 +15,12 @@ namespace pxl
         }
 
         // Begin recording commands for a new frame of the specified frameIndex
-        virtual void BeginFrame(const std::unique_ptr<GraphicsDevice>& device, uint32_t frameIndex) override;
+        virtual void BeginFrame(const GraphicsDevice& device, uint32_t frameIndex) override;
 
         // End recording commands of the current frame
-        virtual void EndFrame(const std::unique_ptr<GraphicsDevice>& device) override;
+        virtual void EndFrame(const GraphicsDevice& device) override;
 
-        virtual void Bind(const std::shared_ptr<GraphicsPipeline>& pipeline, const std::shared_ptr<GPUBuffer>& uniformBuffer, const std::shared_ptr<TextureHandler>& textureHandler) override;
+        virtual void Bind(const GraphicsPipeline& pipeline, const GPUBuffer& uniformBuffer, const TextureHandler* textureHandler) override;
         virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) override;
 
         // GPU draw commands
