@@ -8,7 +8,6 @@
 #include "../src/Core/Config.h"
 #include "../src/Core/Cursor.h"
 #include "../src/Core/Image.h"
-#include "../src/Core/Input.h"
 #include "../src/Core/InputSystem.h"
 #include "../src/Core/KeyCodes.h"
 #include "../src/Core/Logging/ApplicationLog.h"

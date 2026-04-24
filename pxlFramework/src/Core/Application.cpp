@@ -1,7 +1,6 @@
 #include "Application.h"
 
 #include "Config.h"
-#include "Input.h"
 #include "Events/EventHandler.h"
 #include "Platform/Platform.h"
 #include "Renderer/Renderer.h"
@@ -32,7 +31,6 @@ namespace pxl
     {
         FrameworkConfig::Shutdown();
         ShutdownRenderer();
-        Input::Shutdown();
         Window::Shutdown();
         ShutdownPlatformingBackend();
 

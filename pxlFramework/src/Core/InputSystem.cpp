@@ -2,6 +2,7 @@
 
 #include "Events/KeyboardEvents.h"
 #include "Events/MouseEvents.h"
+#include "Platform/Platform.h"
 #include "Window.h"
 
 namespace pxl
@@ -92,6 +93,8 @@ namespace pxl
                     break;
             }
         });
+
+        m_RawInputSupported = Platform::IsRawInputSupported();
     }
 
     void InputSystem::ResetCurrentState()
@@ -101,5 +104,37 @@ namespace pxl
         m_PreviousInputState = m_CurrentInputState;
         m_CurrentInputState.VerticalScrollOffset = 0.0;
         m_CurrentInputState.HorizontalScrollOffset = 0.0;
+    }
+
+    void InputSystem::SetCursorMode(CursorMode mode)
+    {
+        auto glfwMode = Utils::ToGLFWCursorMode(mode);
+        glfwSetInputMode(m_Window, GLFW_CURSOR, glfwMode);
+        PXL_LOG_INFO(LogArea::Input, "Cursor mode set to {}", Utils::ToString(mode));
+    }
+
+    void InputSystem::SetRawInput(bool enable)
+    {
+        if (enable && !m_RawInputSupported)
+        {
+            PXL_LOG_ERROR(LogArea::Input, "Raw input is not supported on this system");
+        }
+
+        glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, enable);
+    }
+
+    void InputSystem::SetCursor(StandardCursor cursor)
+    {
+        glfwSetCursor(m_Window, glfwCreateStandardCursor(Utils::ToGLFWStandardCursor(cursor)));
+    }
+
+    void InputSystem::SetCursor(Cursor cursor)
+    {
+        glfwSetCursor(m_Window, cursor.GetNativeCursor());
+    }
+
+    void InputSystem::SetCursorDefault()
+    {
+        glfwSetCursor(m_Window, nullptr);
     }
 }

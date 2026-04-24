@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Cursor.h"
 #include "Events/Event.h"
 #include "KeyCodes.h"
 #include "MouseCodes.h"
@@ -29,6 +30,15 @@ namespace pxl
         const InputState& GetCurrentState() const { return m_CurrentInputState; }
         const InputState& GetPreviousState() const { return m_PreviousInputState; }
 
+        void SetCursorMode(CursorMode mode);
+
+        bool IsRawInputSupported() const { return m_RawInputSupported; }
+        void SetRawInput(bool enable);
+
+        void SetCursor(StandardCursor cursor);
+        void SetCursor(Cursor cursor);
+        void SetCursorDefault();
+
     private:
         GLFWwindow* m_Window = nullptr;
 
@@ -36,5 +46,36 @@ namespace pxl
         InputState m_PreviousInputState = {};
 
         std::function<void(std::unique_ptr<Event>)> m_EventCallback;
+
+        bool m_RawInputSupported = false;
     };
+
+    namespace Utils
+    {
+        inline int ToGLFWCursorMode(CursorMode mode)
+        {
+            switch (mode)
+            {
+                case CursorMode::Normal:   return GLFW_CURSOR_NORMAL;
+                case CursorMode::Hidden:   return GLFW_CURSOR_HIDDEN;
+                case CursorMode::Disabled: return GLFW_CURSOR_DISABLED;
+                case CursorMode::Captured: return GLFW_CURSOR_CAPTURED;
+                default:                   return GLFW_CURSOR_NORMAL;
+            }
+        }
+
+        inline int ToGLFWStandardCursor(StandardCursor cursor)
+        {
+            switch (cursor)
+            {
+                case StandardCursor::Arrow:     return GLFW_ARROW_CURSOR;
+                case StandardCursor::IBeam:     return GLFW_IBEAM_CURSOR;
+                case StandardCursor::Crosshair: return GLFW_CROSSHAIR_CURSOR;
+                case StandardCursor::Hand:      return GLFW_HAND_CURSOR;
+                case StandardCursor::HResize:   return GLFW_HRESIZE_CURSOR;
+                case StandardCursor::VResize:   return GLFW_VRESIZE_CURSOR;
+                default:                        return GLFW_ARROW_CURSOR;
+            }
+        }
+    }
 }
