@@ -9,6 +9,8 @@
 #include "Renderer/UniformLayout.h"
 #include "Renderer/Vertices.h"
 
+using namespace std::literals;
+
 namespace pxl
 {
     Renderer::Renderer(const RendererConfig& config)
@@ -153,6 +155,10 @@ namespace pxl
         if (m_Config.InitImGui)
             InitImGui();
 
+#ifdef _WIN64
+        m_SleepTimer = std::make_unique<Platform::Windows::HighResSleepTimer>();
+#endif
+
         PXL_LOG_INFO(LogArea::Renderer, "Renderer initialized with {} graphics API", Utils::ToString(m_Config.APIType));
     }
 
@@ -257,7 +263,11 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        m_GraphicsDevice->WaitOnFrame(m_FrameIndex);
+        Stopwatch sw;
+        m_GraphicsDevice->WaitOnFrame(m_FrameInFlightIndex);
+        m_FrameStats.GraphicsDeviceWaitTime = sw.GetElapsedMilliSec();
+
+        m_BeginPoint = std::chrono::steady_clock::now();
 
         m_GraphicsContext->BeginFrame(m_GraphicsDevice, m_FrameIndex);
 
@@ -267,7 +277,7 @@ namespace pxl
         if (m_ImGuiRenderer)
             m_ImGuiRenderer->NewFrame();
 
-        m_CurrentFrameData = &m_PerFrameData.at(m_FrameIndex);
+        m_CurrentFrameData = &m_PerFrameData.at(m_FrameInFlightIndex);
 
         m_CurrentFrameData->QuadBatch->Reset();
     }
@@ -288,12 +298,20 @@ namespace pxl
 #endif
 
         m_GraphicsContext->EndFrame(m_GraphicsDevice);
+        m_GraphicsDevice->Submit(m_FrameInFlightIndex);
 
-        m_GraphicsDevice->Submit(*m_GraphicsContext, m_FrameIndex);
+        m_FrameStats.RenderTime = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - m_BeginPoint).count();
 
         m_GraphicsDevice->Present();
 
-        m_FrameIndex = (m_FrameIndex + 1) % RendererConstants::k_MaxFramesInFlight;
+        if (m_FrameCount == 0 && m_Config.Window->WillShowOnceRendererIsWorking())
+            m_Config.Window->Show();
+
+        m_FrameStats.FrameInFlightIndex = m_FrameInFlightIndex;
+        m_FrameStats.FrameCountIndex = m_FrameCount;
+
+        m_FrameInFlightIndex = (m_FrameInFlightIndex + 1) % RendererConstants::MaxFramesInFlight;
+        m_FrameCount++;
     }
 
     void Renderer::SetClearColour(const glm::vec4& colour)
@@ -318,6 +336,17 @@ namespace pxl
     {
         m_Config.AllowTearing = value;
         m_GraphicsDevice->SetAllowTearing(value);
+    }
+
+    void Renderer::SetFramerateMode(FramerateMode mode)
+    {
+        // If we ever add multi-threading to the renderer then this may need to be refactored out to a RenderThread class,
+        // but for now this is fine
+
+        if (mode == FramerateMode::AdaptiveSync)
+            m_AdaptiveSyncFramerateLimit = Window::GetPrimaryMonitor().GetCurrentVideoMode().RefreshRate - 3;
+
+        m_Config.FramerateMode = mode;
     }
 
     void Renderer::ReloadPipelines()
@@ -447,5 +476,51 @@ namespace pxl
 
         // TODO: TEMP
         m_Camera2D->SetSides({ 0.0f, e.GetSize().ToVec2().x, 0.0f, e.GetSize().ToVec2().y });
+    void Renderer::LimitFramerateIfNecessary()
+    {
+        PXL_PROFILE_SCOPE;
+
+        uint32_t frameratelimit = 0;
+        if (!m_Config.Window->IsFocused())
+            frameratelimit = m_Config.UnfocusedFramerateLimit;
+        else if (m_Config.FramerateMode == FramerateMode::Custom)
+            frameratelimit = m_Config.CustomFramerateLimit;
+        else if (m_Config.FramerateMode == FramerateMode::AdaptiveSync)
+            frameratelimit = m_AdaptiveSyncFramerateLimit;
+
+        if (frameratelimit == 0)
+        {
+            m_FrameStats.FramerateLimitWaitTime = 0;
+            m_FrameStats.FramerateLimitSleepTime = 0;
+            m_FrameStats.FramerateLimitSpinTime = 0;
+            return;
+        }
+
+        auto limitNS = std::chrono::nanoseconds(1s) / frameratelimit;
+        auto frameStartPoint = Application::Get().GetUpdateStartPoint();
+        auto elapsed = std::chrono::steady_clock::now() - frameStartPoint;
+
+        m_FrameStats.FramerateLimitWaitTime = std::chrono::duration<double, std::milli>(limitNS - elapsed).count();
+
+        // Sleep to avoid wasting CPU cycles
+        if (m_SleepTimer && limitNS > 1ms)
+        {
+            // Amount of time to reduce the sleep timer by to account for inaccuracy
+            const auto tolerance = 1ms;
+            auto sleepTime = std::max(limitNS - elapsed - tolerance, 0ns);
+            if (sleepTime > 0ns)
+            {
+                Stopwatch sw;
+                m_SleepTimer->Sleep(sleepTime.count());
+                m_FrameStats.FramerateLimitSleepTime = sw.GetElapsedMilliSec();
+            }
+        }
+
+        // Spin for the remaining time
+        Stopwatch sw;
+        while (elapsed < limitNS)
+            elapsed = std::chrono::steady_clock::now() - frameStartPoint;
+
+        m_FrameStats.FramerateLimitSpinTime = sw.GetElapsedMilliSec();
     }
 }

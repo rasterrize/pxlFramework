@@ -85,6 +85,8 @@ namespace pxl
         // The path to load an icon from for this window. If not supplied, the window will have no icon.
         std::optional<std::string> IconPath;
 
+        // Show the window only once the renderer is presenting. This helps avoid the flashing white as the renderer initializes.
+        bool ShowOnceRendererIsWorking = WindowConstants::DefaultShowOnceRendererIsWorking;
     };
 
     /// @brief A desktop window used to display stuff to the user.
@@ -157,6 +159,7 @@ namespace pxl
         void SetTitle(const std::string_view& title);
 
         void SetIcon(const std::shared_ptr<Image>& image);
+        bool WillShowOnceRendererIsWorking() const { return m_ShowOnceRendererIsWorking; }
 
         /// @brief Enforces an aspect ratio for the window's dimensions.
         /// @param numerator The width value of the ratio.
@@ -248,7 +251,7 @@ namespace pxl
         // The current monitor this window is on
         Monitor m_CurrentMonitor = {};
 
-        bool m_ShowAfterFirstPresent = true;
+        bool m_ShowOnceRendererIsWorking = WindowConstants::DefaultShowOnceRendererIsWorking;
 
     private:
         static inline bool s_Initialized = false;

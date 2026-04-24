@@ -62,6 +62,14 @@ namespace pxl
 
         void SetAllowTearing(bool value);
 
+        void SetFramerateMode(FramerateMode mode);
+
+        void SetCustomFramerateLimit(uint32_t limit) { m_Config.CustomFramerateLimit = limit; }
+
+        uint32_t SetUnfocusedFramerateLimit(uint32_t limit) { m_Config.UnfocusedFramerateLimit = limit; }
+
+        uint32_t GetAdaptiveSyncFramerateLimit() const { return m_AdaptiveSyncFramerateLimit; }
+
         /// @brief Recreates all pipelines and reloads their shaders.
         void ReloadPipelines();
 
@@ -71,11 +79,27 @@ namespace pxl
         std::shared_ptr<Texture> CreateTexture(const TextureSpecs& specs);
 
         std::shared_ptr<OrthographicCamera> GetCamera2D() const { return m_Camera2D; }
+        struct FrameStatistics
+        {
+            uint64_t FrameCountIndex;
+            uint32_t FrameInFlightIndex;
+            double FrameTime;
+            double RenderTime;
+            double GraphicsDeviceWaitTime;
+            double FramerateLimitWaitTime;
+            double FramerateLimitSleepTime;
+            double FramerateLimitSpinTime;
+
+            double GetFPS() const { return 1000.0 / FrameTime; }
+        };
+
+        const FrameStatistics& GetFrameStats() const { return m_FrameStats; }
 
     private:
         friend class Application;
         void Begin();
         void End();
+        void LimitFramerateIfNecessary();
 
         void Flush();
 
@@ -118,6 +142,17 @@ namespace pxl
         std::vector<PerFrameData> m_PerFrameData;
         PerFrameData* m_CurrentFrameData = nullptr;
 
-        uint32_t m_FrameIndex = 0;
+        uint32_t m_FrameInFlightIndex = 0;
+        uint64_t m_FrameCount = 0;
+
+        bool m_Suspend = false;
+
+        uint32_t m_AdaptiveSyncFramerateLimit = 0;
+
+        std::unique_ptr<SleepTimer> m_SleepTimer;
+
+        FrameStatistics m_FrameStats = {};
+
+        std::chrono::steady_clock::time_point m_BeginPoint = {};
     };
 }
