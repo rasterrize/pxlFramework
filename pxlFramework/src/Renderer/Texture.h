@@ -39,7 +39,9 @@ namespace pxl
         TextureWrap WrapMode = TextureWrap::ClampToEdge;
         SampleFilter Filter = SampleFilter::Linear;
         bool UseAnistropicFiltering = false;
-        float AnisotropyLevel = 1.0f;
+
+        // Any value below 1.0 means it will be auto overridden by the renderer's desired anisotropy level
+        float AnisotropyLevel = 0.0f;
     };
 
     struct TextureMetadata

@@ -7,8 +7,8 @@
 
 namespace pxl
 {
-    VulkanTexture::VulkanTexture(const TextureSpecs& specs, VkDevice device, VmaAllocator allocator, VkCommandPool oneTimePool, VkQueue graphicsQueue)
-        : m_Specs(specs), m_Allocator(allocator), m_Device(device)
+    VulkanTexture::VulkanTexture(const TextureSpecs& specs, const VulkanTextureParams& params)
+        : m_Specs(specs), m_Allocator(params.Allocator), m_Device(params.Device), m_MaxAnisotropyLevel(params.MaxAnisotropyLevel)
     {
         m_Metadata = { m_Specs.Image->Metadata.Size };
 
@@ -43,13 +43,13 @@ namespace pxl
             .layerCount = 1,
         };
 
-        VK_CHECK(vkCreateImageView(device, &viewInfo, nullptr, &m_View));
+        VK_CHECK(vkCreateImageView(m_Device, &viewInfo, nullptr, &m_View));
 
         // Copy image data from buffer to image object
         VulkanStagingBuffer stagingBuffer(m_Allocator, m_Metadata.Size.Width * m_Metadata.Size.Height * Utils::ToNumOfChannels(TextureFormat::RGBA8), m_Specs.Image->Buffer.data());
 
         // Allocate one time command buffer
-        auto cmdBuffer = VulkanUtils::AllocateCommandBuffer(m_Device, oneTimePool);
+        auto cmdBuffer = VulkanUtils::AllocateCommandBuffer(m_Device, params.OneTimePool);
 
         VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -99,23 +99,13 @@ namespace pxl
         submitInfo.pCommandBuffers = &cmdBuffer;
 
         VkFence submitFence = VulkanUtils::CreateFence(m_Device, false);
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, submitFence);
+        vkQueueSubmit(params.GraphicsQueue, 1, &submitInfo, submitFence);
 
         VK_CHECK(vkWaitForFences(m_Device, 1, &submitFence, VK_TRUE, UINT64_MAX));
         vkDestroyFence(m_Device, submitFence, nullptr);
 
         // Setup a sampler
-        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-        samplerInfo.magFilter = VulkanUtils::ToVkFilter(m_Specs.Filter);
-        samplerInfo.minFilter = VulkanUtils::ToVkFilter(m_Specs.Filter);
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; // TODO
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerInfo.anisotropyEnable = m_Specs.UseAnistropicFiltering;
-        samplerInfo.maxAnisotropy = m_Specs.AnisotropyLevel;
-
-        VK_CHECK(vkCreateSampler(device, &samplerInfo, nullptr, &m_Sampler));
+        InitSampler();
 
         // Reset image handle as we don't need it anymore
         m_Specs.Image.reset();
@@ -143,14 +133,34 @@ namespace pxl
         }
     }
 
-    void VulkanTexture::SetData(const void* data)
+    void VulkanTexture::SetData(const void*)
     {
         // TODO
     }
 
     void VulkanTexture::SetAnisotropicLevel(float level)
     {
+        VK_CHECK(vkDeviceWaitIdle(m_Device));
+
+        m_Specs.AnisotropyLevel = level;
+        InitSampler();
+
         // TODO: recreate sampler with the specified level
         // May need to invalidate/just set m_Specs.AnisotropyLevel and require manual sampler recreation by the renderer
+    }
+
+    void VulkanTexture::InitSampler()
+    {
+        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerInfo.magFilter = VulkanUtils::ToVkFilter(m_Specs.Filter);
+        samplerInfo.minFilter = VulkanUtils::ToVkFilter(m_Specs.Filter);
+        samplerInfo.addressModeU = VulkanUtils::ToVkSamplerAddressMode(m_Specs.WrapMode);
+        samplerInfo.addressModeV = VulkanUtils::ToVkSamplerAddressMode(m_Specs.WrapMode);
+        samplerInfo.addressModeW = VulkanUtils::ToVkSamplerAddressMode(m_Specs.WrapMode);
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.anisotropyEnable = m_Specs.UseAnistropicFiltering;
+        samplerInfo.maxAnisotropy = std::clamp(m_Specs.AnisotropyLevel, 1.0f, m_MaxAnisotropyLevel);
+
+        VK_CHECK(vkCreateSampler(m_Device, &samplerInfo, nullptr, &m_Sampler));
     }
 }

@@ -487,5 +487,17 @@ namespace pxl
                 default:                    return VK_FILTER_MAX_ENUM;
             }
         }
+
+        inline VkSamplerAddressMode ToVkSamplerAddressMode(TextureWrap wrap)
+        {
+            switch (wrap)
+            {
+                case TextureWrap::Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                case TextureWrap::MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+                case TextureWrap::ClampToEdge:    return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+                case TextureWrap::ClampToBorder:  return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+                default:                          return VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+            }
+        }
     };
 }

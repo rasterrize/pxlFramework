@@ -6,10 +6,19 @@
 
 namespace pxl
 {
+    struct VulkanTextureParams
+    {
+        VkDevice Device = VK_NULL_HANDLE;
+        VmaAllocator Allocator = nullptr;
+        VkCommandPool OneTimePool = VK_NULL_HANDLE;
+        VkQueue GraphicsQueue = VK_NULL_HANDLE;
+        float MaxAnisotropyLevel = 1.0f;
+    };
+
     class VulkanTexture : public Texture
     {
     public:
-        VulkanTexture(const TextureSpecs& specs, VkDevice device, VmaAllocator allocator, VkCommandPool oneTimePool, VkQueue graphicsQueue);
+        VulkanTexture(const TextureSpecs& specs, const VulkanTextureParams& params);
 
         virtual void Free() override;
 
@@ -25,6 +34,9 @@ namespace pxl
         VkSampler GetSampler() const { return m_Sampler; }
 
     private:
+        void InitSampler();
+
+    private:
         TextureSpecs m_Specs = {};
         TextureMetadata m_Metadata = {};
 
@@ -34,5 +46,7 @@ namespace pxl
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSampler m_Sampler = VK_NULL_HANDLE;
+
+        float m_MaxAnisotropyLevel = 1.0f;
     };
 }

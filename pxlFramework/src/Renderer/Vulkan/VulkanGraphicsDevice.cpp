@@ -85,7 +85,8 @@ namespace pxl
 
     std::shared_ptr<Texture> VulkanGraphicsDevice::CreateTexture(const TextureSpecs& specs)
     {
-        auto texture = std::make_shared<VulkanTexture>(specs, m_Device, m_Allocator, m_OneTimeCommandPool, m_GraphicsQueue);
+        VulkanTextureParams params = { m_Device, m_Allocator, m_OneTimeCommandPool, m_GraphicsQueue, m_Limits.MaxAnisotropicLevel };
+        auto texture = std::make_shared<VulkanTexture>(specs, params);
         m_Resources.push_back(texture);
         return texture;
     }
