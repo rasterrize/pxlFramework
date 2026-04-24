@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Events/EventManager.h"
+#include "Events/WindowEvents.h"
+#include "Window.h"
 
 namespace pxl
 {
@@ -29,6 +31,7 @@ namespace pxl
         void Run();
 
         /// @brief Immediately closes the application, force shutting down all internal systems.
+        /// Remember to return from your function after calling this to avoid interfacing into invalid systems.
         void Close();
 
         bool IsRunning() const { return m_Running; }
@@ -54,23 +57,23 @@ namespace pxl
         /// @brief Called once per every event that passes through the event system. Only use this in special cases.
         virtual void OnEvent([[maybe_unused]] const Event& e) {}
 
-        Renderer& GetRenderer() const { return *m_Renderer; }
+        const std::shared_ptr<Window>& InitMainWindow(WindowSpecs& specs, bool overrideWithIni = true);
+        const std::shared_ptr<Window>& GetMainWindow() const { return m_MainWindow; }
+        void SetMainWindow(const std::shared_ptr<Window>& window) { m_MainWindow = window; }
 
         /// @brief Initializes the renderer for the application.
         /// @param config The configuration of the renderer.
         /// @return A reference to the renderer object to perform any additional configurations with the renderer.
-        Renderer& InitRenderer(const RendererConfig& config);
+        Renderer& InitRenderer(RendererConfig& config, bool overrideWithIni = true);
+        Renderer& GetRenderer() const { return *m_Renderer; }
         void ShutdownRenderer();
 
-        void SetMinimization(bool minimized) { m_Minimized = minimized; }
+        const std::chrono::steady_clock::time_point& GetUpdateStartPoint() const { return m_UpdateStartPoint; }
 
-        uint32_t GetFPSLimit() const { return m_CustomFPSLimit; }
-        void SetFPSLimit(uint32_t limit) { m_CustomFPSLimit = limit; }
+        EventManager& GetEventManager() const { return *m_EventManager; }
 
-        FramerateMode GetFramerateMode() const { return m_FramerateMode; }
-        void SetFramerateMode(FramerateMode mode);
-
-        const std::unique_ptr<EventManager>& GetEventManager() const { return m_EventManager; }
+        void OverrideWithFrameworkIni(WindowSpecs& specs);
+        void OverrideWithFrameworkIni(RendererConfig& config);
 
     public:
         /// @brief Gets the singleton instance of the application class.
@@ -84,37 +87,22 @@ namespace pxl
         static bool Exists() { return s_Instance; }
 
     private:
-        void LimitFPS();
         void InitPlatformingBackend();
         void ShutdownPlatformingBackend();
 
+        void OnWindowCloseEvent(const WindowCloseEvent& e);
     private:
         static inline Application* s_Instance = nullptr;
 
         bool m_Running = true;
-        bool m_Minimized = false;
 
         std::unique_ptr<Renderer> m_Renderer;
+        std::shared_ptr<Window> m_MainWindow;
         std::unique_ptr<EventManager> m_EventManager;
 
-        float m_LastFrameTime = 0.0f;
-        std::chrono::steady_clock::time_point m_FrameStartTime;
-        uint32_t m_CustomFPSLimit = ApplicationConstants::k_DefaultCustomFPSLimit;
-        uint32_t m_AdaptiveSyncFPSLimit = 0;
-        FramerateMode m_FramerateMode = FramerateMode::Unlimited;
-    };
+        std::shared_ptr<EventHandler<WindowCloseEvent>> m_WindowCloseEventHandler;
 
-    namespace Utils
-    {
-        inline std::string ToString(FramerateMode mode)
-        {
-            switch (mode)
-            {
-                case FramerateMode::Unlimited:    return "Unlimited";
-                case FramerateMode::Custom:       return "Custom";
-                case FramerateMode::AdaptiveSync: return "Adaptive Sync";
-                default:                          return "Unknown";
-            }
-        }
-    }
+        float m_PlatformTimeLastCycle = 0.0f;
+        std::chrono::steady_clock::time_point m_UpdateStartPoint = {};
+    };
 }
