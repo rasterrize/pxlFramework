@@ -5,7 +5,6 @@
 #include "../src/Core/Application.h"
 #include "../src/Core/Assert.h"
 #include "../src/Core/Colour.h"
-#include "../src/Core/Config.h"
 #include "../src/Core/Cursor.h"
 #include "../src/Core/Image.h"
 #include "../src/Core/InputSystem.h"

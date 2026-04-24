@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/IniConfig.h"
 #include "Events/EventManager.h"
 #include "Events/WindowEvents.h"
 #include "Window.h"
@@ -91,6 +92,9 @@ namespace pxl
         void ShutdownPlatformingBackend();
 
         void OnWindowCloseEvent(const WindowCloseEvent& e);
+
+        std::vector<IniConfigSetting> DefaultFrameworkSettings();
+
     private:
         static inline Application* s_Instance = nullptr;
 
@@ -99,6 +103,7 @@ namespace pxl
         std::unique_ptr<Renderer> m_Renderer;
         std::shared_ptr<Window> m_MainWindow;
         std::unique_ptr<EventManager> m_EventManager;
+        std::unique_ptr<IniConfig> m_FrameworkIni;
 
         std::shared_ptr<EventHandler<WindowCloseEvent>> m_WindowCloseEventHandler;
 

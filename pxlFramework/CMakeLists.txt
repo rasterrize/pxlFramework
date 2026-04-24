@@ -114,20 +114,16 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME yaml-cpp
-    GITHUB_REPOSITORY jbeder/yaml-cpp
-    GIT_TAG yaml-cpp-0.9.0
-    OPTIONS
-    "YAML_CPP_BUILD_TESTS OFF"
-    "YAML_CPP_BUILD_CONTRIB OFF"
-    "YAML_CPP_BUILD_TOOLS OFF"
+    NAME simpleini
+    GITHUB_REPOSITORY brofield/simpleini
+    GIT_TAG v4.25
 )
 
 if(PXL_ENABLE_PROFILING)
     CPMAddPackage(
         NAME tracy
         GITHUB_REPOSITORY wolfpld/tracy
-        GIT_TAG v0.11.0
+        GIT_TAG v0.13.1
         OPTIONS
         "TRACY_ENABLE ON"
         "TRACY_ON_DEMAND ON"
@@ -155,7 +151,7 @@ target_link_libraries(${PROJECT_NAME}
     glm
     stb
     assimp
-    yaml-cpp
+    SimpleIni::SimpleIni
     Vulkan::volk
     Vulkan::shaderc_combined
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>

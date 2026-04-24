@@ -1,12 +1,15 @@
 #include "Application.h"
 
-#include "Config.h"
 #include "Events/EventHandler.h"
 #include "Platform/Platform.h"
 #include "Renderer/Renderer.h"
 #include "Window.h"
 
-using namespace std::literals;
+#ifdef PXL_DEBUG
+    #define PXL_FRAMEWORK_CONFIG_FILE_NAME "Framework-dev.ini"
+#else
+    #define PXL_FRAMEWORK_CONFIG_FILE_NAME "Framework.ini"
+#endif
 
 namespace pxl
 {
@@ -21,17 +24,19 @@ namespace pxl
 
         PXL_INIT_LOGGING;
 
-        FrameworkConfig::Init();
         InitPlatformingBackend();
 
         m_EventManager = std::make_unique<EventManager>();
+
+        m_FrameworkIni = std::make_unique<IniConfig>(PXL_FRAMEWORK_CONFIG_FILE_NAME, DefaultFrameworkSettings());
     }
 
     Application::~Application()
     {
-        FrameworkConfig::Shutdown();
+        // Explicitly shutdown all systems
         ShutdownRenderer();
         Window::Shutdown();
+        m_FrameworkIni.reset();
         ShutdownPlatformingBackend();
 
         s_Instance = nullptr;
@@ -72,7 +77,6 @@ namespace pxl
                     if (m_Renderer->IsImGuiInitialized())
                         OnGUIRender();
 #endif
-
                     m_Renderer->End();
                     m_Renderer->LimitFramerateIfNecessary();
                 }
