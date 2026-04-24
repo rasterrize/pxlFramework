@@ -8,45 +8,59 @@ namespace pxl
     class KeyEvent : public InputEvent
     {
     public:
-        KeyEvent(EventType type, const std::shared_ptr<InputSystem>& system, KeyCode key, int mods)
-            : InputEvent(type, system), m_Key(key), m_Modifiers(mods)
+        KeyEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, KeyModFlags mods)
+            : InputEvent(system), m_Key(key), m_Modifiers(mods)
         {
         }
 
-        KeyCode GetKey() const { return m_Key; }
-        int GetMods() const { return m_Modifiers; }
-
-        bool IsKey(KeyCode key) const { return key == m_Key; }
-        bool IsMods(int mods) const { return (m_Modifiers & mods) == mods; }
-        bool IsModsAndKey(int mods, KeyCode key) const { return IsKey(key) && IsMods(mods); }
-
-    protected:
         virtual std::string DataToString() const override { return std::format("Key = {}", Utils::ToString(m_Key)); }
 
-    protected:
-        KeyCode m_Key;
-        int m_Modifiers;
+        KeyCode GetKey() const { return m_Key; }
+        KeyModFlags GetMods() const { return m_Modifiers; }
+
+        bool IsKey(KeyCode key) const { return key == m_Key; }
+        bool IsMods(KeyModFlags mods) const { return (m_Modifiers & mods) == mods; }
+        bool IsModsAndKey(KeyModFlags mods, KeyCode key) const { return IsMods(mods) && IsKey(key); }
+
+    private:
+        KeyCode m_Key = {};
+        KeyModFlags m_Modifiers = 0;
     };
 
     class KeyDownEvent : public KeyEvent
     {
     public:
-        KeyDownEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, int mods)
-            : KeyEvent(EventType::KeyDown, system, key, mods)
+        KeyDownEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, KeyModFlags mods)
+            : KeyEvent(system, key, mods)
         {
         }
 
         static EventType GetStaticType() { return EventType::KeyDown; }
+        EventType GetEventType() const { return GetStaticType(); }
     };
 
     class KeyUpEvent : public KeyEvent
     {
     public:
-        KeyUpEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, int mods)
-            : KeyEvent(EventType::KeyUp, system, key, mods)
+        KeyUpEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, KeyModFlags mods)
+            : KeyEvent(system, key, mods)
         {
         }
 
         static EventType GetStaticType() { return EventType::KeyUp; }
+        EventType GetEventType() const { return GetStaticType(); }
+    };
+
+    // This event is intended for text input, not continuous 'held-down' processing
+    class KeyRepeatEvent : public KeyEvent
+    {
+    public:
+        KeyRepeatEvent(const std::shared_ptr<InputSystem>& system, KeyCode key, KeyModFlags mods)
+            : KeyEvent(system, key, mods)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::KeyRepeat; }
+        EventType GetEventType() const { return GetStaticType(); }
     };
 }

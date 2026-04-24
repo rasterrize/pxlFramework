@@ -132,6 +132,7 @@ namespace pxl
         glfwSetFramebufferSizeCallback(m_GLFWWindow, FramebufferResizeCallback);
         glfwSetWindowIconifyCallback(m_GLFWWindow, WindowIconifyCallback);
         glfwSetDropCallback(m_GLFWWindow, DropCallback);
+        glfwSetCursorEnterCallback(m_GLFWWindow, CursorEnterCallback);
     }
 
     void Window::InitGLFWCallbacks()
@@ -143,6 +144,8 @@ namespace pxl
 
     void Window::UpdateCurrentMonitor()
     {
+        PXL_PROFILE_SCOPE;
+
         Monitor bestMonitor = GetPrimaryMonitor();
         int32_t bestOverlap = 0;
 
@@ -236,7 +239,7 @@ namespace pxl
                 break;
         }
 
-        WindowModeChangeEvent event(mode, m_Handle.lock());
+        WindowModeChangeEvent event(m_Handle.lock(), mode);
         m_EventCallback(event);
 
         PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, Utils::ToString(m_WindowMode));
@@ -376,11 +379,20 @@ namespace pxl
 
     void Window::WindowCloseCallback(GLFWwindow* window)
     {
-        static_cast<Window*>(glfwGetWindowUserPointer(window))->Close();
+        PXL_PROFILE_SCOPE;
+
+        auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        WindowCloseEvent event(windowHandle->m_Handle.lock());
+        windowHandle->m_EventCallback(event);
+
+        windowHandle->Close();
     }
 
     void Window::WindowResizeCallback(GLFWwindow* window, int width, int height)
     {
+        PXL_PROFILE_SCOPE;
+
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
         if (width == 0 && height == 0)
@@ -392,20 +404,24 @@ namespace pxl
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-        WindowResizeEvent event({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) }, windowInstance->m_Handle.lock());
+        WindowResizeEvent event(windowInstance->m_Handle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
         windowInstance->m_EventCallback(event);
     }
 
     void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
+        PXL_PROFILE_SCOPE;
+
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        WindowFBResizeEvent event({ static_cast<uint32_t>(width), static_cast<uint32_t>(height) }, windowInstance->m_Handle.lock());
+        WindowFBResizeEvent event(windowInstance->m_Handle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
         windowInstance->m_EventCallback(event);
     }
 
     void Window::WindowIconifyCallback(GLFWwindow* window, int iconified)
     {
+        PXL_PROFILE_SCOPE;
+
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
         windowInstance->m_Minimized = iconified;
 
@@ -428,7 +444,7 @@ namespace pxl
             s_EventProcessFunc = glfwPollEvents;
         }
 
-        WindowMinimizeEvent event(iconified, windowInstance->m_Handle.lock());
+        WindowMinimizeEvent event(windowInstance->m_Handle.lock(), iconified);
         windowInstance->m_EventCallback(event);
     }
 
@@ -446,31 +462,47 @@ namespace pxl
         if (!glfwGetWindowAttrib(windowInstance->GetNativeWindow(), GLFW_ICONIFIED))
             windowInstance->UpdateCurrentMonitor();
 
-        WindowRepositionEvent event({ xpos, ypos }, windowInstance->m_Handle.lock());
+        WindowRepositionEvent event(windowInstance->m_Handle.lock(), { xpos, ypos });
         windowInstance->m_EventCallback(event);
     }
 
     void Window::DropCallback(GLFWwindow* window, int count, const char** paths)
     {
+        PXL_PROFILE_SCOPE;
+
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
         std::vector<std::string> stringPaths(count);
         for (int i = 0; i < count; i++)
             stringPaths[i] = paths[i];
 
-        WindowPathDropEvent event(stringPaths, windowInstance->m_Handle.lock());
+        WindowPathDropEvent event(windowInstance->m_Handle.lock(), stringPaths);
         windowInstance->m_EventCallback(event);
     }
 
-    void Window::MonitorCallback(GLFWmonitor* monitor, int event)
+    void Window::CursorEnterCallback(GLFWwindow* window, int entered)
     {
-        UpdateMonitors();
+        PXL_PROFILE_SCOPE;
+
+        auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        WindowCursorEnterEvent event(windowHandle->m_Handle.lock(), entered);
+        windowHandle->m_EventCallback(event);
+    }
+
+    void Window::MonitorCallback(GLFWmonitor*, int)
+    {
+        PXL_PROFILE_SCOPE;
+
+        ProcessMonitors();
 
         // TODO: WHY DOES THIS CALLBACK NOT GET CALLED ??? MAYBE TRY DISCONNECTING IT THROUGH WINDOWS INSTEAD OF PHYSCIALLY
     }
 
     void Window::JoystickCallback(int jid, int event)
     {
+        PXL_PROFILE_SCOPE;
+
         if (event == GLFW_CONNECTED)
         {
             PrepareConnectedGamepad(jid);
@@ -578,7 +610,7 @@ namespace pxl
         PXL_LOG_INFO(LogArea::Input, "Controller {} connected", jid);
         if (glfwJoystickIsGamepad(jid))
         {
-            auto eventQueueCallback = Application::Get().GetEventManager()->GetEventQueueCallback();
+            auto eventQueueCallback = Application::Get().GetEventManager().GetEventQueueCallback();
             auto gamepad = std::make_shared<Gamepad>(jid, eventQueueCallback);
             s_Gamepads[jid] = gamepad;
 

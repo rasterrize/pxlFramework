@@ -5,25 +5,22 @@
 
 namespace pxl
 {
-    std::function<void(Event&)> EventManager::GetEventSendCallback()
+    EventManager::EventManager()
     {
-        return [this](Event& e)
+        m_EventSendCallback = [this](Event& e)
         {
             HandleEvent(e);
         };
-    }
 
-    std::function<void(std::unique_ptr<Event> e)> EventManager::GetEventQueueCallback()
-    {
-        return [this](std::unique_ptr<Event> e)
+        m_EventQueueCallback = [this](std::unique_ptr<Event> e)
         {
             m_EventQueue.push_back(std::move(e));
         };
     }
 
-    void EventManager::RegisterHandler(const std::shared_ptr<IEventHandler>& handler)
+    void EventManager::RegisterHandler(std::shared_ptr<IEventHandler> handler)
     {
-        m_Handlers.emplace_back(handler);
+        m_Handlers.emplace_back(std::move(handler));
     }
 
     void EventManager::ProcessQueue()
@@ -43,7 +40,7 @@ namespace pxl
         // Prioritize core application events first
         Application::Get().OnEvent(e);
 
-        if (e.IsHandled())
+        if (e.Handled)
             return;
 
         // TODO: Handle events for UI layers
@@ -61,7 +58,7 @@ namespace pxl
 
             handler.lock()->OnEvent(e);
 
-            if (e.IsHandled())
+            if (e.Handled)
                 return;
         }
     }

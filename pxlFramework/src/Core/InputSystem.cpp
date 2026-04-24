@@ -17,7 +17,7 @@ namespace pxl
 
             input->m_CurrentInputState.CursorPosition = { xpos, ypos };
 
-            auto event = std::make_unique<MouseMoveEvent>(glm::dvec2(xpos, ypos), input);
+            auto event = std::make_unique<MouseMoveEvent>(input, glm::dvec2(xpos, ypos));
             input->m_EventCallback(std::move(event));
         });
 
@@ -33,13 +33,13 @@ namespace pxl
             {
                 case GLFW_PRESS:
                 {
-                    auto downEvent = std::make_unique<MouseButtonDownEvent>(static_cast<MouseCode>(button), input);
+                    auto downEvent = std::make_unique<MouseButtonDownEvent>(input, static_cast<MouseCode>(button), mods);
                     input->m_EventCallback(std::move(downEvent));
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    auto upEvent = std::make_unique<MouseButtonUpEvent>(static_cast<MouseCode>(button), input);
+                    auto upEvent = std::make_unique<MouseButtonUpEvent>(input, static_cast<MouseCode>(button), mods);
                     input->m_EventCallback(std::move(upEvent));
                     break;
                 }
@@ -55,24 +55,22 @@ namespace pxl
             input->m_CurrentInputState.HorizontalScrollOffset = xoffset;
             input->m_CurrentInputState.VerticalScrollOffset = yoffset;
 
-            auto event = std::make_unique<MouseScrollEvent>(yoffset, xoffset, input);
+            auto event = std::make_unique<MouseScrollEvent>(input, yoffset, xoffset);
             input->m_EventCallback(std::move(event));
         });
 
-        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int, int action, int mods)
         {
             PXL_PROFILE_SCOPE_NAMED("GLFW Key Callback");
 
-            auto& input = static_cast<Window*>(glfwGetWindowUserPointer(window))->GetInputSystem();
+            auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            auto& input = windowHandle->GetInputSystem();
 
             input->m_CurrentInputState.KeyStates[static_cast<KeyCode>(key)] = action;
 
             // Override GLFW's windows key auto iconify so the start menu doesn't immediately disappear
-            if (key == GLFW_KEY_LEFT_SUPER)
-            {
-                if (glfwGetWindowMonitor(window))
-                    glfwIconifyWindow(window);
-            }
+            if (key == GLFW_KEY_LEFT_SUPER && action == GLFW_PRESS && glfwGetWindowMonitor(window) && windowHandle->GetWindowMode() == WindowMode::Fullscreen)
+                windowHandle->Minimize();
 
             switch (action)
             {
@@ -89,6 +87,8 @@ namespace pxl
                     break;
                 }
                 case GLFW_REPEAT:
+                    auto repeatEvent = std::make_unique<KeyRepeatEvent>(input, static_cast<KeyCode>(key), mods);
+                    input->m_EventCallback(std::move(repeatEvent));
                     break;
             }
         });

@@ -8,79 +8,101 @@ namespace pxl
     class GamepadEvent : public Event
     {
     protected:
-        GamepadEvent(EventType type, int gamepadJID)
-            : Event(type), m_JID(gamepadJID)
+        GamepadEvent(int32_t jid)
+            : m_JID(jid)
         {
         }
 
-        int GetGamepadJID() const { return m_JID; }
+        int32_t GetGamepadJID() const { return m_JID; }
 
     protected:
-        int m_JID;
+        int32_t m_JID = 0;
     };
 
     class GamepadAxisChangeEvent : public GamepadEvent
     {
     public:
-        GamepadAxisChangeEvent(int gamepadJID, GamepadAxis axis, float value)
-            : GamepadEvent(EventType::GamepadAxisChange, gamepadJID), m_Axis(axis), m_Value(value)
+        GamepadAxisChangeEvent(int32_t jid, GamepadAxis axis, float value)
+            : GamepadEvent(jid), m_Axis(axis), m_Value(value)
         {
         }
+
+        static EventType GetStaticType() { return EventType::GamepadAxisChange; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return std::format("Controller = {}, Axis = {}, Value = {}", m_JID, Utils::ToString(m_Axis), m_Value); }
 
         GamepadAxis GetAxis() const { return m_Axis; }
         float GetAxisValue() const { return m_Value; }
 
         bool IsAxis(GamepadAxis axis) const { return axis == m_Axis; }
-        bool IsThumbstick() const { return static_cast<int32_t>(m_Axis) < static_cast<int32_t>(GamepadAxis::LeftTrigger); }
-
-        static EventType GetStaticType() { return EventType::GamepadAxisChange; }
-
-    protected:
-        virtual std::string DataToString() const override { return std::format("Controller = {}, Axis = {}, Value = {}", m_JID, Utils::ToString(m_Axis), m_Value); }
+        bool IsThumbstick() const { return Utils::IsGamepadAxisAThumbstick(m_Axis); }
+        bool IsTrigger() const { return Utils::IsGamepadAxisATrigger(m_Axis); }
 
     private:
-        GamepadAxis m_Axis;
-        float m_Value;
+        GamepadAxis m_Axis = {};
+        float m_Value = 0.0f;
     };
-    
+
     class GamepadButtonEvent : public GamepadEvent
     {
     protected:
-        GamepadButtonEvent(EventType type, int gamepadJID, GamepadButton button)
-            : GamepadEvent(type, gamepadJID), m_Button(button)
+        GamepadButtonEvent(int32_t jid, GamepadButton button)
+            : GamepadEvent(jid), m_Button(button)
         {
         }
+
+        virtual std::string DataToString() const override { return std::format("Controller = {}, Button = {}", m_JID, Utils::ToString(m_Button)); }
 
         GamepadButton GetButton() const { return m_Button; }
 
         bool IsButton(GamepadButton button) const { return button == m_Button; }
 
     private:
-        virtual std::string DataToString() const override { return std::format("Controller = {}, Button = {}", m_JID, Utils::ToString(m_Button)); }
-
-    private:
-        GamepadButton m_Button;
+        GamepadButton m_Button = {};
     };
 
     class GamepadButtonDownEvent : public GamepadButtonEvent
     {
     public:
-        GamepadButtonDownEvent(int gamepadJID, GamepadButton button)
-            : GamepadButtonEvent(EventType::GamepadButtonDown, gamepadJID, button)
+        GamepadButtonDownEvent(int32_t jid, GamepadButton button)
+            : GamepadButtonEvent(jid, button)
         {
         }
 
         static EventType GetStaticType() { return EventType::GamepadButtonDown; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
     };
 
     class GamepadButtonUpEvent : public GamepadButtonEvent
     {
     public:
-        GamepadButtonUpEvent(int gamepadJID, GamepadButton button)
-            : GamepadButtonEvent(EventType::GamepadButtonUp, gamepadJID, button)
+        GamepadButtonUpEvent(int32_t jid, GamepadButton button)
+            : GamepadButtonEvent(jid, button)
         {
         }
 
         static EventType GetStaticType() { return EventType::GamepadButtonUp; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+    };
+
+    class GamepadStatusChangeEvent : public GamepadEvent
+    {
+    public:
+        GamepadStatusChangeEvent(int32_t jid, GamepadStatus status)
+            : GamepadEvent(jid), m_Status(status)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::GamepadStatusChange; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return std::format("Controller = {}, Status = {}", m_JID, Utils::ToString(m_Status)); }
+
+        GamepadStatus GetStatus() const { return m_Status; }
+
+        bool WasConnected() const { return m_Status == GamepadStatus::Connected; }
+        bool WasDisconnected() const { return m_Status == GamepadStatus::Disconnected; }
+
+    private:
+        GamepadStatus m_Status = {};
     };
 }

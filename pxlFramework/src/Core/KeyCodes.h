@@ -132,7 +132,7 @@ namespace pxl
     };
 
     // NOTE: values from glfw
-    enum KeyModFlags
+    enum KeyMod
     {
         // clang-format off
         Shift    = 0x0001,
@@ -143,6 +143,8 @@ namespace pxl
         NumLock  = 0x0020,
         // clang-format on
     };
+
+    using KeyModFlags = int32_t;
 
     namespace Utils
     {

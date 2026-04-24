@@ -4,27 +4,15 @@
 
 namespace pxl
 {
-    class Event
+    struct Event
     {
-    public:
-        Event(EventType type)
-            : m_Type(type)
-        {
-        }
-        virtual ~Event() {}
+        bool Handled = false;
 
-        EventType GetType() const { return m_Type; }
+        virtual ~Event() = default;
 
-        std::string ToString() const { return std::format("[{}]: {}", Utils::ToString(m_Type), DataToString()); }
+        virtual EventType GetEventType() const = 0;
 
-        void Handled() { m_Handled = true; }
-        bool IsHandled() { return m_Handled; }
-
-    protected:
+        std::string ToString() const { return std::format("[{}]: {}", Utils::ToString(GetEventType()), DataToString()); }
         virtual std::string DataToString() const = 0;
-
-    protected:
-        bool m_Handled = false;
-        EventType m_Type = EventType::Unknown;
     };
 }

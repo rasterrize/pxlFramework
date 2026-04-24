@@ -7,27 +7,32 @@ namespace pxl
         Unknown = 0,
 
         // Keyboard events
-        KeyDown = 20,
+        KeyDown,
         KeyUp,
+        KeyRepeat,
 
         // Mouse events
-        MouseMove = 40,
+        MouseMove,
         MouseButtonDown,
         MouseButtonUp,
         MouseScroll,
 
         // Window events
-        WindowResize = 60,
+        WindowResize,
         WindowReposition,
         WindowMinimize,
         WindowModeChange,
         WindowPathDrop,
         WindowFBResize,
+        WindowFocus,
+        WindowClose,
+        WindowCursorEnter,
 
         // Gamepad events
-        GamepadAxisChange = 80,
+        GamepadAxisChange,
         GamepadButtonDown,
         GamepadButtonUp,
+        GamepadStatusChange,
     };
 
     namespace Utils
@@ -36,22 +41,30 @@ namespace pxl
         {
             switch (type)
             {
-                case EventType::Unknown:           return "Unknown";
-                case EventType::KeyDown:           return "KeyDown";
-                case EventType::KeyUp:             return "KeyUp";
-                case EventType::MouseMove:         return "MouseMove";
-                case EventType::MouseButtonDown:   return "MouseButtonDown";
-                case EventType::MouseButtonUp:     return "MouseButtonUp";
-                case EventType::MouseScroll:       return "MouseScroll";
-                case EventType::WindowResize:      return "WindowResize";
-                case EventType::WindowReposition:  return "WindowReposition";
-                case EventType::WindowMinimize:    return "WindowMinimize";
-                case EventType::WindowModeChange:  return "WindowModeChange";
-                case EventType::WindowPathDrop:    return "WindowPathDrop";
-                case EventType::GamepadAxisChange: return "GamepadAxisChange";
-                case EventType::GamepadButtonDown: return "GamepadButtonDown";
-                case EventType::GamepadButtonUp:   return "GamepadButtonUp";
-                default:                           return "Unknown";
+                case EventType::Unknown:   return "Unknown";
+                case EventType::KeyDown:   return "KeyDown";
+                case EventType::KeyUp:     return "KeyUp";
+                case EventType::KeyRepeat: return "KeyRepeat";
+
+                case EventType::MouseMove:       return "MouseMove";
+                case EventType::MouseButtonDown: return "MouseButtonDown";
+                case EventType::MouseButtonUp:   return "MouseButtonUp";
+                case EventType::MouseScroll:     return "MouseScroll";
+
+                case EventType::WindowResize:     return "WindowResize";
+                case EventType::WindowReposition: return "WindowReposition";
+                case EventType::WindowMinimize:   return "WindowMinimize";
+                case EventType::WindowModeChange: return "WindowModeChange";
+                case EventType::WindowPathDrop:   return "WindowPathDrop";
+                case EventType::WindowFBResize:   return "WindowFBResize";
+                case EventType::WindowFocus:      return "WindowFocus";
+                case EventType::WindowClose:      return "WindowClose";
+
+                case EventType::GamepadAxisChange:   return "GamepadAxisChange";
+                case EventType::GamepadButtonDown:   return "GamepadButtonDown";
+                case EventType::GamepadButtonUp:     return "GamepadButtonUp";
+                case EventType::GamepadStatusChange: return "GamepadConnection";
+                default:                             return "Unknown";
             }
         }
     }

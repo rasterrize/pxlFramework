@@ -7,8 +7,8 @@ namespace pxl
     class InputEvent : public Event
     {
     public:
-        InputEvent(EventType type, const std::shared_ptr<InputSystem>& system)
-            : Event(type), m_InputSystem(system)
+        InputEvent(const std::shared_ptr<InputSystem>& system)
+            : m_InputSystem(system)
         {
         }
 
@@ -18,7 +18,7 @@ namespace pxl
         // Get the previous global InputState. Useful for checking state on a different input at the same time this even is received.
         const InputState& GetPreviousInputState() const { return m_InputSystem.lock()->GetPreviousState(); }
 
-    protected:
-        std::weak_ptr<InputSystem> m_InputSystem;
+    private:
+        std::weak_ptr<InputSystem> m_InputSystem = {};
     };
 }

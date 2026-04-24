@@ -8,8 +8,8 @@ namespace pxl
     class WindowEvent : public Event
     {
     public:
-        WindowEvent(EventType type, const std::shared_ptr<Window>& window)
-            : Event(type), m_Window(window)
+        WindowEvent(const std::shared_ptr<Window>& window)
+            : m_Window(window)
         {
         }
 
@@ -23,111 +23,97 @@ namespace pxl
     class WindowResizeEvent : public WindowEvent
     {
     public:
-        WindowResizeEvent(Size2D size, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowResize, window), m_Size(size)
+        WindowResizeEvent(const std::shared_ptr<Window>& window, Size2D size)
+            : WindowEvent(window), m_Size(size)
         {
         }
-
-        Size2D GetSize() const { return m_Size; }
 
         static EventType GetStaticType() { return EventType::WindowResize; }
-
-    protected:
-        virtual std::string DataToString() const override { return std::format("Size = {}, {}", m_Size.Width, m_Size.Height); }
-
-    private:
-        Size2D m_Size;
-    };
-
-    class WindowFBResizeEvent : public WindowEvent
-    {
-    public:
-        WindowFBResizeEvent(Size2D size, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowFBResize, window), m_Size(size)
-        {
-        }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return std::format("Size = {}", m_Size.ToString()); }
 
         Size2D GetSize() const { return m_Size; }
 
-        static EventType GetStaticType() { return EventType::WindowFBResize; }
-
-    protected:
-        virtual std::string DataToString() const override { return std::format("Size = {}, {}", m_Size.Width, m_Size.Height); }
-
     private:
-        Size2D m_Size;
+        Size2D m_Size = {};
+    };
+
+    class WindowFBResizeEvent : public WindowResizeEvent
+    {
+    public:
+        WindowFBResizeEvent(const std::shared_ptr<Window>& window, Size2D size)
+            : WindowResizeEvent(window, size)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::WindowFBResize; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
     };
 
     class WindowRepositionEvent : public WindowEvent
     {
     public:
-        WindowRepositionEvent(const glm::ivec2& pos, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowReposition, window), m_Position(pos)
+        WindowRepositionEvent(const std::shared_ptr<Window>& window, const glm::ivec2& pos)
+            : WindowEvent(window), m_Position(pos)
         {
         }
 
-        glm::ivec2 GetPosition() const { return m_Position; }
-
         static EventType GetStaticType() { return EventType::WindowReposition; }
-
-    protected:
+        virtual EventType GetEventType() const override { return GetStaticType(); }
         virtual std::string DataToString() const override { return std::format("Position = {}, {}", m_Position.x, m_Position.y); }
 
+        glm::ivec2 GetPosition() const { return m_Position; }
+
     private:
-        glm::ivec2 m_Position;
+        glm::ivec2 m_Position = {};
     };
 
     class WindowModeChangeEvent : public WindowEvent
     {
     public:
-        WindowModeChangeEvent(WindowMode mode, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowModeChange, window), m_WindowMode(mode)
+        WindowModeChangeEvent(const std::shared_ptr<Window>& window, WindowMode mode)
+            : WindowEvent(window), m_WindowMode(mode)
         {
         }
 
-        WindowMode GetMode() const { return m_WindowMode; }
-
         static EventType GetStaticType() { return EventType::WindowModeChange; }
-
-    protected:
+        virtual EventType GetEventType() const override { return GetStaticType(); }
         virtual std::string DataToString() const override { return std::format("Mode = {}", Utils::ToString(m_WindowMode)); }
 
+        WindowMode GetMode() const { return m_WindowMode; }
+
     private:
-        WindowMode m_WindowMode;
+        WindowMode m_WindowMode = {};
     };
 
     class WindowMinimizeEvent : public WindowEvent
     {
     public:
-        WindowMinimizeEvent(bool minimized, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowMinimize, window), m_Minimized(minimized)
+        WindowMinimizeEvent(const std::shared_ptr<Window>& window, bool minimized)
+            : WindowEvent(window), m_Minimized(minimized)
         {
         }
 
-        bool GetMinimized() const { return m_Minimized; }
-
         static EventType GetStaticType() { return EventType::WindowMinimize; }
-
-    protected:
+        virtual EventType GetEventType() const override { return GetStaticType(); }
         virtual std::string DataToString() const override { return std::format("Minimized = {}", m_Minimized); }
 
+        bool WasMinimized() const { return m_Minimized; }
+
     private:
-        bool m_Minimized;
+        bool m_Minimized = false;
     };
 
     class WindowPathDropEvent : public WindowEvent
     {
     public:
-        WindowPathDropEvent(const std::vector<std::string>& paths, const std::shared_ptr<Window>& window)
-            : WindowEvent(EventType::WindowPathDrop, window), m_Paths(paths)
+        WindowPathDropEvent(const std::shared_ptr<Window>& window, const std::vector<std::string>& paths)
+            : WindowEvent(window), m_Paths(paths)
         {
         }
 
-        std::vector<std::string> GetPaths() const { return m_Paths; }
-
         static EventType GetStaticType() { return EventType::WindowPathDrop; }
-
-    protected:
+        virtual EventType GetEventType() const override { return GetStaticType(); }
         virtual std::string DataToString() const override
         {
             std::string concatenatedPaths;
@@ -137,7 +123,59 @@ namespace pxl
             return std::format("{} Paths: \n{}", m_Paths.size(), concatenatedPaths);
         }
 
+        std::vector<std::string> GetPaths() const { return m_Paths; }
+
     private:
         std::vector<std::string> m_Paths;
+    };
+
+    class WindowFocusEvent : public WindowEvent
+    {
+    public:
+        WindowFocusEvent(const std::shared_ptr<Window>& window, bool focused)
+            : WindowEvent(window), m_Focused(focused)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::WindowFocus; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return std::format("Focused = {}", m_Focused); }
+
+        bool IsFocused() const { return m_Focused; }
+
+    private:
+        bool m_Focused = false;
+    };
+
+    class WindowCloseEvent : public WindowEvent
+    {
+    public:
+        WindowCloseEvent(const std::shared_ptr<Window>& window)
+            : WindowEvent(window)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::WindowClose; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return "Closing"; }
+    };
+
+    class WindowCursorEnterEvent : public WindowEvent
+    {
+    public:
+        WindowCursorEnterEvent(const std::shared_ptr<Window>& window, bool entered)
+            : WindowEvent(window), m_Entered(entered)
+        {
+        }
+
+        static EventType GetStaticType() { return EventType::WindowCursorEnter; }
+        virtual EventType GetEventType() const override { return GetStaticType(); }
+        virtual std::string DataToString() const override { return std::format("Entered = {}", m_Entered); }
+
+        bool WasEntered() const { return m_Entered; }
+        bool WasLeft() const { return !m_Entered; }
+
+    private:
+        bool m_Entered = false;
     };
 }

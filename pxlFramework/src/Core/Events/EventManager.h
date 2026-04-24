@@ -8,10 +8,12 @@ namespace pxl
     class EventManager
     {
     public:
-        std::function<void(Event&)> GetEventSendCallback();
-        std::function<void(std::unique_ptr<Event> e)> GetEventQueueCallback();
+        EventManager();
 
-        void RegisterHandler(const std::shared_ptr<IEventHandler>& handler);
+        std::function<void(Event&)> GetEventSendCallback() const { return m_EventSendCallback; }
+        std::function<void(std::unique_ptr<Event>)> GetEventQueueCallback() const { return m_EventQueueCallback; }
+
+        void RegisterHandler(const std::shared_ptr<IEventHandler> handler);
 
     private:
         friend class Application;
@@ -21,7 +23,9 @@ namespace pxl
 
     private:
         std::vector<std::unique_ptr<Event>> m_EventQueue;
-
         std::vector<std::weak_ptr<IEventHandler>> m_Handlers;
+
+        std::function<void(Event&)> m_EventSendCallback;
+        std::function<void(std::unique_ptr<Event>)> m_EventQueueCallback;
     };
 }
