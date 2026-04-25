@@ -2,7 +2,6 @@
 
 #include "Application.h"
 #include "Events/WindowEvents.h"
-#include "Input.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Vulkan/VulkanUtils.h"
 #include "Utils/FileSystem.h"
@@ -72,6 +71,10 @@ namespace pxl
         glfwWindowHint(GLFW_POSITION_X, m_Position.x);
         glfwWindowHint(GLFW_POSITION_Y, m_Position.y);
 
+        // Disable auto iconification, we will handle this ourselves
+        glfwWindowHint(GLFW_AUTO_ICONIFY, false);
+
+        // GLFW uses OpenGL by default, which we don't want to use
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), glfwMonitor, nullptr);
@@ -95,36 +98,15 @@ namespace pxl
 #endif
 
         // Init event and input systems
-        m_EventCallback = Application::Get().GetEventManager()->GetEventSendCallback();
-        m_InputSystem = std::make_shared<InputSystem>(m_GLFWWindow, Application::Get().GetEventManager()->GetEventQueueCallback());
-    }
-
-    void Window::Update()
-    {
-        PXL_PROFILE_SCOPE;
-
-        if (m_ShowAfterFirstPresent)
-        {
-            Show();
-            m_ShowAfterFirstPresent = false;
-        }
+        auto& eventManager = Application::Get().GetEventManager();
+        m_EventCallback = eventManager.GetEventSendCallback();
+        m_InputSystem = std::make_shared<InputSystem>(m_GLFWWindow, eventManager.GetEventQueueCallback());
     }
 
     void Window::Close() const
     {
         glfwDestroyWindow(m_GLFWWindow);
         s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
-
-        if (s_Windows.empty())
-        {
-            Application::Get().Close();
-            return;
-        }
-
-        if (Application::Get().GetRenderer().GetConfig().Window == m_Handle.lock())
-        {
-            Application::Get().ShutdownRenderer();
-        }
     }
 
     void Window::InitWindowCallbacks()
@@ -214,31 +196,32 @@ namespace pxl
             return;
 
         auto monitor = GetCurrentMonitor();
-        auto vidMode = monitor.GetCurrentVideoMode();
+        auto nativeVidMode = monitor.GetCurrentVideoMode();
 
         switch (mode)
         {
             case WindowMode::Windowed:
                 m_WindowMode = WindowMode::Windowed;
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_TRUE);
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, m_LastWindowedPosition.x, m_LastWindowedPosition.y, m_LastWindowedSize.Width, m_LastWindowedSize.Height, GLFW_DONT_CARE);
+                glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, true);
+                glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, true);
                 break;
 
             case WindowMode::Borderless:
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, GLFW_FALSE);
                 m_WindowMode = WindowMode::Borderless;
 
                 /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
                     This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
                     Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, vidMode.Width + 1, vidMode.Height, GLFW_DONT_CARE);
+                glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, false);
+                glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, false);
+                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Height, GLFW_DONT_CARE);
+
                 break;
 
             case WindowMode::Fullscreen:
                 m_WindowMode = WindowMode::Fullscreen;
-                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Width, nativeVidMode.Height, nativeVidMode.RefreshRate);
                 break;
         }
 
@@ -306,7 +289,7 @@ namespace pxl
         glfwRestoreWindow(m_GLFWWindow);
     }
 
-    bool Window::GetVisibility() const
+    bool Window::IsVisible() const
     {
         return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE);
     }
@@ -321,20 +304,25 @@ namespace pxl
         glfwHideWindow(m_GLFWWindow);
     }
 
-    void Window::SetTitle(const std::string_view& title)
+    void Window::SetTitle(std::string_view title)
     {
         m_Title = title;
         glfwSetWindowTitle(m_GLFWWindow, title.data());
     }
 
-    void Window::SetIcon(const std::shared_ptr<Image>& image)
+    void Window::SetIcon(Image& image)
     {
         GLFWimage glfwImage;
-        glfwImage.width = image->Metadata.Size.Width;
-        glfwImage.height = image->Metadata.Size.Height;
-        glfwImage.pixels = image->Buffer.data();
+        glfwImage.width = image.Metadata.Size.Width;
+        glfwImage.height = image.Metadata.Size.Height;
+        glfwImage.pixels = image.Buffer.data();
 
         glfwSetWindowIcon(m_GLFWWindow, 1, &glfwImage);
+    }
+
+    bool Window::IsFocused() const
+    {
+        return glfwGetWindowAttrib(m_GLFWWindow, GLFW_FOCUSED);
     }
 
     void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const
@@ -428,31 +416,14 @@ namespace pxl
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
         windowInstance->m_Minimized = iconified;
 
-        // Check if all windows are minimized
-        bool allWindowsIconified = true;
-        for (const auto& windowHandle : s_Windows)
-        {
-            if (windowHandle->m_Minimized == false)
-                allWindowsIconified = false;
-        }
-
-        if (allWindowsIconified)
-        {
-            Application::Get().SetMinimization(true);
-            s_EventProcessFunc = glfwWaitEvents;
-        }
-        else
-        {
-            Application::Get().SetMinimization(false);
-            s_EventProcessFunc = glfwPollEvents;
-        }
-
         WindowMinimizeEvent event(windowInstance->m_Handle.lock(), iconified);
         windowInstance->m_EventCallback(event);
     }
 
     void Window::WindowPositionCallback(GLFWwindow* window, int xpos, int ypos)
     {
+        PXL_PROFILE_SCOPE;
+
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
         windowInstance->m_Position.x = xpos;
@@ -463,7 +434,7 @@ namespace pxl
 
         // NOTE: Retrieve an up-to-date iconification status, due to this callback being called before WindowIconifyCallback
         if (!glfwGetWindowAttrib(windowInstance->GetNativeWindow(), GLFW_ICONIFIED))
-            windowInstance->UpdateCurrentMonitor();
+            windowInstance->DetectCurrentMonitor();
 
         WindowRepositionEvent event(windowInstance->m_Handle.lock(), { xpos, ypos });
         windowInstance->m_EventCallback(event);
@@ -508,12 +479,12 @@ namespace pxl
 
         if (event == GLFW_CONNECTED)
         {
-            PrepareConnectedGamepad(jid);
+            PrepareGamepad(jid);
         }
         else if (event == GLFW_DISCONNECTED)
         {
             if (s_Gamepads.contains(jid))
-                s_Gamepads.erase(jid);
+                s_Gamepads[jid].reset();
 
             PXL_LOG_INFO(LogArea::Input, "Controller {} disconnected", jid);
         }
@@ -521,26 +492,14 @@ namespace pxl
 
     void Window::Init()
     {
-        if (!glfwInit())
-        {
-            PXL_LOG_ERROR(LogArea::Window, "Failed to initialize GLFW");
-            return;
-        }
+        PXL_PROFILE_SCOPE;
 
-        int major = 0, minor = 0, rev = 0;
-        glfwGetVersion(&major, &minor, &rev);
-        PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
-
-        InitGLFWCallbacks();
-
-        UpdateMonitors();
+        InitStaticCallbacks();
+        ProcessMonitors();
 
         // Force evaluate present gamepads since the joystick callback isn't called at the start
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
-        {
-            if (glfwJoystickPresent(i))
-                PrepareConnectedGamepad(i);
-        }
+            PrepareGamepad(i);
 
         s_Initialized = true;
     }
@@ -553,24 +512,18 @@ namespace pxl
             window->m_InputSystem->ResetCurrentState();
 
         for (auto& [jid, gamepad] : s_Gamepads)
-            gamepad->UpdateState();
+        {
+            if (gamepad)
+                gamepad->UpdateState();
+        }
 
         s_EventProcessFunc();
     }
 
-    void Window::UpdateAll()
+    void Window::ProcessMonitors()
     {
         PXL_PROFILE_SCOPE;
 
-        if (!s_Initialized || s_Windows.empty())
-            return;
-
-        for (const auto& window : s_Windows)
-            window->Update();
-    }
-
-    void Window::UpdateMonitors()
-    {
         s_Monitors.clear();
 
         int monitorCount;
@@ -608,21 +561,19 @@ namespace pxl
         return nullptr;
     }
 
-    void Window::PrepareConnectedGamepad(int jid)
+    void Window::PrepareGamepad(int jid)
     {
-        PXL_LOG_INFO(LogArea::Input, "Controller {} connected", jid);
+        PXL_PROFILE_SCOPE;
+
         if (glfwJoystickIsGamepad(jid))
         {
+            PXL_LOG_INFO(LogArea::Input, "Controller {} connected", jid);
             auto eventQueueCallback = Application::Get().GetEventManager().GetEventQueueCallback();
             auto gamepad = std::make_shared<Gamepad>(jid, eventQueueCallback);
             s_Gamepads[jid] = gamepad;
 
             PXL_LOG_INFO(LogArea::Input, "- Name: {}", gamepad->GetName());
             PXL_LOG_INFO(LogArea::Input, "- GUID: {}", gamepad->GetGUID());
-        }
-        else
-        {
-            PXL_LOG_ERROR(LogArea::Input, "Controller connected wasn't detected as a proper gamepad and it won't be used by the input system");
         }
     }
 
@@ -639,8 +590,6 @@ namespace pxl
     void Window::Shutdown()
     {
         CloseAll();
-
-        glfwTerminate();
 
         s_Initialized = false;
 
@@ -661,20 +610,11 @@ namespace pxl
     {
         if (s_Windows.size() >= k_MaxWindowCount)
         {
-            PXL_LOG_WARN(LogArea::Window, "Failed to create window, the max window count has been reached");
+            PXL_LOG_ERROR(LogArea::Window, "Failed to create window, the max window count has been reached");
             return nullptr;
         }
 
-        // clang-format off
-
-        // NOTE: This struct allows make_shared to create a window object despite the private constructor
-        struct shared_window_enabler : public Window {
-            shared_window_enabler(const WindowSpecs& specs) : Window(specs) {}
-        };
-
-        // clang-format on
-
-        auto window = std::make_shared<shared_window_enabler>(windowSpecs);
+        auto window = std::make_shared<Window>(windowSpecs);
 
         window->m_Handle = window;
 

@@ -155,9 +155,14 @@ namespace pxl
 
         void Hide() const;
 
-        const std::string& GetTitle() const { return m_Title; }
-        void SetTitle(const std::string_view& title);
+        std::string_view GetTitle() const { return glfwGetWindowTitle(m_GLFWWindow); }
+        void SetTitle(std::string_view title);
+
         void SetIcon(Image& image);
+
+        bool IsFocused() const;
+
+        void SetCursorMode(CursorMode mode) { m_InputSystem->SetCursorMode(mode); }
 
         bool WillShowOnceRendererIsWorking() const { return m_ShowOnceRendererIsWorking; }
 
@@ -176,6 +181,8 @@ namespace pxl
         /// @brief Creates a Vulkan surface for this window.
         /// @note This surface will NOT be automatically destroyed by the window class.
         VkSurfaceKHR CreateVKSurface(VkInstance instance);
+
+        const std::shared_ptr<InputSystem>& GetInputSystem() const { return m_InputSystem; }
 
     public:
         /// @brief Creates and prepares a new window object. Do not try to create windows another way as things will break.
@@ -196,9 +203,6 @@ namespace pxl
         static std::shared_ptr<Gamepad> GetGamepad(int id);
 
     private:
-
-        void Update();
-
         void DetectCurrentMonitor();
 
         void InitWindowCallbacks();
@@ -208,7 +212,6 @@ namespace pxl
 
         friend class InputSystem;
         friend class Input;
-        const std::shared_ptr<InputSystem>& GetInputSystem() const { return m_InputSystem; }
 
         // Per-window GLFW callbacks
         static void WindowCloseCallback(GLFWwindow* window);
@@ -217,6 +220,7 @@ namespace pxl
         static void WindowIconifyCallback(GLFWwindow* window, int iconification);
         static void WindowPositionCallback(GLFWwindow* window, int xpos, int ypos);
         static void DropCallback(GLFWwindow* window, int count, const char** paths);
+        static void CursorEnterCallback(GLFWwindow* window, int entered);
 
         // Static GLFW callbacks
         static void GLFWErrorCallback(int error, const char* description);
@@ -226,11 +230,10 @@ namespace pxl
         friend class Application; // for the below functions
         static void Init();
         static void ProcessEvents();
-        static void UpdateAll();
         static void Shutdown();
 
-        static void UpdateMonitors();
-        static void PrepareConnectedGamepad(int jid);
+        static void ProcessMonitors();
+        static void PrepareGamepad(int jid);
 
     private:
         GLFWwindow* m_GLFWWindow = nullptr;
@@ -252,6 +255,9 @@ namespace pxl
         Monitor m_CurrentMonitor = {};
 
         bool m_ShowOnceRendererIsWorking = WindowConstants::DefaultShowOnceRendererIsWorking;
+
+        // FIXME: shouldn't really be needed anymore
+        bool m_UseBorderlessHack = false;
 
     private:
         static inline bool s_Initialized = false;
@@ -275,6 +281,24 @@ namespace pxl
                 case WindowMode::Borderless: return "Borderless";
                 case WindowMode::Fullscreen: return "Fullscreen";
                 default:                     return "Unknown";
+            }
+        }
+
+        inline WindowMode ToWindowMode(std::string_view modeString)
+        {
+            const std::unordered_map<std::string, WindowMode> stringToWindow = {
+                {   Utils::ToString(WindowMode::Windowed),   WindowMode::Windowed },
+                { Utils::ToString(WindowMode::Borderless), WindowMode::Borderless },
+                { Utils::ToString(WindowMode::Fullscreen), WindowMode::Fullscreen },
+            };
+
+            try
+            {
+                return stringToWindow.at(modeString.data());
+            }
+            catch (std::out_of_range e)
+            {
+                return WindowMode::Windowed;
             }
         }
     }
