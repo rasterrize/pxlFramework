@@ -2,8 +2,6 @@
 
 #include <pxl/pxl.h>
 
-#define TA_USE_IMGUI 1
-
 namespace TestApp
 {
     class Test

@@ -26,8 +26,8 @@ add_executable(TestApp
 set_target_properties(TestApp PROPERTIES CXX_STANDARD 20)
 
 # Set pxlFramework settings
-set(PXL_ENABLE_PROFILING OFF CACHE BOOL "" FORCE)
-set(PXL_ENABLE_ASSERTS ON CACHE BOOL "" FORCE)
+set(PXL_ENABLE_PROFILING ON CACHE BOOL "" FORCE)
+set(PXL_ENABLE_ASSERTS $<CONFIG:Debug> CACHE BOOL "" FORCE)
 set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
 
 # Link to pxlFramework
@@ -43,11 +43,14 @@ set_target_properties(TestApp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_
 target_compile_definitions(TestApp PRIVATE
     $<$<CONFIG:Debug>:TA_DEBUG>
     $<$<CONFIG:Release>:TA_RELEASE>
+    TA_USE_IMGUI=true
 )
 
 # Set MSVC multi-processor compilation
 if(MSVC)
     target_compile_options(TestApp PRIVATE "/MP")
+
+    target_compile_options(TestApp PRIVATE "/WX")
 endif()
 
 # Set MSVC runtime library based on build type

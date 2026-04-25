@@ -42,6 +42,8 @@ namespace TestApp
 
         if (!m_Test)
             LaunchTest<TestApp::TA_DEFAULT_TEST>();
+
+        PXL_CREATE_AND_REGISTER_HANDLER(m_KeyDownHandler, pxl::KeyDownEvent, OnKeyDownEvent);
     }
 
     void TestApplication::OnUpdate(float dt)
@@ -66,10 +68,21 @@ namespace TestApp
             m_Test->OnClose();
     }
 
+    void TestApplication::OnEvent(pxl::Event& e)
+    {
+#ifdef TA_LOG_ALL_EVENTS
+        APP_LOG_INFO("{}", e.ToString());
+#endif
+    }
+
 #ifdef PXL_ENABLE_IMGUI
     void TestApplication::OnGUIRender()
     {
         PXL_PROFILE_SCOPE;
+
+        if (!m_ShowImGui)
+            return;
+
         // ImGui::ShowDemoWindow();
 
         auto& renderer = GetRenderer();
@@ -78,161 +91,168 @@ namespace TestApp
         static bool showWindowStats = false;
         static bool showRendererStats = false;
         static bool showInputStats = false;
-        if (ImGui::BeginMainMenuBar())
+
+        if (m_ShowMainMenu)
         {
-            if (ImGui::BeginMenu("Statistics"))
+            if (ImGui::BeginMainMenuBar())
             {
-                ImGui::MenuItem("Application statistics", nullptr, &showApplicationStats);
-                ImGui::MenuItem("Window statistics", nullptr, &showWindowStats);
-                ImGui::MenuItem("Renderer statistics", nullptr, &showRendererStats);
-                ImGui::MenuItem("Input statistics", nullptr, &showInputStats);
+                if (ImGui::Button("Hide"))
+                    m_ShowMainMenu = false;
 
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Settings"))
-            {
-                ImGui::SeparatorText("Application");
-
-                pxl::FramerateMode framerateMode = GetFramerateMode();
-                auto framerateModeString = pxl::Utils::ToString(framerateMode);
-
-                static int item_selected_idx = 0; // Here we store our selection data as an index.
-                const char* combo_preview_value = framerateModeString.c_str();
-                if (ImGui::BeginCombo("Framerate Mode", combo_preview_value))
+                if (ImGui::BeginMenu("Statistics"))
                 {
-                    for (int n = 0; n <= static_cast<int>(pxl::FramerateMode::AdaptiveSync); n++)
+                    ImGui::MenuItem("Application statistics", nullptr, &showApplicationStats);
+                    ImGui::MenuItem("Window statistics", nullptr, &showWindowStats);
+                    ImGui::MenuItem("Renderer statistics", nullptr, &showRendererStats);
+                    ImGui::MenuItem("Input statistics", nullptr, &showInputStats);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Settings"))
+                {
+                    ImGui::SeparatorText("Application");
+
+                    pxl::FramerateMode framerateMode = renderer.GetConfig().FramerateMode;
+                    auto framerateModeString = pxl::Utils::ToString(framerateMode);
+
+                    static int item_selected_idx = 0; // Here we store our selection data as an index.
+                    const char* combo_preview_value = framerateModeString.c_str();
+                    if (ImGui::BeginCombo("Framerate Mode", combo_preview_value))
                     {
-                        const bool is_selected = (item_selected_idx == n);
-                        auto idxFramerateMode = static_cast<pxl::FramerateMode>(n);
-                        if (ImGui::Selectable(pxl::Utils::ToString(idxFramerateMode).c_str(), is_selected))
+                        for (int n = 0; n <= static_cast<int>(pxl::FramerateMode::AdaptiveSync); n++)
                         {
-                            item_selected_idx = n;
-                            pxl::Application::SetFramerateMode(idxFramerateMode);
+                            const bool is_selected = (item_selected_idx == n);
+                            auto idxFramerateMode = static_cast<pxl::FramerateMode>(n);
+                            if (ImGui::Selectable(pxl::Utils::ToString(idxFramerateMode).c_str(), is_selected))
+                            {
+                                item_selected_idx = n;
+                                renderer.SetFramerateMode(idxFramerateMode);
+                            }
+
+                            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
                         }
-
-                        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                        if (is_selected)
-                            ImGui::SetItemDefaultFocus();
+                        ImGui::EndCombo();
                     }
-                    ImGui::EndCombo();
-                }
 
-                int fpsLimit = static_cast<int>(GetFPSLimit());
+                    int fpsLimit = static_cast<int>(renderer.GetConfig().CustomFramerateLimit);
 
-                if (GetFramerateMode() != pxl::FramerateMode::Custom)
-                    ImGui::BeginDisabled();
+                    if (framerateMode != pxl::FramerateMode::Custom)
+                        ImGui::BeginDisabled();
 
-                if (ImGui::DragInt("FPS Limit", &fpsLimit, 1.0f, 3, 1000))
-                {
-                    Application::Get().SetFPSLimit(fpsLimit);
-                }
+                    if (ImGui::DragInt("FPS Limit", &fpsLimit, 1.0f, 3, 1000))
+                    {
+                        renderer.SetCustomFramerateLimit(fpsLimit);
+                    }
 
-                if (GetFramerateMode() != pxl::FramerateMode::Custom)
-                {
-                    ImGui::SetItemTooltip("Set framerate mode to custom to enable this setting");
+                    if (framerateMode != pxl::FramerateMode::Custom)
+                    {
+                        ImGui::SetItemTooltip("Set framerate mode to custom to enable this setting");
+                        ImGui::EndDisabled();
+                    }
+
+                    ImGui::SeparatorText("Renderer");
+
+                    bool vsync = renderer.GetConfig().VerticalSync;
+                    if (ImGui::Checkbox("Vertical Sync", &vsync))
+                    {
+                        renderer.SetVerticalSync(vsync);
+                    }
+
+                    ImGui::BeginDisabled(vsync);
+
+                    bool allowTearing = renderer.GetConfig().AllowTearing;
+                    if (ImGui::Checkbox("Allow Tearing", &allowTearing))
+                    {
+                        renderer.SetAllowTearing(allowTearing);
+                    }
+
                     ImGui::EndDisabled();
-                }
 
-                ImGui::SeparatorText("Renderer");
+                    if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
+                        ImGui::BeginDisabled();
 
-                bool vsync = renderer.GetConfig().VerticalSync;
-                if (ImGui::Checkbox("Vertical Sync", &vsync))
-                {
-                    renderer.SetVerticalSync(vsync);
-                }
-
-                ImGui::BeginDisabled(vsync);
-
-                bool allowTearing = renderer.GetConfig().AllowTearing;
-                if (ImGui::Checkbox("Allow Tearing", &allowTearing))
-                {
-                    renderer.SetAllowTearing(allowTearing);
-                }
-
-                ImGui::EndDisabled();
-
-                if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
-                    ImGui::BeginDisabled();
-
-                bool tripleBuffering = renderer.GetConfig().TripleBuffering;
-                if (ImGui::Checkbox("Triple Buffering", &tripleBuffering))
-                {
-                    renderer.SetAllowTearing(tripleBuffering);
-                }
-                ImGui::SetItemTooltip("Sets the swapchains desired image count to 3 if supported");
-
-                if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
-                {
-                    ImGui::SetItemTooltip("Triple buffering is forced by device");
-                    ImGui::EndDisabled();
-                }
-
-                glm::vec4 clearColour = renderer.GetConfig().ClearColour;
-                if (ImGui::ColorEdit4("Clear Colour", &clearColour.x))
-                {
-                    renderer.SetClearColour(clearColour);
-                }
-
-                if (ImGui::Button("Reload pipelines"))
-                {
-                    renderer.ReloadPipelines();
-                }
-
-                if (ImGui::Button("Clear shader cache"))
-                {
-                    renderer.ClearShaderCache();
-                }
-
-                ImGui::SeparatorText("Window");
-
-                auto window = m_Test->GetWindow();
-
-                pxl::WindowMode windowMode = window->GetWindowMode();
-                std::string windowModeString = pxl::Utils::ToString(windowMode);
-
-                if (ImGui::BeginCombo("Window Mode", windowModeString.c_str()))
-                {
-                    for (int n = 0; n <= static_cast<int>(pxl::WindowMode::Fullscreen); n++)
+                    bool tripleBuffering = renderer.GetConfig().TripleBuffering;
+                    if (ImGui::Checkbox("Triple Buffering", &tripleBuffering))
                     {
-                        auto idxWindowMode = static_cast<pxl::WindowMode>(n);
-                        const bool is_selected = (windowMode == idxWindowMode);
-                        if (ImGui::Selectable(pxl::Utils::ToString(idxWindowMode).c_str(), is_selected))
-                        {
-                            window->SetWindowMode(idxWindowMode);
-                        }
-
-                        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                        if (is_selected)
-                            ImGui::SetItemDefaultFocus();
+                        renderer.SetTripleBuffering(tripleBuffering);
                     }
-                    ImGui::EndCombo();
-                }
+                    ImGui::SetItemTooltip("Sets the swapchains desired image count to 3 if supported");
 
-                auto videoModes = window->GetCurrentMonitor().VideoModes;
-                auto currentVideoMode = window->GetCurrentMonitor().GetCurrentVideoMode();
-                if (ImGui::BeginCombo("Video mode", currentVideoMode.ToString().c_str()))
-                {
-                    for (size_t n = 0; n < videoModes.size(); n++)
+                    if (renderer.GetGraphicsDevice().GetLimits().ForcedTripleBuffering)
                     {
-                        // auto idxWindowMode = static_cast<pxl::WindowMode>(n);
-                        // const bool is_selected = (windowMode == idxWindowMode);
-                        if (ImGui::Selectable(videoModes.at(n).ToString().c_str(), false))
-                        {
-                            // window->SetWindowMode(idxWindowMode);
-                        }
-
-                        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                        // if (is_selected)
-                        //     ImGui::SetItemDefaultFocus();
+                        ImGui::SetItemTooltip("Triple buffering is forced by device");
+                        ImGui::EndDisabled();
                     }
-                    ImGui::EndCombo();
+
+                    glm::vec4 clearColour = renderer.GetConfig().ClearColour;
+                    if (ImGui::ColorEdit4("Clear Colour", &clearColour.x))
+                    {
+                        renderer.SetClearColour(clearColour);
+                    }
+
+                    if (ImGui::Button("Reload pipelines"))
+                    {
+                        renderer.ReloadPipelines();
+                    }
+
+                    if (ImGui::Button("Clear shader cache"))
+                    {
+                        renderer.ClearShaderCache();
+                    }
+
+                    ImGui::SeparatorText("Window");
+
+                    auto window = m_Test->GetWindow();
+
+                    pxl::WindowMode windowMode = window->GetWindowMode();
+                    std::string windowModeString = pxl::Utils::ToString(windowMode);
+
+                    if (ImGui::BeginCombo("Window Mode", windowModeString.c_str()))
+                    {
+                        for (int n = 0; n <= static_cast<int>(pxl::WindowMode::Fullscreen); n++)
+                        {
+                            auto idxWindowMode = static_cast<pxl::WindowMode>(n);
+                            const bool is_selected = (windowMode == idxWindowMode);
+                            if (ImGui::Selectable(pxl::Utils::ToString(idxWindowMode).c_str(), is_selected))
+                            {
+                                window->SetWindowMode(idxWindowMode);
+                            }
+
+                            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    auto videoModes = window->GetCurrentMonitor().VideoModes;
+                    auto currentVideoMode = window->GetCurrentMonitor().GetCurrentVideoMode();
+                    if (ImGui::BeginCombo("Video mode", currentVideoMode.ToString().c_str()))
+                    {
+                        for (size_t n = 0; n < videoModes.size(); n++)
+                        {
+                            // auto idxWindowMode = static_cast<pxl::WindowMode>(n);
+                            // const bool is_selected = (windowMode == idxWindowMode);
+                            if (ImGui::Selectable(videoModes.at(n).ToString().c_str(), false))
+                            {
+                                // window->SetWindowMode(idxWindowMode);
+                            }
+
+                            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                            // if (is_selected)
+                            //     ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    ImGui::EndMenu();
                 }
 
-                ImGui::EndMenu();
+                ImGui::EndMainMenuBar();
             }
-
-            ImGui::EndMainMenuBar();
         }
 
         if (showApplicationStats)
@@ -246,7 +266,7 @@ namespace TestApp
             ImGui::Begin("Window Stats", &showWindowStats);
 
             auto window = m_Test->GetWindow();
-            ImGui::Text("Window Title: %s", window->GetTitle().c_str());
+            ImGui::Text("Window Title: %s", window->GetTitle().data());
             ImGui::Text("Window Position: %d, %d", window->GetPosition().x, window->GetPosition().y);
             ImGui::Text("Window Size: %u x %u", window->GetSize().Width, window->GetSize().Height);
 
@@ -263,13 +283,24 @@ namespace TestApp
             // ImGui::Text("Frame Time: %.3f", stats.PreviousFrameTime);
             // ImGui::Text("Frame Count: %u", stats.FrameCount);
 
-            // ImGui::SeparatorText("Frame");
-            // // ImGui::Text("Draw calls: %u", stats.GraphicsContextStats.DrawCalls);
-            // // ImGui::Text("Vertex count: %u", stats.FrameStats.VertexCount);
-            // // ImGui::Text("Index count: %u", stats.FrameStats.IndexCount);
-            // // ImGui::Text("Triangle count: %u", stats.FrameStats.GetTriangleCount());
-            // // ImGui::Text("Pipeline binds: %u", stats.GraphicsContextStats.PipelineBinds);
-            // // ImGui::Text("Texture binds: %u", stats.FrameStats.TextureBinds);
+            auto& stats = renderer.GetFrameStats();
+            ImGui::SeparatorText("Frame");
+            ImGui::Text("%.3f FPS", stats.GetFPS());
+            ImGui::Text("Frame count: %u", stats.FrameCountIndex);
+            ImGui::Text("Frame time: %.3fms", stats.FrameTime);
+            ImGui::Text("Render time: %.3fms", stats.RenderTime);
+            ImGui::Text("Framerate limit wait time: %.3fms", stats.FramerateLimitWaitTime);
+            ImGui::Text("Framerate limit sleep time: %.3fms", stats.FramerateLimitSleepTime);
+            ImGui::Text("Framerate limit spin time: %.3fms", stats.FramerateLimitSpinTime);
+            ImGui::Text("Graphics device wait time: %.3fms", stats.GraphicsDeviceWaitTime);
+            ImGui::Text("Frame in flight index: %u", stats.FrameInFlightIndex);
+
+            // ImGui::Text("Draw calls: %u", stats.GraphicsContextStats.DrawCalls);
+            // ImGui::Text("Vertex count: %u", stats.FrameStats.VertexCount);
+            // ImGui::Text("Index count: %u", stats.FrameStats.IndexCount);
+            // ImGui::Text("Triangle count: %u", stats.FrameStats.GetTriangleCount());
+            // ImGui::Text("Pipeline binds: %u", stats.GraphicsContextStats.PipelineBinds);
+            // ImGui::Text("Texture binds: %u", stats.FrameStats.TextureBinds);
 
             auto gpuName = renderer.GetGraphicsDevice().GetGPUName();
             auto driverVersion = renderer.GetGraphicsDevice().GetDriverInfo();
@@ -296,11 +327,9 @@ namespace TestApp
 
     pxl::WindowSpecs TestApplication::CreateWindowSpecs()
     {
-        pxl::FrameworkSettings frameworkSettings = {};
-
         std::string buildTypeString = "Unknown Build Type";
         std::string graphicsAPITypeString = "Unknown Graphics API";
-        pxl::WindowMode windowMode = frameworkSettings.WindowMode;
+        pxl::WindowMode windowMode = pxl::WindowMode::Windowed;
 
 #ifdef TA_DEBUG
         buildTypeString = "Debug x64";
@@ -314,13 +343,22 @@ namespace TestApp
         std::string windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPITypeString, m_Test->ToString());
 
         pxl::WindowSpecs windowSpecs = {};
-        windowSpecs.Size = frameworkSettings.WindowSize;
-        // windowSpecs.Position = frameworkSettings.WindowPosition;
+        windowSpecs.Size = { 1280, 720 };
         windowSpecs.Title = windowTitle;
         windowSpecs.WindowMode = windowMode;
-        windowSpecs.MonitorIndex = frameworkSettings.MonitorIndex;
         windowSpecs.IconPath = "assets/pxl.png";
 
+        OverrideWithFrameworkIni(windowSpecs);
+
         return windowSpecs;
+    }
+
+    void TestApplication::OnKeyDownEvent(const pxl::KeyDownEvent& e)
+    {
+        if (e.IsKey(pxl::KeyCode::Tab))
+            m_ShowMainMenu = !m_ShowMainMenu;
+
+        if (e.IsModsAndKey(pxl::KeyMod::Shift, pxl::KeyCode::Tab))
+            m_ShowImGui = !m_ShowImGui;
     }
 }

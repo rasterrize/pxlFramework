@@ -18,26 +18,26 @@ namespace TestApp
 
         virtual std::string ToString() const override { return "QuadsTest"; }
 
-        void OnKeyDownEvent(const pxl::KeyDownEvent& e);
-        void OnMouseMoveEvent(const pxl::MouseMoveEvent& e);
+    private:
+        void OnKeyDownEvent(pxl::KeyDownEvent& e);
+        void OnKeyUpEvent(pxl::KeyUpEvent& e);
+        void OnMouseButtonDownEvent(pxl::MouseButtonDownEvent& e);
 
     private:
-        std::shared_ptr<pxl::Window> m_Window = nullptr;
-        std::shared_ptr<pxl::OrthographicCamera> m_Camera = nullptr;
+        std::shared_ptr<pxl::Window> m_Window;
+        std::shared_ptr<pxl::OrthographicCamera> m_Camera;
 
         pxl::Renderer* m_Renderer = nullptr;
-        std::shared_ptr<pxl::Camera> m_Camera2D = nullptr;
+        std::shared_ptr<pxl::Camera> m_Camera2D;
 
         pxl::UserEventHandler<pxl::KeyDownEvent> m_KeyDownHandler;
         pxl::UserEventHandler<pxl::KeyUpEvent> m_KeyUpHandler;
+        pxl::UserEventHandler<pxl::MouseButtonDownEvent> m_MouseButtonDownHandler;
         pxl::UserEventHandler<pxl::MouseMoveEvent> m_MouseMoveHandler;
 
-        std::shared_ptr<pxl::Texture> m_StoneTexture = nullptr;
-        std::shared_ptr<pxl::Texture> m_CursorTexture = nullptr;
-        std::shared_ptr<pxl::Texture> m_SheetTexture = nullptr;
+        std::shared_ptr<pxl::Texture> m_StoneTexture;
+        std::shared_ptr<pxl::Texture> m_SheetTexture;
 
-
-        pxl::SubTexture m_TestSubTexture;
         pxl::AnimatedTexture m_AnimatedTexture = {};
 
         std::vector<pxl::Quad*> m_Quads;
@@ -49,8 +49,6 @@ namespace TestApp
         uint32_t m_QuadCount = 1;
         float m_RotationSpeed = 10.0f;
 
-        glm::dvec2 m_CursorPos;
-
-        pxl::RectF m_QuadBoundingBox;
+        bool m_Rotate = false;
     };
 }

@@ -14,6 +14,7 @@ namespace TestApp
         virtual void OnUpdate(float dt) override;
         virtual void OnRender(pxl::Renderer& renderer) override;
         virtual void OnClose() override;
+        virtual void OnEvent(pxl::Event& e) override;
 
 #ifdef PXL_ENABLE_IMGUI
         virtual void OnGUIRender() override;
@@ -37,9 +38,15 @@ namespace TestApp
 
     private:
         pxl::WindowSpecs CreateWindowSpecs();
+        void OnKeyDownEvent(const pxl::KeyDownEvent& e);
 
     private:
-        std::unique_ptr<Test> m_Test = nullptr;
+        std::unique_ptr<Test> m_Test;
+
+        bool m_ShowMainMenu = true;
+        bool m_ShowImGui = true;
+
+        pxl::UserEventHandler<pxl::KeyDownEvent> m_KeyDownHandler;
 
         pxl::RendererConfig m_DefaultRendererConfig = {};
     };
