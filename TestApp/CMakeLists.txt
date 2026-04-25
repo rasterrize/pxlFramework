@@ -19,6 +19,7 @@ add_executable(TestApp
     # src/Tests/MultiWindow.cpp
     # src/Tests/LinesTest.h
     # src/Tests/LinesTest.cpp
+    $<$<PLATFORM_ID:Windows>:resources.rc>
 )
 
 # Set project c++ standard
