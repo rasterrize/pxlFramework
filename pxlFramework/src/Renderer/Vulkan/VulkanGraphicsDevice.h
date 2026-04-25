@@ -32,7 +32,7 @@ namespace pxl
 
         virtual void Present() override;
 
-        virtual void OnWindowResize() override;
+        virtual void OnWindowFBResize(const WindowFBResizeEvent& e) override;
 
         virtual void FreeResources() override;
 

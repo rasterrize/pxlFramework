@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Events/WindowEvents.h"
 #include "Core/Window.h"
 #include "GPUBuffer.h"
 #include "GraphicsPipeline.h"
@@ -98,7 +99,7 @@ namespace pxl
         /// @brief Frees/destroys all the resources allocated on this GraphicsDevice.
         virtual void FreeResources() = 0;
 
-        virtual void OnWindowResize() = 0;
+        virtual void OnWindowFBResize(const WindowFBResizeEvent& e) = 0;
 
         virtual void SetVerticalSync(bool value) = 0;
 

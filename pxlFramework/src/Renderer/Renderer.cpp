@@ -9,6 +9,10 @@
 #include "Renderer/UniformLayout.h"
 #include "Renderer/Vertices.h"
 
+#ifdef _WIN64
+    #include "Platform/Windows/WindowsHighResSleepTimer.h"
+#endif
+
 using namespace std::literals;
 
 namespace pxl
@@ -137,7 +141,7 @@ namespace pxl
         orthoSettings.CameraSettings.NearClip = -1.0f;
         orthoSettings.CameraSettings.FarClip = 1.0f;
         orthoSettings.Sides = { 0.0f, windowSize.x, 0.0f, windowSize.y };
-        m_Camera2D = std::make_shared<pxl::OrthographicCamera>(orthoSettings);
+        m_CameraUI = std::make_shared<pxl::OrthographicCamera>(orthoSettings);
 
         // Prepare white pixel texture
         std::vector<uint8_t> pixelBytes = { 0xff, 0xff, 0xff, 0xff };
@@ -176,14 +180,17 @@ namespace pxl
 #endif
     }
 
-    void Renderer::Submit(const Quad& quad)
+    void Renderer::Submit(Quad& quad)
     {
         Submit(quad, nullptr);
     }
 
-    void Renderer::Submit(const Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords)
+    void Renderer::Submit(Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords)
     {
         PXL_PROFILE_SCOPE;
+
+        // Wrap the quads rotation so we don't get any floating point imprecision
+        Utils::WrapRotation(quad.Rotation);
 
         if (texture)
         {
@@ -214,29 +221,23 @@ namespace pxl
         }
     }
 
-    void Renderer::Submit(const Quad& quad, const SubTexture& subTexture)
+    void Renderer::Submit(Quad& quad, const SubTexture& subTexture)
     {
-        PXL_PROFILE_SCOPE;
-
         Submit(quad, subTexture.Texture.lock(), subTexture.Coords);
     }
 
-    void Renderer::Submit(const Quad& quad, AnimatedTexture& animatedSprite)
+    void Renderer::Submit(Quad& quad, AnimatedTexture& animatedSprite)
     {
-        PXL_PROFILE_SCOPE;
-
         Submit(quad, animatedSprite.GetCurrentFrame());
     }
 
-    void Renderer::Submit(const Line& line)
+    void Renderer::Submit(const Line&)
     {
-        PXL_PROFILE_SCOPE;
         PXL_LOG_ERROR(LogArea::Renderer, "Line rendering not implemented yet");
     }
 
-    void Renderer::Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
+    void Renderer::Submit(const std::shared_ptr<Mesh>&, const glm::vec3&, const glm::vec3&, const glm::vec3&)
     {
-        PXL_PROFILE_SCOPE;
         PXL_LOG_ERROR(LogArea::Renderer, "Mesh rendering not implemented yet");
     }
 
@@ -251,7 +252,7 @@ namespace pxl
 
             DrawParams params;
             params.Pipeline = m_QuadPipeline;
-            params.VertexBuffers.push_back(quadBatch.GetCurrentVertexBuffer());
+            params.VertexBuffer = quadBatch.GetCurrentVertexBuffer();
             params.IndexCount = static_cast<uint32_t>(vertexCount * 1.5f);
             params.UniformBuffer = m_CurrentFrameData->UniformBuffer;
             params.TextureHandler = m_TextureHandler;
@@ -288,7 +289,7 @@ namespace pxl
 
         Flush();
 
-        auto vp = m_Camera2D->GetViewProjectionMatrix();
+        auto vp = m_CameraUI->GetViewProjectionMatrix();
         m_CurrentFrameData->UniformBuffer->SetData(sizeof(glm::mat4), 0, &vp);
 
 #ifdef PXL_ENABLE_IMGUI
@@ -357,8 +358,10 @@ namespace pxl
         m_QuadPipeline->Recreate();
     }
 
-    std::shared_ptr<Texture> Renderer::CreateTexture(const TextureSpecs& specs)
+    std::shared_ptr<Texture> Renderer::CreateTexture(TextureSpecs& specs)
     {
+        // Override anisotropy level
+        specs.AnisotropyLevel = specs.AnisotropyLevel < 1.0f ? m_Config.AnisotropicFilteringLevel : specs.AnisotropyLevel;
         auto texture = m_GraphicsDevice->CreateTexture(specs);
         m_TextureHandler->Add(texture);
         m_TextureHandler->Upload();
@@ -367,6 +370,8 @@ namespace pxl
 
     glm::mat4 Renderer::CalculateTransform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
     {
+        PXL_PROFILE_SCOPE;
+
         // clang-format off
         return glm::translate(glm::mat4(1.0f), position)
             * glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) 
@@ -378,6 +383,8 @@ namespace pxl
 
     glm::vec2 Renderer::PositionOfAnchorOnRect(const RectF& rect, Anchor2D anchor)
     {
+        PXL_PROFILE_SCOPE;
+
         switch (anchor)
         {
             case Anchor2D::Centre:       return glm::vec2(rect.Right / 2.0f, rect.Top / 2.0f);
@@ -395,6 +402,8 @@ namespace pxl
 
     glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad& quad)
     {
+        PXL_PROFILE_SCOPE;
+
         auto offset = glm::vec2(0);
         switch (quad.Origin)
         {
@@ -416,8 +425,10 @@ namespace pxl
 
     Quad Renderer::Process(const Quad& quad)
     {
+        PXL_PROFILE_SCOPE;
+
         auto q = quad;
-        RectF fbRect = m_Camera2D->GetSides();
+        RectF fbRect = m_CameraUI->GetSides();
         glm::vec2 fbSize = { fbRect.Right, fbRect.Top };
         q.Position += glm::vec3(PositionOfAnchorOnRect(fbRect, q.Anchor), 0);
 
@@ -473,10 +484,20 @@ namespace pxl
         if (e.GetWindow() != m_Config.Window)
             return;
 
-        m_GraphicsDevice->OnWindowResize();
+        if (e.GetSize().Width == 0 || e.GetSize().Height == 0)
+        {
+            Suspend();
+            return;
+        }
+
+        Unsuspend();
+
+        m_GraphicsDevice->OnWindowFBResize(e);
 
         // TODO: TEMP
-        m_Camera2D->SetSides({ 0.0f, e.GetSize().ToVec2().x, 0.0f, e.GetSize().ToVec2().y });
+        m_CameraUI->SetSides({ 0.0f, e.GetSize().ToVec2().x, 0.0f, e.GetSize().ToVec2().y });
+    }
+
     void Renderer::LimitFramerateIfNecessary()
     {
         PXL_PROFILE_SCOPE;
@@ -511,6 +532,7 @@ namespace pxl
             auto sleepTime = std::max(limitNS - elapsed - tolerance, 0ns);
             if (sleepTime > 0ns)
             {
+                PXL_PROFILE_SCOPE_NAMED("Framerate limiter sleep");
                 Stopwatch sw;
                 m_SleepTimer->Sleep(sleepTime.count());
                 m_FrameStats.FramerateLimitSleepTime = sw.GetElapsedMilliSec();
@@ -518,10 +540,10 @@ namespace pxl
         }
 
         // Spin for the remaining time
-        Stopwatch sw;
-        while (elapsed < limitNS)
-            elapsed = std::chrono::steady_clock::now() - frameStartPoint;
-
-        m_FrameStats.FramerateLimitSpinTime = sw.GetElapsedMilliSec();
+        {
+            PXL_PROFILE_SCOPE_NAMED("Framerate limiter spin");
+            while (elapsed < limitNS)
+                elapsed = std::chrono::steady_clock::now() - frameStartPoint;
+        }
     }
 }

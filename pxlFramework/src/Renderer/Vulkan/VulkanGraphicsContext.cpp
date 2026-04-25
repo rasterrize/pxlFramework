@@ -158,7 +158,7 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         PXL_ASSERT(params.VertexCount > 0);
-        PXL_ASSERT(!params.VertexBuffers.empty());
+        PXL_ASSERT(params.VertexBuffer);
 
         BindParams(params);
         vkCmdDraw(m_CommandBuffer, params.VertexCount, 1, 0, 0);
@@ -169,7 +169,7 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         PXL_ASSERT(params.IndexCount > 0);
-        PXL_ASSERT(!params.VertexBuffers.empty());
+        PXL_ASSERT(params.VertexBuffer);
         PXL_ASSERT(indexBuffer);
 
         BindParams(params);
@@ -185,9 +185,7 @@ namespace pxl
 
     void VulkanGraphicsContext::BindParams(const DrawParams& params)
     {
-        Bind(params.Pipeline, params.UniformBuffer, params.TextureHandler);
-
-        for (const auto& buffer : params.VertexBuffers)
-            Bind(buffer);
+        Bind(*params.Pipeline, *params.UniformBuffer, params.TextureHandler.get());
+        Bind(params.VertexBuffer);
     }
 }

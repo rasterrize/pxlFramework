@@ -172,9 +172,10 @@ namespace pxl
         vkQueuePresentKHR(m_GraphicsQueue, &presentInfo);
     }
 
-    void VulkanGraphicsDevice::OnWindowResize()
+    void VulkanGraphicsDevice::OnWindowFBResize(const WindowFBResizeEvent& e)
     {
-        m_SwapchainInvalid = true;
+        if (e.GetSize().Width != m_SwapchainExtent.width || e.GetSize().Height != m_SwapchainExtent.height)
+            m_SwapchainInvalid = true;
     }
 
     void VulkanGraphicsDevice::FreeResources()

@@ -4,6 +4,7 @@
 #include "Core/Events/WindowEvents.h"
 #include "Core/Rect.h"
 #include "Core/Window.h"
+#include "Platform/SleepTimer.h"
 #include "Renderer/AnimatedTexture.h"
 #include "Renderer/Camera.h"
 #include "Renderer/GraphicsAPI.h"
@@ -39,10 +40,10 @@ namespace pxl
         GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
 
         /// @brief Submits a quad primitive to the renderer to be drawn.
-        void Submit(const Quad& quad);
-        void Submit(const Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords = Quad::GetDefaultTexCoords());
-        void Submit(const Quad& quad, const SubTexture& subTexture);
-        void Submit(const Quad& quad, AnimatedTexture& animatedSprite);
+        void Submit(Quad& quad);
+        void Submit(Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords = Quad::GetDefaultTexCoords());
+        void Submit(Quad& quad, const SubTexture& subTexture);
+        void Submit(Quad& quad, AnimatedTexture& animatedSprite);
 
         /// @brief Submits a line primitive to the renderer to be drawn.
         void Submit(const Line& line);
@@ -76,9 +77,15 @@ namespace pxl
         /// @brief Clears the shader cache directory.
         void ClearShaderCache() { m_ShaderManager->ClearCache(); }
 
-        std::shared_ptr<Texture> CreateTexture(const TextureSpecs& specs);
+        std::shared_ptr<Texture> CreateTexture(TextureSpecs& specs);
 
-        std::shared_ptr<OrthographicCamera> GetCamera2D() const { return m_Camera2D; }
+        std::shared_ptr<OrthographicCamera> GetCamera2D() const { return m_CameraUI; }
+
+        void Suspend() { m_Suspend = true; }
+        void Unsuspend() { m_Suspend = false; }
+
+        bool IsSuspended() const { return m_Suspend; }
+
         struct FrameStatistics
         {
             uint64_t FrameCountIndex;
@@ -137,7 +144,7 @@ namespace pxl
         std::shared_ptr<GPUBuffer> m_QuadIndexBuffer;
         std::shared_ptr<GraphicsPipeline> m_QuadPipeline;
 
-        std::shared_ptr<OrthographicCamera> m_Camera2D = nullptr;
+        std::shared_ptr<OrthographicCamera> m_CameraUI;
 
         std::vector<PerFrameData> m_PerFrameData;
         PerFrameData* m_CurrentFrameData = nullptr;

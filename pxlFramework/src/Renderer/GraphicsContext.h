@@ -12,7 +12,7 @@ namespace pxl
     struct DrawParams
     {
         /// @brief Vertex buffers to bind for the draw call.
-        std::vector<std::shared_ptr<GPUBuffer>> VertexBuffers;
+        std::shared_ptr<GPUBuffer> VertexBuffer;
 
         /// @brief Graphics pipeline to bind for the draw call
         std::shared_ptr<GraphicsPipeline> Pipeline;

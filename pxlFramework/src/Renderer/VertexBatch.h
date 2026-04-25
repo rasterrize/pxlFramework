@@ -27,11 +27,15 @@ namespace pxl
 
         void AddVertices(const std::vector<VertexType>& vertices)
         {
+            PXL_PROFILE_SCOPE;
+
             m_Vertices.insert(m_Vertices.end(), vertices.begin(), vertices.end());
         }
 
         void AddVertex(const VertexType& vertex)
         {
+            PXL_PROFILE_SCOPE;
+
             m_Vertices.push_back(vertex);
         }
 
@@ -41,6 +45,8 @@ namespace pxl
 
         void Flush(GraphicsDevice& device)
         {
+            PXL_PROFILE_SCOPE;
+
             UploadData();
             NextVertexBuffer(device);
         }

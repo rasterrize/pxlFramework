@@ -64,38 +64,37 @@ namespace pxl
 
             m_EventManager->ProcessQueue();
 
-            if (m_Running)
-            {
-                OnUpdate(deltaTime);
+            // Stop processing if the app was closed by events (WindowClose, KeyDown, etc)
+            if (!m_Running)
+                break;
 
-                // NOTE: C++ uses short circuit evaluation, so this is valid
-                if (m_Renderer && !m_Renderer->IsSuspended())
-                {
-                    m_Renderer->Begin();
-                    OnRender(*m_Renderer);
+            OnUpdate(deltaTime);
+
+            // NOTE: C++ uses short circuit evaluation, so this is valid
+            if (m_Renderer && !m_Renderer->IsSuspended())
+            {
+                m_Renderer->Begin();
+                OnRender(*m_Renderer);
 #ifdef PXL_ENABLE_IMGUI
-                    if (m_Renderer->IsImGuiInitialized())
-                        OnGUIRender();
+                if (m_Renderer->IsImGuiInitialized())
+                    OnGUIRender();
 #endif
-                    m_Renderer->End();
-                    m_Renderer->LimitFramerateIfNecessary();
-                }
+                m_Renderer->End();
             }
+
+            if (m_Renderer)
+                m_Renderer->LimitFramerateIfNecessary();
 
             PXL_PROFILE_FRAME_END;
         }
+
+        OnClose();
     }
 
     void Application::Close()
     {
-        if (!m_Running)
-            return;
-
         m_Running = false;
-
         PXL_LOG_INFO(LogArea::Core, "Application closing...");
-
-        OnClose();
     }
 
     Renderer& Application::InitRenderer(RendererConfig& config, bool overrideWithIni)

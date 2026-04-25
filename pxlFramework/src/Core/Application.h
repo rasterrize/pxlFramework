@@ -40,7 +40,7 @@ namespace pxl
         /// @brief Called once every update cycle for this application.
         /// Use this function for application/game logic.
         /// @param dt The deltaTime between the start of the last update cycle and the start of the current update cycle.
-        /// This can be used to sync variables correctly when the frame rate is fluctuating (e.g uncapped).
+        /// This can be used to sync variables independently of frame rate.
         virtual void OnUpdate([[maybe_unused]] float dt) {}
 
         /// @brief Called once every frame. Use this function for any kind of rendering purposes.
@@ -56,7 +56,7 @@ namespace pxl
         virtual void OnClose() {}
 
         /// @brief Called once per every event that passes through the event system. Only use this in special cases.
-        virtual void OnEvent([[maybe_unused]] const Event& e) {}
+        virtual void OnEvent([[maybe_unused]] Event& e) {}
 
         const std::shared_ptr<Window>& InitMainWindow(WindowSpecs& specs, bool overrideWithIni = true);
         const std::shared_ptr<Window>& GetMainWindow() const { return m_MainWindow; }
