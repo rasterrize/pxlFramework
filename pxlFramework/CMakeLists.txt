@@ -35,7 +35,7 @@ if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE "/MP")
 
     # Set compiler warning level
-    target_compile_options(${PROJECT_NAME} PRIVATE "/W3")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/W4")
 
     # Treat warnings as errors
     target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
