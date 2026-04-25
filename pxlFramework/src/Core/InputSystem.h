@@ -30,14 +30,7 @@ namespace pxl
         const InputState& GetCurrentState() const { return m_CurrentInputState; }
         const InputState& GetPreviousState() const { return m_PreviousInputState; }
 
-        void SetCursorMode(CursorMode mode);
-
-        bool IsRawInputSupported() const { return m_RawInputSupported; }
         void SetRawInput(bool enable);
-
-        void SetCursor(StandardCursor cursor);
-        void SetCursor(Cursor cursor);
-        void SetCursorDefault();
 
     private:
         GLFWwindow* m_Window = nullptr;

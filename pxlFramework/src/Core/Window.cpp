@@ -325,6 +325,27 @@ namespace pxl
         return glfwGetWindowAttrib(m_GLFWWindow, GLFW_FOCUSED);
     }
 
+    void Window::SetCursorMode(CursorMode mode)
+    {
+        glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, Utils::ToGLFWCursorMode(mode));
+        PXL_LOG_INFO(LogArea::Window, "Cursor mode set to {}", Utils::ToString(mode));
+    }
+
+    void Window::SetCursor(StandardCursor cursor)
+    {
+        glfwSetCursor(m_GLFWWindow, glfwCreateStandardCursor(Utils::ToGLFWStandardCursor(cursor)));
+    }
+
+    void Window::SetCursor(Cursor cursor)
+    {
+        glfwSetCursor(m_GLFWWindow, cursor.GetNativeCursor());
+    }
+
+    void Window::ResetCursor()
+    {
+        glfwSetCursor(m_GLFWWindow, nullptr);
+    }
+
     void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const
     {
         glfwSetWindowAspectRatio(m_GLFWWindow, numerator, denominator);

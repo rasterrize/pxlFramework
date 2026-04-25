@@ -162,7 +162,11 @@ namespace pxl
 
         bool IsFocused() const;
 
-        void SetCursorMode(CursorMode mode) { m_InputSystem->SetCursorMode(mode); }
+        void SetCursorMode(CursorMode mode);
+
+        void SetCursor(StandardCursor cursor);
+        void SetCursor(Cursor cursor);
+        void ResetCursor();
 
         bool WillShowOnceRendererIsWorking() const { return m_ShowOnceRendererIsWorking; }
 
