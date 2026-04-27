@@ -64,8 +64,10 @@ namespace pxl
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
 
-        // Hide the window on creation as we will still need to prepare it
-        glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
+        /* Hide the window on creation as we will still need to prepare it
+        NOTE: On wayland the window for some reason can automatically close when hidden on creation */
+        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+            glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
 
         // Set window position on creation (not used in fullscreen)
         glfwWindowHint(GLFW_POSITION_X, m_Position.x);
