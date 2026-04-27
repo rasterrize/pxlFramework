@@ -29,6 +29,8 @@ namespace pxl::Platform::Windows
             WaitForSingleObject(m_Timer, INFINITE);
         }
 
+        virtual std::chrono::milliseconds GetAccuracyMS() const override { return 1ms; }
+
     private:
         HANDLE m_Timer = nullptr;
     };

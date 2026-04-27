@@ -50,9 +50,8 @@ namespace pxl
         {
             PXL_PROFILE_SCOPE;
 
-            auto startPoint = std::chrono::steady_clock::now();
-            m_Renderer->m_FrameStats.FrameTime = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - m_UpdateStartPoint).count();
-            m_UpdateStartPoint = startPoint;
+            Stopwatch updateSW;
+            m_UpdateStartPoint = std::chrono::steady_clock::now();
 
             // Calculate deltaTime
             auto time = static_cast<float>(Platform::GetTimeRunning());
@@ -84,6 +83,8 @@ namespace pxl
 
             if (m_Renderer)
                 m_Renderer->LimitFramerateIfNecessary();
+
+            m_Renderer->m_FrameStats.FrameTime = updateSW.GetElapsedMilliSec();
 
             PXL_PROFILE_FRAME_END;
         }
