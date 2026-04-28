@@ -539,8 +539,8 @@ namespace pxl
 
 #ifdef PXL_DEBUG
         PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created");
-        PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
         PXL_LOG_INFO(LogArea::Vulkan, "- Extent: {}, {}", m_SwapchainExtent.width, m_SwapchainExtent.height);
+        PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
         PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_PerImageData.size());
         PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
         PXL_LOG_INFO(LogArea::Vulkan, "- Allow tearing: {}", m_Specs.AllowTearing);
