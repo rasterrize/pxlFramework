@@ -77,21 +77,25 @@ namespace pxl
 
     void ShaderManager::ReloadAll()
     {
+        InitCompiler();
+
         for (auto& [id, shader] : m_Shaders)
-        {
             Reload(shader);
-        }
+
+        ShutdownCompiler();
     }
 
     void ShaderManager::CompileAll(GraphicsDevice& graphicsDevice)
     {
+        InitCompiler();
+
         for (const auto& [sourcePath, shaderFile] : m_CompilationQueue)
         {
             // Load glsl file
             auto glsl = FileSystem::LoadGLSL(sourcePath);
 
             // Compile glsl to spirv using ShaderCompiler
-            auto spirv = m_Compiler.CompileGLSLToSPIRV(shaderFile.Stage, glsl, shaderFile.FileName.string());
+            auto spirv = m_Compiler->CompileGLSLToSPIRV(shaderFile.Stage, glsl, shaderFile.FileName.string());
 
             // Cache the shader to disk if compilation succeeded
             if (m_Config.UseCache && !spirv.empty())
@@ -110,6 +114,8 @@ namespace pxl
         }
 
         m_CreationQueue.clear();
+
+        ShutdownCompiler();
     }
 
     std::filesystem::path ShaderManager::GenerateShaderCachePath(const std::filesystem::path& fileName)
@@ -180,8 +186,9 @@ namespace pxl
         }
         else
         {
+            InitCompiler();
             auto glsl = FileSystem::LoadGLSL(shaderFilePath);
-            spirv = m_Compiler.CompileGLSLToSPIRV(shaderSpecs.Stage, glsl, shaderFilePath.filename().string());
+            spirv = m_Compiler->CompileGLSLToSPIRV(shaderSpecs.Stage, glsl, shaderFilePath.filename().string());
         }
 
         // Cache the shader
@@ -219,5 +226,11 @@ namespace pxl
         }
 
         return std::filesystem::path();
+    }
+
+    void ShaderManager::InitCompiler()
+    {
+        if (!m_Compiler)
+            m_Compiler = std::make_unique<ShaderCompiler>();
     }
 }

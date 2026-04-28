@@ -68,6 +68,8 @@ namespace pxl
         void CacheShaderToDisk(const std::vector<uint32_t> code, const std::filesystem::path& fileName);
         bool ValidateFileExtension(const std::string& shaderExt);
         std::filesystem::path FindShaderFile(const std::filesystem::path& fileName);
+        void InitCompiler();
+        void ShutdownCompiler() { m_Compiler.reset(); }
 
     private:
         ShaderManagerConfig m_Config = {};
@@ -78,6 +80,6 @@ namespace pxl
         // Stores shaders using a unique string identifier (usually the shader's file name)
         std::unordered_map<std::filesystem::path, std::shared_ptr<Shader>> m_Shaders;
 
-        ShaderCompiler m_Compiler = {};
+        std::unique_ptr<ShaderCompiler> m_Compiler;
     };
 }
