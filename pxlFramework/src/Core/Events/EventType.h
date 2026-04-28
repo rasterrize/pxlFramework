@@ -51,19 +51,20 @@ namespace pxl
                 case EventType::MouseButtonUp:   return "MouseButtonUp";
                 case EventType::MouseScroll:     return "MouseScroll";
 
-                case EventType::WindowResize:     return "WindowResize";
-                case EventType::WindowReposition: return "WindowReposition";
-                case EventType::WindowMinimize:   return "WindowMinimize";
-                case EventType::WindowModeChange: return "WindowModeChange";
-                case EventType::WindowPathDrop:   return "WindowPathDrop";
-                case EventType::WindowFBResize:   return "WindowFBResize";
-                case EventType::WindowFocus:      return "WindowFocus";
-                case EventType::WindowClose:      return "WindowClose";
+                case EventType::WindowResize:      return "WindowResize";
+                case EventType::WindowReposition:  return "WindowReposition";
+                case EventType::WindowMinimize:    return "WindowMinimize";
+                case EventType::WindowModeChange:  return "WindowModeChange";
+                case EventType::WindowPathDrop:    return "WindowPathDrop";
+                case EventType::WindowFBResize:    return "WindowFBResize";
+                case EventType::WindowFocus:       return "WindowFocus";
+                case EventType::WindowClose:       return "WindowClose";
+                case EventType::WindowCursorEnter: return "WindowCursorEnter";
 
                 case EventType::GamepadAxisChange:   return "GamepadAxisChange";
                 case EventType::GamepadButtonDown:   return "GamepadButtonDown";
                 case EventType::GamepadButtonUp:     return "GamepadButtonUp";
-                case EventType::GamepadStatusChange: return "GamepadConnection";
+                case EventType::GamepadStatusChange: return "GamepadStatusChange";
                 default:                             return "Unknown";
             }
         }

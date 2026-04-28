@@ -21,8 +21,8 @@ namespace pxl
         bool IsButtonHeld(GamepadButton button) const;
 
         float GetAxisValue(GamepadAxis axis) const;
-        std::string GetName() const;
-        std::string GetGUID() const;
+        std::string GetName() const { return m_Name; }
+        std::string GetGUID() const { return m_GUID; }
 
         void UpdateState();
 
@@ -33,11 +33,13 @@ namespace pxl
     private:
         int32_t m_JID = 0;
         std::function<void(std::unique_ptr<pxl::Event>)> m_EventCallback;
+        std::string m_Name;
+        std::string m_GUID;
 
         GLFWgamepadstate m_State = {};
         GLFWgamepadstate m_PreviousState = {};
 
-        // NOTE: used to avoid propagating events on the first update cycle
+        // Used to avoid propagating events on the first update cycle
         bool m_FirstStateCheck = true;
 
         float m_ThumbstickDeadzone = 0.1f;

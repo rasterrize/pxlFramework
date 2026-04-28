@@ -34,6 +34,7 @@ namespace pxl
     Application::~Application()
     {
         // Explicitly shutdown all systems
+        m_GamepadManager.reset();
         ShutdownRenderer();
         Window::Shutdown();
         m_FrameworkIni.reset();
@@ -60,6 +61,9 @@ namespace pxl
 
             if (Window::IsInitialized())
                 Window::ProcessEvents();
+
+            if (m_GamepadManager)
+                m_GamepadManager->ProcessStateChanges();
 
             m_EventManager->ProcessQueue();
 
@@ -110,6 +114,12 @@ namespace pxl
     void Application::ShutdownRenderer()
     {
         m_Renderer.reset();
+    }
+
+    GamepadManager& Application::InitGamepadManager()
+    {
+        m_GamepadManager = std::make_unique<GamepadManager>(m_EventManager->GetEventQueueCallback());
+        return *m_GamepadManager;
     }
 
     const std::shared_ptr<Window>& Application::InitMainWindow(WindowSpecs& specs, bool overrideWithIni)

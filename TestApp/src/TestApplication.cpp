@@ -70,7 +70,8 @@ namespace TestApp
 
     void TestApplication::OnEvent(pxl::Event& e)
     {
-#ifdef TA_LOG_ALL_EVENTS
+#define TA_LOG_ALL_EVENTS 0
+#if TA_LOG_ALL_EVENTS
         APP_LOG_INFO("{}", e.ToString());
 #endif
     }

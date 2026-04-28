@@ -7,7 +7,7 @@
 namespace pxl
 {
     Gamepad::Gamepad(uint32_t jid, const std::function<void(std::unique_ptr<pxl::Event>)>& eventCallback)
-        : m_JID(jid), m_EventCallback(eventCallback)
+        : m_JID(jid), m_EventCallback(eventCallback), m_Name(glfwGetGamepadName(jid)), m_GUID(glfwGetJoystickGUID(jid))
     {
         UpdateState();
     }
@@ -22,21 +22,11 @@ namespace pxl
         return m_State.axes[static_cast<int32_t>(axis)];
     }
 
-    std::string Gamepad::GetName() const
-    {
-        return glfwGetGamepadName(m_JID);
-    }
-
-    std::string Gamepad::GetGUID() const
-    {
-        return glfwGetJoystickGUID(m_JID);
-    }
-
     void Gamepad::UpdateState()
     {
         m_PreviousState = m_State;
 
-        GLFWgamepadstate state;
+        GLFWgamepadstate state = {};
         glfwGetGamepadState(m_JID, &state);
 
         m_State = state;

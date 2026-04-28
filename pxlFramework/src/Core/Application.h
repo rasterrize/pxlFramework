@@ -3,6 +3,7 @@
 #include "Core/IniConfig.h"
 #include "Events/EventManager.h"
 #include "Events/WindowEvents.h"
+#include "Input/GamepadManager.h"
 #include "Window.h"
 
 namespace pxl
@@ -69,12 +70,15 @@ namespace pxl
         Renderer& GetRenderer() const { return *m_Renderer; }
         void ShutdownRenderer();
 
-        const std::chrono::steady_clock::time_point& GetUpdateStartPoint() const { return m_UpdateStartPoint; }
+        GamepadManager& InitGamepadManager();
+        GamepadManager& GetGamepadManager() const { return *m_GamepadManager; }
 
         EventManager& GetEventManager() const { return *m_EventManager; }
 
         void OverrideWithFrameworkIni(WindowSpecs& specs);
         void OverrideWithFrameworkIni(RendererConfig& config);
+
+        const std::chrono::steady_clock::time_point& GetUpdateStartPoint() const { return m_UpdateStartPoint; }
 
     public:
         /// @brief Gets the singleton instance of the application class.
@@ -104,6 +108,7 @@ namespace pxl
         std::shared_ptr<Window> m_MainWindow;
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<IniConfig> m_FrameworkIni;
+        std::unique_ptr<GamepadManager> m_GamepadManager;
 
         std::shared_ptr<EventHandler<WindowCloseEvent>> m_WindowCloseEventHandler;
 
