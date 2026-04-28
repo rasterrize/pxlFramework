@@ -90,14 +90,14 @@ namespace pxl
         {
             uint64_t FrameCountIndex;
             uint32_t FrameInFlightIndex;
-            float FrameTime;
-            float RenderTime;
-            float GraphicsDeviceWaitTime;
-            float FramerateLimitWaitTime;
-            float FramerateLimitSleepTime;
-            float FramerateLimitSpinTime;
+            double FrameTime;
+            double RenderTime;
+            double GraphicsDeviceWaitTime;
+            double FramerateLimitWaitTime;
+            double FramerateLimitSleepTime;
+            double FramerateLimitSpinTime;
 
-            float GetFPS() const { return 1000.0f / FrameTime; }
+            float GetFPS() const { return 1000.0f / static_cast<float>(FrameTime); }
         };
 
         const FrameStatistics& GetFrameStats() const { return m_FrameStats; }

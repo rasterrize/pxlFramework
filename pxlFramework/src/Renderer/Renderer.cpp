@@ -512,9 +512,9 @@ namespace pxl
 
         if (framesPerSecond == 0)
         {
-            m_FrameStats.FramerateLimitWaitTime = 0;
-            m_FrameStats.FramerateLimitSleepTime = 0;
-            m_FrameStats.FramerateLimitSpinTime = 0;
+            m_FrameStats.FramerateLimitWaitTime = 0.0;
+            m_FrameStats.FramerateLimitSleepTime = 0.0;
+            m_FrameStats.FramerateLimitSpinTime = 0.0;
             return;
         }
 
@@ -536,6 +536,10 @@ namespace pxl
                 m_SleepTimer->Sleep(sleepTime.count());
                 m_FrameStats.FramerateLimitSleepTime = sw.GetElapsedMilliSec();
             }
+        }
+        else
+        {
+            m_FrameStats.FramerateLimitSleepTime = 0.0;
         }
 
         // Spin for the remaining time

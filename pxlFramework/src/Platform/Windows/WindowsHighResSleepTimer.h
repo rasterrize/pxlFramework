@@ -6,6 +6,8 @@
 
     #include "Platform/SleepTimer.h"
 
+using namespace std::literals;
+
 namespace pxl::Platform::Windows
 {
     class HighResSleepTimer : public SleepTimer
