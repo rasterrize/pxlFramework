@@ -16,7 +16,7 @@ namespace pxl::Platform::Windows
             m_Timer = CreateWaitableTimerEx(nullptr, nullptr, CREATE_WAITABLE_TIMER_MANUAL_RESET | CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
         }
 
-        void Sleep(uint64_t nsDuration)
+        virtual void Sleep(uint64_t nsDuration) override
         {
             if (nsDuration <= 0)
                 return;
@@ -28,6 +28,8 @@ namespace pxl::Platform::Windows
             SetWaitableTimer(m_Timer, &dueTime, 0, nullptr, nullptr, false);
             WaitForSingleObject(m_Timer, INFINITE);
         }
+
+        virtual std::chrono::milliseconds GetAccuracyMS() const override { return 1ms; }
 
     private:
         HANDLE m_Timer = nullptr;

@@ -502,15 +502,15 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        uint32_t frameratelimit = 0;
+        uint32_t framesPerSecond = 0;
         if (!m_Config.Window->IsFocused())
-            frameratelimit = m_Config.UnfocusedFramerateLimit;
+            framesPerSecond = m_Config.UnfocusedFramerateLimit;
         else if (m_Config.FramerateMode == FramerateMode::Custom)
-            frameratelimit = m_Config.CustomFramerateLimit;
+            framesPerSecond = m_Config.CustomFramerateLimit;
         else if (m_Config.FramerateMode == FramerateMode::AdaptiveSync)
-            frameratelimit = m_AdaptiveSyncFramerateLimit;
+            framesPerSecond = m_AdaptiveSyncFramerateLimit;
 
-        if (frameratelimit == 0)
+        if (framesPerSecond == 0)
         {
             m_FrameStats.FramerateLimitWaitTime = 0;
             m_FrameStats.FramerateLimitSleepTime = 0;
@@ -518,18 +518,17 @@ namespace pxl
             return;
         }
 
-        auto limitNS = std::chrono::nanoseconds(1s) / frameratelimit;
+        Stopwatch waitSW;
+
+        auto limitNS = std::chrono::nanoseconds(1s) / framesPerSecond;
         auto frameStartPoint = Application::Get().GetUpdateStartPoint();
-        auto elapsed = std::chrono::steady_clock::now() - frameStartPoint;
 
-        m_FrameStats.FramerateLimitWaitTime = std::chrono::duration<double, std::milli>(limitNS - elapsed).count();
-
-        // Sleep to avoid wasting CPU cycles
-        if (m_SleepTimer && limitNS > 1ms)
+        // Sleep to avoid wasting CPU cycles, but only if our sleep accuracy allows for it
+        if (m_SleepTimer && limitNS > m_SleepTimer->GetAccuracyMS())
         {
-            // Amount of time to reduce the sleep timer by to account for inaccuracy
-            const auto tolerance = 1ms;
-            auto sleepTime = std::max(limitNS - elapsed - tolerance, 0ns);
+            const auto tolerance = m_SleepTimer->GetAccuracyMS();
+            auto timeSinceFrameStart = std::chrono::steady_clock::now() - frameStartPoint;
+            auto sleepTime = std::max(limitNS - timeSinceFrameStart - tolerance, 0ns);
             if (sleepTime > 0ns)
             {
                 PXL_PROFILE_SCOPE_NAMED("Framerate limiter sleep");
@@ -542,8 +541,15 @@ namespace pxl
         // Spin for the remaining time
         {
             PXL_PROFILE_SCOPE_NAMED("Framerate limiter spin");
-            while (elapsed < limitNS)
-                elapsed = std::chrono::steady_clock::now() - frameStartPoint;
+            Stopwatch sw;
+            const auto tolerance = 150ns;
+            while (std::chrono::steady_clock::now() - frameStartPoint < limitNS - tolerance)
+            {
+            }
+
+            m_FrameStats.FramerateLimitSpinTime = sw.GetElapsedMilliSec();
         }
+
+        m_FrameStats.FramerateLimitWaitTime = waitSW.GetElapsedMilliSec();
     }
 }

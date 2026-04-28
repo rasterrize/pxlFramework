@@ -67,7 +67,7 @@ namespace pxl
 
         void SetCustomFramerateLimit(uint32_t limit) { m_Config.CustomFramerateLimit = limit; }
 
-        uint32_t SetUnfocusedFramerateLimit(uint32_t limit) { m_Config.UnfocusedFramerateLimit = limit; }
+        void SetUnfocusedFramerateLimit(uint32_t limit) { m_Config.UnfocusedFramerateLimit = limit; }
 
         uint32_t GetAdaptiveSyncFramerateLimit() const { return m_AdaptiveSyncFramerateLimit; }
 
@@ -90,14 +90,14 @@ namespace pxl
         {
             uint64_t FrameCountIndex;
             uint32_t FrameInFlightIndex;
-            double FrameTime;
-            double RenderTime;
-            double GraphicsDeviceWaitTime;
-            double FramerateLimitWaitTime;
-            double FramerateLimitSleepTime;
-            double FramerateLimitSpinTime;
+            float FrameTime;
+            float RenderTime;
+            float GraphicsDeviceWaitTime;
+            float FramerateLimitWaitTime;
+            float FramerateLimitSleepTime;
+            float FramerateLimitSpinTime;
 
-            double GetFPS() const { return 1000.0 / FrameTime; }
+            float GetFPS() const { return 1000.0f / FrameTime; }
         };
 
         const FrameStatistics& GetFrameStats() const { return m_FrameStats; }

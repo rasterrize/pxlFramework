@@ -142,7 +142,7 @@ namespace TestApp
                     if (framerateMode != pxl::FramerateMode::Custom)
                         ImGui::BeginDisabled();
 
-                    if (ImGui::DragInt("FPS Limit", &fpsLimit, 1.0f, 3, 1000))
+                    if (ImGui::DragInt("FPS Limit", &fpsLimit, 1.0f, 10, 1000, "%d", ImGuiSliderFlags_ClampOnInput))
                     {
                         renderer.SetCustomFramerateLimit(fpsLimit);
                     }
@@ -284,16 +284,42 @@ namespace TestApp
             // ImGui::Text("Frame Count: %u", stats.FrameCount);
 
             auto& stats = renderer.GetFrameStats();
+
+            static pxl::Stopwatch statsSW;
+            static pxl::Renderer::FrameStatistics slowStats = renderer.GetFrameStats();
+            if (statsSW.GetElapsedSec() > 0.05)
+            {
+                slowStats = renderer.GetFrameStats();
+                statsSW.Reset();
+            }
+
+            static pxl::Stopwatch fpsSW;
+            static double slowFPS = std::round(slowStats.GetFPS());
+            if (fpsSW.GetElapsedSec() > 1.0)
+            {
+                slowFPS = std::round(slowStats.GetFPS());
+                fpsSW.Reset();
+            }
+
+            const size_t sampleCount = 50;
+            static std::vector<float> frameTimes;
+
+            frameTimes.push_back(stats.FrameTime);
+            if (frameTimes.size() == sampleCount)
+                frameTimes.erase(std::find(frameTimes.begin(), frameTimes.end(), frameTimes.front()));
+
             ImGui::SeparatorText("Frame");
-            ImGui::Text("%.3f FPS", stats.GetFPS());
-            ImGui::Text("Frame count: %u", stats.FrameCountIndex);
-            ImGui::Text("Frame time: %.3fms", stats.FrameTime);
-            ImGui::Text("Render time: %.3fms", stats.RenderTime);
-            ImGui::Text("Framerate limit wait time: %.3fms", stats.FramerateLimitWaitTime);
-            ImGui::Text("Framerate limit sleep time: %.3fms", stats.FramerateLimitSleepTime);
-            ImGui::Text("Framerate limit spin time: %.3fms", stats.FramerateLimitSpinTime);
-            ImGui::Text("Graphics device wait time: %.3fms", stats.GraphicsDeviceWaitTime);
-            ImGui::Text("Frame in flight index: %u", stats.FrameInFlightIndex);
+            ImGui::Text("%.0f FPS", slowFPS);
+            ImGui::Text("%.3f FPS Raw", slowStats.GetFPS());
+            ImGui::Text("Frame Count: %u", stats.FrameCountIndex);
+            ImGui::Text("Frame Time: %.3fms", slowStats.FrameTime);
+            ImGui::PlotLines("Frame Graph", frameTimes.data(), frameTimes.size(), sampleCount, "", FLT_MIN, FLT_MAX, ImVec2(0, 50));
+            ImGui::Text("Render Time: %.3fms", slowStats.RenderTime);
+            ImGui::Text("Framerate Limit Wait Time: %.3fms", slowStats.FramerateLimitWaitTime);
+            ImGui::Text("Framerate Limit Sleep Time: %.3fms", slowStats.FramerateLimitSleepTime);
+            ImGui::Text("Framerate Limit Spin Time: %.3fms", slowStats.FramerateLimitSpinTime);
+            ImGui::Text("Graphics Device Wait Time: %.3fms", slowStats.GraphicsDeviceWaitTime);
+            ImGui::Text("Frame In Flight Index: %u", stats.FrameInFlightIndex);
 
             // ImGui::Text("Draw calls: %u", stats.GraphicsContextStats.DrawCalls);
             // ImGui::Text("Vertex count: %u", stats.FrameStats.VertexCount);

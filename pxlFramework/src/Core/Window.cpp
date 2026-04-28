@@ -64,8 +64,10 @@ namespace pxl
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
 
-        // Hide the window on creation as we will still need to prepare it
-        glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
+        /* Hide the window on creation as we will still need to prepare it
+        NOTE: On wayland the window for some reason can automatically close when hidden on creation */
+        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+            glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
 
         // Set window position on creation (not used in fullscreen)
         glfwWindowHint(GLFW_POSITION_X, m_Position.x);
@@ -213,9 +215,18 @@ namespace pxl
                 /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
                     This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
                     Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, false);
-                glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, false);
-                glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Height, GLFW_DONT_CARE);
+                if (glfwGetPlatform() == GLFW_PLATFORM_WIN32)
+                {
+                    // Use a borderless window on windows (this allows other applications to display on top of ours)
+                    glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, false);
+                    glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, false);
+                    glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Height, GLFW_DONT_CARE);
+                }
+                else
+                {
+                    // Default to regular fullscreen otherwise (GLFW doesn't support setting window position on wayland anyway)
+                    glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Width, nativeVidMode.Height, GLFW_DONT_CARE);
+                }
 
                 break;
 
