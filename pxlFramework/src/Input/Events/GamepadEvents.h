@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Gamepad.h"
-#include "Event.h"
+#include "Input/Gamepad.h"
+#include "Core/Events/Event.h"
 
 namespace pxl
 {

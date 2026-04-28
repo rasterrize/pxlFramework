@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/KeyCodes.h"
+#include "Input/KeyCodes.h"
 #include "InputEvent.h"
 
 namespace pxl

@@ -6,22 +6,22 @@
 #include "../src/Core/Assert.h"
 #include "../src/Core/Colour.h"
 #include "../src/Core/Cursor.h"
+#include "../src/Core/Events/Event.h"
+#include "../src/Core/Events/EventHandler.h"
+#include "../src/Core/Events/WindowEvents.h"
 #include "../src/Core/Image.h"
-#include "../src/Core/InputSystem.h"
-#include "../src/Core/KeyCodes.h"
 #include "../src/Core/Logging/ApplicationLog.h"
-#include "../src/Core/MouseCodes.h"
 #include "../src/Core/Size.h"
 #include "../src/Core/Stopwatch.h"
 #include "../src/Core/Window.h"
 
-// Events
-#include "../src/Core/Events/Event.h"
-#include "../src/Core/Events/EventHandler.h"
-#include "../src/Core/Events/GamepadEvents.h"
-#include "../src/Core/Events/KeyboardEvents.h"
-#include "../src/Core/Events/MouseEvents.h"
-#include "../src/Core/Events/WindowEvents.h"
+// Input
+#include "../src/Input/Events/GamepadEvents.h"
+#include "../src/Input/Events/KeyboardEvents.h"
+#include "../src/Input/Events/MouseEvents.h"
+#include "../src/Input/InputSystem.h"
+#include "../src/Input/KeyCodes.h"
+#include "../src/Input/MouseCodes.h"
 
 // Renderer
 #include "../src/Renderer/AnimatedTexture.h"

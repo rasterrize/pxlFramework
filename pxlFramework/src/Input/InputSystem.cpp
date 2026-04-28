@@ -1,9 +1,9 @@
 #include "InputSystem.h"
 
+#include "Core/Window.h"
 #include "Events/KeyboardEvents.h"
 #include "Events/MouseEvents.h"
 #include "Platform/Platform.h"
-#include "Window.h"
 
 namespace pxl
 {

@@ -11,8 +11,8 @@
 
 #include "Core/Image.h"
 #include "Core/Size.h"
-#include "Gamepad.h"
-#include "InputSystem.h"
+#include "Input/Gamepad.h"
+#include "Input/InputSystem.h"
 
 namespace pxl
 {

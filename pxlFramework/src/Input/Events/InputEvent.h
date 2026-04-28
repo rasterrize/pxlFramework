@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/InputSystem.h"
+#include "Core/Events/Event.h"
+#include "Input/InputSystem.h"
 
 namespace pxl
 {

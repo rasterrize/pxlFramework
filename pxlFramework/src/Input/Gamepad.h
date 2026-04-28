@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Events/Event.h"
+#include "Core/Events/Event.h"
 #include "GamepadCodes.h"
 
 namespace pxl

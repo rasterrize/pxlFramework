@@ -2,7 +2,7 @@
 
 #include <glm/vec2.hpp>
 
-#include "Core/MouseCodes.h"
+#include "Input/MouseCodes.h"
 #include "InputEvent.h"
 
 namespace pxl

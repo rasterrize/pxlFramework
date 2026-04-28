@@ -2,8 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Cursor.h"
-#include "Events/Event.h"
+#include "Core/Cursor.h"
+#include "Core/Events/Event.h"
 #include "KeyCodes.h"
 #include "MouseCodes.h"
 
