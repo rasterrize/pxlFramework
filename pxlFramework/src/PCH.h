@@ -1,11 +1,5 @@
 #pragma once
 
-// Include Windows.h before anything else, to avoid confusing preprocessor warnings
-// TODO: move this, a platform dependant header included in every file is prolly not a good idea
-#ifdef _WIN32
-    #include <Windows.h>
-#endif
-
 // std
 #include <algorithm>
 #include <any>
@@ -29,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-// NOTE: These files may use stl files, so we force these to include after
+// NOTE: These files may use stl files, so always include them after
 // clang-format off
 // pxlFramework
 #include "Core/Assert.h"

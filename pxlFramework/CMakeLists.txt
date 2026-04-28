@@ -1,17 +1,47 @@
 cmake_minimum_required(VERSION 3.31)
 
 # Glob source and header files
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE headers CONFIGURE_DEPENDS src/*.h)
+file(GLOB_RECURSE core-sources CONFIGURE_DEPENDS src/Core/*.cpp)
+file(GLOB_RECURSE core-headers CONFIGURE_DEPENDS src/Core/*.h)
+
+file(GLOB_RECURSE debug-sources CONFIGURE_DEPENDS src/Debug/*.cpp)
+file(GLOB_RECURSE debug-headers CONFIGURE_DEPENDS src/Debug/*.h)
+
+file(GLOB_RECURSE input-sources CONFIGURE_DEPENDS src/Input/*.cpp)
+file(GLOB_RECURSE input-headers CONFIGURE_DEPENDS src/Input/*.h)
+
+file(GLOB platform-sources CONFIGURE_DEPENDS src/Platform/*.cpp)
+file(GLOB platform-headers CONFIGURE_DEPENDS src/Platform/*.h)
+
+file(GLOB_RECURSE renderer-sources CONFIGURE_DEPENDS src/Renderer/*.cpp)
+file(GLOB_RECURSE renderer-headers CONFIGURE_DEPENDS src/Renderer/*.h)
+
+file(GLOB_RECURSE utils-sources CONFIGURE_DEPENDS src/Utils/*.cpp)
+file(GLOB_RECURSE utils-headers CONFIGURE_DEPENDS src/Utils/*.h)
 
 add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-    ${sources}
+    ${core-sources}
+    ${debug-sources}
+    ${input-sources}
+    ${platform-sources}
+    ${renderer-sources}
+    ${utils-sources}
     PUBLIC
-    ${headers}
+    ${core-headers}
+    ${debug-headers}
+    ${input-headers}
+    ${platform-sources}
+    ${renderer-headers}
+    ${utils-headers}
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    file(GLOB_RECURSE platform-windows-sources CONFIGURE_DEPENDS src/Platform/Windows/*.cpp)
+    file(GLOB_RECURSE platform-windows-headers CONFIGURE_DEPENDS src/Platform/Windows/*.h)
+endif()
 
 # Set library c++ standard
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)

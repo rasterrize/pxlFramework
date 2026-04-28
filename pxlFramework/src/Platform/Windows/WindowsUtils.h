@@ -1,10 +1,9 @@
 #pragma once
-#ifdef _WIN64
 
-    #include <GLFW/glfw3.h>
-    #include <GLFW/glfw3native.h>
-    #include <dwmapi.h>
-    #include <versionhelpers.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include <dwmapi.h>
+#include <versionhelpers.h>
 
 namespace pxl::Platform::Windows
 {
@@ -15,4 +14,3 @@ namespace pxl::Platform::Windows
         DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useImmersiveDarkMode, sizeof(int));
     }
 }
-#endif

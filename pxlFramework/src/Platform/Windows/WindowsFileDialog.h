@@ -1,10 +1,9 @@
 #pragma once
-#ifdef _WIN64
 
-    #include <GLFW/glfw3native.h>
-    #include <commdlg.h>
+#include <GLFW/glfw3native.h>
+#include <commdlg.h>
 
-    #include "Core/Window.h"
+#include "Core/Window.h"
 
 namespace pxl::Platform::Windows
 {
@@ -44,5 +43,3 @@ namespace pxl::Platform::Windows
         return std::string();
     }
 }
-
-#endif

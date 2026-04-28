@@ -1,10 +1,9 @@
 #pragma once
-#ifdef _WIN64
 
-    #include <Windows.h>
-    #include <timeapi.h>
+#include <Windows.h>
+#include <timeapi.h>
 
-    #include "Platform/SleepTimer.h"
+#include "Platform/SleepTimer.h"
 
 using namespace std::literals;
 
@@ -37,5 +36,3 @@ namespace pxl::Platform::Windows
         HANDLE m_Timer = nullptr;
     };
 }
-
-#endif
