@@ -2,6 +2,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "Core/Events/EventHandler.h"
 #include "Renderer.h"
 #include "Renderer/BufferLayout.h"
 #include "Renderer/GPUBuffer.h"

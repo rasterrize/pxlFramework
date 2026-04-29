@@ -29,6 +29,12 @@ namespace pxl
         m_EventManager = std::make_unique<EventManager>();
 
         m_FrameworkIni = std::make_unique<IniConfig>(PXL_FRAMEWORK_CONFIG_FILE_NAME, DefaultFrameworkSettings());
+
+#define PXL_ENABLE_DEBUG_OVERLAY
+#ifdef PXL_ENABLE_DEBUG_OVERLAY
+        m_DebugOverlay = std::make_unique<DebugOverlay>();
+        PXL_CREATE_AND_REGISTER_HANDLER(m_KeyDownHandler, KeyDownEvent, OnKeyDownEvent);
+#endif
     }
 
     Application::~Application()
@@ -80,7 +86,11 @@ namespace pxl
                 OnRender(*m_Renderer);
 #ifdef PXL_ENABLE_IMGUI
                 if (m_Renderer->IsImGuiInitialized())
+                {
                     OnGUIRender();
+                    if (m_DebugOverlay)
+                        m_DebugOverlay->Render(*m_MainWindow, *m_Renderer);
+                }
 #endif
                 m_Renderer->End();
             }
@@ -128,7 +138,7 @@ namespace pxl
             OverrideWithFrameworkIni(specs);
 
         m_MainWindow = Window::Create(specs);
-        PXL_CREATE_AND_REGISTER_HANDLER(m_WindowCloseEventHandler, WindowCloseEvent, OnWindowCloseEvent);
+        PXL_CREATE_AND_REGISTER_HANDLER(m_WindowCloseHandler, WindowCloseEvent, OnWindowCloseEvent);
         return m_MainWindow;
     }
 
@@ -170,6 +180,12 @@ namespace pxl
 
         if (e.GetWindow() == m_MainWindow)
             Close();
+    }
+
+    void Application::OnKeyDownEvent(KeyDownEvent& e)
+    {
+        if (e.IsModsAndKey(KeyMod::Control, KeyCode::F11))
+            m_DebugOverlay->ToggleVisibility();
     }
 
     std::vector<IniConfigSetting> Application::DefaultFrameworkSettings()

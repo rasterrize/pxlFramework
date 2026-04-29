@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core/IniConfig.h"
+#include "Debug/DebugOverlay.h"
 #include "Events/EventManager.h"
 #include "Events/WindowEvents.h"
+#include "Input/Events/KeyboardEvents.h"
 #include "Input/GamepadManager.h"
 #include "Window.h"
 
@@ -96,6 +98,7 @@ namespace pxl
         void ShutdownPlatformingBackend();
 
         void OnWindowCloseEvent(const WindowCloseEvent& e);
+        void OnKeyDownEvent(KeyDownEvent& e);
 
         std::vector<IniConfigSetting> DefaultFrameworkSettings();
 
@@ -109,8 +112,10 @@ namespace pxl
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<IniConfig> m_FrameworkIni;
         std::unique_ptr<GamepadManager> m_GamepadManager;
+        std::unique_ptr<DebugOverlay> m_DebugOverlay;
 
-        std::shared_ptr<EventHandler<WindowCloseEvent>> m_WindowCloseEventHandler;
+        std::shared_ptr<EventHandler<WindowCloseEvent>> m_WindowCloseHandler;
+        std::shared_ptr<EventHandler<KeyDownEvent>> m_KeyDownHandler;
 
         float m_PlatformTimeLastCycle = 0.0f;
         std::chrono::steady_clock::time_point m_UpdateStartPoint = {};

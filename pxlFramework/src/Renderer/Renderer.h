@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Events/EventHandler.h"
 #include "Core/Events/WindowEvents.h"
 #include "Core/Rect.h"
 #include "Core/Window.h"
@@ -23,6 +22,9 @@
 
 namespace pxl
 {
+    template<typename T>
+    class EventHandler;
+
     class Renderer
     {
     public:
