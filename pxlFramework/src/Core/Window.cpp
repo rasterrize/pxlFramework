@@ -32,7 +32,7 @@ namespace pxl
             {
                 m_CurrentMonitor = GetPrimaryMonitor();
                 auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-                m_Position = { vidMode.Width / 2 - m_Size.Width / 2, vidMode.Height / 2 - m_Size.Height / 2 };
+                m_Position = { vidMode.Size.Width / 2 - m_Size.Width / 2, vidMode.Size.Height / 2 - m_Size.Height / 2 };
             }
 
             // Initialize these to correct values
@@ -51,11 +51,11 @@ namespace pxl
             m_Position = m_CurrentMonitor.Position;
 
             // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = m_CurrentMonitor.GetCurrentVideoMode().GetSize();
+            m_Size = m_CurrentMonitor.GetCurrentVideoMode().Size;
 
             // Ensure LastWindowedPosition is the middle of the monitor
             auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-            m_LastWindowedPosition = { vidMode.Width / 2 - WindowConstants::DefaultWindowedSize.Width / 2, vidMode.Height / 2 - WindowConstants::DefaultWindowedSize.Height / 2 };
+            m_LastWindowedPosition = { vidMode.Size.Width / 2 - WindowConstants::DefaultWindowedSize.Width / 2, vidMode.Size.Height / 2 - WindowConstants::DefaultWindowedSize.Height / 2 };
         }
 
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
@@ -140,9 +140,9 @@ namespace pxl
             auto vidmode = monitor.GetCurrentVideoMode();
 
             auto left = monitor.Position.x;
-            auto right = monitor.Position.x + static_cast<int32_t>(vidmode.Width);
+            auto right = monitor.Position.x + static_cast<int32_t>(vidmode.Size.Width);
             auto top = monitor.Position.y;
-            auto bottom = monitor.Position.y + static_cast<int32_t>(vidmode.Height);
+            auto bottom = monitor.Position.y + static_cast<int32_t>(vidmode.Size.Height);
 
             // Determine monitor on a best overlap basis. Sourced from https://stackoverflow.com/a/31526753
             auto xOverlap = std::max<int>(0, std::min<int>(m_Position.x + m_Size.Width, right) - std::max<int>(m_Position.x, left));
@@ -219,19 +219,19 @@ namespace pxl
                     // Use a borderless window on windows (this allows other applications to display on top of ours)
                     glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, false);
                     glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, false);
-                    glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Height, GLFW_DONT_CARE);
+                    glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Size.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Size.Height, GLFW_DONT_CARE);
                 }
                 else
                 {
                     // Default to regular fullscreen otherwise (GLFW doesn't support setting window position on wayland anyway)
-                    glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Width, nativeVidMode.Height, GLFW_DONT_CARE);
+                    glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Size.Width, nativeVidMode.Size.Height, GLFW_DONT_CARE);
                 }
 
                 break;
 
             case WindowMode::Fullscreen:
                 m_WindowMode = WindowMode::Fullscreen;
-                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Width, nativeVidMode.Height, nativeVidMode.RefreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Size.Width, nativeVidMode.Size.Height, nativeVidMode.RefreshRate);
                 break;
         }
 
@@ -258,13 +258,13 @@ namespace pxl
         {
             case WindowMode::Windowed:
                 // Set window to the center of the specified monitor
-                SetPosition(nextMonX + (vidMode.Width / 2) - (m_Size.Width / 2), nextMonY + (vidMode.Height / 2) - (m_Size.Height / 2));
+                SetPosition(nextMonX + (vidMode.Size.Width / 2) - (m_Size.Width / 2), nextMonY + (vidMode.Size.Height / 2) - (m_Size.Height / 2));
                 break;
             case WindowMode::Borderless:
                 SetPosition(nextMonX, nextMonY);
                 break;
             case WindowMode::Fullscreen:
-                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Width, vidMode.Height, vidMode.RefreshRate);
+                glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, vidMode.Size.Width, vidMode.Size.Height, vidMode.RefreshRate);
                 break;
         }
     }

@@ -33,21 +33,18 @@ namespace pxl
     struct VideoMode
     {
         VideoMode(const GLFWvidmode* glfwMode)
+            : Size(glfwMode->width, glfwMode->height),
+              RefreshRate(glfwMode->refreshRate),
+              BitDepth(glfwMode->redBits, glfwMode->greenBits, glfwMode->blueBits),
+              GLFWVidMode(glfwMode)
         {
-            Width = glfwMode->width;
-            Height = glfwMode->height;
-            RefreshRate = glfwMode->refreshRate;
-            BitDepth = { glfwMode->redBits, glfwMode->greenBits, glfwMode->blueBits };
-            GLFWVidMode = glfwMode;
         }
 
-        Size2D GetSize() { return { Width, Height }; }
-        std::string ToString() { return std::format("{}x{}, {}hz", Width, Height, RefreshRate); }
+        std::string ToString() { return std::format("{}x{}, {}hz", Size.Width, Size.Height, RefreshRate); }
 
-        uint32_t Width = 0;
-        uint32_t Height = 0;
+        Size2D Size = {};
         uint32_t RefreshRate = 0;
-        glm::ivec3 BitDepth = glm::ivec3(0);
+        glm::ivec3 BitDepth = {};
         const GLFWvidmode* GLFWVidMode = nullptr;
     };
 
