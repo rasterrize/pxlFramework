@@ -6,7 +6,7 @@
 #include "Renderer/Vulkan/VulkanUtils.h"
 #include "Utils/FileSystem.h"
 
-#ifdef _WIN64
+#ifdef _WIN32
     #include "Platform/Windows/WindowsUtils.h"
 #endif
 
@@ -95,7 +95,7 @@ namespace pxl
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         InitWindowCallbacks();
 
-#ifdef _WIN64
+#ifdef _WIN32
         Platform::Windows::EnableDarkModeIfSupported(m_GLFWWindow);
 #endif
 

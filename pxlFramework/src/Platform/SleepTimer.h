@@ -1,14 +1,9 @@
 #pragma once
 
-namespace pxl
-{
-    class SleepTimer
-    {
-    public:
-        virtual ~SleepTimer() = default;
+#ifdef _WIN32
+    #include "Windows/WindowsHighResSleepTimer.h"
+#endif
 
-        virtual void Sleep(uint64_t nsDuration) = 0;
-
-        virtual std::chrono::milliseconds GetAccuracyMS() const = 0;
-    };
-}
+#ifdef linux
+    #include "Linux/LinuxHighResSleepTimer.h"
+#endif

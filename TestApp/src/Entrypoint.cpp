@@ -1,6 +1,6 @@
 #include "TestApplication.h"
 
-#if defined(TA_RELEASE) && defined(_WIN64)
+#if defined(TA_RELEASE) && defined(_WIN32)
     #define MAIN_FUNC() int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
     #define TA_USING_WINMAIN 1
 #else

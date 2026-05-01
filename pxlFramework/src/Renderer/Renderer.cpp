@@ -10,10 +10,6 @@
 #include "Renderer/UniformLayout.h"
 #include "Renderer/Vertices.h"
 
-#ifdef _WIN64
-    #include "Platform/Windows/WindowsHighResSleepTimer.h"
-#endif
-
 using namespace std::literals;
 
 namespace pxl
@@ -160,9 +156,7 @@ namespace pxl
         if (m_Config.InitImGui)
             InitImGui();
 
-#ifdef _WIN64
-        m_SleepTimer = std::make_unique<Platform::Windows::HighResSleepTimer>();
-#endif
+        m_SleepTimer = std::make_unique<SleepTimer>();
 
         PXL_LOG_INFO(LogArea::Renderer, "Renderer initialized with {} graphics API", Utils::ToString(m_Config.APIType));
     }
@@ -525,9 +519,9 @@ namespace pxl
         auto frameStartPoint = Application::Get().GetUpdateStartPoint();
 
         // Sleep to avoid wasting CPU cycles, but only if our sleep accuracy allows for it
-        if (m_SleepTimer && limitNS > m_SleepTimer->GetAccuracyMS())
+        if (m_SleepTimer && limitNS > m_SleepTimer->GetAccuracy())
         {
-            const auto tolerance = m_SleepTimer->GetAccuracyMS();
+            const auto tolerance = m_SleepTimer->GetAccuracy();
             auto timeSinceFrameStart = std::chrono::steady_clock::now() - frameStartPoint;
             auto sleepTime = std::max(limitNS - timeSinceFrameStart - tolerance, 0ns);
             if (sleepTime > 0ns)
