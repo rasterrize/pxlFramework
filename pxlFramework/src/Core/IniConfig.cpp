@@ -43,11 +43,11 @@ namespace pxl
     {
         if (m_Ini.LoadFile(m_FilePath.string().c_str()) != SI_OK)
         {
-            PXL_LOG_ERROR(LogArea::Core, "Failed to load ini config file");
+            PXL_LOG_ERROR("Failed to load ini config file");
             return false;
         }
 
-        PXL_LOG_INFO(LogArea::Core, "Loaded '{}' ini config", m_FilePath.string());
+        PXL_LOG_INFO("Loaded '{}' ini config", m_FilePath.string());
 
         return true;
     }
@@ -56,11 +56,11 @@ namespace pxl
     {
         if (m_Ini.SaveFile(m_FilePath.string().c_str()) != SI_OK)
         {
-            PXL_LOG_ERROR(LogArea::Core, "Failed to save ini config file");
+            PXL_LOG_ERROR("Failed to save ini config file");
             return false;
         }
 
-        PXL_LOG_INFO(LogArea::Core, "Saved '{}' ini config", m_FilePath.string());
+        PXL_LOG_INFO("Saved '{}' ini config", m_FilePath.string());
 
         return true;
     }

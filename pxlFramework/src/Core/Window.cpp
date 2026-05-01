@@ -83,7 +83,7 @@ namespace pxl
 
         PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", m_Title);
 
-        PXL_LOG_INFO(LogArea::Window, "Created GLFW window '{}' of size {}x{}", m_Title, m_Size.Width, m_Size.Height);
+        PXL_LOG_INFO("Created GLFW window '{}' of size {}x{}", m_Title, m_Size.Width, m_Size.Height);
 
         // Set icon if supplied
         if (specs.IconPath.has_value())
@@ -160,7 +160,7 @@ namespace pxl
         if (bestOverlap == 0)
         {
             // If no correct monitor was found, then just leave it as it was
-            PXL_LOG_WARN(LogArea::Window, "Failed to determine window's current monitor");
+            PXL_LOG_WARN("Failed to determine window's current monitor");
             return;
         }
 
@@ -188,7 +188,7 @@ namespace pxl
         // NOTE: This function doesn't handle setting the window in out of bounds areas.
         glfwSetWindowPos(m_GLFWWindow, xpos, ypos);
 
-        PXL_LOG_INFO(LogArea::Window, "Manually set window position to {}, {}", xpos, ypos);
+        PXL_LOG_INFO("Manually set window position to {}, {}", xpos, ypos);
     }
 
     void Window::SetWindowMode(WindowMode mode)
@@ -238,7 +238,7 @@ namespace pxl
         WindowModeChangeEvent event(m_Handle.lock(), mode);
         m_EventCallback(event);
 
-        PXL_LOG_INFO(LogArea::Window, "Switched '{}' to {} window mode", m_Title, Utils::ToString(m_WindowMode));
+        PXL_LOG_INFO("Switched '{}' to {} window mode", m_Title, Utils::ToString(m_WindowMode));
     }
 
     void Window::SetMonitor(uint8_t monitorIndex)
@@ -338,7 +338,7 @@ namespace pxl
     void Window::SetCursorMode(CursorMode mode)
     {
         glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, Utils::ToGLFWCursorMode(mode));
-        PXL_LOG_INFO(LogArea::Window, "Cursor mode set to {}", Utils::ToString(mode));
+        PXL_LOG_INFO("Cursor mode set to {}", Utils::ToString(mode));
     }
 
     void Window::SetCursor(StandardCursor cursor)
@@ -374,7 +374,7 @@ namespace pxl
                 return monitor;
         }
 
-        PXL_LOG_WARN(LogArea::Window, "Failed to find primary monitor");
+        PXL_LOG_WARN("Failed to find primary monitor");
 
         return s_Monitors[0];
     }
@@ -396,7 +396,7 @@ namespace pxl
 
     void Window::GLFWErrorCallback([[maybe_unused]] int error, [[maybe_unused]] const char* description)
     {
-        PXL_LOG_ERROR(LogArea::Window, "GLFW ERROR: {} - {}", error, description);
+        PXL_LOG_ERROR("GLFW ERROR: {} - {}", error, description);
     }
 
     void Window::WindowCloseCallback(GLFWwindow* window)
@@ -404,6 +404,8 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        PXL_LOG_INFO("Closing window '{}'", windowHandle->m_Title);
 
         WindowCloseEvent event(windowHandle->m_Handle.lock());
         windowHandle->m_EventCallback(event);
@@ -573,7 +575,7 @@ namespace pxl
 
         s_Initialized = false;
 
-        PXL_LOG_INFO(LogArea::Window, "Window system shutdown");
+        PXL_LOG_INFO("Window system shutdown");
     }
 
     VkSurfaceKHR Window::CreateVKSurface(VkInstance instance)
@@ -581,7 +583,7 @@ namespace pxl
         VkSurfaceKHR surface = VK_NULL_HANDLE;
         VK_CHECK(glfwCreateWindowSurface(instance, m_GLFWWindow, nullptr, &surface));
 
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan window surface created");
+        PXL_LOG_INFO("Vulkan window surface created");
 
         return surface;
     }
@@ -590,7 +592,7 @@ namespace pxl
     {
         if (s_Windows.size() >= k_MaxWindowCount)
         {
-            PXL_LOG_ERROR(LogArea::Window, "Failed to create window, the max window count has been reached");
+            PXL_LOG_ERROR("Failed to create window, the max window count has been reached");
             return nullptr;
         }
 

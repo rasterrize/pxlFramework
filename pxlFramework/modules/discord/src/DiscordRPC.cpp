@@ -7,16 +7,16 @@ namespace pxl
 
     static void LogCallback([[maybe_unused]] discord::LogLevel minLevel, [[maybe_unused]] const char* message)
     {
-        PXL_LOG_ERROR(LogArea::Other, "Discord Error: {}", message);
+        PXL_LOG_ERROR("Discord Error: {}", message);
     }
 
     static void ActivityCallback([[maybe_unused]] discord::Result result)
     {
 #ifdef PXL_ENABLE_LOGGING
         if (result == discord::Result::Ok)
-            PXL_LOG_INFO(LogArea::Other, "Discord activity updated")
+            PXL_LOG_INFO("Discord activity updated");
         else
-            PXL_LOG_WARN(LogArea::Other, "Discord activity failed to update");
+            PXL_LOG_WARN("Discord activity failed to update");
 #endif
     }
 
@@ -31,17 +31,17 @@ namespace pxl
 
         if (result != discord::Result::Ok)
         {
-            PXL_LOG_INFO(LogArea::Other, "Failed to initialize Discord RPC");
+            PXL_LOG_INFO("Failed to initialize Discord RPC");
             return;
         }
 
         if (api)
         {
-            PXL_LOG_INFO(LogArea::Other, "Discord RPC instance successfully created");
+            PXL_LOG_INFO("Discord RPC instance successfully created");
         }
         else
         {
-            PXL_LOG_WARN(LogArea::Other, "Failed to create DiscordRPC core instance");
+            PXL_LOG_WARN("Failed to create DiscordRPC core instance");
             return;
         }
 
@@ -59,7 +59,7 @@ namespace pxl
 
         if (result == discord::Result::NotRunning)
         {
-            PXL_LOG_WARN(LogArea::Other, "Detected discord not running, closing discord rpc");
+            PXL_LOG_WARN("Detected discord not running, closing discord rpc");
             s_Enabled = false;
             return;
         }

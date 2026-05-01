@@ -34,7 +34,7 @@ namespace pxl
     {
         m_Gamepads[id] = std::make_shared<Gamepad>(id, eventCallback);
 
-        PXL_LOG_INFO(LogArea::Input, "Controller {} ({}) connected", id, m_Gamepads.at(id)->GetName());
+        PXL_LOG_INFO("Controller {} ({}) connected", id, m_Gamepads.at(id)->GetName());
     }
 
     void GamepadManager::JoystickCallback(int jid, int event)
@@ -53,12 +53,12 @@ namespace pxl
             }
             else
             {
-                PXL_LOG_WARN(LogArea::Input, "Connected controller wasn't detected as a suitable gamepad");
+                PXL_LOG_WARN("Connected controller wasn't detected as a suitable gamepad");
             }
         }
         else if (event == GLFW_DISCONNECTED)
         {
-            PXL_LOG_INFO(LogArea::Input, "Controller {} ({}) disconnected", jid, manager.m_Gamepads.at(jid)->GetName());
+            PXL_LOG_INFO("Controller {} ({}) disconnected", jid, manager.m_Gamepads.at(jid)->GetName());
             auto statusEvent = std::make_unique<GamepadStatusChangeEvent>(jid, GamepadStatus::Disconnected);
             manager.m_EventCallback(std::move(statusEvent));
             manager.m_Gamepads.at(jid).reset();

@@ -48,7 +48,7 @@ namespace pxl
 
         s_Instance = nullptr;
 
-        PXL_LOG_INFO(LogArea::Core, "Application destroyed ~ goodbye!");
+        PXL_LOG_INFO("Application destroyed ~ goodbye!");
     }
 
     void Application::Run()
@@ -107,7 +107,7 @@ namespace pxl
     void Application::Close()
     {
         m_Running = false;
-        PXL_LOG_INFO(LogArea::Core, "Application closing...");
+        PXL_LOG_INFO("Application closing...");
     }
 
     Renderer& Application::InitRenderer(RendererConfig& config, bool overrideWithIni)
@@ -163,7 +163,24 @@ namespace pxl
 
         int major = 0, minor = 0, rev = 0;
         glfwGetVersion(&major, &minor, &rev);
-        PXL_LOG_INFO(LogArea::Window, "GLFW initialized - Version {}.{}.{}", major, minor, rev);
+        PXL_LOG_INFO("GLFW initialized (v{}.{}.{})", major, minor, rev);
+
+        std::string platform = "Unknown";
+#ifdef _WIN32
+        platform = "Windows";
+#endif
+#ifdef __linux__
+        std::string graphicsPlatform = "Unknown";
+
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+            graphicsPlatform = "Wayland";
+        else if (glfwGetPlatform() == GLFW_PLATFORM_X11)
+            graphicsPlatform = "X11";
+
+        platform = std::format("Linux ({})", graphicsPlatform);
+#endif
+
+        PXL_LOG_INFO("Platform: {}", platform);
     }
 
     void Application::ShutdownPlatformingBackend()

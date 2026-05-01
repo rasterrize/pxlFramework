@@ -21,6 +21,8 @@ namespace pxl
 
         PXL_ASSERT_MSG(m_Config.Window, "Renderer must be created with a valid Window");
 
+        PXL_LOG_INFO("Renderer initializing with {} graphics api", Utils::ToString(m_Config.APIType));
+
         // Init graphics API
         m_GraphicsAPI = GraphicsAPI::Create(m_Config.APIType);
         PXL_ASSERT(m_GraphicsAPI);
@@ -158,14 +160,14 @@ namespace pxl
 
         m_SleepTimer = std::make_unique<SleepTimer>();
 
-        PXL_LOG_INFO(LogArea::Renderer, "Renderer initialized with {} graphics API", Utils::ToString(m_Config.APIType));
+        PXL_LOG_INFO("Renderer initialization finished");
     }
 
     Renderer::~Renderer()
     {
         m_GraphicsDevice->FreeResources();
 
-        PXL_LOG_INFO(LogArea::Renderer, "Renderer shutdown");
+        PXL_LOG_INFO("Renderer shutdown");
     }
 
     void Renderer::InitImGui()

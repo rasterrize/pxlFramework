@@ -210,7 +210,7 @@ namespace pxl
             }
             else
             {
-                PXL_LOG_WARN(LogArea::Vulkan, "Physical device index {} wasn't found, using first available GPU instead");
+                PXL_LOG_WARN("Physical device index {} wasn't found, using first available GPU instead");
                 m_GPU = gpus.front();
             }
         }
@@ -321,10 +321,10 @@ namespace pxl
         auto availableExtensions = VulkanUtils::GetDeviceExtensions(m_GPU);
 
 #if defined(PXL_DEBUG) && defined(PXL_ENABLE_LOGGING)
-        PXL_LOG_INFO(LogArea::Vulkan, "Required device extensions selected:")
+        PXL_LOG_INFO("Required device extensions selected:");
         for (const auto& extensionName : requiredExtensions)
         {
-            PXL_LOG_INFO(LogArea::Vulkan, "- {}", extensionName);
+            PXL_LOG_INFO("- {}", extensionName);
         }
 #endif
 
@@ -348,7 +348,7 @@ namespace pxl
         VK_CHECK(vkCreateDevice(m_GPU, &deviceInfo, nullptr, &m_Device));
         volkLoadDevice(m_Device);
 
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan device created");
+        PXL_LOG_INFO("Vulkan device created");
 
         // Get the newly created graphics queue
         vkGetDeviceQueue(m_Device, m_GraphicsQueueFamily.value(), 0, &m_GraphicsQueue);
@@ -372,8 +372,8 @@ namespace pxl
         m_Limits.MaxAnisotropicLevel = gpuProps.properties.limits.maxSamplerAnisotropy;
 
 #ifdef PXL_DEBUG
-        PXL_LOG_INFO(LogArea::Vulkan, "Selected GPU: {}", m_GPUName);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Driver info: {}", m_DriverInfo);
+        PXL_LOG_INFO("Selected GPU: {}", m_GPUName);
+        PXL_LOG_INFO("- Driver info: {}", m_DriverInfo);
 #endif
     }
 
@@ -391,7 +391,7 @@ namespace pxl
         allocatorCreateInfo.pVulkanFunctions = &funcs;
 
         VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &m_Allocator));
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan allocator created");
+        PXL_LOG_INFO("Vulkan allocator created");
     }
 
     void VulkanGraphicsDevice::InitSwapchain()
@@ -445,7 +445,7 @@ namespace pxl
 
             if (!foundSuitableMode)
             {
-                PXL_LOG_WARN(LogArea::Vulkan, "Failed to find suitable non-vsync present mode, forcing FIFO present mode instead");
+                PXL_LOG_WARN("Failed to find suitable non-vsync present mode, forcing FIFO present mode instead");
                 m_SwapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
             }
         }
@@ -466,7 +466,7 @@ namespace pxl
             }
             else
             {
-                PXL_LOG_WARN(LogArea::Vulkan, "Triple buffering not supported by window surface");
+                PXL_LOG_WARN("Triple buffering not supported by window surface");
             }
         }
 
@@ -475,7 +475,7 @@ namespace pxl
 
         if (!m_Specs.TripleBuffering && m_Limits.ForcedTripleBuffering)
         {
-            PXL_LOG_WARN(LogArea::Vulkan, "Triple buffering not enabled but is forced by the driver/OS");
+            PXL_LOG_WARN("Triple buffering not enabled but is forced by the driver/OS");
         }
 
         // Create the swapchain
@@ -538,13 +538,13 @@ namespace pxl
         }
 
 #ifdef PXL_DEBUG
-        PXL_LOG_INFO(LogArea::Vulkan, "Vulkan swapchain created");
-        PXL_LOG_INFO(LogArea::Vulkan, "- Extent: {}, {}", m_SwapchainExtent.width, m_SwapchainExtent.height);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Desired image count: {}", desiredImageCount);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Actual image count: {}", m_PerImageData.size());
-        PXL_LOG_INFO(LogArea::Vulkan, "- Vertical sync: {}", m_Specs.VerticalSync);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Allow tearing: {}", m_Specs.AllowTearing);
-        PXL_LOG_INFO(LogArea::Vulkan, "- Triple buffering: {}", m_Specs.TripleBuffering);
+        PXL_LOG_TRACE("Vulkan swapchain created");
+        PXL_LOG_TRACE("- Extent: {}, {}", m_SwapchainExtent.width, m_SwapchainExtent.height);
+        PXL_LOG_TRACE("- Desired image count: {}", desiredImageCount);
+        PXL_LOG_TRACE("- Actual image count: {}", m_PerImageData.size());
+        PXL_LOG_TRACE("- Vertical sync: {}", m_Specs.VerticalSync);
+        PXL_LOG_TRACE("- Allow tearing: {}", m_Specs.AllowTearing);
+        PXL_LOG_TRACE("- Triple buffering: {}", m_Specs.TripleBuffering);
 #endif
     }
 

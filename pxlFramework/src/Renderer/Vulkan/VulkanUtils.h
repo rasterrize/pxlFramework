@@ -24,7 +24,7 @@ namespace pxl
         {
             if (result != VK_SUCCESS)
             {
-                PXL_LOG_ERROR(LogArea::Vulkan, "Vulkan Error: {}", string_VkResult(result));
+                PXL_LOG_ERROR("Vulkan Error: {}", string_VkResult(result));
                 PXL_DEBUG_BREAK;
             }
         }

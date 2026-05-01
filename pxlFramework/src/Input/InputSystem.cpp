@@ -110,7 +110,7 @@ namespace pxl
     {
         if (enable && !m_RawInputSupported)
         {
-            PXL_LOG_ERROR(LogArea::Input, "Raw input is not supported on this system");
+            PXL_LOG_ERROR("Raw input is not supported on this system");
         }
 
         glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, enable);

@@ -95,7 +95,7 @@ namespace pxl
             }
             default:
             {
-                PXL_LOG_ERROR(LogArea::Vulkan, "Failed to set GPUBuffer data, GPUBufferDrawHint is unsupported");
+                PXL_LOG_ERROR("Failed to set GPUBuffer data, GPUBufferDrawHint is unsupported");
                 return;
             }
         }

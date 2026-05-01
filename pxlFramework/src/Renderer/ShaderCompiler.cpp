@@ -14,11 +14,11 @@ namespace pxl
 
         if (module.GetCompilationStatus() != shaderc_compilation_status_success)
         {
-            PXL_LOG_ERROR(LogArea::Renderer, "Shaderc compilation error: {}", module.GetErrorMessage());
+            PXL_LOG_ERROR("Shaderc compilation error: {}", module.GetErrorMessage());
             return std::vector<uint32_t>();
         }
 
-        PXL_LOG_INFO(LogArea::Renderer, "Successfully compiled shader '{}'", shaderFileName);
+        PXL_LOG_INFO("Successfully compiled shader '{}'", shaderFileName);
 
         return { module.cbegin(), module.cend() };
     }

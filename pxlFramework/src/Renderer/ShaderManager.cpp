@@ -17,7 +17,7 @@ namespace pxl
         auto extString = shader.FileName.extension().string();
         if (!ValidateFileExtension(extString))
         {
-            PXL_LOG_ERROR(LogArea::Vulkan, "Failed to load shader, file extension '{}' isn't supported", extString);
+            PXL_LOG_ERROR("Failed to load shader, file extension '{}' isn't supported", extString);
             return;
         }
 
@@ -42,7 +42,7 @@ namespace pxl
             if (!spirv.empty())
             {
                 cacheLoaded = true;
-                PXL_LOG_INFO(LogArea::Renderer, "Loaded cached shader '{}'", cacheFilePath.filename().string());
+                PXL_LOG_INFO("Loaded cached shader '{}'", cacheFilePath.filename().string());
 
                 // Queue shader for creation
                 m_CreationQueue.push_back({ shader.Stage, spirv, sourcePath });
@@ -68,7 +68,7 @@ namespace pxl
     {
         if (!m_Shaders.contains(fileName))
         {
-            PXL_LOG_ERROR(LogArea::Renderer, "Shader manager does not have shader '{}'", fileName.string());
+            PXL_LOG_ERROR("Shader manager does not have shader '{}'", fileName.string());
             return nullptr;
         }
 
@@ -110,7 +110,7 @@ namespace pxl
         for (const auto& specs : m_CreationQueue)
         {
             m_Shaders[specs.SourcePath.filename()] = graphicsDevice.CreateShader(specs);
-            PXL_LOG_INFO(LogArea::Renderer, "Finished loading shader '{}'", specs.SourcePath.filename().string());
+            PXL_LOG_INFO("Finished loading shader '{}'", specs.SourcePath.filename().string());
         }
 
         m_CreationQueue.clear();
@@ -133,10 +133,10 @@ namespace pxl
         for (const auto& entry : std::filesystem::directory_iterator(m_Config.CacheDirectory))
         {
             std::filesystem::remove_all(entry.path());
-            PXL_LOG_INFO(LogArea::Vulkan, "Deleted '{}'", entry.path().string());
+            PXL_LOG_INFO("Deleted '{}'", entry.path().string());
         }
 
-        PXL_LOG_INFO(LogArea::Renderer, "Shader cache deleted");
+        PXL_LOG_INFO("Shader cache deleted");
     }
 
     bool ShaderManager::ValidateFileExtension(const std::string& shaderExt)
@@ -174,7 +174,7 @@ namespace pxl
         // Check if the shader file still exists from it's source path
         if (!std::filesystem::exists(shaderFilePath))
         {
-            PXL_LOG_ERROR(LogArea::Renderer, "Failed to reload shader '{}', shader file does not exist.", shaderFilePath.string());
+            PXL_LOG_ERROR("Failed to reload shader '{}', shader file does not exist.", shaderFilePath.string());
             return false;
         }
 
@@ -197,7 +197,7 @@ namespace pxl
 
         // Reload the shader using the newly loaded SPIRV
         shader->Reload(spirv);
-        PXL_LOG_INFO(LogArea::Renderer, "Reloaded shader '{}'", shaderFilePath.filename().string());
+        PXL_LOG_INFO("Reloaded shader '{}'", shaderFilePath.filename().string());
 
         return true;
     }
@@ -211,7 +211,7 @@ namespace pxl
             outStream.write(reinterpret_cast<const char*>(&word), sizeof(uint32_t));
         }
 
-        PXL_LOG_INFO(LogArea::Renderer, "Cached shader to '{}'", cacheFilePath.string());
+        PXL_LOG_INFO("Cached shader to '{}'", cacheFilePath.string());
     }
 
     std::filesystem::path ShaderManager::FindShaderFile(const std::filesystem::path& fileName)

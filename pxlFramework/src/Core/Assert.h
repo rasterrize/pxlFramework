@@ -19,8 +19,8 @@
 // Framework Macros
 #ifdef PXL_ENABLE_ASSERTS
     #ifdef PXL_ENABLE_LOGGING
-        #define PXL_ASSERT(x) if (!(x)) { PXL_LOG_ERROR(pxl::LogArea::Assert, "Assertion failed in file {} at line {}", __FILE__, __LINE__); PXL_DEBUG_BREAK; }
-        #define PXL_ASSERT_MSG(x, ...) if (!(x)) { PXL_LOG_ERROR(pxl::LogArea::Assert, __VA_ARGS__); PXL_DEBUG_BREAK; }
+        #define PXL_ASSERT(x) if (!(x)) { PXL_LOG_ERROR("Assertion failed in file {} at line {}", __FILE__, __LINE__); PXL_DEBUG_BREAK; }
+        #define PXL_ASSERT_MSG(x, ...) if (!(x)) { PXL_LOG_ERROR(__VA_ARGS__); PXL_DEBUG_BREAK; }
     #else
         #define PXL_ASSERT(x) if (!(x)) { PXL_DEBUG_BREAK; }
         #define PXL_ASSERT_MSG(x, ...) if (!(x)) { PXL_DEBUG_BREAK; }
