@@ -33,7 +33,7 @@ target_sources(${PROJECT_NAME}
     ${core-headers}
     ${debug-headers}
     ${input-headers}
-    ${platform-sources}
+    ${platform-headers}
     ${renderer-headers}
     ${utils-headers}
 )
@@ -41,6 +41,13 @@ target_sources(${PROJECT_NAME}
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     file(GLOB_RECURSE platform-windows-sources CONFIGURE_DEPENDS src/Platform/Windows/*.cpp)
     file(GLOB_RECURSE platform-windows-headers CONFIGURE_DEPENDS src/Platform/Windows/*.h)
+
+    target_sources(${PROJECT_NAME}
+        PRIVATE
+        ${platform-windows-sources}
+        PUBLIC
+        ${platform-windows-headers}
+    )
 endif()
 
 # Set library c++ standard
@@ -57,21 +64,19 @@ if(PXL_ENABLE_ASSERTS)
 endif()
 
 # Set MSVC settings
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Set MSVC runtime library based on build type
     set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-    # Set MSBuild multi-processor compilation
+    # Use multi-processor compilation
     target_compile_options(${PROJECT_NAME} PRIVATE "/MP")
 
-    # Set compiler warning level
+    # Set highest compiler warning level
     target_compile_options(${PROJECT_NAME} PRIVATE "/W4")
 
     # Treat warnings as errors
     target_compile_options(${PROJECT_NAME} PRIVATE "/WX")
-
-    # Ignore missing PDB warnings (currently because of shaderc)
-    target_link_options(${PROJECT_NAME} PUBLIC "/ignore:4099")
+    target_link_options(${PROJECT_NAME} PRIVATE "/WX")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
