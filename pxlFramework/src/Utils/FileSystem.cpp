@@ -4,12 +4,6 @@
 #include <stb_image_write.h>
 
 #include <fstream>
-//#include <bass.h>
-
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h>       // Output data structure
-
-#include <assimp/Importer.hpp> // C++ importer interface
 
 namespace pxl
 {
@@ -99,60 +93,6 @@ namespace pxl
         }
 
         return code;
-    }
-
-    std::vector<std::shared_ptr<Mesh>> FileSystem::LoadModel(const std::filesystem::path& path)
-    {
-        Assimp::Importer importer;
-
-        // Load file from disk
-        const aiScene* scene = importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
-
-        if (!scene)
-        {
-            PXL_LOG_WARN(LogArea::FileSystem, "Failed to load model file from path '{}'", path.string());
-            return std::vector<std::shared_ptr<Mesh>>();
-        }
-
-        std::vector<std::shared_ptr<Mesh>> meshes(scene->mNumMeshes);
-
-        // Go through all the meshes in the file
-        for (uint32_t m = 0; m < scene->mNumMeshes; m++)
-        {
-            auto mesh = std::make_shared<Mesh>(scene->mMeshes[m]->mNumVertices, scene->mMeshes[m]->mFaces->mNumIndices);
-
-            // Go through all vertices in the current mesh
-            for (uint32_t v = 0; v < scene->mMeshes[m]->mNumVertices; v++)
-            {
-                aiVector3D assVertex = scene->mMeshes[m]->mVertices[v];
-                aiColor4D* assColor = scene->mMeshes[m]->mColors[0];
-                glm::vec4 vertexColour = glm::vec4(1.0f);
-
-                if (assColor)
-                    vertexColour = glm::vec4(assColor->r, assColor->g, assColor->b, assColor->a);
-
-                mesh->Vertices.emplace_back(
-                    glm::vec3(assVertex.x, assVertex.y, assVertex.z),
-                    vertexColour,
-                    glm::vec2(0.0f),
-                    0);
-            }
-
-            // Go through all the faces and indices of the current mesh
-            for (uint32_t f = 0; f < scene->mMeshes[m]->mNumFaces; f++)
-            {
-                for (uint32_t i = 0; i < scene->mMeshes[m]->mFaces[f].mNumIndices; i++)
-                {
-                    mesh->Indices.emplace_back(scene->mMeshes[m]->mFaces[f].mIndices[i]);
-                }
-            }
-
-            meshes[m] = mesh;
-        }
-
-        PXL_LOG_INFO(LogArea::FileSystem, "Loaded model '{}'", path.string());
-
-        return meshes;
     }
 
     bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical)

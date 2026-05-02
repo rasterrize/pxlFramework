@@ -50,7 +50,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# Set library c++ standard
+# Set c++ standard
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
 # Enable logging if desired
@@ -101,7 +101,7 @@ else()
     set(CPM_SOURCE_CACHE ${CMAKE_BINARY_DIR}/cpm_cache)
 endif()
 
-# Add dependencies (CMake projects)
+# Add framework dependencies/libraries
 message(STATUS "PXL: Restoring dependencies")
 
 CPMAddPackage("gh:glfw/glfw#3.4")
@@ -131,22 +131,6 @@ if(PXL_ENABLE_IMGUI)
     target_link_libraries(${PROJECT_NAME} imgui)
     message(STATUS "PXL: ImGui support enabled")
 endif()
-
-CPMAddPackage(
-    NAME assimp
-    GITHUB_REPOSITORY assimp/assimp
-    GIT_TAG v6.0.2
-    OPTIONS
-    "ASSIMP_BUILD_TESTS OFF"
-    "ASSIMP_INSTALL OFF"
-    "ASSIMP_NO_EXPORT ON"
-    "ASSIMP_BUILD_ZLIB ON"
-    "ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF"
-    "ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF"
-    "ASSIMP_BUILD_FBX_IMPORTER ON"
-    "ASSIMP_BUILD_OBJ_IMPORTER ON"
-    "ASSIMP_BUILD_GLTF_IMPORTER ON"
-)
 
 CPMAddPackage(
     NAME simpleini
@@ -185,7 +169,6 @@ target_link_libraries(${PROJECT_NAME}
     spdlog
     glm
     stb
-    assimp
     SimpleIni::SimpleIni
     Vulkan::volk
     Vulkan::shaderc_combined

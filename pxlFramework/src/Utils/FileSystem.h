@@ -19,7 +19,6 @@ namespace pxl
 
         static std::string LoadGLSL(const std::filesystem::path& path);
         static std::vector<uint32_t> LoadSPIRV(const std::filesystem::path& path);
-        static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::filesystem::path& path);
 
         // Path may include directories but for the image to write the directory must already exist.
         static bool WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical = false);
