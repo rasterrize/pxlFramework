@@ -102,7 +102,7 @@ namespace pxl
             {
                 return stringToFramerateMode.at(string);
             }
-            catch (std::out_of_range e)
+            catch (std::out_of_range& e)
             {
                 return FramerateMode::Unlimited;
             }

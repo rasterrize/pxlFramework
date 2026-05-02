@@ -80,8 +80,17 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # Due to certain variables being named their own type, we must ignore this warning for now
+    # Highest warning level
+    target_compile_options(${PROJECT_NAME} PRIVATE "-Wall")
+
+    # Warnings as errors
+    target_compile_options(${PROJECT_NAME} PRIVATE "-Werror")
+
+    # Our structs use CamelCase causing variable names to be the same as their types, we must ignore this warning for now
     target_compile_options(${PROJECT_NAME} PUBLIC "-Wno-changes-meaning")
+
+    # Affects our defined easing functions, but this is a "bug" that is now well behaved in C++17
+    target_compile_options(${PROJECT_NAME} PUBLIC "-Wno-sequence-point")
 endif()
 
 # download CPM.cmake

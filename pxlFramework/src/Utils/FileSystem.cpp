@@ -57,7 +57,7 @@ namespace pxl
         if (in)
         {
             in.seekg(0, std::ios::end);
-            size_t size = in.tellg();
+            int64_t size = in.tellg();
             if (size != -1)
             {
                 src.resize(size);
@@ -111,6 +111,7 @@ namespace pxl
             case ImageFormat::RGBA8:
                 channels = 4;
                 break;
+            default: channels = 0; break;
         }
 
         // TODO: handle trying to write jpg as png (channels don't match)

@@ -231,7 +231,7 @@ namespace pxl
             ImGui::SeparatorText("Frame");
             ImGui::Text("%.0f FPS", slowFPS);
             ImGui::Text("%.3f FPS Raw", slowStats.GetFPS());
-            ImGui::Text("Frame Count: %u", stats.FrameCountIndex);
+            ImGui::Text("Frame Count: %lu", stats.FrameCountIndex);
             ImGui::Text("Frame Time: %.3fms", slowStats.FrameTime);
             ImGui::PlotLines("Frame Graph", frameTimes.data(), static_cast<int32_t>(frameTimes.size()), sampleCount, "", FLT_MIN, FLT_MAX, ImVec2(0, 50));
             ImGui::Text("Render Time: %.3fms", slowStats.RenderTime);

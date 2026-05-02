@@ -202,9 +202,9 @@ namespace pxl
         auto gpus = VulkanUtils::GetAvailablePhysicalDevices(m_Instance);
 
         // Select GPU using device index if it is specified
-        if (m_Specs.DeviceIndex > -1 && m_Specs.DeviceIndex < gpus.size())
+        if (m_Specs.DeviceIndex > -1 && m_Specs.DeviceIndex < static_cast<int32_t>(gpus.size()))
         {
-            if (m_Specs.DeviceIndex < gpus.size())
+            if (m_Specs.DeviceIndex < static_cast<int32_t>(gpus.size()))
             {
                 m_GPU = gpus.at(m_Specs.DeviceIndex);
             }

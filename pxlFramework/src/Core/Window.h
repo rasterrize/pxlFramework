@@ -290,7 +290,7 @@ namespace pxl
             {
                 return stringToWindow.at(modeString.data());
             }
-            catch (std::out_of_range e)
+            catch (std::out_of_range& e)
             {
                 return WindowMode::Windowed;
             }

@@ -45,7 +45,7 @@ namespace pxl
         // TODO: Handle events for UI layers
 
         // Handle events for event handlers
-        for (int i = 0; i < m_Handlers.size(); i++)
+        for (size_t i = 0; i < m_Handlers.size(); i++)
         {
             auto& handler = m_Handlers.at(i);
 

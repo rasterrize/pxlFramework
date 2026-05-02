@@ -15,7 +15,7 @@ namespace pxl
     static constexpr uint8_t k_MaxWindowCount = 5;
 
     Window::Window(const WindowSpecs& specs)
-        : m_Title(specs.Title), m_Size(specs.Size), m_WindowMode(specs.WindowMode)
+        : m_Size(specs.Size), m_Title(specs.Title), m_WindowMode(specs.WindowMode)
     {
         if (!s_Initialized)
             Window::Init();

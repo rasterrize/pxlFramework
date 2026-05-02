@@ -117,7 +117,7 @@ namespace pxl
         virtual std::string DataToString() const override
         {
             std::string concatenatedPaths;
-            for (int i = 0; i < m_Paths.size(); i++)
+            for (size_t i = 0; i < m_Paths.size(); i++)
                 concatenatedPaths.append(std::format("{}: {}\n", i, m_Paths.at(i)));
 
             return std::format("{} Paths: \n{}", m_Paths.size(), concatenatedPaths);

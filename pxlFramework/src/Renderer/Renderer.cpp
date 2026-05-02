@@ -390,20 +390,21 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         auto offset = glm::vec2(0);
-        switch (quad.Origin)
-        {
-            case Origin2D::BottomLeft:
-            {
-                offset.x += quad.Size.x / 2.0f;
-                offset.y += quad.Size.y / 2.0f;
-                break;
-            }
-            case Origin2D::BottomCentre:
-            {
-                offset.y += quad.Size.y / 2.0f;
-                break;
-            }
-        }
+        // TODO!!!!!!
+        // switch (quad.Origin)
+        // {
+        //     case Origin2D::BottomLeft:
+        //     {
+        //         offset.x += quad.Size.x / 2.0f;
+        //         offset.y += quad.Size.y / 2.0f;
+        //         break;
+        //     }
+        //     case Origin2D::BottomCentre:
+        //     {
+        //         offset.y += quad.Size.y / 2.0f;
+        //         break;
+        //     }
+        // }
 
         return offset;
     }
@@ -456,6 +457,7 @@ namespace pxl
 
                 break;
             }
+            default: break;
         }
 
         // NOTE: must be done after scaling

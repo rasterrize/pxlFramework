@@ -39,8 +39,8 @@ namespace pxl
             case UniformDataType::Int4:   return 4 * 4;
             case UniformDataType::Mat3:   return 4 * 3 * 3;
             case UniformDataType::Mat4:   return 4 * 4 * 4;
+            default:                      return 0;
         }
-        return 0;
     }
 
     struct UniformElement

@@ -71,12 +71,12 @@ namespace pxl
         GPUBufferSpecs m_Specs = {};
 
         VkBuffer m_Buffer = VK_NULL_HANDLE;
-        VmaAllocation m_Allocation = nullptr;
-        VkBufferUsageFlagBits m_Usage = {};
-        VkDeviceAddress m_DeviceAddress = UINT64_MAX;
         VkDevice m_Device = VK_NULL_HANDLE;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
+        VkBufferUsageFlagBits m_Usage = {};
         VkCommandPool m_OneTimeCommandPool = VK_NULL_HANDLE;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
+        VmaAllocation m_Allocation = nullptr;
+        VkDeviceAddress m_DeviceAddress = UINT64_MAX;
     };
 }

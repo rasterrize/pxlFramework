@@ -84,13 +84,13 @@ namespace pxl
         void DestroyPerImageData(PerImageData& data);
 
     private:
+        GraphicsDeviceSpecs m_Specs = {};
+        GraphicsDeviceLimits m_Limits = {};
+
         VkInstance m_Instance = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkPhysicalDevice m_GPU = VK_NULL_HANDLE;
         VmaAllocator m_Allocator = VK_NULL_HANDLE;
-
-        GraphicsDeviceSpecs m_Specs = {};
-        GraphicsDeviceLimits m_Limits = {};
 
         std::string m_GPUName;
         std::string m_DriverInfo;
