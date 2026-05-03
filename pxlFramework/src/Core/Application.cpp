@@ -93,12 +93,10 @@ namespace pxl
                 }
 #endif
                 m_Renderer->End();
-            }
 
-            if (m_Renderer)
                 m_Renderer->LimitFramerateIfNecessary();
-
-            m_Renderer->m_FrameStats.FrameTime = updateSW.GetElapsedMilliSec();
+                m_Renderer->m_FrameStats.FrameTime = updateSW.GetElapsedMilliSec();
+            }
 
             PXL_PROFILE_FRAME_END;
         }
