@@ -10,7 +10,6 @@
 #include "Renderer/GraphicsContext.h"
 #include "Renderer/GraphicsPipeline.h"
 #include "Renderer/ImGuiRenderer.h"
-#include "Renderer/Mesh.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/Primitives/2D/Quad.h"
 #include "Renderer/Primitives/3D/Line.h"
@@ -31,48 +30,28 @@ namespace pxl
         Renderer(const RendererConfig& config);
         ~Renderer();
 
-        const RendererConfig& GetConfig() const { return m_Config; }
-
-        /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
-        GraphicsContext& GetGraphicsContext() const { return *m_GraphicsContext; }
-
-        /// @brief Gets this renderer's GraphicsDevice. It's not recommended you interact with this outside of the renderer class.
-        GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
-
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(Quad& quad);
-    
+
         /// @brief Submits a quad primitive to the renderer to be drawn with a texture.
         void Submit(Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords = Quad::GetDefaultTexCoords());
-        
+
         /// @brief Submits a quad primitive to the renderer to be drawn with a subtexture.
         void Submit(Quad& quad, const SubTexture& subTexture);
-    
+
         /// @brief Submits a quad primitive to the renderer to be drawn with an animated texture.
         void Submit(Quad& quad, AnimatedTexture& animatedTexture);
-
-        /// @brief Submits a line primitive to the renderer to be drawn.
-        void Submit(const Line& line);
-
-        /// @brief Submits a mesh to the renderer to be drawn using a position, rotation, and scale.
-        void Submit(const std::shared_ptr<Mesh>& mesh, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 
         /// @brief Initializes ImGui. When this renderer is associated with an application, the application's OnGUIRender function will be called.
         void InitImGui();
         bool IsImGuiInitialized() const { return m_ImGuiRenderer != nullptr; }
 
         void SetClearColour(const glm::vec4& colour);
-
         void SetVerticalSync(bool value);
-
         void SetTripleBuffering(bool value);
-
         void SetAllowTearing(bool value);
-
         void SetFramerateMode(FramerateMode mode);
-
         void SetCustomFramerateLimit(uint32_t limit) { m_Config.CustomFramerateLimit = limit; }
-
         void SetUnfocusedFramerateLimit(uint32_t limit) { m_Config.UnfocusedFramerateLimit = limit; }
 
         uint32_t GetAdaptiveSyncFramerateLimit() const { return m_AdaptiveSyncFramerateLimit; }
@@ -91,6 +70,14 @@ namespace pxl
         void Unsuspend() { m_Suspend = false; }
 
         bool IsSuspended() const { return m_Suspend; }
+
+        const RendererConfig& GetConfig() const { return m_Config; }
+
+        /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
+        GraphicsContext& GetGraphicsContext() const { return *m_GraphicsContext; }
+
+        /// @brief Gets this renderer's GraphicsDevice. It's not recommended you interact with this outside of the renderer class.
+        GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
 
         struct FrameStatistics
         {

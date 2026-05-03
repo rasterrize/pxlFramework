@@ -12,25 +12,9 @@ namespace TestApp
         customSpecs.Title = "pxlFramework Test App - Window Test - Window B";
         customSpecs.Size = { 800, 600 };
         m_TestWindowB = pxl::Window::Create(customSpecs);
-
-        pxl::Input::Init(m_TestWindowB);
     }
 
     void MultiWindow::OnUpdate(float dt)
     {
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Escape))
-        {
-            pxl::Application::Get().Close();
-            return;
-        }
-
-        if (pxl::Input::IsKeyHeld(pxl::KeyCode::LeftAlt) && pxl::Input::IsKeyPressed(pxl::KeyCode::Enter))
-            m_TestWindowB->NextWindowMode();
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num1))
-            m_TestWindowA->SetMonitor(pxl::Window::GetPrimaryMonitor());
-
-        if (pxl::Input::IsKeyPressed(pxl::KeyCode::Num2))
-            m_TestWindowA->SetMonitor(1);
     }
 }

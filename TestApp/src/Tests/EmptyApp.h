@@ -12,7 +12,7 @@ namespace TestApp
         virtual std::string ToString() const override { return "EmptyApp"; }
 
     private:
-        uint32_t m_UpdateCount;
+        uint32_t m_UpdateCount = 0;
 
         const uint32_t m_MaxUpdateCount = 5;
     };

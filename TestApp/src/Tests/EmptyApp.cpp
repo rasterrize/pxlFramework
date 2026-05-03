@@ -4,6 +4,8 @@
 
 #include <thread>
 
+#include "../TestApplication.h"
+
 namespace TestApp
 {
     void EmptyApp::OnUpdate(float dt)
@@ -12,13 +14,13 @@ namespace TestApp
 
         APP_LOG_INFO("Running empty app...");
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
         m_UpdateCount++;
 
         if (m_UpdateCount >= m_MaxUpdateCount)
         {
-            pxl::Application::Get().Close();
+            TestApplication::Get().Close();
             return;
         }
     }

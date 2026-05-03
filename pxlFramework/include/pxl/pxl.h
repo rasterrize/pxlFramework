@@ -33,7 +33,6 @@
 #include "../src/Renderer/GraphicsAPIType.h"
 #include "../src/Renderer/GraphicsContext.h"
 #include "../src/Renderer/GraphicsPipeline.h"
-#include "../src/Renderer/Mesh.h"
 #include "../src/Renderer/OrthographicCamera.h"
 #include "../src/Renderer/PerspectiveCamera.h"
 #include "../src/Renderer/Primitives/2D/Quad.h"

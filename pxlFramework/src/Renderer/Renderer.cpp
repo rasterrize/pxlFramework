@@ -226,16 +226,6 @@ namespace pxl
         Submit(quad, animatedTexture.GetCurrentFrame());
     }
 
-    void Renderer::Submit(const Line&)
-    {
-        PXL_LOG_ERROR(LogArea::Renderer, "Line rendering not implemented yet");
-    }
-
-    void Renderer::Submit(const std::shared_ptr<Mesh>&, const glm::vec3&, const glm::vec3&, const glm::vec3&)
-    {
-        PXL_LOG_ERROR(LogArea::Renderer, "Mesh rendering not implemented yet");
-    }
-
     void Renderer::Flush()
     {
         PXL_PROFILE_SCOPE;
@@ -489,7 +479,6 @@ namespace pxl
 
         m_GraphicsDevice->OnWindowFBResize(e);
 
-        // TODO: TEMP
         m_CameraUI->SetSides({ 0.0f, e.GetSize().ToVec2().x, 0.0f, e.GetSize().ToVec2().y });
     }
 

@@ -1,9 +1,6 @@
 #include "TestApplication.h"
 
-#include "Tests/CubesTest.h"
 #include "Tests/EmptyApp.h"
-#include "Tests/LinesTest.h"
-#include "Tests/ModelViewer.h"
 #include "Tests/MultiWindow.h"
 #include "Tests/QuadsTest.h"
 
@@ -24,19 +21,12 @@ namespace TestApp
             {
                 auto testValue = string.substr(sizeof("-t"), string.length());
 
-                // TODO: simplify this
-                // if (testValue == "ModelViewer")
-                //     LaunchTest<TestApp::ModelViewer>();
                 if (testValue == "QuadsTest")
                     LaunchTest<TestApp::QuadsTest>();
-                // else if (testValue == "CubesTest")
-                //     LaunchTest<TestApp::CubesTest>();
-                // else if (testValue == "LinesTest")
-                //     LaunchTest<TestApp::LinesTest>();
-                // else if (testValue == "EmptyApp")
-                //     LaunchTest<TestApp::EmptyApp>();
-                // else if (testValue == "MultiWindow")
-                //     LaunchTest<TestApp::MultiWindow>();
+                else if (testValue == "EmptyApp")
+                    LaunchTest<TestApp::EmptyApp>();
+                else if (testValue == "MultiWindow")
+                    LaunchTest<TestApp::MultiWindow>();
             }
         }
 
@@ -111,8 +101,6 @@ namespace TestApp
         windowSpecs.Title = windowTitle;
         windowSpecs.WindowMode = windowMode;
         windowSpecs.IconPath = "assets/pxl.png";
-
-        OverrideWithFrameworkIni(windowSpecs);
 
         return windowSpecs;
     }
