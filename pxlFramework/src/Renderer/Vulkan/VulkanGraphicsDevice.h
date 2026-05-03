@@ -23,7 +23,6 @@ namespace pxl
         virtual std::shared_ptr<Shader> CreateShader(const ShaderSpecs& specs) override;
         virtual std::shared_ptr<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineSpecs& specs) override;
         virtual std::shared_ptr<TextureHandler> CreateTextureHandler() override;
-
         virtual std::shared_ptr<ImGuiRenderer> CreateImGuiRenderer(const ImGuiSpecs& specs) override;
 
         virtual void Submit(uint32_t frameIndex) override;

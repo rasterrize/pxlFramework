@@ -21,11 +21,11 @@ namespace pxl
         virtual void EndFrame(const GraphicsDevice& device) override;
 
         virtual void Bind(const GraphicsPipeline& pipeline, const GPUBuffer& uniformBuffer, const TextureHandler* textureHandler) override;
-        virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) override;
+        virtual void Bind(const GPUBuffer& buffer) override;
 
         // GPU draw commands
         virtual void Draw(const DrawParams& params) override;
-        virtual void DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer) override;
+        virtual void DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer) override;
 
         virtual void SetClearColour(const glm::vec4& colour) override;
 

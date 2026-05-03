@@ -21,7 +21,7 @@ namespace pxl
         static std::vector<uint32_t> LoadSPIRV(const std::filesystem::path& path);
 
         // Path may include directories but for the image to write the directory must already exist.
-        static bool WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical = false);
+        static bool WriteImageToFile(const std::filesystem::path& path, const Image& image, ImageFileFormat fileFormat, bool flipVertical = false);
 
         // Set the compression level for writing PNG images (higher = more compression). Default is 8.
         static void SetPNGCompressionLevel(int32_t level);

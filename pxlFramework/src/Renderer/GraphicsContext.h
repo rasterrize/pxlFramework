@@ -52,13 +52,13 @@ namespace pxl
         virtual void Bind(const GraphicsPipeline& pipeline, const GPUBuffer& uniformBuffer, const TextureHandler* textureHandler) = 0;
 
         /// @brief Binds a GPUBuffer to the current frames state.
-        virtual void Bind(const std::shared_ptr<GPUBuffer>& buffer) = 0;
+        virtual void Bind(const GPUBuffer& buffer) = 0;
 
         /// @brief Records a non-indexed draw call.
         virtual void Draw(const DrawParams& params) = 0;
 
         /// @brief Records an indexed draw call.
-        virtual void DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer) = 0;
+        virtual void DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer) = 0;
 
         /// @brief Sets the clear colour used when a new frame begins rendering.
         virtual void SetClearColour(const glm::vec4& colour) = 0;

@@ -9,7 +9,6 @@ namespace pxl
 {
     void VulkanGraphicsContext::BeginFrame(const GraphicsDevice& device, uint32_t frameIndex)
     {
-
         auto& vulkanDevice = dynamic_cast<const VulkanGraphicsDevice&>(device);
 
         m_CommandBuffer = vulkanDevice.GetFrameCommandBuffer(frameIndex);
@@ -134,19 +133,19 @@ namespace pxl
         }
     }
 
-    void VulkanGraphicsContext::Bind(const std::shared_ptr<GPUBuffer>& buffer)
+    void VulkanGraphicsContext::Bind(const GPUBuffer& buffer)
     {
         PXL_PROFILE_SCOPE;
 
-        auto vulkanBuffer = std::static_pointer_cast<VulkanGPUBuffer>(buffer);
-        auto handle = vulkanBuffer->GetVkBuffer();
-        if (vulkanBuffer->GetVkBufferUsage() & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
+        auto& vulkanBuffer = dynamic_cast<const VulkanGPUBuffer&>(buffer);
+        auto handle = vulkanBuffer.GetVkBuffer();
+        if (vulkanBuffer.GetVkBufferUsage() & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
         {
             VkDeviceSize offset = { 0 };
             // TODO: check if binding matters here
             vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &handle, &offset);
         }
-        else if (vulkanBuffer->GetVkBufferUsage() & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+        else if (vulkanBuffer.GetVkBufferUsage() & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
         {
             VkDeviceSize offset = { 0 };
             vkCmdBindIndexBuffer(m_CommandBuffer, handle, offset, VK_INDEX_TYPE_UINT32);
@@ -164,13 +163,12 @@ namespace pxl
         vkCmdDraw(m_CommandBuffer, params.VertexCount, 1, 0, 0);
     }
 
-    void VulkanGraphicsContext::DrawIndexed(const DrawParams& params, const std::shared_ptr<GPUBuffer>& indexBuffer)
+    void VulkanGraphicsContext::DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer)
     {
         PXL_PROFILE_SCOPE;
 
         PXL_ASSERT(params.IndexCount > 0);
         PXL_ASSERT(params.VertexBuffer);
-        PXL_ASSERT(indexBuffer);
 
         BindParams(params);
         Bind(indexBuffer);
@@ -186,6 +184,6 @@ namespace pxl
     void VulkanGraphicsContext::BindParams(const DrawParams& params)
     {
         Bind(*params.Pipeline, *params.UniformBuffer, params.TextureHandler.get());
-        Bind(params.VertexBuffer);
+        Bind(*params.VertexBuffer);
     }
 }

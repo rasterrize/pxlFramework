@@ -251,7 +251,7 @@ namespace pxl
             params.IndexCount = static_cast<uint32_t>(vertexCount * 1.5f);
             params.UniformBuffer = m_CurrentFrameData->UniformBuffer;
             params.TextureHandler = m_TextureHandler;
-            m_GraphicsContext->DrawIndexed(params, m_QuadIndexBuffer);
+            m_GraphicsContext->DrawIndexed(params, *m_QuadIndexBuffer);
         }
     }
 

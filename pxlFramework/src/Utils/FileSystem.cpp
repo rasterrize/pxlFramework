@@ -95,15 +95,15 @@ namespace pxl
         return code;
     }
 
-    bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const std::shared_ptr<Image>& image, ImageFileFormat fileFormat, bool flipVertical)
+    bool FileSystem::WriteImageToFile(const std::filesystem::path& path, const Image& image, ImageFileFormat fileFormat, bool flipVertical)
     {
         stbi_flip_vertically_on_write(!flipVertical);
 
-        auto size = image->Metadata.Size;
+        auto size = image.Metadata.Size;
         auto fileNameString = path.string();
         int32_t channels = 0;
 
-        switch (image->Metadata.Format)
+        switch (image.Metadata.Format)
         {
             case ImageFormat::RGB8:
                 channels = 3;
@@ -118,11 +118,11 @@ namespace pxl
         switch (fileFormat)
         {
             case ImageFileFormat::PNG:
-                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data(), 0);
+                return stbi_write_png(fileNameString.c_str(), size.Width, size.Height, channels, image.Buffer.data(), 0);
             case ImageFileFormat::JPG:
-                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data(), s_JPEGQuality);
+                return stbi_write_jpg(fileNameString.c_str(), size.Width, size.Height, channels, image.Buffer.data(), s_JPEGQuality);
             case ImageFileFormat::BMP:
-                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, channels, image->Buffer.data());
+                return stbi_write_bmp(fileNameString.c_str(), size.Width, size.Height, channels, image.Buffer.data());
             default:
                 return false;
         }
