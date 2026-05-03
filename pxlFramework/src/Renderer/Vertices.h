@@ -24,13 +24,12 @@ namespace pxl
 
         static BufferLayout GetLayout()
         {
-            BufferLayout layout;
-            layout.Add(BufferDataType::Vec3); // vertex position
-            layout.Add(BufferDataType::Vec4); // colour
-            layout.Add(BufferDataType::Vec2); // texture coords
-            layout.Add(BufferDataType::Int);  // texture slot index
-
-            return layout;
+            return BufferLayout({
+                BufferDataType::Vec3, // vertex position
+                BufferDataType::Vec4, // colour
+                BufferDataType::Vec2, // texture coords
+                BufferDataType::Int,  // texture slot index
+            });
         }
     };
 
@@ -41,11 +40,10 @@ namespace pxl
 
         static BufferLayout GetLayout()
         {
-            BufferLayout layout;
-            layout.Add(BufferDataType::Vec3); // Position
-            layout.Add(BufferDataType::Vec4); // Colour
-
-            return layout;
+            return BufferLayout({
+                BufferDataType::Vec3, // vertex position
+                BufferDataType::Vec4, // colour
+            });
         }
     };
 }

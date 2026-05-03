@@ -2,6 +2,7 @@
 
 namespace pxl
 {
+    /// @brief Specifies a type of data typically stored in a GPUBuffer
     enum class BufferDataType
     {
         None,
@@ -20,50 +21,24 @@ namespace pxl
 
     namespace Utils
     {
-        /// @brief Gets the size of a buffer data type in bytes.
-        /// @param type The BufferDataType.
-        /// @return The number of bytes.
         inline constexpr uint32_t SizeOfBufferDataType(BufferDataType type)
         {
             switch (type)
             {
-                case BufferDataType::Float: return 4;
-                case BufferDataType::Vec2:  return 4 * 2;
-                case BufferDataType::Vec3:  return 4 * 3;
-                case BufferDataType::Vec4:  return 4 * 4;
-                case BufferDataType::Int:   return 4;
-                case BufferDataType::IVec2: return 4 * 2;
-                case BufferDataType::IVec3: return 4 * 3;
-                case BufferDataType::IVec4: return 4 * 4;
-                case BufferDataType::Mat3:  return 4 * 3 * 3;
-                case BufferDataType::Mat4:  return 4 * 4 * 4;
+                case BufferDataType::Float: return sizeof(float);
+                case BufferDataType::Vec2:  return sizeof(float) * 2;
+                case BufferDataType::Vec3:  return sizeof(float) * 3;
+                case BufferDataType::Vec4:  return sizeof(float) * 4;
+                case BufferDataType::Int:   return sizeof(int);
+                case BufferDataType::IVec2: return sizeof(int) * 2;
+                case BufferDataType::IVec3: return sizeof(int) * 3;
+                case BufferDataType::IVec4: return sizeof(int) * 4;
+                case BufferDataType::Mat3:  return sizeof(float) * 3 * 3;
+                case BufferDataType::Mat4:  return sizeof(float) * 4 * 4;
                 default:                    return 0;
             }
         }
-    }
 
-    /// @brief Describes the layout of data in a GPUBuffer.
-    class BufferLayout
-    {
-    public:
-        const std::vector<BufferDataType>& GetElements() const { return m_Elements; }
-        uint32_t GetStride() const { return m_Stride; }
-
-        constexpr void Add(BufferDataType element)
-        {
-            m_Elements.push_back(element);
-            m_Stride += Utils::SizeOfBufferDataType(element);
-        }
-
-    private:
-        std::vector<BufferDataType> m_Elements;
-
-        // Stride is the size of the entire buffer layout in bytes (eg. Vertex Buffer with all of it's attributes (positions, tex coords))
-        uint32_t m_Stride = 0;
-    };
-
-    namespace Utils
-    {
         inline std::string ToString(BufferDataType type)
         {
             switch (type)
@@ -83,4 +58,19 @@ namespace pxl
             }
         }
     }
+
+    /// @brief Describes the layout of data in a GPUBuffer.
+    struct BufferLayout
+    {
+        std::vector<BufferDataType> Elements;
+
+        uint32_t GetStride() const
+        {
+            uint32_t stride = 0;
+            for (const auto& element : Elements)
+                stride += Utils::SizeOfBufferDataType(element);
+
+            return stride;
+        }
+    };
 }

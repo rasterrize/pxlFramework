@@ -184,17 +184,17 @@ namespace pxl
 
     std::vector<VkVertexInputAttributeDescription> VulkanGraphicsPipeline::GetAttributeDescriptions(const BufferLayout& layout)
     {
-        auto elements = layout.GetElements();
+        auto& elements = layout.Elements;
         std::vector<VkVertexInputAttributeDescription> vertexAttributes(elements.size());
 
         uint32_t offset = 0;
         for (size_t i = 0; i < elements.size(); i++)
         {
-            vertexAttributes[i].binding = 0;
-            vertexAttributes[i].format = VulkanUtils::ToVkFormat(elements[i]);
-            vertexAttributes[i].location = static_cast<uint32_t>(i);
-            vertexAttributes[i].offset = offset;
-            offset += Utils::SizeOfBufferDataType(elements[i]);
+            vertexAttributes.at(i).binding = 0;
+            vertexAttributes.at(i).format = VulkanUtils::ToVkFormat(elements.at(i));
+            vertexAttributes.at(i).location = static_cast<uint32_t>(i);
+            vertexAttributes.at(i).offset = offset;
+            offset += Utils::SizeOfBufferDataType(elements.at(i));
         }
 
         return vertexAttributes;
