@@ -34,18 +34,22 @@ namespace pxl
         const RendererConfig& GetConfig() const { return m_Config; }
 
         /// @brief Gets this renderer's GraphicsContext. It's not recommended you interact with this outside of the renderer class.
-        /// @return The renderer's GraphicsContext.
         GraphicsContext& GetGraphicsContext() const { return *m_GraphicsContext; }
 
         /// @brief Gets this renderer's GraphicsDevice. It's not recommended you interact with this outside of the renderer class.
-        /// @return The renderer's GraphicsDevice.
         GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
 
         /// @brief Submits a quad primitive to the renderer to be drawn.
         void Submit(Quad& quad);
+    
+        /// @brief Submits a quad primitive to the renderer to be drawn with a texture.
         void Submit(Quad& quad, const std::shared_ptr<Texture>& texture, const std::array<glm::vec2, 4>& texCoords = Quad::GetDefaultTexCoords());
+        
+        /// @brief Submits a quad primitive to the renderer to be drawn with a subtexture.
         void Submit(Quad& quad, const SubTexture& subTexture);
-        void Submit(Quad& quad, AnimatedTexture& animatedSprite);
+    
+        /// @brief Submits a quad primitive to the renderer to be drawn with an animated texture.
+        void Submit(Quad& quad, AnimatedTexture& animatedTexture);
 
         /// @brief Submits a line primitive to the renderer to be drawn.
         void Submit(const Line& line);

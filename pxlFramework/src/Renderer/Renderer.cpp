@@ -221,9 +221,9 @@ namespace pxl
         Submit(quad, subTexture.Texture.lock(), subTexture.Coords);
     }
 
-    void Renderer::Submit(Quad& quad, AnimatedTexture& animatedSprite)
+    void Renderer::Submit(Quad& quad, AnimatedTexture& animatedTexture)
     {
-        Submit(quad, animatedSprite.GetCurrentFrame());
+        Submit(quad, animatedTexture.GetCurrentFrame());
     }
 
     void Renderer::Submit(const Line&)
