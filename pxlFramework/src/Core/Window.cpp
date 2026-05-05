@@ -87,7 +87,11 @@ namespace pxl
         if (specs.IconPath.has_value())
         {
             auto image = FileSystem::LoadImageFile(specs.IconPath.value(), true);
-            SetIcon(*image);
+
+            if (image)
+                SetIcon(*image);
+            else
+                PXL_LOG_ERROR("Failed to load window icon file");
         }
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
@@ -306,6 +310,9 @@ namespace pxl
 
     void Window::SetIcon(Image& image)
     {
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+            return;
+
         GLFWimage glfwImage;
         glfwImage.width = image.Metadata.Size.Width;
         glfwImage.height = image.Metadata.Size.Height;
