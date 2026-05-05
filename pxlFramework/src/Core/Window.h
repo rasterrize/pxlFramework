@@ -251,9 +251,6 @@ namespace pxl
 
         bool m_ShowOnceRendererIsWorking = WindowConstants::DefaultShowOnceRendererIsWorking;
 
-        // FIXME: shouldn't really be needed anymore
-        bool m_UseBorderlessHack = false;
-
     private:
         static inline bool s_Initialized = false;
 

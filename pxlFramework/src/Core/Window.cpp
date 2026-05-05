@@ -211,15 +211,12 @@ namespace pxl
             case WindowMode::Borderless:
                 m_WindowMode = WindowMode::Borderless;
 
-                /*  Using a 1px offset from the original window size tricks the operating system/drivers to think the window is regular and not fullscreen.
-                    This obviously causes a 1px sliver on any right monitor, but it's worth it since no one will likely notice.
-                    Another note: this will likely disable fullscreen features such as Adaptive Sync on the borderless window. */
                 if (glfwGetPlatform() == GLFW_PLATFORM_WIN32)
                 {
                     // Use a borderless window on windows (this allows other applications to display on top of ours)
                     glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, false);
                     glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, false);
-                    glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Size.Width + (m_UseBorderlessHack ? 1 : 0), nativeVidMode.Size.Height, GLFW_DONT_CARE);
+                    glfwSetWindowMonitor(m_GLFWWindow, nullptr, monitor.Position.x, monitor.Position.y, nativeVidMode.Size.Width, nativeVidMode.Size.Height, GLFW_DONT_CARE);
                 }
                 else
                 {
