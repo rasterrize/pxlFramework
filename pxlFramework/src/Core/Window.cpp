@@ -167,20 +167,9 @@ namespace pxl
         m_CurrentMonitor = bestMonitor;
     }
 
-    void Window::SetSize(uint32_t width, uint32_t height)
+    void Window::SetSizeLimits(const Size2D& minSize, const Size2D& maxSize)
     {
-        glfwSetWindowSize(m_GLFWWindow, width, height);
-
-        // Check for successful window size change
-        int windowWidth, windowHeight;
-        glfwGetWindowSize(m_GLFWWindow, &windowWidth, &windowHeight);
-
-        PXL_ASSERT_MSG(windowWidth == static_cast<int>(width) && windowHeight == static_cast<int>(height), "Failed to change window '{}' size to {}x{}", m_Title, width, height);
-    }
-
-    void Window::SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight)
-    {
-        glfwSetWindowSizeLimits(m_GLFWWindow, minWidth, minHeight, maxWidth, maxHeight);
+        glfwSetWindowSizeLimits(m_GLFWWindow, minSize.Width, minSize.Height, maxSize.Width, maxSize.Height);
     }
 
     void Window::SetPosition(int32_t xpos, int32_t ypos)

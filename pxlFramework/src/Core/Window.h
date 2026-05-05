@@ -113,15 +113,11 @@ namespace pxl
         GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
         Size2D GetSize() const { return m_Size; }
-        void SetSize(uint32_t width, uint32_t height);
+        void SetSize(const Size2D& size) { glfwSetWindowSize(m_GLFWWindow, size.Width, size.Height); }
 
         /// @brief Sets limits for the dimensions of the window.
-        /// @param minWidth Minimum window width in screen coordinates.
-        /// @param minHeight Minimum window height in screen coordinates.
-        /// @param maxWidth Maximum window width in screen coordinates.
-        /// @param maxHeight Maximum window height in screen coordinates.
-        /// @note You can specify just a minimum or maximum by using -1 for width AND height of the opposite pair.
-        void SetSizeLimits(uint32_t minWidth, uint32_t minHeight, uint32_t maxWidth, uint32_t maxHeight);
+        /// @note To avoid setting a minimum or maximum, use a size of -1 for both width and height.
+        void SetSizeLimits(const Size2D& minSize, const Size2D& maxSize);
 
         /// @brief Gets a floating point representation of the aspect ratio of this window (e.g 16:9 returns 1.7777)
         /// by dividing the width and height.
