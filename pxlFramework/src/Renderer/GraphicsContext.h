@@ -9,26 +9,17 @@
 
 namespace pxl
 {
+    // TODO: rename to DrawBinds?
     struct DrawParams
     {
-        /// @brief Vertex buffers to bind for the draw call.
+        /// @brief Vertex buffer to bind for the draw call.
         std::shared_ptr<GPUBuffer> VertexBuffer;
 
         /// @brief Graphics pipeline to bind for the draw call
         std::shared_ptr<GraphicsPipeline> Pipeline;
 
-        /// @brief Uniform buffer to bind for the draw call.
+        /// @brief (Optional) Uniform buffer to bind for the draw call.
         std::shared_ptr<GPUBuffer> UniformBuffer;
-
-        std::shared_ptr<TextureHandler> TextureHandler;
-
-        /// @brief Number of vertices to draw. Only applies to Draw() function.
-        uint32_t VertexCount = 0;
-
-        /// @brief Number of indices to draw. Only applies to DrawIndexed function.
-        uint32_t IndexCount = 0;
-
-        // TODO: extend with vertex/index offsets, instance count, etc
     };
 
     struct GraphicsContextSpecs
@@ -48,19 +39,25 @@ namespace pxl
         /// @brief End rendering the current frame.
         virtual void EndFrame(const GraphicsDevice& device) = 0;
 
-        /// @brief Binds a GraphicsPipeline to the current frames state.
-        virtual void Bind(const GraphicsPipeline& pipeline, const GPUBuffer& uniformBuffer, const TextureHandler* textureHandler) = 0;
+        /// @brief Record a non-indexed draw call.
+        virtual void Draw(const DrawParams& params, uint32_t vertexCount, uint32_t firstVertex = 0) = 0;
 
-        /// @brief Binds a GPUBuffer to the current frames state.
-        virtual void Bind(const GPUBuffer& buffer) = 0;
+        /// @brief Record a non-indexed instanced draw call.
+        virtual void DrawInstanced(const DrawParams& params, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex = 0, uint32_t firstInstance = 0) = 0;
 
-        /// @brief Records a non-indexed draw call.
-        virtual void Draw(const DrawParams& params) = 0;
+        /// @brief Record a non-indexed indirect draw call.
+        virtual void DrawIndirect(const GPUBuffer& indirectBuffer, uint64_t offset, uint32_t drawCount, uint32_t stride) = 0;
 
-        /// @brief Records an indexed draw call.
-        virtual void DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer) = 0;
+        /// @brief Record an indexed draw call.
+        virtual void DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer, uint32_t indexCount, uint32_t firstIndex = 0, int32_t vertexOffset = 0) = 0;
 
-        /// @brief Sets the clear colour used when a new frame begins rendering.
+        /// @brief Record an indexed instanced draw call.
+        virtual void DrawIndexedInstanced(const DrawParams& params, const GPUBuffer& indexBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) = 0;
+
+        /// @brief Record an indexed indirect draw call.
+        virtual void DrawIndexedIndirect(const GPUBuffer& indirectBuffer, uint64_t offset, uint32_t drawCount, uint32_t stride) = 0;
+
+        /// @brief Sets the clear colour used to clear the framebuffer at the start of rendering.
         virtual void SetClearColour(const glm::vec4& colour) = 0;
     };
 }

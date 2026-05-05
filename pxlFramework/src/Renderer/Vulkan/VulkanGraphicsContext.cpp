@@ -85,10 +85,9 @@ namespace pxl
         auto& vulkanDevice = dynamic_cast<const VulkanGraphicsDevice&>(device);
 
         // Transition the swapchain image to an optimal presentation layout
-        auto image = vulkanDevice.GetCurrentSwapchainImage();
         VulkanUtils::TransitionImageLayout(
             m_CommandBuffer,
-            image,
+            vulkanDevice.GetCurrentSwapchainImage(),
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
@@ -99,18 +98,112 @@ namespace pxl
         VK_CHECK(vkEndCommandBuffer(m_CommandBuffer));
     }
 
-    void VulkanGraphicsContext::Bind(const GraphicsPipeline& pipeline, const GPUBuffer& uniformBuffer, const TextureHandler* textureHandler)
+    void VulkanGraphicsContext::Draw(const DrawParams& params, uint32_t vertexCount, uint32_t firstVertex)
     {
         PXL_PROFILE_SCOPE;
 
-        PXL_ASSERT(&pipeline);
+        PXL_ASSERT(vertexCount > 0);
+
+        BindParams(params);
+
+        // We could theoretically call DrawInstanced with an instance count of 1,
+        // but for identification purposes (profiling) we won't
+        const uint32_t instanceCount = 1;
+        const uint32_t firstInstance = 0;
+        vkCmdDraw(m_CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
+    void VulkanGraphicsContext::DrawInstanced(
+        const DrawParams& params,
+        uint32_t vertexCount,
+        uint32_t instanceCount,
+        uint32_t firstVertex,
+        uint32_t firstInstance)
+    {
+        PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT(vertexCount > 0);
+        PXL_ASSERT(instanceCount > 0);
+
+        BindParams(params);
+
+        vkCmdDraw(m_CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
+    void VulkanGraphicsContext::DrawIndirect(const GPUBuffer& indirectBuffer, uint64_t offset, uint32_t drawCount, uint32_t stride)
+    {
+        PXL_PROFILE_SCOPE;
+
+        auto buffer = dynamic_cast<const VulkanGPUBuffer&>(indirectBuffer).GetVkBuffer();
+        vkCmdDrawIndirect(m_CommandBuffer, buffer, offset, drawCount, stride);
+    }
+
+    void VulkanGraphicsContext::DrawIndexed(
+        const DrawParams& params,
+        const GPUBuffer& indexBuffer,
+        uint32_t indexCount,
+        uint32_t firstIndex,
+        int32_t vertexOffset)
+    {
+        PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT(indexCount > 0);
+
+        BindParams(params);
+        Bind(indexBuffer);
+
+        // We could theoretically call DrawIndexedInstanced with an instance count of 1,
+        // but for identification purposes (profiling) we won't
+        const uint32_t instanceCount = 1;
+        const uint32_t firstInstance = 0;
+        vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+    void VulkanGraphicsContext::DrawIndexedInstanced(
+        const DrawParams& params,
+        const GPUBuffer& indexBuffer,
+        uint32_t indexCount,
+        uint32_t instanceCount,
+        uint32_t firstIndex,
+        int32_t vertexOffset,
+        uint32_t firstInstance)
+    {
+        PXL_PROFILE_SCOPE;
+
+        PXL_ASSERT(indexCount > 0);
+        PXL_ASSERT(instanceCount > 0);
+
+        BindParams(params);
+        Bind(indexBuffer);
+
+        vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+
+    void VulkanGraphicsContext::DrawIndexedIndirect(const GPUBuffer& indirectBuffer, uint64_t offset, uint32_t drawCount, uint32_t stride)
+    {
+        PXL_PROFILE_SCOPE;
+
+        auto buffer = dynamic_cast<const VulkanGPUBuffer&>(indirectBuffer).GetVkBuffer();
+        vkCmdDrawIndexedIndirect(m_CommandBuffer, buffer, offset, drawCount, stride);
+    }
+
+    void VulkanGraphicsContext::BindParams(const DrawParams& params)
+    {
+        PXL_ASSERT(params.Pipeline);
+        PXL_ASSERT(params.VertexBuffer);
+
+        Bind(*params.Pipeline, params.UniformBuffer.get());
+        Bind(*params.VertexBuffer);
+    }
+
+    void VulkanGraphicsContext::Bind(const GraphicsPipeline& pipeline, const GPUBuffer* uniformBuffer)
+    {
+        PXL_PROFILE_SCOPE;
 
         // Bind the pipeline
         auto& vulkanPipeline = dynamic_cast<const VulkanGraphicsPipeline&>(pipeline);
-        VkPipeline pipelineHandle = vulkanPipeline.GetVkPipeline();
-        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineHandle);
+        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline.GetVkPipeline());
 
-        // Bind pipeline dynamic state
+        // Set pipeline dynamic state
         auto& specs = pipeline.GetSpecs();
         vkCmdSetCullMode(m_CommandBuffer, VulkanUtils::ToVkCullMode(specs.CullMode));
         vkCmdSetFrontFace(m_CommandBuffer, VulkanUtils::ToVkFrontFace(specs.FrontFace));
@@ -120,15 +213,16 @@ namespace pxl
         auto layout = vulkanPipeline.GetVkPipelineLayout();
         if (pipeline.GetSpecs().UniformLayout.has_value())
         {
-            auto& vulkanUniformBuffer = dynamic_cast<const VulkanGPUBuffer&>(uniformBuffer);
+            PXL_ASSERT(uniformBuffer);
+            auto& vulkanUniformBuffer = dynamic_cast<const VulkanGPUBuffer&>(*uniformBuffer);
             auto address = vulkanUniformBuffer.GetDeviceAddress();
             vkCmdPushConstants(m_CommandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkDeviceAddress), &address);
         }
 
-        if (textureHandler)
+        if (pipeline.GetSpecs().TextureHandler)
         {
-            auto vulkanBindlessHandler = dynamic_cast<const VulkanBindlessTextureHandler*>(textureHandler);
-            auto set = vulkanBindlessHandler->GetDescriptorSet();
+            auto vulkanBindlessHandler = dynamic_cast<const VulkanBindlessTextureHandler&>(*pipeline.GetSpecs().TextureHandler);
+            auto set = vulkanBindlessHandler.GetDescriptorSet();
             vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &set, 0, nullptr);
         }
     }
@@ -139,51 +233,12 @@ namespace pxl
 
         auto& vulkanBuffer = dynamic_cast<const VulkanGPUBuffer&>(buffer);
         auto handle = vulkanBuffer.GetVkBuffer();
+        VkDeviceSize offset = 0;
         if (vulkanBuffer.GetVkBufferUsage() & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
-        {
-            VkDeviceSize offset = { 0 };
-            // TODO: check if binding matters here
             vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &handle, &offset);
-        }
         else if (vulkanBuffer.GetVkBufferUsage() & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
-        {
-            VkDeviceSize offset = { 0 };
             vkCmdBindIndexBuffer(m_CommandBuffer, handle, offset, VK_INDEX_TYPE_UINT32);
-        }
-    }
-
-    void VulkanGraphicsContext::Draw(const DrawParams& params)
-    {
-        PXL_PROFILE_SCOPE;
-
-        PXL_ASSERT(params.VertexCount > 0);
-        PXL_ASSERT(params.VertexBuffer);
-
-        BindParams(params);
-        vkCmdDraw(m_CommandBuffer, params.VertexCount, 1, 0, 0);
-    }
-
-    void VulkanGraphicsContext::DrawIndexed(const DrawParams& params, const GPUBuffer& indexBuffer)
-    {
-        PXL_PROFILE_SCOPE;
-
-        PXL_ASSERT(params.IndexCount > 0);
-        PXL_ASSERT(params.VertexBuffer);
-
-        BindParams(params);
-        Bind(indexBuffer);
-
-        vkCmdDrawIndexed(m_CommandBuffer, params.IndexCount, 1, 0, 0, 0);
-    }
-
-    void VulkanGraphicsContext::SetClearColour(const glm::vec4& colour)
-    {
-        m_Specs.ClearColour = colour;
-    }
-
-    void VulkanGraphicsContext::BindParams(const DrawParams& params)
-    {
-        Bind(*params.Pipeline, *params.UniformBuffer, params.TextureHandler.get());
-        Bind(*params.VertexBuffer);
+        else
+            PXL_LOG_ERROR("Failed to bind GPUBuffer");
     }
 }
