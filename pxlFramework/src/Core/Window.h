@@ -25,6 +25,7 @@ namespace pxl
     namespace WindowConstants
     {
         static const Size2D DefaultWindowedSize = { 1280, 720 };
+        static const glm::ivec2 DefaultWindowedPosition = { INT32_MAX, INT32_MAX };
         static const std::string_view DefaultWindowTitle = "Default Window Title";
         static const WindowMode DefaultWindowMode = WindowMode::Windowed;
         static const bool DefaultShowOnceRendererIsWorking = true;
@@ -108,10 +109,6 @@ namespace pxl
         /// @param monitor A valid monitor object.
         void SetMonitor(const Monitor& monitor);
 
-        /// @brief Gets the underlying window system API handle of this window.
-        /// @return The GLFWwindow handle of this window.
-        GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
-
         Size2D GetSize() const { return m_Size; }
         void SetSize(const Size2D& size) { glfwSetWindowSize(m_GLFWWindow, size.Width, size.Height); }
 
@@ -121,7 +118,6 @@ namespace pxl
 
         /// @brief Gets a floating point representation of the aspect ratio of this window (e.g 16:9 returns 1.7777)
         /// by dividing the width and height.
-        /// @return The aspect ratio of the window.
         float GetAspectRatio() const { return static_cast<float>(m_Size.Width) / static_cast<float>(m_Size.Height); }
 
         Size2D GetFramebufferSize() const;
@@ -177,6 +173,10 @@ namespace pxl
         /// @brief Creates a Vulkan surface for this window.
         /// @note This surface will NOT be automatically destroyed by the window class.
         VkSurfaceKHR CreateVKSurface(VkInstance instance);
+
+        /// @brief Gets the underlying window system API handle of this window.
+        /// @return The GLFWwindow handle of this window.
+        GLFWwindow* GetNativeWindow() const { return m_GLFWWindow; }
 
         const std::shared_ptr<InputSystem>& GetInputSystem() const { return m_InputSystem; }
 

@@ -12,8 +12,6 @@
 
 namespace pxl
 {
-    static constexpr uint8_t k_MaxWindowCount = 5;
-
     Window::Window(const WindowSpecs& specs)
         : m_Size(specs.Size), m_Title(specs.Title), m_WindowMode(specs.WindowMode)
     {
@@ -576,7 +574,8 @@ namespace pxl
 
     std::shared_ptr<Window> Window::Create(const WindowSpecs& windowSpecs)
     {
-        if (s_Windows.size() >= k_MaxWindowCount)
+        const auto maxWindowCount = 5;
+        if (s_Windows.size() >= maxWindowCount)
         {
             PXL_LOG_ERROR("Failed to create window, the max window count has been reached");
             return nullptr;
