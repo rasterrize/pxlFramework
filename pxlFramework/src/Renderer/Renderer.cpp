@@ -385,7 +385,7 @@ namespace pxl
         }
     }
 
-    glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad& quad)
+    glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad&)
     {
         PXL_PROFILE_SCOPE;
 
