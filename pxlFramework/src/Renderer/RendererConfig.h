@@ -90,7 +90,7 @@ namespace pxl
             }
         }
 
-        inline FramerateMode ToFramerateMode(std::string string)
+        inline FramerateMode ToFramerateMode(std::string modeString)
         {
             const std::unordered_map<std::string, FramerateMode> stringToFramerateMode = {
                 {    Utils::ToString(FramerateMode::Unlimited),    FramerateMode::Unlimited },
@@ -98,14 +98,14 @@ namespace pxl
                 { Utils::ToString(FramerateMode::AdaptiveSync), FramerateMode::AdaptiveSync },
             };
 
-            try
+            for (auto& [string, mode] : stringToFramerateMode)
             {
-                return stringToFramerateMode.at(string);
+                if (modeString == string)
+                    return mode;
             }
-            catch (std::out_of_range& e)
-            {
-                return FramerateMode::Unlimited;
-            }
+
+            PXL_ASSERT_MSG(false, "Failed to get window mode from string");
+            return FramerateMode::Unlimited;
         }
     }
 }

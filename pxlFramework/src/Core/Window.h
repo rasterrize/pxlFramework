@@ -273,20 +273,20 @@ namespace pxl
 
         inline WindowMode ToWindowMode(std::string_view modeString)
         {
-            const std::unordered_map<std::string, WindowMode> stringToWindow = {
+            const std::unordered_map<std::string, WindowMode> stringToWindowMode = {
                 {   Utils::ToString(WindowMode::Windowed),   WindowMode::Windowed },
                 { Utils::ToString(WindowMode::Borderless), WindowMode::Borderless },
                 { Utils::ToString(WindowMode::Fullscreen), WindowMode::Fullscreen },
             };
 
-            try
+            for (auto& [string, mode] : stringToWindowMode)
             {
-                return stringToWindow.at(modeString.data());
+                if (modeString == string)
+                    return mode;
             }
-            catch (std::out_of_range& e)
-            {
-                return WindowMode::Windowed;
-            }
+
+            PXL_ASSERT_MSG(false, "Failed to get window mode from string");
+            return WindowMode::Windowed;
         }
     }
 }
