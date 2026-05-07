@@ -471,7 +471,7 @@ namespace pxl
         if (e.GetWindow() != m_Config.Window)
             return;
 
-        if (e.GetSize().Width == 0 || e.GetSize().Height == 0)
+        if (e.GetSize().HasZero())
         {
             Suspend();
             return;

@@ -8,6 +8,9 @@ namespace pxl
     /// @brief A 2D uint vector represented as width and height.
     struct Size2D
     {
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+
         Size2D() = default;
 
         Size2D(uint32_t width, uint32_t height)
@@ -20,10 +23,8 @@ namespace pxl
         {
         }
 
-        uint32_t Width = 0;
-        uint32_t Height = 0;
-
         bool IsZero() const { return Width == 0 && Height == 0; }
+        bool HasZero() const { return Width == 0 || Height == 0; }
 
         glm::vec2 ToVec2() const { return { Width, Height }; }
 
@@ -33,6 +34,10 @@ namespace pxl
     /// @brief A 3D uint vector represented as width, height, and depth.
     struct Size3D
     {
+        uint32_t Width = 0;
+        uint32_t Height = 0;
+        uint32_t Depth = 0;
+
         Size3D() = default;
 
         Size3D(uint32_t width, uint32_t height, uint32_t depth)
@@ -45,11 +50,8 @@ namespace pxl
         {
         }
 
-        uint32_t Width = 0;
-        uint32_t Height = 0;
-        uint32_t Depth = 0;
-
         bool IsZero() const { return Width == 0 && Height == 0 && Depth == 0; }
+        bool HasZero() const { return Width == 0 || Height == 0 || Depth == 0; }
 
         glm::vec3 ToVec3() const { return { Width, Height, Depth }; }
 
