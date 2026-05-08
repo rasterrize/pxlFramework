@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/IniConfig.h"
 #include "Debug/DebugOverlay.h"
 #include "Events/EventManager.h"
 #include "Events/WindowEvents.h"
+#include "FrameworkConfig.h"
 #include "Input/Events/KeyboardEvents.h"
 #include "Input/GamepadManager.h"
 #include "Window.h"
@@ -100,7 +100,7 @@ namespace pxl
         void OnWindowCloseEvent(const WindowCloseEvent& e);
         void OnKeyDownEvent(KeyDownEvent& e);
 
-        std::vector<IniConfigSetting> DefaultFrameworkSettings();
+        void UpdateConfigWindowSettings();
 
     private:
         static inline Application* s_Instance = nullptr;
@@ -110,7 +110,7 @@ namespace pxl
         std::unique_ptr<Renderer> m_Renderer;
         std::shared_ptr<Window> m_MainWindow;
         std::unique_ptr<EventManager> m_EventManager;
-        std::unique_ptr<IniConfig> m_FrameworkIni;
+        std::unique_ptr<FrameworkConfig> m_FrameworkConfig;
         std::unique_ptr<GamepadManager> m_GamepadManager;
         std::unique_ptr<DebugOverlay> m_DebugOverlay;
 

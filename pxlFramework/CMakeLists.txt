@@ -139,6 +139,11 @@ if(PXL_ENABLE_IMGUI)
     target_compile_definitions(${PROJECT_NAME} PUBLIC PXL_ENABLE_IMGUI)
     target_link_libraries(${PROJECT_NAME} imgui)
     message(STATUS "PXL: ImGui support enabled")
+
+    if(PXL_ENABLE_DEBUG_OVERLAY)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE PXL_ENABLE_DEBUG_OVERLAY)
+        message(STATUS "PXL: Debug overlay enabled")
+    endif()
 endif()
 
 CPMAddPackage(
@@ -162,6 +167,12 @@ if(PXL_ENABLE_PROFILING)
     message(STATUS "PXL: Profiling enabled")
 endif()
 
+CPMAddPackage(
+    NAME magic_enum
+    GITHUB_REPOSITORY Neargye/magic_enum
+    GIT_TAG v0.9.8
+)
+
 add_subdirectory(deps/stb)
 
 target_include_directories(${PROJECT_NAME} PUBLIC deps/BASS/include)
@@ -179,6 +190,7 @@ target_link_libraries(${PROJECT_NAME}
     glm
     stb
     SimpleIni::SimpleIni
+    magic_enum::magic_enum
     Vulkan::volk
     Vulkan::shaderc_combined
     $<$<PLATFORM_ID:Windows>:dwmapi.lib>

@@ -42,8 +42,8 @@ namespace pxl
             m_CurrentMonitor = GetPrimaryMonitor();
 
             // If monitor index is specified, use it, otherwise use the primary monitor
-            if (specs.MonitorIndex.has_value() && specs.MonitorIndex.value() < s_Monitors.size())
-                m_CurrentMonitor = s_Monitors.at(specs.MonitorIndex.value());
+            if (specs.FullscreenMonitorIndex.has_value() && specs.FullscreenMonitorIndex.value() < s_Monitors.size())
+                m_CurrentMonitor = s_Monitors.at(specs.FullscreenMonitorIndex.value());
 
             // Set position to top left of specified monitor
             m_Position = m_CurrentMonitor.Position;
@@ -56,8 +56,17 @@ namespace pxl
             m_LastWindowedPosition = { vidMode.Size.Width / 2 - WindowConstants::DefaultWindowedSize.Width / 2, vidMode.Size.Height / 2 - WindowConstants::DefaultWindowedSize.Height / 2 };
         }
 
+        GLFWmonitor* glfwMonitor = nullptr;
+
         // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
-        GLFWmonitor* glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? m_CurrentMonitor.GLFWMonitor : nullptr;
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+        {
+            glfwMonitor = m_WindowMode == WindowMode::Fullscreen || m_WindowMode == WindowMode::Borderless ? m_CurrentMonitor.GLFWMonitor : nullptr;
+        }
+        else
+        {
+            glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? m_CurrentMonitor.GLFWMonitor : nullptr;
+        }
 
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();

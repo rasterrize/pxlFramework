@@ -23,6 +23,7 @@ set_target_properties(TestApp PROPERTIES CXX_STANDARD 20)
 set(PXL_ENABLE_PROFILING ON CACHE BOOL "" FORCE)
 set(PXL_ENABLE_ASSERTS $<CONFIG:Debug> CACHE BOOL "" FORCE)
 set(PXL_ENABLE_LOGGING ON CACHE BOOL "" FORCE)
+set(PXL_ENABLE_DEBUG_OVERLAY ON CACHE BOOL "" FORCE)
 
 # Link to pxlFramework
 target_link_libraries(TestApp pxl)

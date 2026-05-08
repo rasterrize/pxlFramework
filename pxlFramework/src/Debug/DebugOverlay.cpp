@@ -197,12 +197,6 @@ namespace pxl
         {
             ImGui::Begin("Renderer Stats", &showRendererStats);
 
-            // auto& stats = m_RendererStats;
-            // ImGui::SeparatorText("Renderer");
-            // ImGui::Text("FPS: %.3f", renderer.GetFramesPerSecond());
-            // ImGui::Text("Frame Time: %.3f", stats.PreviousFrameTime);
-            // ImGui::Text("Frame Count: %u", stats.FrameCount);
-
             auto& stats = renderer.GetFrameStats();
 
             static Stopwatch statsSW;

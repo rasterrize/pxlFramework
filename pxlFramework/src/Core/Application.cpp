@@ -5,12 +5,6 @@
 #include "Renderer/Renderer.h"
 #include "Window.h"
 
-#ifdef PXL_DEBUG
-    #define PXL_FRAMEWORK_CONFIG_FILE_NAME "Framework-dev.ini"
-#else
-    #define PXL_FRAMEWORK_CONFIG_FILE_NAME "Framework.ini"
-#endif
-
 namespace pxl
 {
     Application::Application()
@@ -28,22 +22,27 @@ namespace pxl
 
         m_EventManager = std::make_unique<EventManager>();
 
-        m_FrameworkIni = std::make_unique<IniConfig>(PXL_FRAMEWORK_CONFIG_FILE_NAME, DefaultFrameworkSettings());
+        m_FrameworkConfig = std::make_unique<FrameworkConfig>();
 
-#define PXL_ENABLE_DEBUG_OVERLAY
 #ifdef PXL_ENABLE_DEBUG_OVERLAY
-        m_DebugOverlay = std::make_unique<DebugOverlay>();
+        // auto showOverlay = m_FrameworkConfig ? m_FrameworkConfig->GetBool(FrameworkSetting::ShowDebugOverlay) : false;
+        m_DebugOverlay = std::make_unique<DebugOverlay>(true);
         PXL_CREATE_AND_REGISTER_HANDLER(m_KeyDownHandler, KeyDownEvent, OnKeyDownEvent);
 #endif
     }
 
     Application::~Application()
     {
+#ifdef PXL_ENABLE_DEBUG_OVERLAY
+        m_FrameworkConfig->SetValue(FrameworkSetting::ShowDebugOverlay, m_DebugOverlay->IsShown());
+#endif
+        UpdateConfigWindowSettings();
+
         // Explicitly shutdown all systems
         m_GamepadManager.reset();
         ShutdownRenderer();
         Window::Shutdown();
-        m_FrameworkIni.reset();
+        m_FrameworkConfig.reset();
         ShutdownPlatformingBackend();
 
         s_Instance = nullptr;
@@ -112,7 +111,7 @@ namespace pxl
 
     Renderer& Application::InitRenderer(RendererConfig& config, bool overrideWithIni)
     {
-        if (overrideWithIni)
+        if (overrideWithIni && m_FrameworkConfig)
             OverrideWithFrameworkIni(config);
 
         m_Renderer = std::make_unique<Renderer>(config);
@@ -121,6 +120,21 @@ namespace pxl
 
     void Application::ShutdownRenderer()
     {
+        if (!m_Renderer)
+            return;
+
+        if (m_FrameworkConfig)
+        {
+            auto& config = m_Renderer->GetConfig();
+            m_FrameworkConfig->SetValueEnum<GraphicsAPI>(FrameworkSetting::GraphicsAPI, config.GraphicsAPI);
+            m_FrameworkConfig->SetValue(FrameworkSetting::VerticalSync, config.VerticalSync);
+            m_FrameworkConfig->SetValue(FrameworkSetting::AllowTearing, config.AllowTearing);
+            m_FrameworkConfig->SetValue(FrameworkSetting::TripleBuffering, config.TripleBuffering);
+            m_FrameworkConfig->SetValueEnum<FramerateMode>(FrameworkSetting::FramerateMode, config.FramerateMode);
+            m_FrameworkConfig->SetValue(FrameworkSetting::CustomFramerateLimit, config.CustomFramerateLimit);
+            m_FrameworkConfig->SetValue(FrameworkSetting::UnfocusedFramerateLimit, config.UnfocusedFramerateLimit);
+        }
+
         m_Renderer.reset();
     }
 
@@ -132,7 +146,7 @@ namespace pxl
 
     const std::shared_ptr<Window>& Application::InitMainWindow(WindowSpecs& specs, bool overrideWithIni)
     {
-        if (overrideWithIni)
+        if (overrideWithIni && m_FrameworkConfig)
             OverrideWithFrameworkIni(specs);
 
         m_MainWindow = Window::Create(specs);
@@ -142,14 +156,35 @@ namespace pxl
 
     void Application::OverrideWithFrameworkIni(WindowSpecs& specs)
     {
-        specs.WindowMode = Utils::ToWindowMode(m_FrameworkIni->GetValue("Window", "WindowMode"));
+        if (!m_FrameworkConfig)
+            return;
 
-        // TODO
+        specs.WindowMode = m_FrameworkConfig->GetEnumValue<WindowMode>(FrameworkSetting::WindowMode);
+        specs.Size = {
+            m_FrameworkConfig->GetUInt32Value(FrameworkSetting::WindowedWidth),
+            m_FrameworkConfig->GetUInt32Value(FrameworkSetting::WindowedHeight)
+        };
+
+        specs.Position = {
+            m_FrameworkConfig->GetInt32Value(FrameworkSetting::WindowedX),
+            m_FrameworkConfig->GetInt32Value(FrameworkSetting::WindowedY)
+        };
+
+        // TODO: Fullscreen monitor and video mode
     }
 
-    void Application::OverrideWithFrameworkIni(RendererConfig&)
+    void Application::OverrideWithFrameworkIni(RendererConfig& config)
     {
-        // TODO
+        if (!m_FrameworkConfig)
+            return;
+
+        config.GraphicsAPI = m_FrameworkConfig->GetEnumValue<GraphicsAPI>(FrameworkSetting::GraphicsAPI);
+        config.VerticalSync = m_FrameworkConfig->GetBoolValue(FrameworkSetting::VerticalSync);
+        config.AllowTearing = m_FrameworkConfig->GetBoolValue(FrameworkSetting::AllowTearing);
+        config.TripleBuffering = m_FrameworkConfig->GetBoolValue(FrameworkSetting::TripleBuffering);
+        config.FramerateMode = m_FrameworkConfig->GetEnumValue<FramerateMode>(FrameworkSetting::FramerateMode);
+        config.CustomFramerateLimit = m_FrameworkConfig->GetUInt32Value(FrameworkSetting::CustomFramerateLimit);
+        config.UnfocusedFramerateLimit = m_FrameworkConfig->GetUInt32Value(FrameworkSetting::UnfocusedFramerateLimit);
     }
 
     void Application::InitPlatformingBackend()
@@ -199,19 +234,20 @@ namespace pxl
 
     void Application::OnKeyDownEvent(KeyDownEvent& e)
     {
-        if (e.IsModsAndKey(KeyMod::Control, KeyCode::F11))
+        if (e.IsModsAndKey(KeyMod::Control, KeyCode::GraveAccent))
             m_DebugOverlay->ToggleVisibility();
     }
 
-    std::vector<IniConfigSetting> Application::DefaultFrameworkSettings()
+    void Application::UpdateConfigWindowSettings()
     {
-        return {
-            { "Renderer", "GraphicsAPI", Utils::ToString(RendererConstants::DefaultGraphicsAPI) },
-            { "Renderer", "VerticalSync", std::format("{}", RendererConstants::DefaultVerticalSync) },
-            { "Renderer", "AllowTearing", std::format("{}", RendererConstants::DefaultAllowTearing) },
-            { "Renderer", "TripleBuffering", std::format("{}", RendererConstants::DefaultTripleBuffering) },
-            { "Renderer", "FramerateMode", Utils::ToString(RendererConstants::DefaultFramerateMode) },
-            { "Window", "WindowMode", Utils::ToString(WindowConstants::DefaultWindowMode) },
-        };
+        if (!m_FrameworkConfig || !m_MainWindow)
+            return;
+
+        m_FrameworkConfig->SetValueEnum<WindowMode>(FrameworkSetting::WindowMode, m_MainWindow->GetWindowMode());
+        m_FrameworkConfig->SetValue(FrameworkSetting::WindowedWidth, m_MainWindow->GetLastWindowedSize().Width);
+        m_FrameworkConfig->SetValue(FrameworkSetting::WindowedHeight, m_MainWindow->GetLastWindowedSize().Height);
+        m_FrameworkConfig->SetValue(FrameworkSetting::WindowedX, m_MainWindow->GetLastWindowedPosition().x);
+        m_FrameworkConfig->SetValue(FrameworkSetting::WindowedY, m_MainWindow->GetLastWindowedPosition().y);
+        // TODO: Fullscreen monitor and video mode
     }
 }

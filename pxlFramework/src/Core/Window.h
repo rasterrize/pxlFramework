@@ -77,7 +77,7 @@ namespace pxl
         WindowMode WindowMode = WindowMode::Windowed;
 
         // The monitor to use for Borderless and Fullscreen modes. If not supplied, defaults to the primary monitor.
-        std::optional<uint8_t> MonitorIndex;
+        std::optional<uint8_t> FullscreenMonitorIndex;
 
         // The path to load an icon from for this window. If not supplied, the window will have no icon.
         std::optional<std::string> IconPath;
@@ -98,6 +98,8 @@ namespace pxl
         const glm::ivec2& GetPosition() const { return m_Position; }
         void SetPosition(int32_t x, int32_t y);
 
+        const glm::ivec2& GetLastWindowedPosition() const { return m_LastWindowedPosition; }
+
         WindowMode GetWindowMode() const { return m_WindowMode; }
         void SetWindowMode(WindowMode mode);
 
@@ -115,6 +117,8 @@ namespace pxl
         /// @brief Sets limits for the dimensions of the window.
         /// @note To avoid setting a minimum or maximum, use a size of -1 for both width and height.
         void SetSizeLimits(const Size2D& minSize, const Size2D& maxSize);
+
+        Size2D GetLastWindowedSize() const { return m_LastWindowedSize; }
 
         /// @brief Gets a floating point representation of the aspect ratio of this window (e.g 16:9 returns 1.7777)
         /// by dividing the width and height.
