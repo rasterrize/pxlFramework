@@ -30,7 +30,6 @@
 #include "../src/Renderer/GPUBuffer.h"
 #include "../src/Renderer/GPUResource.h"
 #include "../src/Renderer/GraphicsAPI.h"
-#include "../src/Renderer/GraphicsAPIType.h"
 #include "../src/Renderer/GraphicsContext.h"
 #include "../src/Renderer/GraphicsPipeline.h"
 #include "../src/Renderer/OrthographicCamera.h"

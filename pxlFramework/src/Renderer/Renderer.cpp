@@ -21,14 +21,14 @@ namespace pxl
 
         PXL_ASSERT_MSG(m_Config.Window, "Renderer must be created with a valid Window");
 
-        PXL_LOG_INFO("Renderer initializing with {} graphics api", Utils::ToString(m_Config.APIType));
+        PXL_LOG_INFO("Renderer initializing with {} graphics api", Utils::ToString(m_Config.GraphicsAPI));
 
         // Init graphics API
-        m_GraphicsAPI = GraphicsAPI::Create(m_Config.APIType);
-        PXL_ASSERT(m_GraphicsAPI);
+        m_GraphicsInstance = GraphicsInstance::Create(m_Config.GraphicsAPI);
+        PXL_ASSERT(m_GraphicsInstance);
 
         // Init graphics context
-        m_GraphicsContext = m_GraphicsAPI->CreateGraphicsContext({ config.ClearColour });
+        m_GraphicsContext = m_GraphicsInstance->CreateGraphicsContext({ config.ClearColour });
         PXL_ASSERT(m_GraphicsContext);
 
         // Init graphics device
@@ -41,7 +41,7 @@ namespace pxl
             .TripleBuffering = config.TripleBuffering,
         };
 
-        m_GraphicsDevice = m_GraphicsAPI->CreateGraphicsDevice(deviceSpecs);
+        m_GraphicsDevice = m_GraphicsInstance->CreateGraphicsDevice(deviceSpecs);
         PXL_ASSERT(m_GraphicsDevice);
 
         PXL_CREATE_AND_REGISTER_HANDLER(m_WindowFBResizeHandler, WindowFBResizeEvent, OnWindowFBResize);

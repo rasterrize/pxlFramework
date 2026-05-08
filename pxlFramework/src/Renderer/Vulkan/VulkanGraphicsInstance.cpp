@@ -1,4 +1,4 @@
-#include "VulkanAPI.h"
+#include "VulkanGraphicsInstance.h"
 
 #include "Core/Window.h"
 #include "VulkanGraphicsContext.h"
@@ -10,7 +10,7 @@
 
 namespace pxl
 {
-    VulkanAPI::VulkanAPI()
+    VulkanGraphicsInstance::VulkanGraphicsInstance()
     {
         if (volkInitialize())
             throw std::runtime_error("Failed to initialize volk");
@@ -96,7 +96,7 @@ namespace pxl
 #endif
     }
 
-    VulkanAPI::~VulkanAPI()
+    VulkanGraphicsInstance::~VulkanGraphicsInstance()
     {
         if (m_DebugMessenger)
         {
@@ -111,17 +111,17 @@ namespace pxl
         }
     }
 
-    std::unique_ptr<GraphicsContext> VulkanAPI::CreateGraphicsContext(const GraphicsContextSpecs& specs)
+    std::unique_ptr<GraphicsContext> VulkanGraphicsInstance::CreateGraphicsContext(const GraphicsContextSpecs& specs)
     {
         return std::make_unique<VulkanGraphicsContext>(specs);
     }
 
-    std::unique_ptr<GraphicsDevice> VulkanAPI::CreateGraphicsDevice(const GraphicsDeviceSpecs& specs)
+    std::unique_ptr<GraphicsDevice> VulkanGraphicsInstance::CreateGraphicsDevice(const GraphicsDeviceSpecs& specs)
     {
         return std::make_unique<VulkanGraphicsDevice>(specs, m_Instance);
     }
 
-    VkBool32 VulkanAPI::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT, [[maybe_unused]] const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void*)
+    VkBool32 VulkanGraphicsInstance::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT, [[maybe_unused]] const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void*)
     {
         if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {

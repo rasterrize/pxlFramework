@@ -6,7 +6,7 @@
 #include "Platform/SleepTimer.h"
 #include "Renderer/AnimatedTexture.h"
 #include "Renderer/Camera.h"
-#include "Renderer/GraphicsAPI.h"
+#include "Renderer/GraphicsInstance.h"
 #include "Renderer/GraphicsContext.h"
 #include "Renderer/GraphicsPipeline.h"
 #include "Renderer/ImGuiRenderer.h"
@@ -116,7 +116,7 @@ namespace pxl
     private:
         RendererConfig m_Config = {};
 
-        std::unique_ptr<GraphicsAPI> m_GraphicsAPI;
+        std::unique_ptr<GraphicsInstance> m_GraphicsInstance;
         std::unique_ptr<GraphicsContext> m_GraphicsContext;
         std::unique_ptr<GraphicsDevice> m_GraphicsDevice;
 

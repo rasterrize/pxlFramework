@@ -2,15 +2,15 @@
 
 #include <volk/volk.h>
 
-#include "Renderer/GraphicsAPI.h"
+#include "Renderer/GraphicsInstance.h"
 
 namespace pxl
 {
-    class VulkanAPI : public GraphicsAPI
+    class VulkanGraphicsInstance : public GraphicsInstance
     {
     public:
-        VulkanAPI();
-        ~VulkanAPI();
+        VulkanGraphicsInstance();
+        ~VulkanGraphicsInstance();
 
         virtual std::unique_ptr<GraphicsContext> CreateGraphicsContext(const GraphicsContextSpecs& specs) override;
 
@@ -24,6 +24,6 @@ namespace pxl
 
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
-        VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE; 
+        VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE;
     };
 }

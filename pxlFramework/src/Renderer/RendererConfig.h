@@ -3,7 +3,7 @@
 #include <glm/vec4.hpp>
 
 #include "Core/Window.h"
-#include "GraphicsAPIType.h"
+#include "GraphicsAPI.h"
 #include "Texture.h"
 
 namespace pxl
@@ -29,7 +29,7 @@ namespace pxl
         static const bool DefaultVerticalSync = true;
         static const bool DefaultAllowTearing = false;
         static const bool DefaultTripleBuffering = true;
-        static const GraphicsAPIType DefaultGraphicsAPI = GraphicsAPIType::Vulkan;
+        static const GraphicsAPI DefaultGraphicsAPI = GraphicsAPI::Vulkan;
         static const bool DefaultUseShaderCache = true;
 
         static const FramerateMode DefaultFramerateMode = FramerateMode::Unlimited;
@@ -43,7 +43,7 @@ namespace pxl
         std::shared_ptr<Window> Window;
 
         /// @brief The backend graphics API to use for rendering
-        GraphicsAPIType APIType = RendererConstants::DefaultGraphicsAPI;
+        GraphicsAPI GraphicsAPI = RendererConstants::DefaultGraphicsAPI;
 
         bool TripleBuffering = RendererConstants::DefaultTripleBuffering;
 

@@ -82,7 +82,7 @@ namespace TestApp
     pxl::WindowSpecs TestApplication::CreateWindowSpecs()
     {
         std::string buildTypeString = "Unknown Build Type";
-        std::string graphicsAPITypeString = "Unknown Graphics API";
+        std::string graphicsAPIString = "Unknown Graphics API";
         pxl::WindowMode windowMode = pxl::WindowMode::Windowed;
 
 #ifdef TA_DEBUG
@@ -93,8 +93,8 @@ namespace TestApp
         buildTypeString = "Distribute x64";
 #endif
         // TODO: unhardcode
-        graphicsAPITypeString = pxl::Utils::ToString(pxl::GraphicsAPIType::Vulkan);
-        std::string windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPITypeString, m_Test->ToString());
+        graphicsAPIString = pxl::Utils::ToString(pxl::GraphicsAPI::Vulkan);
+        std::string windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPIString, m_Test->ToString());
 
         pxl::WindowSpecs windowSpecs = {};
         windowSpecs.Size = { 1280, 720 };
