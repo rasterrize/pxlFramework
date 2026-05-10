@@ -8,7 +8,7 @@ namespace pxl
     void Logger::Init()
     {
         auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        consoleSink->set_pattern("%^[%D %H:%M:%S.%e] [%n] %v%$");
+        consoleSink->set_pattern("%^[%H:%M:%S.%e] [%n] %v%$");
         consoleSink->set_level(spdlog::level::trace);
 
         std::vector<spdlog::sink_ptr> frameworkSinks = { consoleSink };
