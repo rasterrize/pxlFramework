@@ -23,6 +23,11 @@ namespace pxl
         {
         }
 
+        bool operator==(const Size2D& size)
+        {
+            return size.Width == Width && size.Height == Height;
+        }
+
         bool IsZero() const { return Width == 0 && Height == 0; }
         bool HasZero() const { return Width == 0 || Height == 0; }
 

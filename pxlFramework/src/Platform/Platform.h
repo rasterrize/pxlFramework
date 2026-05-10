@@ -26,5 +26,22 @@ namespace pxl
         {
             return glfwRawMouseMotionSupported();
         }
+
+        inline std::vector<const char*> GetVKRequiredInstanceExtensions()
+        {
+            uint32_t glfwExtensionCount = 0;
+            const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+            return { glfwExtensions, glfwExtensions + glfwExtensionCount };
+        }
+
+        inline void PollEvents()
+        {
+            glfwPollEvents();
+        }
+
+        inline void WaitEvents()
+        {
+            glfwWaitEvents();
+        }
     };
 }

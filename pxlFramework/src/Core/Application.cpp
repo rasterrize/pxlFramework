@@ -41,7 +41,7 @@ namespace pxl
         // Explicitly shutdown all systems
         m_GamepadManager.reset();
         ShutdownRenderer();
-        Window::Shutdown();
+        Window::CloseAll();
         m_FrameworkConfig.reset();
         ShutdownPlatformingBackend();
 
@@ -56,16 +56,18 @@ namespace pxl
         {
             PXL_PROFILE_SCOPE;
 
-            Stopwatch updateSW;
             m_UpdateStartPoint = std::chrono::steady_clock::now();
+            Stopwatch updateSW;
 
             // Calculate deltaTime
             auto time = static_cast<float>(Platform::GetTimeRunning());
             auto deltaTime = time - m_PlatformTimeLastCycle;
             m_PlatformTimeLastCycle = time;
 
-            if (Window::IsInitialized())
-                Window::ProcessEvents();
+            Window::ResetPerFrameState();
+
+            // Process OS events
+            m_MainWindow && m_MainWindow->IsMinimized() ? Platform::WaitEvents() : Platform::PollEvents();
 
             if (m_GamepadManager)
                 m_GamepadManager->ProcessStateChanges();
@@ -160,17 +162,33 @@ namespace pxl
             return;
 
         specs.WindowMode = m_FrameworkConfig->GetEnumValue<WindowMode>(FrameworkSetting::WindowMode);
-        specs.Size = {
+        specs.WindowedSize = {
             m_FrameworkConfig->GetUInt32Value(FrameworkSetting::WindowedWidth),
             m_FrameworkConfig->GetUInt32Value(FrameworkSetting::WindowedHeight)
         };
 
-        specs.Position = {
+        specs.WindowedPosition = {
             m_FrameworkConfig->GetInt32Value(FrameworkSetting::WindowedX),
             m_FrameworkConfig->GetInt32Value(FrameworkSetting::WindowedY)
         };
 
-        // TODO: Fullscreen monitor and video mode
+        auto monitorIndex = m_FrameworkConfig->GetUInt32Value(FrameworkSetting::FullscreenMonitor);
+        if (monitorIndex < 0)
+            return;
+    
+        Size2D size = { m_FrameworkConfig->GetUInt32Value(FrameworkSetting::FullscreenWidth), m_FrameworkConfig->GetUInt32Value(FrameworkSetting::FullscreenHeight) };
+        uint32_t refreshRate = m_FrameworkConfig->GetUInt32Value(FrameworkSetting::FullscreenRefreshRate);
+
+        // Get the desired video mode of the monitor
+        auto& monitor = Monitors::Get(monitorIndex);
+        for (const auto& vidMode : monitor.VideoModes)
+        {
+            if (size == vidMode.Size && refreshRate == vidMode.RefreshRate)
+                specs.FullscreenVideoMode = vidMode;
+        }
+
+        if (!specs.FullscreenVideoMode.has_value())
+            specs.FullscreenVideoMode = monitor.GetCurrentVideoMode();
     }
 
     void Application::OverrideWithFrameworkIni(RendererConfig& config)
@@ -191,9 +209,9 @@ namespace pxl
     {
         PXL_PROFILE_SCOPE;
 
-        bool result = glfwInit();
+        glfwSetErrorCallback(GLFWErrorCallback);
 
-        if (!result)
+        if (!glfwInit())
             throw std::runtime_error("GLFW failed to initialize");
 
         int major = 0, minor = 0, rev = 0;
@@ -216,10 +234,13 @@ namespace pxl
 #endif
 
         PXL_LOG_INFO("Platform: {}", platform);
+
+        Monitors::Init();
     }
 
     void Application::ShutdownPlatformingBackend()
     {
+        Monitors::Shutdown();
         glfwTerminate();
     }
 
@@ -249,5 +270,10 @@ namespace pxl
         m_FrameworkConfig->SetValue(FrameworkSetting::WindowedX, m_MainWindow->GetLastWindowedPosition().x);
         m_FrameworkConfig->SetValue(FrameworkSetting::WindowedY, m_MainWindow->GetLastWindowedPosition().y);
         // TODO: Fullscreen monitor and video mode
+    }
+
+    void Application::GLFWErrorCallback(int error, const char* description)
+    {
+        PXL_LOG_ERROR("GLFW error ({}): {}", error, description);
     }
 }

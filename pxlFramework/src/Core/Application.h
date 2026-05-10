@@ -102,6 +102,8 @@ namespace pxl
 
         void UpdateConfigWindowSettings();
 
+        static void GLFWErrorCallback(int error, const char* description);
+
     private:
         static inline Application* s_Instance = nullptr;
 

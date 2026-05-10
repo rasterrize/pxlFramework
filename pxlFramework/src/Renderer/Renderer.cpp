@@ -3,6 +3,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Core/Events/EventHandler.h"
+#include "Core/Monitor.h"
 #include "Renderer.h"
 #include "Renderer/BufferLayout.h"
 #include "Renderer/GPUBuffer.h"
@@ -331,7 +332,7 @@ namespace pxl
         // but for now this is fine
 
         if (mode == FramerateMode::AdaptiveSync)
-            m_AdaptiveSyncFramerateLimit = Window::GetPrimaryMonitor().GetCurrentVideoMode().RefreshRate - 3;
+            m_AdaptiveSyncFramerateLimit = Monitors::GetPrimary().GetCurrentVideoMode().RefreshRate - 3;
 
         m_Config.FramerateMode = mode;
     }

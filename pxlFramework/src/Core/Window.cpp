@@ -13,72 +13,10 @@
 namespace pxl
 {
     Window::Window(const WindowSpecs& specs)
-        : m_Size(specs.Size), m_Title(specs.Title), m_WindowMode(specs.WindowMode)
+        : m_Size(specs.WindowedSize), m_WindowMode(specs.WindowMode)
     {
-        if (!s_Initialized)
-            Window::Init();
-
-        if (m_WindowMode == WindowMode::Windowed)
-        {
-            // If the position is specified, use it, otherwise set position to the middle of primary monitor
-            if (specs.Position.has_value())
-            {
-                m_Position = specs.Position.value();
-                DetectCurrentMonitor();
-            }
-            else
-            {
-                m_CurrentMonitor = GetPrimaryMonitor();
-                auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-                m_Position = { vidMode.Size.Width / 2 - m_Size.Width / 2, vidMode.Size.Height / 2 - m_Size.Height / 2 };
-            }
-
-            // Initialize these to correct values
-            m_LastWindowedPosition = m_Position;
-            m_LastWindowedSize = m_Size;
-        }
-        else if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
-        {
-            m_CurrentMonitor = GetPrimaryMonitor();
-
-            // If monitor index is specified, use it, otherwise use the primary monitor
-            if (specs.FullscreenMonitorIndex.has_value() && specs.FullscreenMonitorIndex.value() < s_Monitors.size())
-                m_CurrentMonitor = s_Monitors.at(specs.FullscreenMonitorIndex.value());
-
-            // Set position to top left of specified monitor
-            m_Position = m_CurrentMonitor.Position;
-
-            // Force size to monitor size (this is necessary for Borderless to be fullscreen)
-            m_Size = m_CurrentMonitor.GetCurrentVideoMode().Size;
-
-            // Ensure LastWindowedPosition is the middle of the monitor
-            auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
-            m_LastWindowedPosition = { vidMode.Size.Width / 2 - WindowConstants::DefaultWindowedSize.Width / 2, vidMode.Size.Height / 2 - WindowConstants::DefaultWindowedSize.Height / 2 };
-        }
-
-        GLFWmonitor* glfwMonitor = nullptr;
-
-        // Ensure we set glfwMonitor so the window gets created in exclusive fullscreen
-        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
-        {
-            glfwMonitor = m_WindowMode == WindowMode::Fullscreen || m_WindowMode == WindowMode::Borderless ? m_CurrentMonitor.GLFWMonitor : nullptr;
-        }
-        else
-        {
-            glfwMonitor = m_WindowMode == WindowMode::Fullscreen ? m_CurrentMonitor.GLFWMonitor : nullptr;
-        }
-
         // Reset window hints so we don't get irregular behaviour
         glfwDefaultWindowHints();
-
-        /* Hide the window on creation as we will still need to prepare it
-        NOTE: On wayland the window for some reason can automatically close when hidden on creation */
-        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
-            glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
-
-        // Set window position on creation (not used in fullscreen)
-        glfwWindowHint(GLFW_POSITION_X, m_Position.x);
-        glfwWindowHint(GLFW_POSITION_Y, m_Position.y);
 
         // Disable auto iconification, we will handle this ourselves
         glfwWindowHint(GLFW_AUTO_ICONIFY, false);
@@ -86,11 +24,59 @@ namespace pxl
         // GLFW uses OpenGL by default, which we don't want to use
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-        m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_Size.Width), static_cast<int>(m_Size.Height), m_Title.c_str(), glfwMonitor, nullptr);
+        /* Hide the window on creation as we will still need to prepare it
+        NOTE: On wayland the window for some reason can automatically close when hidden on creation */
+        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+            glfwWindowHint(GLFW_VISIBLE, !specs.ShowOnceRendererIsWorking);
 
-        PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", m_Title);
+        // if (m_WindowMode == WindowMode::Windowed)
+        // {
+        //     // If a valid position is specified, use it, otherwise set position to the middle of the primary monitor
+        //     if (specs.WindowedPosition.has_value() && specs.WindowedPosition.value() != glm::ivec2(INT32_MAX))
+        //     {
+        //         m_Position = specs.WindowedPosition.value();
+        //         DetectCurrentMonitor();
+        //     }
+        //     else
+        //     {
+        //         m_CurrentMonitor = Monitors::GetPrimary();
+        //         auto vidMode = m_CurrentMonitor.GetCurrentVideoMode();
+        //         m_Position = { vidMode.Size.Width / 2 - m_Size.Width / 2, vidMode.Size.Height / 2 - m_Size.Height / 2 };
+        //     }
 
-        PXL_LOG_INFO("Created GLFW window '{}' of size {}x{}", m_Title, m_Size.Width, m_Size.Height);
+        //     // Initialize these to correct values
+        //     m_LastWindowedPosition = m_Position;
+        //     m_LastWindowedSize = m_Size;
+        // }
+        // else if (m_WindowMode == WindowMode::Borderless || m_WindowMode == WindowMode::Fullscreen)
+        // {
+        //     // If monitor index is specified, use it, otherwise use the primary monitor
+        //     if (specs.FullscreenMonitorIndex.has_value())
+        //         m_CurrentMonitor = Monitors::Get(specs.FullscreenMonitorIndex.value() - 1);
+        //     else
+        //         m_CurrentMonitor = Monitors::GetPrimary();
+
+        //     // Set position to top left of specified monitor
+        //     m_Position = m_CurrentMonitor.Position;
+
+        //     // Force size to monitor size (this is necessary for Borderless to be fullscreen)
+        //     m_Size = m_CurrentMonitor.GetCurrentVideoMode().Size;
+        // }
+
+        // Set glfwMonitor if we need to be fullscreen
+        GLFWmonitor* glfwMonitor = nullptr;
+        if ((glfwGetPlatform() == GLFW_PLATFORM_WAYLAND && (m_WindowMode == WindowMode::Fullscreen || m_WindowMode == WindowMode::Borderless)) || m_WindowMode == WindowMode::Fullscreen)
+        {
+            glfwMonitor = m_CurrentMonitor.GLFWMonitor;
+        }
+
+        m_GLFWWindow = glfwCreateWindow(static_cast<int>(specs.WindowedSize.Width), static_cast<int>(specs.WindowedSize.Height), specs.Title.c_str(), glfwMonitor, nullptr);
+        
+        PXL_ASSERT_MSG(m_GLFWWindow, "Failed to create GLFW window '{}'", specs.Title);
+        PXL_LOG_INFO("Created GLFW window '{}' of size {}x{}", specs.Title, specs.WindowedSize.Width, specs.WindowedSize.Height);
+
+        glfwSetWindowUserPointer(m_GLFWWindow, this);
+        InitCallbacks();
 
         // Set icon if supplied
         if (specs.IconPath.has_value())
@@ -103,8 +89,6 @@ namespace pxl
                 PXL_LOG_ERROR("Failed to load window icon file");
         }
 
-        glfwSetWindowUserPointer(m_GLFWWindow, this);
-        InitWindowCallbacks();
 
 #ifdef _WIN32
         Platform::Windows::EnableDarkModeIfSupported(m_GLFWWindow);
@@ -119,10 +103,10 @@ namespace pxl
     void Window::Close() const
     {
         glfwDestroyWindow(m_GLFWWindow);
-        s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_Handle.lock()));
+        s_Windows.erase(std::find(s_Windows.begin(), s_Windows.end(), m_SelfHandle.lock()));
     }
 
-    void Window::InitWindowCallbacks()
+    void Window::InitCallbacks()
     {
         glfwSetWindowCloseCallback(m_GLFWWindow, WindowCloseCallback);
         glfwSetWindowSizeCallback(m_GLFWWindow, WindowResizeCallback);
@@ -133,20 +117,14 @@ namespace pxl
         glfwSetCursorEnterCallback(m_GLFWWindow, CursorEnterCallback);
     }
 
-    void Window::InitStaticCallbacks()
-    {
-        glfwSetErrorCallback(GLFWErrorCallback);
-        glfwSetMonitorCallback(MonitorCallback);
-    }
-
     void Window::DetectCurrentMonitor()
     {
         PXL_PROFILE_SCOPE;
 
-        Monitor bestMonitor = GetPrimaryMonitor();
+        Monitor bestMonitor = Monitors::GetPrimary();
         int32_t bestOverlap = 0;
 
-        for (const auto& monitor : s_Monitors)
+        for (const auto& monitor : Monitors::GetAll())
         {
             auto vidmode = monitor.GetCurrentVideoMode();
 
@@ -202,15 +180,12 @@ namespace pxl
         switch (mode)
         {
             case WindowMode::Windowed:
-                m_WindowMode = WindowMode::Windowed;
                 glfwSetWindowMonitor(m_GLFWWindow, nullptr, m_LastWindowedPosition.x, m_LastWindowedPosition.y, m_LastWindowedSize.Width, m_LastWindowedSize.Height, GLFW_DONT_CARE);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, true);
                 glfwSetWindowAttrib(m_GLFWWindow, GLFW_RESIZABLE, true);
                 break;
 
             case WindowMode::Borderless:
-                m_WindowMode = WindowMode::Borderless;
-
                 if (glfwGetPlatform() == GLFW_PLATFORM_WIN32)
                 {
                     // Use a borderless window on windows (this allows other applications to display on top of ours)
@@ -227,20 +202,16 @@ namespace pxl
                 break;
 
             case WindowMode::Fullscreen:
-                m_WindowMode = WindowMode::Fullscreen;
                 glfwSetWindowMonitor(m_GLFWWindow, monitor.GLFWMonitor, 0, 0, nativeVidMode.Size.Width, nativeVidMode.Size.Height, nativeVidMode.RefreshRate);
                 break;
         }
 
-        WindowModeChangeEvent event(m_Handle.lock(), mode);
+        m_WindowMode = mode;
+
+        WindowModeChangeEvent event(m_SelfHandle.lock(), mode);
         m_EventCallback(event);
 
-        PXL_LOG_INFO("Switched '{}' to {} window mode", m_Title, Utils::ToString(m_WindowMode));
-    }
-
-    void Window::SetMonitor(uint8_t monitorIndex)
-    {
-        SetMonitor(s_Monitors[monitorIndex - 1]);
+        PXL_LOG_INFO("Switched '{}' to {} window mode", GetTitle(), Utils::ToString(m_WindowMode));
     }
 
     void Window::SetMonitor(const Monitor& monitor)
@@ -281,42 +252,6 @@ namespace pxl
             SetWindowMode(WindowMode::Windowed);
     }
 
-    void Window::Minimize() const
-    {
-        glfwIconifyWindow(m_GLFWWindow);
-    }
-
-    void Window::Maximize() const
-    {
-        glfwMaximizeWindow(m_GLFWWindow);
-    }
-
-    void Window::Restore() const
-    {
-        glfwRestoreWindow(m_GLFWWindow);
-    }
-
-    bool Window::IsVisible() const
-    {
-        return glfwGetWindowAttrib(m_GLFWWindow, GLFW_VISIBLE);
-    }
-
-    void Window::Show() const
-    {
-        glfwShowWindow(m_GLFWWindow);
-    }
-
-    void Window::Hide() const
-    {
-        glfwHideWindow(m_GLFWWindow);
-    }
-
-    void Window::SetTitle(std::string_view title)
-    {
-        m_Title = title;
-        glfwSetWindowTitle(m_GLFWWindow, title.data());
-    }
-
     void Window::SetIcon(Image& image)
     {
         if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
@@ -330,60 +265,15 @@ namespace pxl
         glfwSetWindowIcon(m_GLFWWindow, 1, &glfwImage);
     }
 
-    bool Window::IsFocused() const
-    {
-        return glfwGetWindowAttrib(m_GLFWWindow, GLFW_FOCUSED);
-    }
-
     void Window::SetCursorMode(CursorMode mode)
     {
         glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, Utils::ToGLFWCursorMode(mode));
         PXL_LOG_INFO("Cursor mode set to {}", Utils::ToString(mode));
     }
 
-    void Window::SetCursor(StandardCursor cursor)
-    {
-        glfwSetCursor(m_GLFWWindow, glfwCreateStandardCursor(Utils::ToGLFWStandardCursor(cursor)));
-    }
-
-    void Window::SetCursor(Cursor cursor)
-    {
-        glfwSetCursor(m_GLFWWindow, cursor.GetNativeCursor());
-    }
-
-    void Window::ResetCursor()
-    {
-        glfwSetCursor(m_GLFWWindow, nullptr);
-    }
-
     void Window::EnforceAspectRatio(uint32_t numerator, uint32_t denominator) const
     {
         glfwSetWindowAspectRatio(m_GLFWWindow, numerator, denominator);
-    }
-
-    void Window::RequestUserAttention() const
-    {
-        glfwRequestWindowAttention(m_GLFWWindow);
-    }
-
-    const Monitor& Window::GetPrimaryMonitor()
-    {
-        for (const auto& monitor : s_Monitors)
-        {
-            if (monitor.IsPrimary)
-                return monitor;
-        }
-
-        PXL_LOG_WARN("Failed to find primary monitor");
-
-        return s_Monitors[0];
-    }
-
-    std::vector<const char*> Window::GetVKRequiredInstanceExtensions()
-    {
-        uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-        return { glfwExtensions, glfwExtensions + glfwExtensionCount }; // need to research how this works lol
     }
 
     Size2D Window::GetFramebufferSize() const
@@ -394,20 +284,15 @@ namespace pxl
         return Size2D(width, height);
     }
 
-    void Window::GLFWErrorCallback([[maybe_unused]] int error, [[maybe_unused]] const char* description)
-    {
-        PXL_LOG_ERROR("GLFW ERROR: {} - {}", error, description);
-    }
-
     void Window::WindowCloseCallback(GLFWwindow* window)
     {
         PXL_PROFILE_SCOPE;
 
         auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        PXL_LOG_INFO("Closing window '{}'", windowHandle->m_Title);
+        PXL_LOG_INFO("Closing window '{}'", windowHandle->GetTitle());
 
-        WindowCloseEvent event(windowHandle->m_Handle.lock());
+        WindowCloseEvent event(windowHandle->m_SelfHandle.lock());
         windowHandle->m_EventCallback(event);
 
         windowHandle->Close();
@@ -428,7 +313,7 @@ namespace pxl
         if (windowInstance->m_WindowMode == WindowMode::Windowed)
             windowInstance->m_LastWindowedSize = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-        WindowResizeEvent event(windowInstance->m_Handle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
+        WindowResizeEvent event(windowInstance->m_SelfHandle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
         windowInstance->m_EventCallback(event);
     }
 
@@ -438,7 +323,7 @@ namespace pxl
 
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        WindowFBResizeEvent event(windowInstance->m_Handle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
+        WindowFBResizeEvent event(windowInstance->m_SelfHandle.lock(), { static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
         windowInstance->m_EventCallback(event);
     }
 
@@ -447,9 +332,8 @@ namespace pxl
         PXL_PROFILE_SCOPE;
 
         auto windowInstance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-        windowInstance->m_Minimized = iconified;
 
-        WindowMinimizeEvent event(windowInstance->m_Handle.lock(), iconified);
+        WindowMinimizeEvent event(windowInstance->m_SelfHandle.lock(), iconified);
         windowInstance->m_EventCallback(event);
     }
 
@@ -466,10 +350,10 @@ namespace pxl
             windowInstance->m_LastWindowedPosition = { xpos, ypos };
 
         // NOTE: Retrieve an up-to-date iconification status, due to this callback being called before WindowIconifyCallback
-        if (!glfwGetWindowAttrib(windowInstance->GetNativeWindow(), GLFW_ICONIFIED))
+        if (!glfwGetWindowAttrib(windowInstance->m_GLFWWindow, GLFW_ICONIFIED))
             windowInstance->DetectCurrentMonitor();
 
-        WindowRepositionEvent event(windowInstance->m_Handle.lock(), { xpos, ypos });
+        WindowRepositionEvent event(windowInstance->m_SelfHandle.lock(), { xpos, ypos });
         windowInstance->m_EventCallback(event);
     }
 
@@ -483,7 +367,7 @@ namespace pxl
         for (int i = 0; i < count; i++)
             stringPaths[i] = paths[i];
 
-        WindowPathDropEvent event(windowInstance->m_Handle.lock(), stringPaths);
+        WindowPathDropEvent event(windowInstance->m_SelfHandle.lock(), stringPaths);
         windowInstance->m_EventCallback(event);
     }
 
@@ -493,70 +377,16 @@ namespace pxl
 
         auto windowHandle = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-        WindowCursorEnterEvent event(windowHandle->m_Handle.lock(), entered);
+        WindowCursorEnterEvent event(windowHandle->m_SelfHandle.lock(), entered);
         windowHandle->m_EventCallback(event);
     }
 
-    void Window::MonitorCallback(GLFWmonitor*, int)
-    {
-        PXL_PROFILE_SCOPE;
-
-        ProcessMonitors();
-
-        // TODO: WHY DOES THIS CALLBACK NOT GET CALLED ??? MAYBE TRY DISCONNECTING IT THROUGH WINDOWS INSTEAD OF PHYSCIALLY
-    }
-
-    void Window::Init()
-    {
-        PXL_PROFILE_SCOPE;
-
-        InitStaticCallbacks();
-        ProcessMonitors();
-
-        s_Initialized = true;
-    }
-
-    void Window::ProcessEvents()
+    void Window::ResetPerFrameState()
     {
         PXL_PROFILE_SCOPE;
 
         for (auto& window : s_Windows)
             window->m_InputSystem->ResetCurrentState();
-
-        s_EventProcessFunc();
-    }
-
-    void Window::ProcessMonitors()
-    {
-        PXL_PROFILE_SCOPE;
-
-        s_Monitors.clear();
-
-        int monitorCount;
-        auto glfwMonitors = glfwGetMonitors(&monitorCount);
-
-        for (uint8_t i = 0; i < monitorCount; i++)
-        {
-            Monitor monitor;
-            monitor.GLFWMonitor = glfwMonitors[i];
-            monitor.Index = i + 1;
-            monitor.Name = glfwGetMonitorName(glfwMonitors[i]);
-            glfwGetMonitorPos(glfwMonitors[i], &monitor.Position.x, &monitor.Position.y);
-
-            int32_t widthMM, heightMM;
-            glfwGetMonitorPhysicalSize(glfwMonitors[i], &widthMM, &heightMM);
-            monitor.PhysicalSize = Size2D(static_cast<uint32_t>(widthMM), static_cast<uint32_t>(heightMM));
-
-            int32_t vidModeCount = 0;
-            auto vidModes = glfwGetVideoModes(glfwMonitors[i], &vidModeCount);
-
-            for (int32_t v = 0; v < vidModeCount; v++)
-                monitor.VideoModes.push_back(&vidModes[v]);
-
-            monitor.IsPrimary = monitor.GLFWMonitor == glfwGetPrimaryMonitor();
-
-            s_Monitors.push_back(monitor);
-        }
     }
 
     void Window::CloseAll()
@@ -567,15 +397,6 @@ namespace pxl
            always access the first element */
         for (size_t i = 0; i < windowCount; i++)
             s_Windows.front()->Close();
-    }
-
-    void Window::Shutdown()
-    {
-        CloseAll();
-
-        s_Initialized = false;
-
-        PXL_LOG_INFO("Window system shutdown");
     }
 
     VkSurfaceKHR Window::CreateVKSurface(VkInstance instance)
@@ -599,7 +420,7 @@ namespace pxl
 
         auto window = std::make_shared<Window>(windowSpecs);
 
-        window->m_Handle = window;
+        window->m_SelfHandle = window;
 
         s_Windows.push_back(window);
 

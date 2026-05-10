@@ -97,7 +97,7 @@ namespace TestApp
         std::string windowTitle = std::format("pxlFramework Test App - {} - {} - Running Test '{}'", buildTypeString, graphicsAPIString, m_Test->ToString());
 
         pxl::WindowSpecs windowSpecs = {};
-        windowSpecs.Size = { 1280, 720 };
+        windowSpecs.WindowedSize = { 1280, 720 };
         windowSpecs.Title = windowTitle;
         windowSpecs.WindowMode = windowMode;
         windowSpecs.IconPath = "assets/pxl.png";

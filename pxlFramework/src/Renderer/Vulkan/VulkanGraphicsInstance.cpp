@@ -1,6 +1,6 @@
 #include "VulkanGraphicsInstance.h"
 
-#include "Core/Window.h"
+#include "Platform/Platform.h"
 #include "VulkanGraphicsContext.h"
 #include "VulkanGraphicsDevice.h"
 #include "VulkanUtils.h"
@@ -16,7 +16,7 @@ namespace pxl
             throw std::runtime_error("Failed to initialize volk");
 
         auto availableExtensions = VulkanUtils::GetAvailableInstanceExtensions();
-        auto requiredExtensions = Window::GetVKRequiredInstanceExtensions();
+        auto requiredExtensions = Platform::GetVKRequiredInstanceExtensions();
 
         auto availableLayers = VulkanUtils::GetAvailableInstanceLayers();
         std::vector<const char*> requestedLayers;

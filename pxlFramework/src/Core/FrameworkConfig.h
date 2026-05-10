@@ -49,10 +49,10 @@ namespace pxl
             SetDefault("Window", FrameworkSetting::WindowedHeight, WindowConstants::DefaultWindowedSize.Height);
             SetDefault("Window", FrameworkSetting::WindowedX, WindowConstants::DefaultWindowedPosition.x);
             SetDefault("Window", FrameworkSetting::WindowedY, WindowConstants::DefaultWindowedPosition.y);
-            SetDefault("Window", FrameworkSetting::FullscreenMonitor, WindowConstants::DefaultWindowedPosition.y);
-            SetDefault("Window", FrameworkSetting::FullscreenWidth, WindowConstants::DefaultWindowedPosition.y);
-            SetDefault("Window", FrameworkSetting::FullscreenHeight, WindowConstants::DefaultWindowedPosition.y);
-            SetDefault("Window", FrameworkSetting::FullscreenRefreshRate, WindowConstants::DefaultWindowedPosition.y);
+            SetDefault("Window", FrameworkSetting::FullscreenMonitor, -1);
+            SetDefault("Window", FrameworkSetting::FullscreenWidth, -1);
+            SetDefault("Window", FrameworkSetting::FullscreenHeight, -1);
+            SetDefault("Window", FrameworkSetting::FullscreenRefreshRate, -1);
 
             // Renderer
             SetDefaultEnum<GraphicsAPI>("Renderer", FrameworkSetting::GraphicsAPI, RendererConstants::DefaultGraphicsAPI);

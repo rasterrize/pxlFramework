@@ -10,7 +10,7 @@ namespace TestApp
         m_TestWindowA = pxl::Window::Create(customSpecs);
 
         customSpecs.Title = "pxlFramework Test App - Window Test - Window B";
-        customSpecs.Size = { 800, 600 };
+        customSpecs.WindowedSize = { 800, 600 };
         m_TestWindowB = pxl::Window::Create(customSpecs);
     }
 
