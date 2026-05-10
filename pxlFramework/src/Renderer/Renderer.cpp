@@ -385,26 +385,60 @@ namespace pxl
         }
     }
 
-    glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad&)
+    glm::vec2 Renderer::OffsetOfOriginOnQuad(const Quad& quad)
     {
         PXL_PROFILE_SCOPE;
 
         auto offset = glm::vec2(0);
+        glm::vec2 quadHalf = quad.Size / 2.0f;
         // TODO!!!!!!
-        // switch (quad.Origin)
-        // {
-        //     case Origin2D::BottomLeft:
-        //     {
-        //         offset.x += quad.Size.x / 2.0f;
-        //         offset.y += quad.Size.y / 2.0f;
-        //         break;
-        //     }
-        //     case Origin2D::BottomCentre:
-        //     {
-        //         offset.y += quad.Size.y / 2.0f;
-        //         break;
-        //     }
-        // }
+        switch (quad.Origin)
+        {
+            case Origin2D::CentreLeft:
+            {
+                offset.x += quadHalf.x;
+                break;
+            }
+            case Origin2D::CentreRight:
+            {
+                offset.x -= quadHalf.x;
+                break;
+            }
+            case Origin2D::TopLeft:
+            {
+                offset.x += quadHalf.x;
+                offset.y -= quadHalf.y;
+                break;
+            }
+            case Origin2D::TopCentre:
+            {
+                offset.y -= quadHalf.y;
+                break;
+            }
+            case Origin2D::TopRight:
+            {
+                offset.x -= quadHalf.x;
+                offset.y -= quadHalf.y;
+                break;
+            }
+            case Origin2D::BottomLeft:
+            {
+                offset.x += quadHalf.x;
+                offset.y += quadHalf.y;
+                break;
+            }
+            case Origin2D::BottomCentre:
+            {
+                offset.y += quadHalf.y;
+                break;
+            }
+            case Origin2D::BottomRight:
+            {
+                offset.x -= quadHalf.x;
+                offset.y += quadHalf.y;
+                break;
+            }
+        }
 
         return offset;
     }
